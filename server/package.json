@@ -9,8 +9,8 @@
   "scripts": {
     "dev": "nodemon ./src/index.js"
   },
-  "prisma" : {
-    "schema" : "./src/models/schema.prisma"
+  "prisma": {
+    "schema": "./src/models/schema.prisma"
   },
   "dependencies": {
     "@prisma/client": "^6.11.1",
