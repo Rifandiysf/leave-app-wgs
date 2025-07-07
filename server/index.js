@@ -1,13 +1,8 @@
 import express from 'express'
-
-import authRoute from './routes/auth.route.js'
+import { PORT, HOSTNAME } from './config/env.js'
 
 const app = express()
-const hostName = '127.0.0.1'
-const port = 3000
 
-app.use('/api/auth', authRoute)
-
-app.listen(port, hostName () => {
-    console.log(`Server running at http://${hostName}:${port}`)
+app.listen(PORT, HOSTNAME, () => {
+    console.log(`Server running at http://${HOSTNAME}:${PORT}`)
 })
