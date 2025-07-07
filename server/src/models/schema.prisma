@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  output   = "../../generated/prisma"
 }
 
 datasource db {
@@ -24,7 +24,7 @@ model tb_leave {
   start_date         DateTime            @db.Date
   end_date           DateTime            @db.Date
   total_days         Int                 @db.SmallInt
-  reason             String              @db.VarChar(255)
+  reason             String
   status             status              @default(pending)
   created_at         DateTime            @db.Timestamptz(0)
   NIK                String              @db.VarChar(50)
@@ -33,6 +33,7 @@ model tb_leave {
   tb_users           tb_users            @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
   tb_mandatory_leave tb_mandatory_leave? @relation(fields: [id_mandatory], references: [id_mandatory], onDelete: NoAction, onUpdate: NoAction, map: "id_mandatory")
   tb_special_leave   tb_special_leave?   @relation(fields: [id_special], references: [id_special], onDelete: NoAction, onUpdate: NoAction, map: "id_special")
+  tb_leave_log       tb_leave_log[]
 }
 
 model tb_mandatory_leave {
@@ -55,16 +56,38 @@ model tb_special_leave {
 }
 
 model tb_users {
-  NIK           String        @id(map: "tb_user_pkey") @db.VarChar(16)
-  fullname      String        @db.VarChar(50)
-  email         String        @db.VarChar(50)
-  password      String        @db.VarChar(20)
-  gender        gender
-  role          role
-  status_active status_active @default(active)
-  join_date     DateTime      @db.Date
-  tb_balance    tb_balance[]
-  tb_leave      tb_leave[]
+  NIK                   String                  @id(map: "tb_user_pkey") @db.VarChar(16)
+  fullname              String                  @db.VarChar(50)
+  email                 String                  @db.VarChar(50)
+  password              String                  @db.VarChar(20)
+  gender                gender
+  role                  role
+  status_active         status_active           @default(active)
+  join_date             DateTime                @db.Date
+  tb_balance            tb_balance[]
+  tb_balance_adjustment tb_balance_adjustment[]
+  tb_leave              tb_leave[]
+}
+
+model tb_balance_adjustment {
+  id_adjustment    String   @id @db.VarChar(50)
+  adjustment_value Int      @db.SmallInt
+  notes            String
+  created_at       DateTime @db.Timestamptz(0)
+  actor            String   @db.VarChar(50)
+  NIK              String   @db.VarChar(16)
+  tb_users         tb_users @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
+}
+
+model tb_leave_log {
+  id_log         String   @id @db.VarChar(50)
+  old_status     status
+  new_status     status
+  reason         String
+  changed_at     DateTime @db.Timestamptz(0)
+  changed_by_nik String   @db.VarChar(16)
+  id_leave       String   @db.VarChar(50)
+  tb_leave       tb_leave @relation(fields: [id_leave], references: [id_leave], onDelete: NoAction, onUpdate: NoAction, map: "id_leave")
 }
 
 enum applicable_gender {
