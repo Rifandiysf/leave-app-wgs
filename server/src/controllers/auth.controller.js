@@ -1,18 +1,10 @@
-import prisma from "../utils/client.js";
 import { fetchUserData } from "../services/auth.service.js";
+import prisma from "../utils/client.js";
 
 export const login = async (req, res, next) => {
     const { email, password } = req.body
     try {
         const user = await fetchUserData("email", email);
-
-        if (!user){
-            throw new Error('User not found');
-        }
-
-        if (user.password != password) {
-            throw new Error('Invalidate Credentials');
-        }
 
         req.session.user = { NIK: user.NIK, loginDate: (new Date()).toISOString()};
 
@@ -39,7 +31,7 @@ export const logout = (req, res, next) => {
 
             res.clearCookie('connect.sid');
             res.status(200).json({
-                message: "you have been logout"
+                message: "you have been logged out"
             })
         })
     } catch (error) {
@@ -47,7 +39,4 @@ export const logout = (req, res, next) => {
             message: error.message
         })
     }
-   
-
-
 }

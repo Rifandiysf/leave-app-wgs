@@ -8,7 +8,7 @@ const app = express()
 app.use(express.json());
 app.use(express.urlencoded( { extended: true}));
 app.use(session({
-    secret: 'secretkey',
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
 }))
