@@ -17,3 +17,12 @@ export const getLeaveBalanceByYear = async (nik, year) => {
         },
     })
 }
+
+
+export const getLeavesByNIK = async (NIK) => {
+    return await prisma.tb_leave.findMany({
+        where: {
+            NIK: NIK,
+        },
+    })
+}

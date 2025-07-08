@@ -1,7 +1,6 @@
 import {
   getAllLeaves,
   getLeavesByType,
-  getLeavesByNIK
 } from "../services/leave.service.js"
 import { createLeave } from "../services/leave.service.js"
 
@@ -85,21 +84,5 @@ const getAdminSpecialLeave = async (req, res) => {
     })
   } catch (error) {
     res.status(400).json({ message: error.message })
-  }
-}
-
-export const getKaryawanLeaveRequests = async (req, res) => {
-  try {
-    const user = req.session.user
-    const leaves = await getLeavesByNIK(user.NIK)
-
-    res.status(200).json({
-      message: "Leave requests retrieved successfully",
-      data: leaves,
-    })
-  } catch (error) {
-    res.status(400).json({
-      message: error.message,
-    })
   }
 }

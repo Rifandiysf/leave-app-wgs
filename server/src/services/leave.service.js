@@ -13,13 +13,6 @@ export const getLeavesByType = async (type) => {
     })
 }
 
-export const getLeavesByNIK = async (NIK) => {
-    return await prisma.tb_leave.findMany({
-        where: {
-            NIK: NIK,
-        },
-    })
-}
 
 
 export const createLeave = async (data) => {

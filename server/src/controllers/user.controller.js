@@ -1,6 +1,4 @@
-import {
-    getLeaveBalanceByYear,
-} from "../services/user.service.js"
+import { getLeaveBalanceByYear, getLeavesByNIK, } from "../services/user.service.js"
 
 
 export const lastYearLeave = async (req, res) => {
@@ -34,5 +32,21 @@ export const currentYearLeave = async (req, res) => {
         res.json(leave)
     } catch (error) {
         res.status(500).json({ message: "Error retrieving current year data", error: error.message })
+    }
+}
+
+export const getLeaveRequests = async (req, res) => {
+    try {
+        const user = req.session.user
+        const leaves = await getLeavesByNIK(user.NIK)
+
+        res.status(200).json({
+            message: "Leave requests retrieved successfully",
+            data: leaves,
+        })
+    } catch (error) {
+        res.status(400).json({
+            message: error.message,
+        })
     }
 }
