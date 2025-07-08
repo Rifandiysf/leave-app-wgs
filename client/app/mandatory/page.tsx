@@ -36,15 +36,15 @@ const MandatoryPage = () => {
 
     return (
         <>
-            <section className='p-3'>
+            <section className='p-2'>
                 <div className='grid grid-cols-4 grid-rows-2 gap-3'>
                     {dataMandatory.map((data, idx) => (
                         <div key={idx} className='w-full col-span-2'>
                             <div
-                                className='flex justify-between items-center gap-5 rounded-lg border-[1.5px] border-[#0000001f] hover:bg-primary hover:shadow-xl transition delay-150 w-full p-5 cursor-pointer'
+                                className='flex justify-between items-center gap-5 rounded-lg border-[1.5px] border-[#0000001f] hover:bg-primary hover:shadow-xl transition delay-150 w-full p-2 cursor-pointer'
                                 onClick={() => handleToggle(idx)}
                             >
-                                <h1 className='text-2xl font-bold'>{data.title}</h1>
+                                <h1 className='text-xl font-bold'>{data.title}</h1>
                                 <i className={`bi ${openIndex === idx ? "bi-caret-up-fill" : "bi-caret-down-fill"}`}></i>
                             </div>
 
@@ -54,7 +54,7 @@ const MandatoryPage = () => {
                                     ${openIndex === idx ? "max-h-40 py-2" : "max-h-0 py-0"}
                                 `}
                             >
-                                <div className='flex justify-between items-center p-3 bg-gray-100 rounded-lg'>
+                                <div className='flex justify-between items-center p-2 bg-gray-100 rounded-lg'>
                                     <p>{data.startLeave} - {data.endLeave}</p>
                                     <ToggleSwitch />
                                 </div>
