@@ -70,7 +70,7 @@ model tb_users {
 enum applicable_gender {
   m
   f
-  mf
+  mf 
 }
 
 enum gender {
