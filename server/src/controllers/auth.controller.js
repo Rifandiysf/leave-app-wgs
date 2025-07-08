@@ -6,7 +6,7 @@ export const login = async (req, res, next) => {
     try {
         const user = await fetchUserData("email", email);
 
-        if (!user){
+        if (!user) {
             throw new Error('User not found');
         }
 
@@ -14,7 +14,10 @@ export const login = async (req, res, next) => {
             throw new Error('Invalidate Credentials');
         }
 
-        req.session.user = { NIK: user.NIK, loginDate: (new Date()).toISOString()};
+        req.session.user = {
+            NIK: user.NIK, loginDate: (new Date()).toISOString(),
+            role: user.role
+        };
 
         return res.status(200).json({
             message: `Welcome ${user.fullname}`,
@@ -47,7 +50,7 @@ export const logout = (req, res, next) => {
             message: error.message
         })
     }
-   
+
 
 
 }
