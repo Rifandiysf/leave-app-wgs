@@ -5,21 +5,23 @@
   "license": "ISC",
   "author": "",
   "type": "module",
-  "main": "index.js",
+  "main": "./src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon ./src/index.js"
+  },
+  "prisma": {
+    "schema": "./src/models/schema.prisma",
+    "seed": "node ./src/seed/seed.js"
   },
   "dependencies": {
     "@prisma/client": "^6.11.1",
     "dotenv": "^17.0.1",
     "express": "^5.1.0",
+    "express-session": "^1.18.1",
     "nodemon": "^3.1.10",
     "zod": "^3.25.74"
   },
   "devDependencies": {
     "prisma": "^6.11.1"
-  },
-  "prisma": {
-    "seed": "node seed/seed.js"
   }
 }
