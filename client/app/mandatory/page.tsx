@@ -1,8 +1,12 @@
 "use client"
 
-import 'bootstrap-icons/font/bootstrap-icons.css'
-import React, { useState } from 'react'
-import { ToggleSwitch } from '../components/toggle/page'
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger
+} from "../components/ui/accordion"
+import { Switch } from "../components/ui/switch"
 
 const MandatoryPage = () => {
     const dataMandatory = [
@@ -28,42 +32,26 @@ const MandatoryPage = () => {
         },
     ]
 
-    const [openIndex, setOpenIndex] = useState<number | null>(null)
-
-    const handleToggle = (index: number) => {
-        setOpenIndex(prev => prev === index ? null : index)
-    }
-
     return (
-        <>
-            <section className='p-2'>
-                <div className='grid grid-cols-4 grid-rows-2 gap-3'>
-                    {dataMandatory.map((data, idx) => (
-                        <div key={idx} className='w-full col-span-2'>
-                            <div
-                                className='flex justify-between items-center gap-5 rounded-lg border-[1.5px] border-[#0000001f] hover:bg-primary hover:shadow-xl transition delay-150 w-full p-2 cursor-pointer'
-                                onClick={() => handleToggle(idx)}
-                            >
-                                <h1 className='text-xl font-bold'>{data.title}</h1>
-                                <i className={`bi ${openIndex === idx ? "bi-caret-up-fill" : "bi-caret-down-fill"}`}></i>
+        <section className="p-4">
+            <Accordion type="multiple" className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {dataMandatory.map((data, idx) => (
+                    <AccordionItem key={idx} value={`item-${idx}`} className="border-[1.5px] border-[#0000001f] rounded-xl shadow-sm">
+                        <AccordionTrigger className="flex justify-between items-center p-4 text-left font-semibold text-lg">
+                            <span>{data.title}</span>
+                        </AccordionTrigger>
+                        <AccordionContent className="p-4 bg-gray-50 rounded-b-xl">
+                            <div className="flex justify-between items-center">
+                                <p className="text-sm text-gray-700">
+                                    {data.startLeave} - {data.endLeave}
+                                </p>
+                                <Switch />
                             </div>
-
-                            <div
-                                className={`
-                                    transition-all duration-300 ease-in-out overflow-hidden 
-                                    ${openIndex === idx ? "max-h-40 py-2" : "max-h-0 py-0"}
-                                `}
-                            >
-                                <div className='flex justify-between items-center p-2 bg-gray-100 rounded-lg'>
-                                    <p>{data.startLeave} - {data.endLeave}</p>
-                                    <ToggleSwitch />
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-        </>
+                        </AccordionContent>
+                    </AccordionItem>
+                ))}
+            </Accordion>
+        </section>
     )
 }
 
