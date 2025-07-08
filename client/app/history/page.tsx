@@ -31,7 +31,7 @@ const HistoryPage = () => {
 
     const HistoryLeave: LeaveHistoryType[] = [
         {
-            status: <span className="bg-[#FFEAB2] p-2 px-3 rounded-full text-xs">WAITING</span>,
+            status: <span className="text-[#d39b02] bg-[#ffcf494b] p-2 px-3 rounded-full text-xs">WAITING</span>,
             type: "Personal",
             startLeave: "15 January 2025",
             endLeave: "16 January 2025",
@@ -40,7 +40,7 @@ const HistoryPage = () => {
             note: <i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>
         },
         {
-            status: <span className="bg-[#FF7C7C] p-2 px-3 rounded-full text-xs">REJECT</span>,
+            status: <span className="text-[#ca0000] bg-[#ff5f5f77] p-2 px-3 rounded-full text-xs">REJECT</span>,
             type: "Mandatory",
             startLeave: "15 January 2025",
             endLeave: "16 January 2025",
@@ -49,7 +49,7 @@ const HistoryPage = () => {
             note: <i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>
         },
         {
-            status: <span className="bg-[#A0F3AC] p-2 px-3 rounded-full text-xs">APPROVE</span>,
+            status: <span className="text-[#00c41d] bg-[#82ff9544] p-2 px-3 rounded-full text-xs">APPROVE</span>,
             type: "Personal",
             startLeave: "15 January 2025",
             endLeave: "16 January 2025",
@@ -58,7 +58,7 @@ const HistoryPage = () => {
             note: <i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>
         },
         {
-            status: <span className="bg-[#FFEAB2] p-2 px-3 rounded-full text-xs">WAITING</span>,
+            status: <span className="text-[#d39b02] bg-[#ffcf494b] p-2 px-3 rounded-full text-xs">WAITING</span>,
             type: "Personal",
             startLeave: "15 January 2025",
             endLeave: "16 January 2025",
@@ -67,7 +67,7 @@ const HistoryPage = () => {
             note: <i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>
         },
         {
-            status: <span className="bg-[#FFEAB2] p-2 px-3 rounded-full text-xs">WAITING</span>,
+            status: <span className="text-[#d39b02] bg-[#ffcf494b] p-2 px-3 rounded-full text-xs">WAITING</span>,
             type: "Spesial",
             startLeave: "15 January 2025",
             endLeave: "16 January 2025",
@@ -76,7 +76,7 @@ const HistoryPage = () => {
             note: <i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>
         },
         {
-            status: <span className="bg-[#FF7C7C] p-2 px-3 rounded-full text-xs">REJECT</span>,
+            status: <span className="text-[#ca0000] bg-[#ff5f5f77] p-2 px-3 rounded-full text-xs">REJECT</span>,
             type: "Mandatory",
             startLeave: "15 January 2025",
             endLeave: "16 January 2025",
@@ -85,7 +85,7 @@ const HistoryPage = () => {
             note: <i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>
         },
         {
-            status: <span className="bg-[#A0F3AC] p-2 px-3 rounded-full text-xs">APPROVE</span>,
+            status: <span className="text-[#00c41d] bg-[#82ff9544] p-2 px-3 rounded-full text-xs">APPROVE</span>,
             type: "Personal",
             startLeave: "15 January 2025",
             endLeave: "16 January 2025",
@@ -94,7 +94,7 @@ const HistoryPage = () => {
             note: <i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>
         },
         {
-            status: <span className="bg-[#FFEAB2] p-2 px-3 rounded-full text-xs">WAITING</span>,
+            status: <span className="text-[#d39b02] bg-[#ffcf494b] p-2 px-3 rounded-full text-xs">WAITING</span>,
             type: "Personal",
             startLeave: "15 January 2025",
             endLeave: "16 January 2025",
@@ -103,7 +103,7 @@ const HistoryPage = () => {
             note: <i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>
         },
         {
-            status: <span className="bg-[#FFEAB2] p-2 px-3 rounded-full text-xs">WAITING</span>,
+            status: <span className="text-[#d39b02] bg-[#ffcf494b] p-2 px-3 rounded-full text-xs">WAITING</span>,
             type: "Spesial",
             startLeave: "15 January 2025",
             endLeave: "16 January 2025",
@@ -112,7 +112,7 @@ const HistoryPage = () => {
             note: <i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>
         },
         {
-            status: <span className="bg-[#FF7C7C] p-2 px-3 rounded-full text-xs">REJECT</span>,
+            status: <span className="text-[#ca0000] bg-[#ff5f5f77] p-2 px-3 rounded-full text-xs">REJECT</span>,
             type: "Mandatory",
             startLeave: "15 January 2025",
             endLeave: "16 January 2025",
@@ -121,7 +121,7 @@ const HistoryPage = () => {
             note: <i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>
         },
         {
-            status: <span className="bg-[#A0F3AC] p-2 px-3 rounded-full text-xs">APPROVE</span>,
+            status: <span className="text-[#00c41d] bg-[#82ff9544] p-2 px-3 rounded-full text-xs">APPROVE</span>,
             type: "Personal",
             startLeave: "15 January 2025",
             endLeave: "16 January 2025",
@@ -147,8 +147,8 @@ const HistoryPage = () => {
 
     return (
         <>
-            <section className="flex justify-end items-center p-5 border-b-[1.5px] border-[#0000001f]">
-                <SearchButton />
+            <section className="flex max-sm:flex-col justify-end max-sm:justify-center items-center gap-3 max-sm: p-5 border-b-[1.5px] border-[#0000001f]">
+                <SearchButton placeholder="Search Leave"/>
                 <SelectDemo placeholder="Status">
                     <SelectLabel>Status</SelectLabel>
                     <SelectItem value="approve">Approve</SelectItem>
