@@ -1,5 +1,27 @@
 import prisma from "../utils/client.js";
 
+
+export const getAllLeaves = async () => {
+    return await prisma.tb_leave.findMany()
+}
+
+export const getLeavesByType = async (type) => {
+    return await prisma.tb_leave.findMany({
+        where: {
+            leave_type: type,
+        },
+    })
+}
+
+export const getLeavesByNIK = async (NIK) => {
+    return await prisma.tb_leave.findMany({
+        where: {
+            NIK: NIK,
+        },
+    })
+}
+
+
 export const createLeave = async (data) => {
     const { title, leave_type, start_date, end_date, reason, NIK } = data
 
@@ -18,3 +40,4 @@ export const createLeave = async (data) => {
     });
 
 }
+
