@@ -1,8 +1,9 @@
 export const isAuthenticated = (req, res, next) => {
-    if(!res.session && req.session.user) {
-        return res.status(401).json({
-            message: "Login ei"
-        });
+    if (!req.session.user) {
+        return res.status(400).json({
+            message: "Invalid Credentials"
+        })
     }
+    
     return next();
 }
