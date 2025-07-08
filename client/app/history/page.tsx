@@ -26,7 +26,8 @@ type LeaveHistoryType = {
 
 const HistoryPage = () => {
     const [currentPage, setCurrentPage] = useState(1)
-    const ITEMS_PER_PAGE = 8
+    const [isLoading, setIsLoading] = useState(false)
+    const ITEMS_PER_PAGE = 7
 
     const HistoryLeave: LeaveHistoryType[] = [
         {
@@ -92,12 +93,57 @@ const HistoryPage = () => {
             reason: "Family",
             note: <i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>
         },
-        
+        {
+            status: <span className="bg-[#FFEAB2] p-2 px-3 rounded-full text-xs">WAITING</span>,
+            type: "Personal",
+            startLeave: "15 January 2025",
+            endLeave: "16 January 2025",
+            leaveUsage: "2 day(s)",
+            reason: "Family",
+            note: <i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>
+        },
+        {
+            status: <span className="bg-[#FFEAB2] p-2 px-3 rounded-full text-xs">WAITING</span>,
+            type: "Spesial",
+            startLeave: "15 January 2025",
+            endLeave: "16 January 2025",
+            leaveUsage: "2 day(s)",
+            reason: "Family",
+            note: <i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>
+        },
+        {
+            status: <span className="bg-[#FF7C7C] p-2 px-3 rounded-full text-xs">REJECT</span>,
+            type: "Mandatory",
+            startLeave: "15 January 2025",
+            endLeave: "16 January 2025",
+            leaveUsage: "2 day(s)",
+            reason: "Family",
+            note: <i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>
+        },
+        {
+            status: <span className="bg-[#A0F3AC] p-2 px-3 rounded-full text-xs">APPROVE</span>,
+            type: "Personal",
+            startLeave: "15 January 2025",
+            endLeave: "16 January 2025",
+            leaveUsage: "2 day(s)",
+            reason: "Family",
+            note: <i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>
+        },
     ]
 
     const totalPages = Math.ceil(HistoryLeave.length / ITEMS_PER_PAGE)
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
     const currentData = HistoryLeave.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+
+    const handlePageChange = (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+            setIsLoading(true)
+            setTimeout(() => {
+                setCurrentPage(page)
+                setIsLoading(false)
+            }, 600)
+        }
+    }
 
     return (
         <>
@@ -124,18 +170,31 @@ const HistoryPage = () => {
                             <th className="p-3 text-[18px] font-semibold tracking-wide">Note</th>
                         </tr>
                     </thead>
+
                     <tbody className="cursor-pointer">
-                        {currentData.map((data, idx) => (
-                            <tr key={idx} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
-                                <th className="p-3 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.status}</th>
-                                <th className="p-3 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.type}</th>
-                                <th className="p-3 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.startLeave}</th>
-                                <th className="p-3 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.endLeave}</th>
-                                <th className="p-3 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.leaveUsage}</th>
-                                <th className="p-3 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.reason}</th>
-                                <th className="p-3 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.note}</th>
-                            </tr>
-                        ))}
+                        {isLoading ? (
+                            Array.from({ length: ITEMS_PER_PAGE }).map((_, rowIdx) => (
+                                <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
+                                    {Array.from({ length: 7 }).map((_, colIdx) => (
+                                        <th key={colIdx} className="p-3">
+                                            <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
+                                        </th>
+                                    ))}
+                                </tr>
+                            ))
+                        ) : (
+                            currentData.map((data, idx) => (
+                                <tr key={idx} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.status}</th>
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.type}</th>
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.startLeave}</th>
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.endLeave}</th>
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.leaveUsage}</th>
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.reason}</th>
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.note}</th>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
 
@@ -144,8 +203,8 @@ const HistoryPage = () => {
                         <PaginationContent>
                             <PaginationItem>
                                 <PaginationPrevious
-                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                    className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    className={`${currentPage === 1 ? "pointer-events-none opacity-50 cursor-default" : "cursor-pointer"}`}
                                 />
                             </PaginationItem>
 
@@ -153,7 +212,7 @@ const HistoryPage = () => {
                                 <PaginationItem key={i}>
                                     <PaginationLink
                                         isActive={currentPage === i + 1}
-                                        onClick={() => setCurrentPage(i + 1)}
+                                        onClick={() => handlePageChange(i + 1)}
                                     >
                                         {i + 1}
                                     </PaginationLink>
@@ -162,8 +221,8 @@ const HistoryPage = () => {
 
                             <PaginationItem>
                                 <PaginationNext
-                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    className={`${currentPage === totalPages ? "pointer-events-none opacity-50 cursor-default" : "cursor-pointer"}`}
                                 />
                             </PaginationItem>
                         </PaginationContent>
