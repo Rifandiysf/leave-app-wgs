@@ -12,6 +12,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
 }))
+
 app.use('/api/v1/', routes);
 
 app.listen(PORT, HOSTNAME, () => {
