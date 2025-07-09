@@ -5,8 +5,8 @@ import {
     AccordionContent,
     AccordionItem,
     AccordionTrigger
-} from "../components/ui/accordion"
-import { Switch } from "../components/ui/switch"
+} from "../../components/ui/accordion"
+import { Switch } from "../../components/ui/switch"
 
 const MandatoryPage = () => {
     const dataMandatory = [

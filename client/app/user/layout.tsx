@@ -11,28 +11,27 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname()
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
-  const closeSidebar = () => setSidebarOpen(false) 
+  const closeSidebar = () => setSidebarOpen(false)
   const isActive = (path: string) => pathname === path ? 'bg-white shadow-sm' : 'hover:bg-blue-200'
 
   return (
     <div className="flex h-screen bg-white relative overflow-hidden">
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={closeSidebar}
         />
       )}
 
       {/* SIDEBAR */}
-      <aside className={`w-64 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } fixed lg:relative z-50 lg:z-auto h-full bg-white shadow-lg lg:shadow-none`}>
+      <aside className={`w-64 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } fixed lg:relative z-50 lg:z-auto h-full bg-white shadow-lg lg:shadow-none`}>
 
         <div className="bg-white p-7 pb-3">
           <div className="flex items-center justify-between">
             <div>
               <Image
-                src="/images/logo-wgs.webp"
+                src="/images/logo-wgs.svg"
                 alt="Logo WGS"
                 width={120}
                 height={40}
@@ -68,10 +67,6 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
               <i className="bi bi-archive-fill text-xl w-6 text-center" />
               <span className="ml-3">Mandatory</span>
             </Link>
-            <Link href="/user/optional" onClick={closeSidebar} className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/user/optional')}`}>
-              <i className="bi bi-question-circle-fill text-xl w-6 text-center" />
-              <span className="ml-3">Optional</span>
-            </Link>
           </div>
         </nav>
       </aside>
@@ -86,7 +81,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
             <i className="bi bi-list text-2xl text-gray-600" />
           </button>
 
-          <div className="flex-1"></div> 
+          <div className="flex-1"></div>
 
           <div className="sm:hidden flex items-center space-x-2">
             <button className="p-1.5 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer">
@@ -97,32 +92,32 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
             </button>
           </div>
 
-           <div className="hidden sm:flex items-center space-x-6">
-  
-                  {pathname === '/user/special' && (
-          <div className="hidden sm:block">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="px-4 py-2 border rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-48"
-            />
-          </div>
-        )}
-          {/* Settings Button */}
-          <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
-            <i className="bi bi-gear-fill text-xl" />
-            <span className="text-sm font-medium">Settings</span>
-          </div>
+          <div className="hidden sm:flex items-center space-x-6">
 
-          {/* Logout Button */}
-          <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
-            <i className="bi bi-box-arrow-right text-xl" />
-            <span className="text-sm font-medium">Logout</span>
+            {pathname === '/user/special' && (
+              <div className="hidden sm:block">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="px-4 py-2 border rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-48"
+                />
+              </div>
+            )}
+            {/* Settings Button */}
+            <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
+              <i className="bi bi-gear-fill text-xl" />
+              <span className="text-sm font-medium">Settings</span>
+            </div>
+
+            {/* Logout Button */}
+            <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
+              <i className="bi bi-box-arrow-right text-xl" />
+              <span className="text-sm font-medium">Logout</span>
+            </div>
           </div>
-        </div>
 
         </header>
-        
+
         {children}
       </main>
     </div>

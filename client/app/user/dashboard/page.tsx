@@ -1,12 +1,10 @@
 'use client'
 
-import { useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Card } from "../../components/ui/card"
 import 'bootstrap-icons/font/bootstrap-icons.css'
+import { Modal } from "@/app/components/Modal/Modal"
 
 export default function UserDashboard() {
-  const [showModal, setShowModal] = useState(false)
 
   return (
     <>
@@ -79,16 +77,14 @@ export default function UserDashboard() {
           <div className="relative p-6 sm:p-8 md:p-12 text-center">
             <div className="max-w-md mx-auto">
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-900 mb-3">Ready to take a break?</h2>
-              <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">Submit your leave request and we'll process it for you</p>
-              <Button
-                onClick={() => setShowModal(true)}
-                className="group px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-900 font-semibold hover:bg-blue-50 hover:shadow-lg transition-all duration-300 rounded-xl border-0 text-base sm:text-lg"
-              >
-                <div className="flex items-center space-x-2 sm:space-x-3">
-                  <i className="bi bi-calendar-event-fill text-xl sm:text-2xl" />
-                  <span>Apply For Leave</span>
-                </div>
-              </Button>
+              <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">Submit your leave request and well process it for you</p>
+              <Modal 
+                styleButton="w-full px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-900 font-semibold hover:bg-blue-50 hover:shadow-lg transition-all duration-300 rounded-xl border-0 text-base sm:text-lg"
+                TitleButton="Apply For Leave"
+                title="Leave Application"
+                description="Fill in the details for your leave request"
+                mode="form"
+              />
             </div>
           </div>
         </Card>
@@ -132,76 +128,6 @@ export default function UserDashboard() {
           </Card>
         </div>
       </div>
-
-      {/* MODAL */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative transform transition-all">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-white rounded-2xl"></div>
-            <div className="relative p-8">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <i className="bi bi-file-earmark-text text-white text-2xl" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">Leave Application</h2>
-                <p className="text-gray-600">Fill in the details for your leave request</p>
-              </div>
-              
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Leave Type</label>
-                  <select className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
-                    <option value="">Select Leave Type</option>
-                    <option value="personal">Personal Leave</option>
-                    <option value="special">Special Leave</option>
-                    <option value="mandatory">Mandatory Leave</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Reason</label>
-                  <input
-                    type="text"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
-                    placeholder="Brief reason for leave"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Start Date</label>
-                    <input
-                      type="date"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">End Date</label>
-                    <input
-                      type="date"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row justify-between items-center pt-6 space-y-4 sm:space-y-0">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
-                  >
-                    <i className="bi bi-box-arrow-left text-xl" />
-                    <span className="font-medium">Cancel</span>
-                  </button>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition-all hover:shadow-lg">
-                    Submit Request
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   )
 }

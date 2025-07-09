@@ -67,7 +67,7 @@ const LoginPage = () => {
                         {isLoading ? "Processing…" : "Login"}
                     </Button>
                     <Button variant="outline" className="w-full bg-[#ffffff] flex justify-center items-center">
-                        <Image src="/google.svg" alt="" width={20} height={20} />
+                        <Image src="/images/google.svg" alt="" width={20} height={20} />
                         Login with Google
                     </Button>
                 </CardFooter>

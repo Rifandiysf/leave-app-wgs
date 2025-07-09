@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { ToggleSwitch } from '../toggle/page'
+import { Switch } from "../ui/switch"
 
 type DropdownProps = {
     initial?: boolean,
@@ -31,7 +31,7 @@ export function DropDownButton({ initial = false, onChange, idx, title, startLea
             </div>
             <div className={`flex justify-between items-center px-3 py-2 rounded-b-lg bottom-0 ${isOn ? "translate-y-7" : "translate-y-1"}`}>
                 <p>{startLeave} - {endLeave}</p>
-                <ToggleSwitch onChange={(val) => console.log("Toggled:", val)} />
+                <Switch />
             </div>
         </div>
     )

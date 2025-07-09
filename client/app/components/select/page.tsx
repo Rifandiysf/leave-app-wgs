@@ -11,13 +11,14 @@ import {
 
 type SelectDemoProps = {
     placeholder?: string,
-    children: ReactNode
+    children: ReactNode,
+    className: string
 }
 
-export function SelectDemo({ placeholder , children }: SelectDemoProps) {
+export function SelectDemo({ placeholder , children, className }: SelectDemoProps) {
     return (
         <Select>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className={className}>
                 <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent>

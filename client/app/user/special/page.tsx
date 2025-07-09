@@ -1,6 +1,15 @@
 'use client'
 
 import { useState } from 'react'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from "../../components/ui/pagination"
+
 import classNames from 'classnames'
 import { usePathname } from 'next/navigation'
 
@@ -29,17 +38,21 @@ const statusColor = {
 export default function SpecialPage() {
   const pathname = usePathname()
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(6) // ✅ Sudah 6 per halaman
+  const [isLoading, setIsLoading] = useState(false)
+  const ITEMS_PER_PAGE = 7
 
-  const totalPages = Math.ceil(dummyData.length / itemsPerPage)
-  const paginatedData = dummyData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  const totalPages = Math.ceil(dummyData.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const currentData = dummyData.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
-  const goToNextPage = () => {
-    setCurrentPage((page) => Math.min(page + 1, totalPages))
-  }
-
-  const goToPreviousPage = () => {
-    setCurrentPage((page) => Math.max(page - 1, 1))
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setIsLoading(true)
+      setTimeout(() => {
+        setCurrentPage(page)
+        setIsLoading(false)
+      }, 600)
+    }
   }
 
   return (
@@ -64,21 +77,53 @@ export default function SpecialPage() {
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-base text-left">
-          <thead className="text-gray-700 font-semibold sticky top-0 bg-gray-100/70 backdrop-blur-sm">
+      <div className="relative p-3 min-h-[calc(100dvh)] overflow-x-auto">
+        <table className="w-full table-auto rounded-t-2xl">
+          <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] rounded-2xl shadow-2xl">
             <tr className="text-base">
-              <th className="px-6 py-4 whitespace-nowrap">Status</th>
-              <th className="px-6 py-4 whitespace-nowrap">Leave Title</th>
-              <th className="px-6 py-4 whitespace-nowrap">Start Leave</th>
-              <th className="px-6 py-4 whitespace-nowrap">End Leave</th>
-              <th className="px-6 py-4 whitespace-nowrap">Amount</th>
-              <th className="px-6 py-4 whitespace-nowrap">Gender</th>
-              <th className="px-6 py-4 whitespace-nowrap">Reject Note</th>
+              <th className="p-3 text-[18px] font-semibold tracking-wide whitespace-nowrap">Status</th>
+              <th className="p-3 text-[18px] font-semibold tracking-wide whitespace-nowrap">Leave Title</th>
+              <th className="p-3 text-[18px] font-semibold tracking-wide whitespace-nowrap">Start Leave</th>
+              <th className="p-3 text-[18px] font-semibold tracking-wide whitespace-nowrap">End Leave</th>
+              <th className="p-3 text-[18px] font-semibold tracking-wide whitespace-nowrap">Amount</th>
+              <th className="p-3 text-[18px] font-semibold tracking-wide whitespace-nowrap">Gender</th>
+              <th className="p-3 text-[18px] font-semibold tracking-wide whitespace-nowrap">Reject Note</th>
             </tr>
           </thead>
           <tbody className="text-gray-800">
-            {paginatedData.map((row, idx) => (
+            {isLoading ? (
+              Array.from({ length: ITEMS_PER_PAGE }).map((_, rowIdx) => (
+                <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
+                  {Array.from({ length: 7 }).map((_, colIdx) => (
+                    <th key={colIdx} className="p-3">
+                      <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
+                    </th>
+                  ))}
+                </tr>
+              ))
+            ) : (
+              currentData.map((row, idx) => (
+                <tr key={idx} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={classNames(
+                        'px-3 py-1.5 rounded-full text-sm font-semibold',
+                        statusColor[row.status as keyof typeof statusColor]
+                      )}
+                    >
+                      {row.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">{row.title}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{row.start}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{row.end}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{row.amount}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{row.gender}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{row.note}</td>
+                </tr>
+              ))
+            )}
+            {/* {paginatedData.map((row, idx) => (
               <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
@@ -97,35 +142,42 @@ export default function SpecialPage() {
                 <td className="px-6 py-4 whitespace-nowrap">{row.gender}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{row.note}</td>
               </tr>
-            ))}
+            ))} */}
           </tbody>
         </table>
       </div>
 
       {/* Pagination  */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center space-x-4 mt-4 mb-2">
-          <button
-            onClick={goToPreviousPage}
-            disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            &lt;
-          </button>
+      <div className="flex justify-center items-center bg-white py-5">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => handlePageChange(currentPage - 1)}
+                className={`${currentPage === 1 ? "pointer-events-none opacity-50 cursor-default" : "cursor-pointer"}`}
+              />
+            </PaginationItem>
 
-          <span className="text-base font-medium text-gray-800">
-            Page {currentPage} of {totalPages}
-          </span>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink
+                  isActive={currentPage === i + 1}
+                  onClick={() => handlePageChange(i + 1)}
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
 
-          <button
-            onClick={goToNextPage}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            &gt;
-          </button>
-        </div>
-      )}
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => handlePageChange(currentPage + 1)}
+                className={`${currentPage === totalPages ? "pointer-events-none opacity-50 cursor-default" : "cursor-pointer"}`}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
     </div>
   )
 }
