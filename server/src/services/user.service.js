@@ -30,6 +30,9 @@ export const getLeavesByNIK = async (NIK) => {
 }
 
 export const findUserByNIK = async (nik) => {
+    const currentDate = new Date();
+    const currentDateFirstMonth = new Date(new Date().getFullYear(), 0, 1);
+
     const user = await prisma.tb_users.findUnique({
         omit: {
             password: true,
@@ -51,18 +54,18 @@ export const findUserByNIK = async (nik) => {
             },
         }
     });
+
+    if (!user) {
+        const error =  new Error("user not found");
+        error.statusCode = 404;
+        throw error
+    }
     
     const { tb_balance, NIK, fullname, gender, status_active } = user;
-    
     const currentBalance = tb_balance[0].amount;
     const lastYearBalance =  tb_balance[1] ? tb_balance[1].amount : 0;
-    let maxAmountReceive;
-    
-    if (user.role === "karyawan_kontrak") {
-        maxAmountReceive = 1;
-    } else {
-        maxAmountReceive = 12;
-    }
+
+    // let maxReceiveAmount = user.role === "karyawan_kontrak" ? 1 : 12;
  
     const pending_request = await prisma.tb_leave.aggregate({
         _sum: {
@@ -70,8 +73,8 @@ export const findUserByNIK = async (nik) => {
         },
         where: {
             created_at: {
-                gte: new Date(new Date().getFullYear(), 0, 1),
-                lte: new Date()
+                gte: currentDateFirstMonth,
+                lte: currentDate
             },
             NIK: nik,
             status: "pending",
@@ -87,8 +90,8 @@ export const findUserByNIK = async (nik) => {
         },
         where: {
             end_date: {
-                gte: new Date(new Date().getFullYear(), 0, 1),
-                lte: new Date(),
+                gte: currentDateFirstMonth,
+                lte: currentDate,
             },
             NIK: nik,
             status: "approved",
@@ -116,8 +119,8 @@ export const findUserByNIK = async (nik) => {
     return userCopy;
 }
 
-const updateUser = async (nik, data) => {
-    const updateUser = await prisma.tb_users.update({
+export const updateUserByNIK = async (nik, data) => {
+    const updatedUser = await prisma.tb_users.update({
         where: {
             NIK: nik
         },
@@ -126,25 +129,39 @@ const updateUser = async (nik, data) => {
             join_date: new Date()
         }
     })
+
+    if (!updatedUser) {
+        const error =  new Error("user not found");
+        error.statusCode = 404;
+        throw error
+    }
+
+    return updatedUser
 }
 
-const deleteUser = async (nik) => {
+export const deleteUserByNIK = async (nik) => {
     const deletedUser = await prisma.tb_users.update({
         where: {
-            NIK: nik
+            NIK: nik,
+            NOT: {
+                status_active: "resign"
+            }
         },
         data: {
             status_active: "resign"
         }
     })
 
-    const userLeaves = await prisma.tb_leave.updateMany({
-        where: {
-            NIK: nik
-        },
-        data: {
-            // update user leaves to incative
-        }
-    })
+    return deletedUser;
+
+    // inactive all leave related to the user 
+    // const userLeaves = await prisma.tb_leave.updateMany({
+    //     where: {
+    //         NIK: nik
+    //     },
+    //     data: {
+    //         // update user leaves to incative
+    //     }
+    // })
 
 }

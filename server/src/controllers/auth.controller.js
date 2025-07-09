@@ -1,5 +1,4 @@
 import { fetchUserData } from "../services/auth.service.js";
-import prisma from "../utils/client.js";
 
 export const login = async (req, res, next) => {
     const { email, password } = req.body

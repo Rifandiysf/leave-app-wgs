@@ -1,5 +1,7 @@
 import { role } from "../../generated/prisma/index.js"
-import { findUserByNIK, getLeaveBalanceByYear, getLeavesByNIK, } from "../services/user.service.js"
+import { findUserByNIK, getLeaveBalanceByYear, getLeavesByNIK, updateUserByNIK, deleteUserByNIK } from "../services/user.service.js"
+import prisma from "../utils/client.js"
+import { Prisma } from "../../generated/prisma/index.js"
 
 
 export const lastYearLeave = async (req, res) => {
@@ -70,20 +72,54 @@ export const getUser = async (req, res) => {
         res.status(200).json({
             status: "successful",
             message: `Data retrieve successfully`,
-            userRequested: {
+            requested_by: {
                 role: role,
                 nik : NIK
             },
             data: user
         });
     } catch (error) {
-        res.status(400).json({
+        res.status(error.statusCode).json({
             status: "failed",
             message: error.message,
         })
     }
 }
 
-export const updateUser = () => {
+export const updateUser = async (req, res) => {
+    const { nik } = req.params
+    try {
+        const updatedUser = await updateUserByNIK(nik)
 
+        res.status(201).json({
+            status: "success",
+            message: "successfully update user data",
+            data: updatedUser
+        })
+    } catch (error) {
+        res.status(400).json({
+            status: "failed",
+            message: "failed to update user data",
+            reason: error.message
+        });
+    }
+}
+
+export const deleteUser = async (req, res) => {
+    const { nik } = req.params
+    try {
+        const deletedUser = await deleteUserByNIK(nik);
+
+        res.status(200).json({
+            status: "success",
+            message: "successfully deleted user data",
+            data: deletedUser 
+        })
+    } catch (error) {
+        res.status(400).json({
+            status: "failed",
+            message: "failed to delete user data",
+            reason: error.message
+        });
+    }
 }
