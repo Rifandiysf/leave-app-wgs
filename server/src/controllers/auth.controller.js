@@ -6,14 +6,6 @@ export const login = async (req, res, next) => {
     try {
         const user = await fetchUserData("email", email);
 
-        if (!user) {
-            throw new Error('User not found');
-        }
-
-        if (user.password != password) {
-            throw new Error('Invalidate Credentials');
-        }
-
         req.session.user = {
             NIK: user.NIK, loginDate: (new Date()).toISOString(),
             role: user.role
