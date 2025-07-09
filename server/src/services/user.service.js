@@ -68,6 +68,60 @@ export const createLeave = async (data) => {
 };
 
 
+export const getLeavesByNIK = async (NIK) => {
+    return await prisma.tb_leave.findMany({
+        where: {
+            NIK: NIK,
+        },
+    })
+}
+
+export const getLeavesById = async (NIK, id_leave) => {
+    return await prisma.tb_leave.findMany({
+        where: {
+            id_leave: id_leave,
+            NIK: NIK
+        }
+    })
+}
+
+export const getLeavesByFilterService = async (NIK, type, status) => {
+    const whereClause = {
+        NIK,
+    };
+
+    if (type) {
+        const typeMapping = {
+            personal: 'personal_leave',
+            mandatory: 'mandatory_leave',
+            special: 'special_leave'
+        };
+
+        const mappedType = typeMapping[type.toLowerCase()];
+        if (!mappedType) {
+            throw new Error('Invalid leave type. Allowed: personal, mandatory, special');
+        }
+
+        whereClause.leave_type = mappedType;
+    }
+
+    if (status) {
+        const allowedStatus = ['pending', 'approved', 'reject'];
+        const lowerStatus = status.toLowerCase();
+
+        if (!allowedStatus.includes(lowerStatus)) {
+            throw new Error('Invalid leave status. Allowed: waiting, approved, reject');
+        }
+
+        whereClause.status = lowerStatus;
+    }
+
+    return await prisma.tb_leave.findMany({
+        where: whereClause
+    });
+};
+
+
 export const getLeaveBalanceByYear = async (nik, year) => {
     const startDate = new Date(`${year}-01-01`)
     const endDate = new Date(`${year}-12-31`)
@@ -82,15 +136,6 @@ export const getLeaveBalanceByYear = async (nik, year) => {
         },
         select: {
             amount: true,
-        },
-    })
-}
-
-
-export const getLeavesByNIK = async (NIK) => {
-    return await prisma.tb_leave.findMany({
-        where: {
-            NIK: NIK,
         },
     })
 }

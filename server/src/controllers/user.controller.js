@@ -1,4 +1,4 @@
-import { createLeave, getLeaveBalanceByYear, getLeavesByNIK, } from "../services/user.service.js"
+import { createLeave, getLeaveBalanceByYear, getLeavesByFilterService, getLeavesById, getLeavesByNIK, } from "../services/user.service.js"
 
 
 export const createLeaveRequest = async (req, res) => {
@@ -24,6 +24,62 @@ export const createLeaveRequest = async (req, res) => {
     }
 }
 
+export const getLeaveRequests = async (req, res) => {
+    try {
+        const user = req.session.user
+        const leaves = await getLeavesByNIK(user.NIK)
+
+        res.status(201).json({
+            message: "Leave requests retrieved successfully",
+            data: leaves,
+        })
+    } catch (error) {
+        res.status(400).json({
+            message: error.message,
+        })
+    }
+
+}
+
+export const getLeavesByFilter = async (req, res) => {
+    try {
+        const { type, status } = req.query;
+        const user = req.session.user;
+
+        const leaves = await getLeavesByFilterService(user.NIK, type, status);
+
+        res.status(200).json({
+            message: 'Filtered leave data retrieved successfully',
+            data: leaves
+        });
+
+    } catch (error) {
+        res.status(400).json({
+            message: error.message
+        });
+    }
+};
+
+
+export const getLeaveRequestsById = async (req, res) => {
+    try {
+
+        const { id } = req.params
+        const user = req.session.user
+
+        const leaves = await getLeavesById(user.NIK, id)
+
+        res.status(201).json({
+            message: 'Successfully retrieved leave data by ID',
+            data: leaves
+        })
+
+    } catch (error) {
+        res.status(400).json({
+            message: error.message
+        })
+    }
+}
 
 export const lastYearLeave = async (req, res) => {
     const { nik } = req.params
@@ -56,21 +112,5 @@ export const currentYearLeave = async (req, res) => {
         res.json(leave)
     } catch (error) {
         res.status(500).json({ message: "Error retrieving current year data", error: error.message })
-    }
-}
-
-export const getLeaveRequests = async (req, res) => {
-    try {
-        const user = req.session.user
-        const leaves = await getLeavesByNIK(user.NIK)
-
-        res.status(200).json({
-            message: "Leave requests retrieved successfully",
-            data: leaves,
-        })
-    } catch (error) {
-        res.status(400).json({
-            message: error.message,
-        })
     }
 }
