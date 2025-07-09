@@ -1,0 +1,1456 @@
+{
+  "openapi": "3.0.3",
+  "info":
+    {
+      "title": "Leave Management System",
+      "version": "1.0.0",
+      "description": "OpenAPI schema documentation.",
+    },
+  "paths":
+    {
+      "/api/v1/users":
+        {
+          "get":
+            {
+              "summary": "Retrieve all user data",
+              "tags": ["User"],
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Successfully retrieved all users",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message": { "type": "string" },
+                                      "data":
+                                        {
+                                          "type": "array",
+                                          "items":
+                                            {
+                                              "$ref": "#/components/schemas/tb_users",
+                                            },
+                                        },
+                                    },
+                                },
+                              "example":
+                                {
+                                  "message": "Successfully retrieved all users",
+                                  "data":
+                                    [
+                                      {
+                                        "NIK": "789012",
+                                        "fullname": "Ayu Rahma",
+                                        "email": "ayu.rahma@example.com",
+                                        "password": "hashed_password_123",
+                                        "gender": "female",
+                                        "role": "karyawan_kontrak",
+                                        "status_active": "active",
+                                        "join_date": "2024-05-10",
+                                      },
+                                      {
+                                        "NIK": "456789",
+                                        "fullname": "Budi Santoso",
+                                        "email": "budi.santoso@example.com",
+                                        "password": "hashed_password_456",
+                                        "gender": "male",
+                                        "role": "karyawan_tetap",
+                                        "status_active": "resign",
+                                        "join_date": "2022-08-01",
+                                      },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Bad Request - Invalid request",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                { "message": "Bad Request - Invalid input" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Unauthorized - User is not logged in",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Unauthorized. Please login to access this resource.",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/api/v1/users/{nik}":
+        {
+          "get":
+            {
+              "summary": "Retrieve a user by NIK including balances",
+              "description": "Retrieve user data with total balance, current year balance, and last year balance",
+              "tags": ["User"],
+              "parameters":
+                [
+                  {
+                    "name": "nik",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                    "description": "The NIK of the user to retrieve",
+                  },
+                ],
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Successfully retrieved user data with balances",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message": { "type": "string" },
+                                      "data":
+                                        {
+                                          "type": "object",
+                                          "properties":
+                                            {
+                                              "user":
+                                                {
+                                                  "$ref": "#/components/schemas/tb_users",
+                                                },
+                                              "total_balance":
+                                                { "type": "integer" },
+                                              "current_year_balance":
+                                                { "type": "integer" },
+                                              "last_year_balance":
+                                                { "type": "integer" },
+                                            },
+                                        },
+                                    },
+                                },
+                              "example":
+                                {
+                                  "message": "Successfully retrieved user by NIK",
+                                  "data":
+                                    {
+                                      "user":
+                                        {
+                                          "NIK": "123456",
+                                          "fullname": "Example User",
+                                          "email": "example.user@example.com",
+                                          "password": "hashed_password_123",
+                                          "gender": "male",
+                                          "role": "karyawan_tetap",
+                                          "status_active": "active",
+                                          "join_date": "2023-04-01",
+                                        },
+                                      "total_balance": 12,
+                                      "current_year_balance": 6,
+                                      "last_year_balance": 6,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Bad Request - Invalid NIK format or input",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                { "message": "Bad Request - Invalid NIK" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Unauthorized - User is not logged in",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Unauthorized. Please login to access this resource.",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+          {
+            "summary": "Retrieve a user by NIK",
+            "tags": ["User"],
+            "parameters":
+              [
+                {
+                  "name": "nik",
+                  "in": "path",
+                  "required": true,
+                  "schema": { "type": "string" },
+                  "description": "The NIK of the user to retrieve",
+                },
+              ],
+            "responses":
+              {
+                "201":
+                  {
+                    "description": "Successfully retrieved user by NIK",
+                    "content":
+                      {
+                        "application/json":
+                          {
+                            "schema":
+                              {
+                                "type": "object",
+                                "properties":
+                                  {
+                                    "message": { "type": "string" },
+                                    "data":
+                                      {
+                                        "$ref": "#/components/schemas/tb_users",
+                                      },
+                                  },
+                              },
+                            "example":
+                              {
+                                "message": "Successfully retrieved user by 789012",
+                                "data":
+                                  {
+                                    "NIK": "789012",
+                                    "fullname": "Ayu Rahma",
+                                    "email": "ayu.rahma@example.com",
+                                    "password": "hashed_password_123",
+                                    "gender": "female",
+                                    "role": "karyawan_kontrak",
+                                    "status_active": "active",
+                                    "join_date": "2024-05-10",
+                                  },
+                              },
+                          },
+                      },
+                  },
+                "400":
+                  {
+                    "description": "Bad Request - Invalid NIK format or input",
+                    "content":
+                      {
+                        "application/json":
+                          {
+                            "schema":
+                              {
+                                "type": "object",
+                                "properties":
+                                  { "message": { "type": "string" } },
+                              },
+                            "example":
+                              { "message": "Bad Request - Invalid NIK" },
+                          },
+                      },
+                  },
+                "401":
+                  {
+                    "description": "Unauthorized - User is not logged in",
+                    "content":
+                      {
+                        "application/json":
+                          {
+                            "schema":
+                              {
+                                "type": "object",
+                                "properties":
+                                  { "message": { "type": "string" } },
+                              },
+                            "example":
+                              {
+                                "message": "Unauthorized. Please login to access this resource.",
+                              },
+                          },
+                      },
+                  },
+              },
+          },
+          "put":
+            {
+              "summary": "Update user data by NIK",
+              "tags": ["User"],
+              "parameters":
+                [
+                  {
+                    "name": "nik",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                    "description": "The NIK of the user to update",
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "type": "object",
+                              "properties":
+                                {
+                                  "fullname": { "type": "string" },
+                                  "email":
+                                    { "type": "string", "format": "email" },
+                                  "password": { "type": "string" },
+                                  "gender":
+                                    { "$ref": "#/components/schemas/gender" },
+                                  "role":
+                                    { "$ref": "#/components/schemas/role" },
+                                  "status_active":
+                                    {
+                                      "$ref": "#/components/schemas/status_active",
+                                    },
+                                  "join_date":
+                                    { "type": "string", "format": "date" },
+                                },
+                              "required":
+                                [
+                                  "fullname",
+                                  "email",
+                                  "password",
+                                  "gender",
+                                  "role",
+                                  "status_active",
+                                  "join_date",
+                                ],
+                            },
+                          "example":
+                            {
+                              "fullname": "Ayu Rahma",
+                              "email": "ayu.rahma.updated@example.com",
+                              "password": "new_hashed_password",
+                              "gender": "female",
+                              "role": "admin",
+                              "status_active": "active",
+                              "join_date": "2024-05-10",
+                            },
+                        },
+                    },
+                },
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Successfully updated user by NIK",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message": { "type": "string" },
+                                      "data":
+                                        {
+                                          "$ref": "#/components/schemas/tb_users",
+                                        },
+                                    },
+                                },
+                              "example":
+                                {
+                                  "message": "Successfully updated user by 789012",
+                                  "data":
+                                    {
+                                      "NIK": "789012",
+                                      "fullname": "Ayu Rahma",
+                                      "email": "ayu.rahma.updated@example.com",
+                                      "password": "new_hashed_password",
+                                      "gender": "female",
+                                      "role": "admin",
+                                      "status_active": "active",
+                                      "join_date": "2024-05-10",
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Bad Request - Invalid input data",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Bad Request - Invalid input format",
+                                },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Unauthorized - User is not logged in",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Unauthorized. Please login to access this resource.",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+          "delete":
+            {
+              "summary": "Soft delete user by NIK",
+              "description": "Set status_active to 'resign' and soft delete all user leaves. Only accessible by Admin and Super Admin.",
+              "tags": ["User"],
+              "parameters":
+                [
+                  {
+                    "name": "nik",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                    "description": "The NIK of the user to soft delete",
+                  },
+                ],
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Successfully soft deleted user and related leaves",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message": { "type": "string" },
+                                      "data":
+                                        {
+                                          "$ref": "#/components/schemas/tb_users",
+                                        },
+                                    },
+                                },
+                              "example":
+                                {
+                                  "message": "Successfully soft deleted user by 123456",
+                                  "data":
+                                    {
+                                      "NIK": "123456",
+                                      "fullname": "Example User 1",
+                                      "email": "example1@example.com",
+                                      "password": "hashed_password_123",
+                                      "gender": "female",
+                                      "role": "karyawan_kontrak",
+                                      "status_active": "resign",
+                                      "join_date": "2024-05-10",
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Bad Request - Invalid NIK format or input",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                { "message": "Bad Request - Invalid NIK" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Unauthorized - User is not logged in",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Unauthorized. Please login to access this resource.",
+                                },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Forbidden - Only Admin or Super Admin can perform this action",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Forbidden. You do not have permission to perform this action.",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/api/v1/users/{nik}/leaves":
+        {
+          "post":
+            {
+              "summary": "Create a new leave for a user by NIK",
+              "tags": ["User"],
+              "parameters":
+                [
+                  {
+                    "name": "nik",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                    "description": "The NIK of the user to create leave for",
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "type": "object",
+                              "properties":
+                                {
+                                  "title": { "type": "string" },
+                                  "leave_type":
+                                    {
+                                      "$ref": "#/components/schemas/leave_type",
+                                    },
+                                  "start_date":
+                                    { "type": "string", "format": "date" },
+                                  "end_date":
+                                    { "type": "string", "format": "date" },
+                                  "total_days": { "type": "integer" },
+                                  "reason": { "type": "string" },
+                                  "status":
+                                    { "$ref": "#/components/schemas/status" },
+                                },
+                              "required":
+                                [
+                                  "title",
+                                  "leave_type",
+                                  "start_date",
+                                  "end_date",
+                                  "reason",
+                                  "status",
+                                ],
+                            },
+                          "example":
+                            {
+                              "title": "Annual Leave",
+                              "leave_type": "personal_leave",
+                              "start_date": "2024-08-15",
+                              "end_date": "2024-08-20",
+                              "reason": "Family vacation",
+                            },
+                        },
+                    },
+                },
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Successfully created new leave for user",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message": { "type": "string" },
+                                      "data":
+                                        {
+                                          "$ref": "#/components/schemas/tb_leave",
+                                        },
+                                    },
+                                },
+                              "example":
+                                {
+                                  "message": "Successfully created leave for user with NIK 123456",
+                                  "data":
+                                    {
+                                      "id_leave": "LV001",
+                                      "title": "Annual Leave",
+                                      "leave_type": "personal_leave",
+                                      "start_date": "2024-08-15",
+                                      "end_date": "2024-08-20",
+                                      "total_days": 6,
+                                      "reason": "Family vacation",
+                                      "status": "pending",
+                                      "created_at": "2024-07-08T10:00:00Z",
+                                      "NIK": "123456",
+                                      "id_special": null,
+                                      "id_mandatory": null,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Bad Request - Invalid input format",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Bad Request - Invalid input format",
+                                },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Unauthorized - User is not logged in",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Unauthorized. Please login to access this resource.",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+          "get":
+            {
+              "summary": "Retrieve all leaves submitted by a user by NIK",
+              "tags": ["User"],
+              "parameters":
+                [
+                  {
+                    "name": "nik",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                    "description": "The NIK of the user to retrieve leaves for",
+                  },
+                ],
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Successfully retrieved leaves for user",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message": { "type": "string" },
+                                      "data":
+                                        {
+                                          "type": "array",
+                                          "items":
+                                            {
+                                              "$ref": "#/components/schemas/tb_leave",
+                                            },
+                                        },
+                                    },
+                                },
+                              "example":
+                                {
+                                  "message": "Successfully retrieved leaves for user with NIK 123456",
+                                  "data":
+                                    [
+                                      {
+                                        "id_leave": "LV001",
+                                        "title": "Annual Leave",
+                                        "leave_type": "personal_leave",
+                                        "start_date": "2024-08-15",
+                                        "end_date": "2024-08-20",
+                                        "total_days": 6,
+                                        "reason": "Family vacation",
+                                        "status": "pending",
+                                        "created_at": "2024-07-08T10:00:00Z",
+                                        "NIK": "123456",
+                                        "id_special": null,
+                                        "id_mandatory": null,
+                                      },
+                                      {
+                                        "id_leave": "LV002",
+                                        "title": "Sick Leave",
+                                        "leave_type": "personal_leave",
+                                        "start_date": "2024-06-01",
+                                        "end_date": "2024-06-03",
+                                        "total_days": 3,
+                                        "reason": "Fever and flu",
+                                        "status": "approved",
+                                        "created_at": "2024-05-31T09:00:00Z",
+                                        "NIK": "123456",
+                                        "id_special": null,
+                                        "id_mandatory": null,
+                                      },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Bad Request - Invalid NIK format",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                { "message": "Bad Request - Invalid NIK" },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Unauthorized - User is not logged in",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Unauthorized. Please login to access this resource.",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/api/v1/users/{nik}/leaves/{id}":
+        {
+          "get":
+            {
+              "summary": "Retrieve a specific leave by ID for a user",
+              "tags": ["User"],
+              "parameters":
+                [
+                  {
+                    "name": "nik",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                    "description": "NIK of the user",
+                  },
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                    "description": "ID of the leave record",
+                  },
+                ],
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Successfully retrieved leave data by ID",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message": { "type": "string" },
+                                      "data":
+                                        {
+                                          "$ref": "#/components/schemas/tb_leave",
+                                        },
+                                    },
+                                },
+                              "example":
+                                {
+                                  "message": "Successfully retrieved leave data by ID",
+                                  "data":
+                                    {
+                                      "id_leave": "lv001",
+                                      "title": "Cuti Tahunan",
+                                      "leave_type": "personal_leave",
+                                      "start_date": "2024-07-01",
+                                      "end_date": "2024-07-05",
+                                      "total_days": 5,
+                                      "reason": "Liburan keluarga",
+                                      "status": "pending",
+                                      "created_at": "2024-06-20T10:00:00Z",
+                                      "NIK": "123456",
+                                      "id_special": null,
+                                      "id_mandatory": null,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Bad Request - Invalid input or format",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Bad Request - Invalid leave ID or NIK",
+                                },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Unauthorized - User not logged in",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Unauthorized. Please login to access this resource.",
+                                },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Not Found - Leave not found for this user",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Leave with ID lv001 not found for user 123456",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/api/v1/users/{nik}/leaves/search":
+        {
+          "get":
+            {
+              "summary": "Search leaves by type for a specific user",
+              "tags": ["User"],
+              "parameters":
+                [
+                  {
+                    "name": "nik",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string" },
+                    "description": "NIK of the user",
+                  },
+                  {
+                    "name": "type",
+                    "in": "query",
+                    "required": true,
+                    "schema":
+                      {
+                        "type": "string",
+                        "enum": ["mandatory", "personal", "special"],
+                      },
+                    "description": "Leave type to filter: mandatory, personal, or special",
+                  },
+                ],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Leaves successfully retrieved by type",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message": { "type": "string" },
+                                      "data":
+                                        {
+                                          "type": "array",
+                                          "items":
+                                            {
+                                              "$ref": "#/components/schemas/tb_leave",
+                                            },
+                                        },
+                                    },
+                                },
+                              "examples":
+                                {
+                                  "mandatory":
+                                    {
+                                      "summary": "Mandatory Leave Example",
+                                      "value":
+                                        {
+                                          "message": "Successfully retrieved mandatory leaves",
+                                          "data":
+                                            [
+                                              {
+                                                "id_leave": "LV001",
+                                                "title": "Annual Leave",
+                                                "leave_type": "mandatory_leave",
+                                                "start_date": "2024-07-01",
+                                                "end_date": "2024-07-05",
+                                                "total_days": 5,
+                                                "reason": "Family vacation",
+                                                "status": "approved",
+                                                "created_at": "2024-06-20T08:00:00Z",
+                                                "NIK": "123456",
+                                                "id_special": null,
+                                                "id_mandatory": "MD001",
+                                              },
+                                            ],
+                                        },
+                                    },
+                                  "personal":
+                                    {
+                                      "summary": "Personal Leave Example",
+                                      "value":
+                                        {
+                                          "message": "Successfully retrieved personal leaves",
+                                          "data":
+                                            [
+                                              {
+                                                "id_leave": "LV002",
+                                                "title": "Urgent Personal Leave",
+                                                "leave_type": "personal_leave",
+                                                "start_date": "2024-08-01",
+                                                "end_date": "2024-08-03",
+                                                "total_days": 3,
+                                                "reason": "Medical emergency",
+                                                "status": "pending",
+                                                "created_at": "2024-07-25T09:00:00Z",
+                                                "NIK": "123456",
+                                                "id_special": null,
+                                                "id_mandatory": null,
+                                              },
+                                            ],
+                                        },
+                                    },
+                                  "special":
+                                    {
+                                      "summary": "Special Leave Example",
+                                      "value":
+                                        {
+                                          "message": "Successfully retrieved special leaves",
+                                          "data":
+                                            [
+                                              {
+                                                "id_leave": "LV003",
+                                                "title": "Maternity Leave",
+                                                "leave_type": "special_leave",
+                                                "start_date": "2024-09-01",
+                                                "end_date": "2024-09-30",
+                                                "total_days": 30,
+                                                "reason": "Childbirth",
+                                                "status": "approved",
+                                                "created_at": "2024-08-20T10:00:00Z",
+                                                "NIK": "123456",
+                                                "id_special": "SP001",
+                                                "id_mandatory": null,
+                                              },
+                                            ],
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Bad Request - Invalid query or parameter",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Bad Request - Invalid leave type parameter",
+                                },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Unauthorized - User not logged in",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Unauthorized. Please login to access this resource.",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/api/v1/leaves":
+        {
+          "get":
+            {
+              "summary": "Retrieve all leave records",
+              "description": "Get all leave records in the system. Only accessible by Admin and Super Admin. Requires session-based authentication.",
+              "tags": ["Leave"],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Successfully retrieved all leave records",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message": { "type": "string" },
+                                      "data":
+                                        {
+                                          "type": "array",
+                                          "items":
+                                            {
+                                              "$ref": "#/components/schemas/tb_leave",
+                                            },
+                                        },
+                                    },
+                                },
+                              "example":
+                                {
+                                  "message": "Successfully retrieved all leave records",
+                                  "data":
+                                    [
+                                      {
+                                        "id_leave": "LV001",
+                                        "title": "Annual Leave",
+                                        "leave_type": "mandatory_leave",
+                                        "start_date": "2024-07-01",
+                                        "end_date": "2024-07-05",
+                                        "total_days": 5,
+                                        "reason": "Family vacation",
+                                        "status": "approved",
+                                        "created_at": "2024-06-20T08:00:00Z",
+                                        "NIK": "123456",
+                                        "id_special": null,
+                                        "id_mandatory": "MD001",
+                                      },
+                                      {
+                                        "id_leave": "LV002",
+                                        "title": "Personal Leave",
+                                        "leave_type": "personal_leave",
+                                        "start_date": "2024-08-01",
+                                        "end_date": "2024-08-03",
+                                        "total_days": 3,
+                                        "reason": "Medical emergency",
+                                        "status": "pending",
+                                        "created_at": "2024-07-25T09:00:00Z",
+                                        "NIK": "654321",
+                                        "id_special": null,
+                                        "id_mandatory": null,
+                                      },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Unauthorized - User not logged in (session missing)",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Unauthorized. Please login to access this resource.",
+                                },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Forbidden - Only Admin or Super Admin can access this endpoint",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                              "example":
+                                {
+                                  "message": "Forbidden. You do not have permission to perform this action.",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+  "components":
+    {
+      "schemas":
+        {
+          "tb_balance":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "id_balance": { "type": "string" },
+                  "amount": { "type": "integer" },
+                  "receive_date": { "type": "string", "format": "date" },
+                  "expired_date": { "type": "string", "format": "date" },
+                  "NIK": { "type": "string" },
+                },
+              "required":
+                ["id_balance", "amount", "receive_date", "expired_date", "NIK"],
+            },
+          "tb_leave":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "id_leave": { "type": "string" },
+                  "title": { "type": "string" },
+                  "leave_type": { "$ref": "#/components/schemas/leave_type" },
+                  "start_date": { "type": "string", "format": "date" },
+                  "end_date": { "type": "string", "format": "date" },
+                  "total_days": { "type": "integer" },
+                  "reason": { "type": "string" },
+                  "status": { "$ref": "#/components/schemas/status" },
+                  "created_at": { "type": "string", "format": "date-time" },
+                  "NIK": { "type": "string" },
+                  "id_special": { "type": "string", "nullable": true },
+                  "id_mandatory": { "type": "string", "nullable": true },
+                },
+              "required":
+                [
+                  "id_leave",
+                  "title",
+                  "leave_type",
+                  "start_date",
+                  "end_date",
+                  "total_days",
+                  "reason",
+                  "status",
+                  "created_at",
+                  "NIK",
+                ],
+            },
+          "tb_mandatory_leave":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "id_mandatory": { "type": "string" },
+                  "title": { "type": "string" },
+                  "duration": { "type": "integer" },
+                  "is_active": { "type": "boolean" },
+                  "description": { "type": "string" },
+                },
+              "required":
+                [
+                  "id_mandatory",
+                  "title",
+                  "duration",
+                  "is_active",
+                  "description",
+                ],
+            },
+          "tb_special_leave":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "id_special": { "type": "string" },
+                  "title": { "type": "string" },
+                  "applicable_gender":
+                    { "$ref": "#/components/schemas/applicable_gender" },
+                  "duration": { "type": "integer" },
+                  "is_active": { "type": "boolean" },
+                  "description": { "type": "string" },
+                },
+              "required":
+                [
+                  "id_special",
+                  "title",
+                  "applicable_gender",
+                  "duration",
+                  "is_active",
+                  "description",
+                ],
+            },
+          "tb_users":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "NIK": { "type": "string" },
+                  "fullname": { "type": "string" },
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string" },
+                  "gender": { "$ref": "#/components/schemas/gender" },
+                  "role": { "$ref": "#/components/schemas/role" },
+                  "status_active":
+                    { "$ref": "#/components/schemas/status_active" },
+                  "join_date": { "type": "string", "format": "date" },
+                },
+              "required":
+                [
+                  "NIK",
+                  "fullname",
+                  "email",
+                  "password",
+                  "gender",
+                  "role",
+                  "status_active",
+                  "join_date",
+                ],
+            },
+          "tb_balance_adjustment":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "id_adjustment": { "type": "string" },
+                  "adjustment_value": { "type": "integer" },
+                  "notes": { "type": "string" },
+                  "created_at": { "type": "string", "format": "date-time" },
+                  "actor": { "type": "string" },
+                  "NIK": { "type": "string" },
+                },
+              "required":
+                [
+                  "id_adjustment",
+                  "adjustment_value",
+                  "created_at",
+                  "actor",
+                  "NIK",
+                ],
+            },
+          "tb_leave_log":
+            {
+              "type": "object",
+              "properties":
+                {
+                  "id_log": { "type": "string" },
+                  "old_status": { "$ref": "#/components/schemas/status" },
+                  "new_status": { "$ref": "#/components/schemas/status" },
+                  "reason": { "type": "string" },
+                  "changed_at": { "type": "string", "format": "date-time" },
+                  "changed_by_nik": { "type": "string" },
+                  "id_leave": { "type": "string" },
+                },
+              "required":
+                [
+                  "id_log",
+                  "old_status",
+                  "new_status",
+                  "reason",
+                  "changed_at",
+                  "changed_by_nik",
+                  "id_leave",
+                ],
+            },
+
+          "gender": { "type": "string", "enum": ["male", "female"] },
+          "applicable_gender": { "type": "string", "enum": ["m", "f", "mf"] },
+          "leave_type":
+            {
+              "type": "string",
+              "enum": ["personal_leave", "mandatory_leave", "special_leave"],
+            },
+          "role":
+            {
+              "type": "string",
+              "enum":
+                [
+                  "karyawan_tetap",
+                  "karyawan_kontrak",
+                  "magang",
+                  "admin",
+                  "super_admin",
+                ],
+            },
+          "status":
+            { "type": "string", "enum": ["pending", "approved", "rejected"] },
+          "status_active": { "type": "string", "enum": ["active", "resign"] },
+        },
+    },
+}
