@@ -22,27 +22,35 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
           <div className="flex items-center">
             <div>
               <Image src="/images/logo-wgs.webp" alt="Logo WGS" width={120} height={40} priority />
-              <h2 className="text-2xl font-medium text-black mt-2">Welcome, User</h2>
+              <h2 className="text-2xl font-medium text-black mt-2">Welcome, Admin</h2>
             </div>
           </div>
         </div>
         <nav className="bg-blue-100 p-4 flex-1 pt-5 relative rounded-se-4xl">
           <div className="space-y-6 text-black font-semibold mt-8">
             <Link href="/user/dashboard" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActiveSidebar('/user/dashboard')}`}>
+              <i className="bi bi-box-arrow-in-left text-xl w-6 text-center" />
+              <span className="ml-3">Back</span>
+            </Link> 
+            <Link href="/admin/dashboard" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActiveSidebar('/admin/dashboard')}`}>
               <i className="bi bi-person-workspace text-xl w-6 text-center" />
               <span className="ml-3">Dashboard</span>
             </Link>
-            <Link href="/user/history" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActiveSidebar('/user/history')}`}>
-              <i className="bi bi-clock-history text-xl w-6 text-center" />
-              <span className="ml-3">History</span>
+            <Link href="/admin/list-leave" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActiveSidebar('/admin/list-leave')}`}>
+              <i className="bi bi-list-check text-xl w-6 text-center" />
+              <span className="ml-3">List Of Leave</span>
             </Link>
-            <Link href="/user/special" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActiveSidebar('/user/special')}`}>
-              <i className="bi bi-asterisk text-xl w-6 text-center" />
-              <span className="ml-3">Special</span>
+            <Link href="/admin/special-leave" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActiveSidebar('/admin/special-leave')}`}>
+              <i className="bi bi-card-checklist text-xl w-6 text-center" />
+              <span className="ml-3">Special Leave</span>
             </Link>
-            <Link href="/user/mandatory" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActiveSidebar('/user/mandatory')}`}>
+            <Link href="/admin/mandatory" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActiveSidebar('/admin/mandatory')}`}>
               <i className="bi bi-archive-fill text-xl w-6 text-center" />
               <span className="ml-3">Mandatory</span>
+            </Link>
+            <Link href="/admin/amount-leave" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActiveSidebar('/admin/amount-leave')}`}>
+              <i className="bi bi-window-plus text-xl w-6 text-center" />
+              <span className="ml-3">Amount Leave</span>
             </Link>
           </div>
         </nav>
@@ -54,7 +62,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
         <header className="lg:hidden flex items-center justify-between mb-6 px-2">
             <div>
                 <Image src="/images/logo-wgs.webp" alt="Logo WGS" width={90} height={30} priority />
-                 <h2 className="text-xl font-medium text-black">Welcome, User</h2>
+                 <h2 className="text-xl font-medium text-black">Welcome, Admin</h2>
             </div>
             <button className="p-2" onClick={() => setIsMobileMenuOpen(true)}>
                 <i className="bi bi-list text-3xl text-gray-700"></i>
@@ -80,10 +88,6 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
           {/* Bagian Kanan: Tombol-tombol */}
           <div className="flex items-center space-x-6">
-            <Link href="/admin/dashboard" className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
-              <i className="bi bi-person-workspace text-xl" />
-              <span className="text-sm font-medium">Admin Side</span>
-            </Link>
             <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
               <i className="bi bi-gear-fill text-xl" />
               <span className="text-sm font-medium">Settings</span>
@@ -100,22 +104,27 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
       {/* ===== BOTTOM NAVIGATION BAR (Hanya untuk Mobile) ===== */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white flex justify-around items-center h-16 shadow-[0_-2px_5px_rgba(0,0,0,0.1)] z-40">
-        <Link href="/user/dashboard" className={`flex flex-col items-center justify-center w-full h-full transition-colors ${isActiveBottomBar('/user/dashboard')}`}>
+        <Link href="/user/dashboard" className={`flex flex-col items-center justify-center w-full h-full transition-colors ${isActiveBottomBar('/admin/dashboard')}`}>
           <i className="bi bi-person-workspace text-2xl"></i>
-          {pathname === '/user/dashboard' && <span className="h-1 w-6 bg-blue-600 rounded-full mt-1"></span>}
+          {pathname === '/admin/dashboard' && <span className="h-1 w-6 bg-blue-600 rounded-full mt-1"></span>}
         </Link>
-        <Link href="/user/history" className={`flex flex-col items-center justify-center w-full h-full transition-colors ${isActiveBottomBar('/user/history')}`}>
-          <i className="bi bi-clock-history text-2xl"></i>
-          {pathname === '/user/history' && <span className="h-1 w-6 bg-blue-600 rounded-full mt-1"></span>}
+        <Link href="/admin/history" className={`flex flex-col items-center justify-center w-full h-full transition-colors ${isActiveBottomBar('/admin/list-leave')}`}>
+          <i className="bi bi-list-check text-2xl"></i>
+          {pathname === '/admin/list-leave' && <span className="h-1 w-6 bg-blue-600 rounded-full mt-1"></span>}
         </Link>
-        <Link href="/user/special" className={`flex flex-col items-center justify-center w-full h-full transition-colors ${isActiveBottomBar('/user/special')}`}>
-          <i className="bi bi-asterisk text-2xl"></i>
-          {pathname === '/user/special' && <span className="h-1 w-6 bg-blue-600 rounded-full mt-1"></span>}
+         <Link href="/admin/mandatory" className={`flex flex-col items-center justify-center w-full h-full transition-colors ${isActiveBottomBar('/admin/amount-leave')}`}>
+          <i className="bi bi-window-plus text-2xl"></i>
+          {pathname === '/admin/amount-leave' && <span className="h-1 w-6 bg-blue-600 rounded-full mt-1"></span>}
         </Link>
-        <Link href="/user/mandatory" className={`flex flex-col items-center justify-center w-full h-full transition-colors ${isActiveBottomBar('/user/mandatory')}`}>
+        <Link href="/admin/special" className={`flex flex-col items-center justify-center w-full h-full transition-colors ${isActiveBottomBar('/admin/special-leave')}`}>
+          <i className="bi bi-card-checklist text-2xl"></i>
+          {pathname === '/admin/special-leave' && <span className="h-1 w-6 bg-blue-600 rounded-full mt-1"></span>}
+        </Link>
+        <Link href="/admin/mandatory" className={`flex flex-col items-center justify-center w-full h-full transition-colors ${isActiveBottomBar('/admin/mandatory')}`}>
           <i className="bi bi-archive-fill text-2xl"></i>
-          {pathname === '/user/mandatory' && <span className="h-1 w-6 bg-blue-600 rounded-full mt-1"></span>}
+          {pathname === '/admin/mandatory' && <span className="h-1 w-6 bg-blue-600 rounded-full mt-1"></span>}
         </Link>
+       
       </nav>
 
       {/* ===== MENU SETTINGS & LOGOUT (Hanya untuk Mobile) ===== */}
@@ -133,10 +142,10 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
               </button>
             </div>
             <div className="flex flex-col space-y-1 mt-2">
-              <div className="flex items-center space-x-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                <i className="bi bi-person-workspace text-gray-700" />
-                <span className="font-medium text-gray-700">Admin Side   </span>
-              </div>
+              <Link href="/user/dashboard" className="flex items-center space-x-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                <i className="bi bi-box-arrow-in-left text-gray-700" />
+                <span className="font-medium text-gray-700">Back   </span>
+              </Link>
               <div className="flex items-center space-x-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
                 <i className="bi bi-gear-fill text-lg text-gray-700" />
                 <span className="font-medium text-gray-700">Settings</span>

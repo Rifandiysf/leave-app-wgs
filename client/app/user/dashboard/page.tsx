@@ -11,11 +11,12 @@ export default function UserDashboard() {
   return (
     <>
       {/* Header Specific to Dashboard Page */}
-      <div className="flex flex-col mb-4">
+      <div className="flex flex-col mb-6">  
+        
         {/* Mobile Header */}
-        <div className="sm:hidden w-full bg-white pb-4 sticky top-[-1rem] z-10">
-          <h1 className="text-2xl font-bold text-gray-800 text-center">Dashboard</h1>
-          <p className="text-gray-600 text-sm text-center mt-2">Manage your leave requests and track your remaining days</p>
+        <div className="sm:hidden">
+            <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
+            <p className="text-gray-600 text-sm">Manage your leave requests and track your remaining days</p>
         </div>
         
         {/* Desktop Header */}
@@ -23,16 +24,34 @@ export default function UserDashboard() {
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2 truncate">Dashboard</h1>
             <p className="text-gray-600 text-sm sm:text-base">Manage your leave requests and track your remaining days</p>
-          </div>
+          </div>  
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
+        
+        {/* --- KARTU 1 --- */}
         <Card className="group hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 border-0 overflow-hidden relative">
           <div className="absolute top-0 right-0 w-20 h-20 bg-blue-200 rounded-full -mr-10 -mt-10 opacity-50"></div>
           <div className="absolute bottom-0 left-0 w-16 h-16 bg-blue-300 rounded-full -ml-8 -mb-8 opacity-30"></div>
-          <div className="relative p-6 sm:p-8 md:p-10">
+          
+          {/* VERSI MOBILE (Hanya terlihat di layar kecil) */}
+          <div className="sm:hidden p-4">
+            <div className="flex items-start justify-between">
+                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <i className="bi bi-calendar-check text-white text-lg" />
+                </div>
+                <div className="text-3xl font-bold text-blue-800">2</div>
+            </div>
+            <div className="mt-2">
+                <h3 className="text-sm font-semibold text-blue-900 leading-tight">Remaining Leave</h3>
+                <p className="text-xs text-gray-600">this year</p>
+            </div>
+          </div>
+
+          {/* VERSI DESKTOP (Kode asli Anda, hanya terlihat di layar besar) */}
+          <div className="hidden sm:block relative p-6 sm:p-8 md:p-10">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
                 <i className="bi bi-calendar-check text-white text-xl" />
@@ -49,10 +68,27 @@ export default function UserDashboard() {
           </div>
         </Card>
 
+        {/* --- KARTU 2 --- */}
         <Card className="group hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 border-0 overflow-hidden relative">
           <div className="absolute top-0 right-0 w-20 h-20 bg-blue-200 rounded-full -mr-10 -mt-10 opacity-50"></div>
           <div className="absolute bottom-0 left-0 w-16 h-16 bg-blue-300 rounded-full -ml-8 -mb-8 opacity-30"></div>
-          <div className="relative p-6 sm:p-8 md:p-10">
+          
+           {/* VERSI MOBILE (Hanya terlihat di layar kecil) */}
+          <div className="sm:hidden p-4">
+             <div className="flex items-start justify-between">
+                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <i className="bi bi-calendar-plus text-white text-lg" />
+                </div>
+                <div className="text-3xl font-bold text-blue-800">12</div>
+             </div>
+             <div className="mt-2">
+                <h3 className="text-sm font-semibold text-blue-900 leading-tight">Remaining Leave</h3>
+                <p className="text-xs text-gray-600">From Last year</p>
+             </div>
+          </div>
+          
+          {/* VERSI DESKTOP (Kode asli Anda, hanya terlihat di layar besar) */}
+          <div className="hidden sm:block relative p-6 sm:p-8 md:p-10">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
                 <i className="bi bi-calendar-plus text-white text-xl" />

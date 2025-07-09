@@ -7,6 +7,7 @@ import { SearchButton } from "@/app/components/search/page"
 import { SelectDemo } from "@/app/components/select/page"
 import { SelectItem, SelectLabel } from "@/app/components/ui/select"
 
+
 type dataLeaveType = {
     nik: number,
     fullName: string,
