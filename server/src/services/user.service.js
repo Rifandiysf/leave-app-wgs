@@ -31,7 +31,11 @@ export const getAllUsers = async () => {
     const currentYear = new Date().getFullYear()
     const lastYear = new Date().getFullYear() - 1
 
-    const users = await prisma.tb_users.findMany();
+    const users = await prisma.tb_users.findMany({
+        orderBy: {
+            fullname: 'asc'
+        }
+    });
 
     const leaveAmount = await prisma.tb_balance.findMany({
         where: {
