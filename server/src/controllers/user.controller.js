@@ -1,4 +1,5 @@
-import { getLeaveBalanceByYear, getLeavesByNIK, } from "../services/user.service.js"
+import { role } from "../../generated/prisma/index.js"
+import { findUserByNIK, getLeaveBalanceByYear, getLeavesByNIK, } from "../services/user.service.js"
 
 
 export const lastYearLeave = async (req, res) => {
@@ -49,4 +50,40 @@ export const getLeaveRequests = async (req, res) => {
             message: error.message,
         })
     }
+}
+
+export const getUser = async (req, res) => {
+    const { nik } = req.params;
+    const { role, NIK } = req.session.user;
+    const isAdmin = ["admin", "super_admin"].includes(role);
+    try {
+        if(!isAdmin) {
+            if (NIK !== nik) {
+                const err = new Error("User requested has no permission");
+                err.statusCode = 400;
+                throw err;
+            }
+        }
+
+        const user = await findUserByNIK(nik);
+
+        res.status(200).json({
+            status: "successful",
+            message: `Data retrieve successfully`,
+            userRequested: {
+                role: role,
+                nik : NIK
+            },
+            data: user
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: "failed",
+            message: error.message,
+        })
+    }
+}
+
+export const updateUser = () => {
+
 }
