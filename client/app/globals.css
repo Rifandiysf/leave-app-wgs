@@ -9,6 +9,9 @@ body {
   overflow-x: hidden;
 }
 
+@theme {
+  --color-primary: #C7D9FF;
+}
 
 @theme inline {
   --color-background: var(--background);
