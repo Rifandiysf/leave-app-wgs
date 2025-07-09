@@ -52,8 +52,8 @@ export const getAllUsers = async () => {
         const currentYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === currentYear)
         const lastYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === lastYear)
 
-        const current = lastYearAmount?.amount || 0;
-        const last = currentYearAmount?.amount || 0;
+        const current = currentYearAmount?.amount || 0;
+        const last = lastYearAmount?.amount || 0;
 
         return {
             nik: user.NIK,
