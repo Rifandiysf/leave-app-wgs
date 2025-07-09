@@ -12,13 +12,14 @@
         {
           "get":
             {
-              "summary": "Retrieve all user data",
+              "summary": "Retrieve all user data with current year, last year, and total balance",
+              "description": "Menampilkan semua data user termasuk balance tahun sekarang, tahun lalu, dan total balance.",
               "tags": ["User"],
               "responses":
                 {
-                  "201":
+                  "200":
                     {
-                      "description": "Successfully retrieved all users",
+                      "description": "Successfully retrieved all users with balances",
                       "content":
                         {
                           "application/json":
@@ -34,35 +35,60 @@
                                           "type": "array",
                                           "items":
                                             {
-                                              "$ref": "#/components/schemas/tb_users",
+                                              "type": "object",
+                                              "properties":
+                                                {
+                                                  "user":
+                                                    {
+                                                      "$ref": "#/components/schemas/tb_users",
+                                                    },
+                                                  "balance_this_year":
+                                                    { "type": "integer" },
+                                                  "balance_last_year":
+                                                    { "type": "integer" },
+                                                  "balance_total":
+                                                    { "type": "integer" },
+                                                },
                                             },
                                         },
                                     },
                                 },
                               "example":
                                 {
-                                  "message": "Successfully retrieved all users",
+                                  "message": "Successfully retrieved all users with balances",
                                   "data":
                                     [
                                       {
-                                        "NIK": "789012",
-                                        "fullname": "Ayu Rahma",
-                                        "email": "ayu.rahma@example.com",
-                                        "password": "hashed_password_123",
-                                        "gender": "female",
-                                        "role": "karyawan_kontrak",
-                                        "status_active": "active",
-                                        "join_date": "2024-05-10",
+                                        "user":
+                                          {
+                                            "NIK": "789012",
+                                            "fullname": "Ayu Rahma",
+                                            "email": "ayu.rahma@example.com",
+                                            "password": "hashed_password_123",
+                                            "gender": "female",
+                                            "role": "karyawan_kontrak",
+                                            "status_active": "active",
+                                            "join_date": "2024-05-10",
+                                          },
+                                        "balance_this_year": 6,
+                                        "balance_last_year": 4,
+                                        "balance_total": 10,
                                       },
                                       {
-                                        "NIK": "456789",
-                                        "fullname": "Budi Santoso",
-                                        "email": "budi.santoso@example.com",
-                                        "password": "hashed_password_456",
-                                        "gender": "male",
-                                        "role": "karyawan_tetap",
-                                        "status_active": "resign",
-                                        "join_date": "2022-08-01",
+                                        "user":
+                                          {
+                                            "NIK": "456789",
+                                            "fullname": "Budi Santoso",
+                                            "email": "budi.santoso@example.com",
+                                            "password": "hashed_password_456",
+                                            "gender": "male",
+                                            "role": "karyawan_tetap",
+                                            "status_active": "resign",
+                                            "join_date": "2022-08-01",
+                                          },
+                                        "balance_this_year": 10,
+                                        "balance_last_year": 12,
+                                        "balance_total": 22,
                                       },
                                     ],
                                 },
