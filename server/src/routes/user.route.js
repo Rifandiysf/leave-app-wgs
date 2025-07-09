@@ -1,5 +1,5 @@
 import express from "express";
-import { createLeaveRequest, currentYearLeave, getLeaveRequests, getLeaveRequestsById, getLeavesByFilter, lastYearLeave } from "../controllers/user.controller.js";
+import { createLeaveRequest, currentYearLeave, getLeaveRequests, getLeaveRequestsById, getLeavesByFilter, lastYearLeave, allUsers } from "../controllers/user.controller.js";
 import { validate } from "../middlewares/validate.js";
 import leaveRequestSchema from "../validators/leave.validator.js";
 
@@ -12,5 +12,8 @@ userRoutes.post('/leave', validate(leaveRequestSchema), createLeaveRequest);
 userRoutes.get('/leave', getLeaveRequests)
 userRoutes.get('/leave/search', getLeavesByFilter)
 userRoutes.get('/leave/:id', getLeaveRequestsById)
+userRoutes.get('/leave', getLeaveRequests);
+
+userRoutes.get('/', allUsers);
 
 export default userRoutes;

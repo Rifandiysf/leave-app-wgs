@@ -139,3 +139,46 @@ export const getLeaveBalanceByYear = async (nik, year) => {
         },
     })
 }
+
+export const getAllUsers = async () => {
+    const currentYear = new Date().getFullYear()
+    const lastYear = new Date().getFullYear() - 1
+
+    const users = await prisma.tb_users.findMany({
+        orderBy: {
+            fullname: 'asc'
+        }
+    });
+
+    const leaveAmount = await prisma.tb_balance.findMany({
+        where: {
+            receive_date : {
+                gte: new Date(`${lastYear}-01-01`),
+                lte: new Date(`${currentYear}-12-31`)
+            }
+        }
+    });
+
+    const result = users.map(user => {
+        const userLeaveAmount = leaveAmount.filter(b => b.NIK === user.NIK)
+
+        const currentYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === currentYear)
+        const lastYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === lastYear)
+
+        const current = currentYearAmount?.amount || 0;
+        const last = lastYearAmount?.amount || 0;
+
+        return {
+            nik: user.NIK,
+            name: user.fullname,
+            gender: user.gender,
+            last_year_leave: last,
+            this_year_leave: current,
+            leave_total: last + current,
+            role: user.role,
+            status: user.status_active
+        }
+    });
+
+    return result;
+};

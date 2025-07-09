@@ -1,4 +1,4 @@
-import { createLeave, getLeaveBalanceByYear, getLeavesByFilterService, getLeavesById, getLeavesByNIK, } from "../services/user.service.js"
+import { createLeave, getLeaveBalanceByYear, getLeavesByFilterService, getLeavesById, getLeavesByNIK, getAllUsers} from "../services/user.service.js"
 
 
 export const createLeaveRequest = async (req, res) => {
@@ -112,5 +112,16 @@ export const currentYearLeave = async (req, res) => {
         res.json(leave)
     } catch (error) {
         res.status(500).json({ message: "Error retrieving current year data", error: error.message })
+    }
+}
+
+
+export const allUsers = async (req, res) => {
+    try {
+        const dataUsers = await getAllUsers()
+        res.status(200).json(dataUsers)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({message : 'Failed to retrieve user data and leave quota.'})
     }
 }
