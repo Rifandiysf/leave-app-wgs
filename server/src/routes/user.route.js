@@ -1,5 +1,5 @@
 import express from "express";
-import { currentYearLeave, getLeaveRequests, lastYearLeave } from "../controllers/user.controller.js";
+import { currentYearLeave, getLeaveRequests, lastYearLeave, allUsers } from "../controllers/user.controller.js";
 
 const userRoutes = express.Router();
 
@@ -8,5 +8,6 @@ userRoutes.get('/:nik/current-year', currentYearLeave);
 
 userRoutes.get('/leave', getLeaveRequests);
 
+userRoutes.get('/', allUsers);
 
 export default userRoutes;
