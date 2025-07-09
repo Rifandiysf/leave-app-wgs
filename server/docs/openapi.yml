@@ -604,22 +604,12 @@
                 },
             },
         },
-      "/api/v1/users/{nik}/leaves":
+      "/api/v1/users/leaves":
         {
           "post":
             {
-              "summary": "Create a new leave for a user by NIK",
+              "summary": "Create a new leave for a user",
               "tags": ["User"],
-              "parameters":
-                [
-                  {
-                    "name": "nik",
-                    "in": "path",
-                    "required": true,
-                    "schema": { "type": "string" },
-                    "description": "The NIK of the user to create leave for",
-                  },
-                ],
               "requestBody":
                 {
                   "required": true,
@@ -645,6 +635,10 @@
                                   "reason": { "type": "string" },
                                   "status":
                                     { "$ref": "#/components/schemas/status" },
+                                  "id_special":
+                                    { "type": "string", "nullable": true },
+                                  "id_mandatory":
+                                    { "type": "string", "nullable": true },
                                 },
                               "required":
                                 [
@@ -656,13 +650,48 @@
                                   "status",
                                 ],
                             },
-                          "example":
+                          "examples":
                             {
-                              "title": "Annual Leave",
-                              "leave_type": "personal_leave",
-                              "start_date": "2024-08-15",
-                              "end_date": "2024-08-20",
-                              "reason": "Family vacation",
+                              "personal_leave":
+                                {
+                                  "summary": "Personal Leave",
+                                  "value":
+                                    {
+                                      "title": "Annual Leave",
+                                      "leave_type": "personal_leave",
+                                      "start_date": "2024-08-15",
+                                      "end_date": "2024-08-20",
+                                      "reason": "Family vacation",
+                                    },
+                                },
+                              "special_leave":
+                                {
+                                  "summary": "Special Leave",
+                                  "value":
+                                    {
+                                      "title": "Menstruation Leave",
+                                      "leave_type": "special_leave",
+                                      "start_date": "2024-09-01",
+                                      "end_date": "2024-09-02",
+                                      "reason": "Menstruation pain",
+                                      "status": "pending",
+                                      "id_special": "SP001",
+                                    },
+                                },
+                              "mandatory_leave":
+                                {
+                                  "summary": "Mandatory Leave",
+                                  "value":
+                                    {
+                                      "title": "Idul Fitri Holiday",
+                                      "leave_type": "mandatory_leave",
+                                      "start_date": "2024-04-08",
+                                      "end_date": "2024-04-14",
+                                      "reason": "Religious holiday",
+                                      "status": "pending",
+                                      "id_mandatory": "MD001",
+                                    },
+                                },
                             },
                         },
                     },
@@ -688,23 +717,76 @@
                                         },
                                     },
                                 },
-                              "example":
+                              "examples":
                                 {
-                                  "message": "Successfully created leave for user with NIK 123456",
-                                  "data":
+                                  "personal_leave":
                                     {
-                                      "id_leave": "LV001",
-                                      "title": "Annual Leave",
-                                      "leave_type": "personal_leave",
-                                      "start_date": "2024-08-15",
-                                      "end_date": "2024-08-20",
-                                      "total_days": 6,
-                                      "reason": "Family vacation",
-                                      "status": "pending",
-                                      "created_at": "2024-07-08T10:00:00Z",
-                                      "NIK": "123456",
-                                      "id_special": null,
-                                      "id_mandatory": null,
+                                      "summary": "Personal Leave Response",
+                                      "value":
+                                        {
+                                          "message": "Successfully created personal leave",
+                                          "data":
+                                            {
+                                              "id_leave": "LV001",
+                                              "title": "Annual Leave",
+                                              "leave_type": "personal_leave",
+                                              "start_date": "2024-08-15",
+                                              "end_date": "2024-08-20",
+                                              "total_days": 6,
+                                              "reason": "Family vacation",
+                                              "status": "pending",
+                                              "created_at": "2024-07-08T10:00:00Z",
+                                              "NIK": "123456",
+                                              "id_special": null,
+                                              "id_mandatory": null,
+                                            },
+                                        },
+                                    },
+                                  "special_leave":
+                                    {
+                                      "summary": "Special Leave Response",
+                                      "value":
+                                        {
+                                          "message": "Successfully created special leave",
+                                          "data":
+                                            {
+                                              "id_leave": "LV002",
+                                              "title": "Menstruation Leave",
+                                              "leave_type": "special_leave",
+                                              "start_date": "2024-09-01",
+                                              "end_date": "2024-09-02",
+                                              "total_days": 2,
+                                              "reason": "Menstruation pain",
+                                              "status": "pending",
+                                              "created_at": "2024-07-08T10:05:00Z",
+                                              "NIK": "123456",
+                                              "id_special": "SP001",
+                                              "id_mandatory": null,
+                                            },
+                                        },
+                                    },
+                                  "mandatory_leave":
+                                    {
+                                      "summary": "Mandatory Leave Response",
+                                      "value":
+                                        {
+                                          "message": "Successfully created mandatory leave",
+                                          "data":
+                                            {
+                                              "id_leave": "LV003",
+                                              "title": "Idul Fitri Holiday",
+                                              "leave_type": "mandatory_leave",
+                                              "start_date": "2024-04-08",
+                                              "end_date": "2024-04-14",
+                                              "total_days": 7,
+                                              "reason": "Religious holiday",
+                                              "status": "pending",
+                                              "created_at": "2024-07-08T10:10:00Z",
+                                              "NIK": "123456",
+                                              "id_special": null,
+                                              "id_mandatory": "MD001",
+                                            },
+                                        },
                                     },
                                 },
                             },
@@ -725,7 +807,7 @@
                                 },
                               "example":
                                 {
-                                  "message": "Bad Request - Invalid input format",
+                                  "message": "Bad Request - Missing required field: title",
                                 },
                             },
                         },
@@ -752,6 +834,9 @@
                     },
                 },
             },
+        },
+      "/api/v1/users/{nik}/leaves":
+        {
           "get":
             {
               "summary": "Retrieve all leaves submitted by a user by NIK",

@@ -31,8 +31,9 @@ export const validateUser = async (req, res, next) => {
 
         return next();
     } catch (error) {
-        return res.status(error.statusCode).json({
-            message: error.message
+        return res.status(error.statusCode || 500).json({
+            message: error.message || "Internal server error"
         })
     }
+
 }

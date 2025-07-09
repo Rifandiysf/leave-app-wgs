@@ -1,12 +1,14 @@
 import express from "express";
-import { currentYearLeave, getLeaveRequests, lastYearLeave } from "../controllers/user.controller.js";
+import { createLeaveRequest, currentYearLeave, getLeaveRequests, lastYearLeave } from "../controllers/user.controller.js";
+import { validate } from "../middlewares/validate.js";
+import leaveRequestSchema from "../validators/leave.validator.js";
 
 const userRoutes = express.Router();
 
 userRoutes.get('/:nik/last-year', lastYearLeave);
 userRoutes.get('/:nik/current-year', currentYearLeave);
 
-userRoutes.get('/leave', getLeaveRequests);
-
+userRoutes.post('/leave', validate(leaveRequestSchema), createLeaveRequest);
+userRoutes.get('/leave', getLeaveRequests)
 
 export default userRoutes;

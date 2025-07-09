@@ -6,6 +6,8 @@ const leaveRequestSchema = z.object({
     start_date: z.coerce.date(),
     end_date: z.coerce.date(),
     reason: z.string().min(5, 'Reason must be at least 5 characters'),
+    id_special: z.string().optional(),    
+    id_mandatory: z.string().optional(),
 })
 
 export default leaveRequestSchema;
