@@ -343,7 +343,7 @@
                   },
               },
           },
-          "put":
+          "patch":
             {
               "summary": "Update user data by NIK",
               "tags": ["User"],
