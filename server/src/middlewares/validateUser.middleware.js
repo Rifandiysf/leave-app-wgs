@@ -5,7 +5,6 @@ import bcrypt from 'bcrypt';
 export const validateUser = async (req, res, next) => {
     const { email, password } = req.body;
     try {
-        console.log(password);
         const user = await fetchUserData("email", email);
         const match = await bcrypt.compare(password, user.password);
 
