@@ -1,51 +1,21 @@
-import { role } from "../../generated/prisma/index.js"
-import { findUserByNIK, getLeaveBalanceByYear, getLeavesByNIK, updateUserByNIK, deleteUserByNIK } from "../services/user.service.js"
-import prisma from "../utils/client.js"
-import { Prisma } from "../../generated/prisma/index.js"
+import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK } from "../services/user.service.js"
 
 
-export const lastYearLeave = async (req, res) => {
-    const { nik } = req.params
-    const lastYear = new Date().getFullYear() - 1
-
-    try {
-        const leave = await getLeaveBalanceByYear(nik, lastYear)
-
-        if (!leave) {
-            return res.status(404).json({ message: "Last year's leave quota not found" })
-        }
-
-        res.json(leave)
-    } catch (error) {
-        res.status(500).json({ message: "Error retrieving last year data", error: error.message })
-    }
-}
-
-export const currentYearLeave = async (req, res) => {
-    const { nik } = req.params
-    const currentYear = new Date().getFullYear()
-
-    try {
-        const leave = await getLeaveBalanceByYear(nik, currentYear)
-
-        if (!leave) {
-            return res.status(404).json({ message: "Current year's leave quota not found" })
-        }
-
-        res.json(leave)
-    } catch (error) {
-        res.status(500).json({ message: "Error retrieving current year data", error: error.message })
-    }
-}
-
-export const getLeaveRequests = async (req, res) => {
+export const createLeaveRequest = async (req, res) => {
     try {
         const user = req.session.user
-        const leaves = await getLeavesByNIK(user.NIK)
 
-        res.status(200).json({
-            message: "Leave requests retrieved successfully",
-            data: leaves,
+        console.log("Request body:", req.body);
+        console.log("id_special di body:", req.body.id_special);
+
+        const leave = await createLeave({
+            ...req.body,
+            NIK: user.NIK,
+        })
+
+        res.status(201).json({
+            message: "Leave request created successfully",
+            data: leave,
         })
     } catch (error) {
         res.status(400).json({
@@ -54,12 +24,96 @@ export const getLeaveRequests = async (req, res) => {
     }
 }
 
+
+export const getLeaveRequests = async (req, res) => {
+    try {
+        const user = req.session.user
+
+        const leaves = await getLeavesByNIK(user.NIK)
+
+        if (!leaves || leaves.length === 0) {
+            res.status(201).json({
+                message: "The data doesn't exist",
+                data: leaves,
+            })
+        }
+
+        res.status(201).json({
+            message: "Leave requests retrieved successfully",
+            data: leaves,
+        })
+    } catch (error) {
+        res.status(400).json({
+            message: error.message,
+        })
+    }
+
+}
+
+export const getLeavesByFilter = async (req, res) => {
+    try {
+        const { type, status } = req.query;
+        const user = req.session.user;
+
+        const leaves = await getLeavesByFilterService(user.NIK, type, status);
+
+        if (!leaves || leaves.length === 0) {
+            res.status(201).json({
+                message: "The data doesn't exist",
+                data: leaves,
+            })
+        }
+
+        res.status(200).json({
+            message: 'Filtered leave data retrieved successfully',
+            data: leaves
+        });
+
+    } catch (error) {
+        res.status(400).json({
+            message: error.message
+        });
+    }
+};
+
+
+export const getLeaveRequestsById = async (req, res) => {
+    try {
+
+        const { id } = req.params
+        const user = req.session.user
+
+        const leaves = await getLeavesById(user.NIK, id)
+
+        res.status(201).json({
+            message: 'Successfully retrieved leave data by ID',
+            data: leaves
+        })
+
+    } catch (error) {
+        res.status(400).json({
+            message: error.message
+        })
+    }
+}
+
+
+export const allUsers = async (req, res) => {
+    try {
+        const dataUsers = await getAllUsers()
+        res.status(200).json(dataUsers)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Failed to retrieve user data and leave quota.' })
+    }
+}
+
 export const getUser = async (req, res) => {
     const { nik } = req.params;
     const { role, NIK } = req.session.user;
     const isAdmin = ["admin", "super_admin"].includes(role);
     try {
-        if(!isAdmin) {
+        if (!isAdmin) {
             if (NIK !== nik) {
                 const err = new Error("User requested has no permission");
                 err.statusCode = 400;
@@ -67,14 +121,14 @@ export const getUser = async (req, res) => {
             }
         }
 
-        const user = await findUserByNIK(nik);
+        const user = await getUserByNIK(nik);
 
         res.status(200).json({
             status: "successful",
             message: `Data retrieve successfully`,
             requested_by: {
                 role: role,
-                nik : NIK
+                nik: NIK
             },
             data: user
         });
@@ -113,7 +167,7 @@ export const deleteUser = async (req, res) => {
         res.status(200).json({
             status: "success",
             message: "successfully deleted user data",
-            data: deletedUser 
+            data: deletedUser
         })
     } catch (error) {
         res.status(400).json({

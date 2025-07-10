@@ -343,7 +343,7 @@
                   },
               },
           },
-          "put":
+          "patch":
             {
               "summary": "Update user data by NIK",
               "tags": ["User"],
@@ -604,22 +604,12 @@
                 },
             },
         },
-      "/api/v1/users/{nik}/leaves":
+      "/api/v1/users/leaves":
         {
           "post":
             {
-              "summary": "Create a new leave for a user by NIK",
+              "summary": "Create a new leave for a user",
               "tags": ["User"],
-              "parameters":
-                [
-                  {
-                    "name": "nik",
-                    "in": "path",
-                    "required": true,
-                    "schema": { "type": "string" },
-                    "description": "The NIK of the user to create leave for",
-                  },
-                ],
               "requestBody":
                 {
                   "required": true,
@@ -645,6 +635,10 @@
                                   "reason": { "type": "string" },
                                   "status":
                                     { "$ref": "#/components/schemas/status" },
+                                  "id_special":
+                                    { "type": "string", "nullable": true },
+                                  "id_mandatory":
+                                    { "type": "string", "nullable": true },
                                 },
                               "required":
                                 [
@@ -656,13 +650,48 @@
                                   "status",
                                 ],
                             },
-                          "example":
+                          "examples":
                             {
-                              "title": "Annual Leave",
-                              "leave_type": "personal_leave",
-                              "start_date": "2024-08-15",
-                              "end_date": "2024-08-20",
-                              "reason": "Family vacation",
+                              "personal_leave":
+                                {
+                                  "summary": "Personal Leave",
+                                  "value":
+                                    {
+                                      "title": "Annual Leave",
+                                      "leave_type": "personal_leave",
+                                      "start_date": "2024-08-15",
+                                      "end_date": "2024-08-20",
+                                      "reason": "Family vacation",
+                                    },
+                                },
+                              "special_leave":
+                                {
+                                  "summary": "Special Leave",
+                                  "value":
+                                    {
+                                      "title": "Menstruation Leave",
+                                      "leave_type": "special_leave",
+                                      "start_date": "2024-09-01",
+                                      "end_date": "2024-09-02",
+                                      "reason": "Menstruation pain",
+                                      "status": "pending",
+                                      "id_special": "SP001",
+                                    },
+                                },
+                              "mandatory_leave":
+                                {
+                                  "summary": "Mandatory Leave",
+                                  "value":
+                                    {
+                                      "title": "Idul Fitri Holiday",
+                                      "leave_type": "mandatory_leave",
+                                      "start_date": "2024-04-08",
+                                      "end_date": "2024-04-14",
+                                      "reason": "Religious holiday",
+                                      "status": "pending",
+                                      "id_mandatory": "MD001",
+                                    },
+                                },
                             },
                         },
                     },
@@ -688,23 +717,76 @@
                                         },
                                     },
                                 },
-                              "example":
+                              "examples":
                                 {
-                                  "message": "Successfully created leave for user with NIK 123456",
-                                  "data":
+                                  "personal_leave":
                                     {
-                                      "id_leave": "LV001",
-                                      "title": "Annual Leave",
-                                      "leave_type": "personal_leave",
-                                      "start_date": "2024-08-15",
-                                      "end_date": "2024-08-20",
-                                      "total_days": 6,
-                                      "reason": "Family vacation",
-                                      "status": "pending",
-                                      "created_at": "2024-07-08T10:00:00Z",
-                                      "NIK": "123456",
-                                      "id_special": null,
-                                      "id_mandatory": null,
+                                      "summary": "Personal Leave Response",
+                                      "value":
+                                        {
+                                          "message": "Successfully created personal leave",
+                                          "data":
+                                            {
+                                              "id_leave": "LV001",
+                                              "title": "Annual Leave",
+                                              "leave_type": "personal_leave",
+                                              "start_date": "2024-08-15",
+                                              "end_date": "2024-08-20",
+                                              "total_days": 6,
+                                              "reason": "Family vacation",
+                                              "status": "pending",
+                                              "created_at": "2024-07-08T10:00:00Z",
+                                              "NIK": "123456",
+                                              "id_special": null,
+                                              "id_mandatory": null,
+                                            },
+                                        },
+                                    },
+                                  "special_leave":
+                                    {
+                                      "summary": "Special Leave Response",
+                                      "value":
+                                        {
+                                          "message": "Successfully created special leave",
+                                          "data":
+                                            {
+                                              "id_leave": "LV002",
+                                              "title": "Menstruation Leave",
+                                              "leave_type": "special_leave",
+                                              "start_date": "2024-09-01",
+                                              "end_date": "2024-09-02",
+                                              "total_days": 2,
+                                              "reason": "Menstruation pain",
+                                              "status": "pending",
+                                              "created_at": "2024-07-08T10:05:00Z",
+                                              "NIK": "123456",
+                                              "id_special": "SP001",
+                                              "id_mandatory": null,
+                                            },
+                                        },
+                                    },
+                                  "mandatory_leave":
+                                    {
+                                      "summary": "Mandatory Leave Response",
+                                      "value":
+                                        {
+                                          "message": "Successfully created mandatory leave",
+                                          "data":
+                                            {
+                                              "id_leave": "LV003",
+                                              "title": "Idul Fitri Holiday",
+                                              "leave_type": "mandatory_leave",
+                                              "start_date": "2024-04-08",
+                                              "end_date": "2024-04-14",
+                                              "total_days": 7,
+                                              "reason": "Religious holiday",
+                                              "status": "pending",
+                                              "created_at": "2024-07-08T10:10:00Z",
+                                              "NIK": "123456",
+                                              "id_special": null,
+                                              "id_mandatory": "MD001",
+                                            },
+                                        },
                                     },
                                 },
                             },
@@ -725,7 +807,7 @@
                                 },
                               "example":
                                 {
-                                  "message": "Bad Request - Invalid input format",
+                                  "message": "Bad Request - Missing required field: title",
                                 },
                             },
                         },
@@ -756,16 +838,6 @@
             {
               "summary": "Retrieve all leaves submitted by a user by NIK",
               "tags": ["User"],
-              "parameters":
-                [
-                  {
-                    "name": "nik",
-                    "in": "path",
-                    "required": true,
-                    "schema": { "type": "string" },
-                    "description": "The NIK of the user to retrieve leaves for",
-                  },
-                ],
               "responses":
                 {
                   "201":
@@ -870,7 +942,7 @@
                 },
             },
         },
-      "/api/v1/users/{nik}/leaves/{id}":
+      "/api/v1/users/leaves/{id}":
         {
           "get":
             {
@@ -878,13 +950,6 @@
               "tags": ["User"],
               "parameters":
                 [
-                  {
-                    "name": "nik",
-                    "in": "path",
-                    "required": true,
-                    "schema": { "type": "string" },
-                    "description": "NIK of the user",
-                  },
                   {
                     "name": "id",
                     "in": "path",
@@ -950,9 +1015,7 @@
                                     { "message": { "type": "string" } },
                                 },
                               "example":
-                                {
-                                  "message": "Bad Request - Invalid leave ID or NIK",
-                                },
+                                { "message": "Bad Request - Invalid leave ID" },
                             },
                         },
                     },
@@ -999,38 +1062,43 @@
                 },
             },
         },
-      "/api/v1/users/{nik}/leaves/search":
+      "/api/v1/leaves/search":
         {
           "get":
             {
-              "summary": "Search leaves by type for a specific user",
+              "summary": "Search leave records by type and/or status",
+"description": "Retrieve leave records filtered by leave type (personal, mandatory, special) and/or status (waiting, approved, reject).\n\nExample :\n- /api/v1/leaves/search?type=personal\n- /api/v1/leaves/search?status=approved\n- /api/v1/leaves/search?type=special&status=waiting",
               "tags": ["User"],
               "parameters":
                 [
                   {
-                    "name": "nik",
-                    "in": "path",
-                    "required": true,
-                    "schema": { "type": "string" },
-                    "description": "NIK of the user",
-                  },
-                  {
                     "name": "type",
                     "in": "query",
-                    "required": true,
+                    "required": false,
                     "schema":
                       {
                         "type": "string",
-                        "enum": ["mandatory", "personal", "special"],
+                        "enum": ["personal", "mandatory", "special"],
                       },
-                    "description": "Leave type to filter: mandatory, personal, or special",
+                    "description": "Filter by leave type",
+                  },
+                  {
+                    "name": "status",
+                    "in": "query",
+                    "required": false,
+                    "schema":
+                      {
+                        "type": "string",
+                        "enum": ["waiting", "approved", "reject"],
+                      },
+                    "description": "Filter by leave status",
                   },
                 ],
               "responses":
                 {
                   "200":
                     {
-                      "description": "Leaves successfully retrieved by type",
+                      "description": "Successfully retrieved filtered leave records",
                       "content":
                         {
                           "application/json":
@@ -1053,12 +1121,12 @@
                                 },
                               "examples":
                                 {
-                                  "mandatory":
+                                  "byTypeOnly":
                                     {
-                                      "summary": "Mandatory Leave Example",
+                                      "summary": "Filtered by type only",
                                       "value":
                                         {
-                                          "message": "Successfully retrieved mandatory leaves",
+                                          "message": "Filtered leave data retrieved successfully",
                                           "data":
                                             [
                                               {
@@ -1071,58 +1139,55 @@
                                                 "reason": "Family vacation",
                                                 "status": "approved",
                                                 "created_at": "2024-06-20T08:00:00Z",
-                                                "NIK": "123456",
                                                 "id_special": null,
                                                 "id_mandatory": "MD001",
                                               },
                                             ],
                                         },
                                     },
-                                  "personal":
+                                  "byStatusOnly":
                                     {
-                                      "summary": "Personal Leave Example",
+                                      "summary": "Filtered by status only",
                                       "value":
                                         {
-                                          "message": "Successfully retrieved personal leaves",
+                                          "message": "Filtered leave data retrieved successfully",
                                           "data":
                                             [
                                               {
                                                 "id_leave": "LV002",
-                                                "title": "Urgent Personal Leave",
+                                                "title": "Personal Leave",
                                                 "leave_type": "personal_leave",
                                                 "start_date": "2024-08-01",
                                                 "end_date": "2024-08-03",
                                                 "total_days": 3,
                                                 "reason": "Medical emergency",
-                                                "status": "pending",
+                                                "status": "waiting",
                                                 "created_at": "2024-07-25T09:00:00Z",
-                                                "NIK": "123456",
                                                 "id_special": null,
                                                 "id_mandatory": null,
                                               },
                                             ],
                                         },
                                     },
-                                  "special":
+                                  "byTypeAndStatus":
                                     {
-                                      "summary": "Special Leave Example",
+                                      "summary": "Filtered by type and status",
                                       "value":
                                         {
-                                          "message": "Successfully retrieved special leaves",
+                                          "message": "Filtered leave data retrieved successfully",
                                           "data":
                                             [
                                               {
                                                 "id_leave": "LV003",
-                                                "title": "Maternity Leave",
+                                                "title": "Special Event Leave",
                                                 "leave_type": "special_leave",
-                                                "start_date": "2024-09-01",
-                                                "end_date": "2024-09-30",
-                                                "total_days": 30,
-                                                "reason": "Childbirth",
+                                                "start_date": "2024-09-10",
+                                                "end_date": "2024-09-12",
+                                                "total_days": 3,
+                                                "reason": "Attending wedding ceremony",
                                                 "status": "approved",
-                                                "created_at": "2024-08-20T10:00:00Z",
-                                                "NIK": "123456",
-                                                "id_special": "SP001",
+                                                "created_at": "2024-08-15T10:00:00Z",
+                                                "id_special": "SPC001",
                                                 "id_mandatory": null,
                                               },
                                             ],
@@ -1134,7 +1199,7 @@
                     },
                   "400":
                     {
-                      "description": "Bad Request - Invalid query or parameter",
+                      "description": "Bad request - Invalid query parameter",
                       "content":
                         {
                           "application/json":
@@ -1147,14 +1212,14 @@
                                 },
                               "example":
                                 {
-                                  "message": "Bad Request - Invalid leave type parameter",
+                                  "message": "Invalid leave type. Allowed: personal, mandatory, special",
                                 },
                             },
                         },
                     },
                   "401":
                     {
-                      "description": "Unauthorized - User not logged in",
+                      "description": "Unauthorized - User not logged in (session missing)",
                       "content":
                         {
                           "application/json":

@@ -17,6 +17,7 @@ export const fetchUserData = async (params, uniqueId) => {
     let password = await bcrypt.hash(user.password, 10);
 
     const userCopy = {
+        NIK: user.NIK,
         fullname: user.fullname,
         email: user.email,
         role: user.role,

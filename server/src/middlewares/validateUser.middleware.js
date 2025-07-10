@@ -6,7 +6,6 @@ export const validateUser = async (req, res, next) => {
     try {
         console.log(password);
         const user = await fetchUserData("email", email);
-        console.log(user.password);
         const match = await bcrypt.compare(password, user.password);
 
         if (req.session.user) {
@@ -39,4 +38,5 @@ export const validateUser = async (req, res, next) => {
             message: error.message
         })
     }
+
 }
