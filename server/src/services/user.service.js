@@ -204,7 +204,7 @@ export const getUserByNIK = async (nik) => {
                     }
                 },
                 orderBy: {
-                    expired_date: "asc"
+                    expired_date: "desc"
                 }
             },
         }
@@ -219,8 +219,7 @@ export const getUserByNIK = async (nik) => {
     const { tb_balance, NIK, fullname, gender, status_active } = user;
     const currentBalance = tb_balance[0].amount;
     const lastYearBalance =  tb_balance[1] ? tb_balance[1].amount : 0;
-
-    // let maxReceiveAmount = user.role === "karyawan_kontrak" ? 1 : 12;
+    let maxReceiveAmount = user.role === "karyawan_kontrak" ? 1 : 12;
  
     const pending_request = await prisma.tb_leave.aggregate({
         _sum: {

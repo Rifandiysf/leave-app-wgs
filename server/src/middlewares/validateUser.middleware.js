@@ -1,3 +1,4 @@
+import { status } from "../../generated/prisma/index.js";
 import { fetchUserData } from "../services/auth.service.js";
 import bcrypt from 'bcrypt';
 
@@ -27,7 +28,7 @@ export const validateUser = async (req, res, next) => {
         }
 
         if (user.role === "magang") {
-            const error = new Error("user not found");
+            const error = new Error(`Invalid role: ${user.role}`);
             error.statusCode = 401;
             throw error;
         }
@@ -35,6 +36,7 @@ export const validateUser = async (req, res, next) => {
         return next();
     } catch (error) {
         return res.status(400).json({
+            status: "failed",
             message: error.message
         })
     }
