@@ -1,13 +1,9 @@
-
 import express from "express";
-import { getAdminLeaveRequests } from '../controllers/leave.controller.js';
-import { validate } from '../middlewares/validate.js';
-import leaveRequestSchema from '../validators/leave.validator.js';
-import { validateRole } from '../middlewares/role.middleware.js';
+import { getAllLeaves, getLeavesByFilter } from '../controllers/leave.controller.js'
 
 const leaveRoutes = express.Router();
 
-
-leaveRoutes.get('/admin', validateRole('super_admin', 'admin'), getAdminLeaveRequests);
+leaveRoutes.get('', getAllLeaves)
+leaveRoutes.get('/search', getLeavesByFilter)
 
 export default leaveRoutes;
