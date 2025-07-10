@@ -12,7 +12,7 @@ import {
 type SelectDemoProps = {
     placeholder?: string,
     children: ReactNode,
-    className: string
+    className?: string
 }
 
 export function SelectDemo({ placeholder , children, className }: SelectDemoProps) {

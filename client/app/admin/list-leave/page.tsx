@@ -6,6 +6,7 @@ import { SearchButton } from "@/app/components/search/page"
 import { SelectDemo } from "@/app/components/select/page"
 import { SelectItem, SelectLabel } from "@/app/components/ui/select"
 import { ReactNode, useState } from 'react'
+import Modal from '@/app/components/Modal/Modal'
 
 type dataListOfLeaveType = {
     name: string,
@@ -107,7 +108,24 @@ const ListOfLeavePage = () => {
                                     <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.endLeave}</th>
                                     <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.leaveUsed}</th>
                                     <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.status}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.action}</th>
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
+                                        <Modal
+                                            mode='confirm'
+                                            size='icon'
+                                            variant='ghost'
+                                            title='Accept Request'
+                                            description="Are you sure want to accept this request leave?"
+                                            triggerLabel={<i className="bi bi-check2-circle text-xl"></i>}
+                                        />
+                                        <Modal
+                                            mode='reject'
+                                            size='icon'
+                                            variant='ghost'
+                                            title='Reject Request'
+                                            description='Are you sure want to reject this request leave?'
+                                            triggerLabel={<i className="bi bi-x-circle text-xl"></i>}
+                                        />
+                                    </th>
                                 </tr>
                             ))
                         )}

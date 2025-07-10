@@ -30,9 +30,9 @@ const dummyData = [
 ]
 
 const statusColor = {
-  WAITING: 'bg-yellow-200 text-yellow-800',
-  APPROVE: 'bg-green-200 text-green-800',
-  REJECT: 'bg-red-200 text-red-800',
+  WAITING: 'text-[#d39b02] bg-[#ffcf494b] p-2 px-3 rounded-full text-xs',
+  APPROVE: 'text-[#00c41d] bg-[#82ff9544] p-2 px-3 rounded-full text-xs',
+  REJECT: 'text-[#ca0000] bg-[#ff5f5f77] p-2 px-3 rounded-full text-xs',
 }
 
 export default function SpecialPage() {
@@ -77,10 +77,10 @@ export default function SpecialPage() {
       )}
 
       {/* Table */}
-      <div className="relative p-3 min-h-[calc(100dvh)] overflow-x-auto">
-        <table className="w-full table-auto rounded-t-2xl">
+      <section className="relative p-3 min-h-[calc(100dvh-137px)]">
+        <table className="w-full min-w-max rounded-t-2xl">
           <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] rounded-2xl shadow-2xl">
-            <tr className="text-base">
+            <tr>
               <th className="p-3 text-[18px] font-semibold tracking-wide whitespace-nowrap">Status</th>
               <th className="p-3 text-[18px] font-semibold tracking-wide whitespace-nowrap">Leave Title</th>
               <th className="p-3 text-[18px] font-semibold tracking-wide whitespace-nowrap">Start Leave</th>
@@ -90,94 +90,73 @@ export default function SpecialPage() {
               <th className="p-3 text-[18px] font-semibold tracking-wide whitespace-nowrap">Reject Note</th>
             </tr>
           </thead>
-          <tbody className="text-gray-800">
+          <tbody className="cursor-pointer">
             {isLoading ? (
               Array.from({ length: ITEMS_PER_PAGE }).map((_, rowIdx) => (
                 <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
                   {Array.from({ length: 7 }).map((_, colIdx) => (
-                    <th key={colIdx} className="p-3">
+                    <th key={colIdx} className="p-2 sm:p-3">
                       <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
                     </th>
                   ))}
                 </tr>
               ))
             ) : (
-              currentData.map((row, idx) => (
+              currentData.map((data, idx) => (
                 <tr key={idx} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <th className="p-2 text-sm sm:text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
                     <span
                       className={classNames(
                         'px-3 py-1.5 rounded-full text-sm font-semibold',
-                        statusColor[row.status as keyof typeof statusColor]
+                        statusColor[data.status as keyof typeof statusColor]
                       )}
                     >
-                      {row.status}
+                      {data.status}
                     </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{row.title}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{row.start}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{row.end}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{row.amount}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{row.gender}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{row.note}</td>
+                  </th>
+                  <th className="p-2 text-sm sm:text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.title}</th>
+                  <th className="p-2 text-sm sm:text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.start}</th>
+                  <th className="p-2 text-sm sm:text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.end}</th>
+                  <th className="p-2 text-sm sm:text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.amount}</th>
+                  <th className="p-2 text-sm sm:text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.gender}</th>
+                  <th className="p-2 text-sm sm:text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.note}</th>
                 </tr>
               ))
             )}
-            {/* {paginatedData.map((row, idx) => (
-              <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={classNames(
-                      'px-3 py-1.5 rounded-full text-sm font-semibold',
-                      statusColor[row.status as keyof typeof statusColor]
-                    )}
-                  >
-                    {row.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">{row.title}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{row.start}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{row.end}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{row.amount}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{row.gender}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{row.note}</td>
-              </tr>
-            ))} */}
           </tbody>
         </table>
-      </div>
 
-      {/* Pagination  */}
-      <div className="flex justify-center items-center bg-white py-5">
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => handlePageChange(currentPage - 1)}
-                className={`${currentPage === 1 ? "pointer-events-none opacity-50 cursor-default" : "cursor-pointer"}`}
-              />
-            </PaginationItem>
-
-            {Array.from({ length: totalPages }, (_, i) => (
-              <PaginationItem key={i}>
-                <PaginationLink
-                  isActive={currentPage === i + 1}
-                  onClick={() => handlePageChange(i + 1)}
-                >
-                  {i + 1}
-                </PaginationLink>
+        <div className="flex justify-center items-center bg-white py-5">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className={`${currentPage === 1 ? "pointer-events-none opacity-50 cursor-default" : "cursor-pointer"}`}
+                />
               </PaginationItem>
-            ))}
 
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => handlePageChange(currentPage + 1)}
-                className={`${currentPage === totalPages ? "pointer-events-none opacity-50 cursor-default" : "cursor-pointer"}`}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink
+                    isActive={currentPage === i + 1}
+                    onClick={() => handlePageChange(i + 1)}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className={`${currentPage === totalPages ? "pointer-events-none opacity-50 cursor-default" : "cursor-pointer"}`}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      </section>
     </div>
   )
 }

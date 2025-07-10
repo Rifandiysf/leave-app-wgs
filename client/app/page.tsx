@@ -1,7 +1,7 @@
-import { redirect } from "next/navigation";
+import UserDashboard from "./(user)/dashboard/dashboard";
 
 export default function Home() {
   return (
-    redirect("/user/dashboard")
+    <UserDashboard/>
   );
 }

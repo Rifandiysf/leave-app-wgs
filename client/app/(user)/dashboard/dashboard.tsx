@@ -79,11 +79,11 @@ export default function UserDashboard() {
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-900 mb-3">Ready to take a break?</h2>
               <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">Submit your leave request and well process it for you</p>
               <Modal 
-                styleButton="w-full px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-900 font-semibold hover:bg-blue-50 hover:shadow-lg transition-all duration-300 rounded-xl border-0 text-base sm:text-lg"
-                TitleButton="Apply For Leave"
-                title="Leave Application"
-                description="Fill in the details for your leave request"
                 mode="form"
+                title="Leave Application"
+                triggerLabel="Apply For Leave"
+                description="Fill in the details for your leave request"
+                triggerClassName="w-full px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-900 font-semibold hover:bg-blue-50 hover:shadow-lg transition-all duration-300 rounded-xl border-0 text-base sm:text-lg"
               />
             </div>
           </div>

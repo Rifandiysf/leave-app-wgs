@@ -192,8 +192,15 @@ const HistoryPage = () => {
                                     <th className="p-2 text-sm sm:text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.leaveUsage}</th>
                                     <th className="p-2 text-sm sm:text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.reason}</th>
                                     <th className="p-2 text-sm sm:text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
-                                        <Modal variant="ghost" size="icon" mode="info" title="Information" TitleButton={data.note} description="" footer={false}>
-                                            <h2>Approve By Dia</h2>
+                                        <Modal 
+                                            mode="info" 
+                                            size="icon" 
+                                            variant="ghost" 
+                                            title="Information" 
+                                            triggerLabel={data.note} 
+                                            description="" 
+                                            showFooter>
+                                                <h2>Approve By Dia</h2>
                                         </Modal>
                                     </th>
                                 </tr>
