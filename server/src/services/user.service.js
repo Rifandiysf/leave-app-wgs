@@ -194,7 +194,10 @@ export const getUserByNIK = async (nik) => {
             email: true,
         },
         where: {
-            NIK: nik
+            NIK: nik,
+            NOT: {
+                role: "magang"
+            }
         },
         include: {
             tb_balance: {
@@ -213,11 +216,11 @@ export const getUserByNIK = async (nik) => {
     if (!user) {
         const error =  new Error("user not found");
         error.statusCode = 404;
-        throw error
+        throw error;
     }
     
     const { tb_balance, NIK, fullname, gender, status_active } = user;
-    const currentBalance = tb_balance[0].amount;
+    const currentBalance = tb_balance[0] ? tb_balance[0].amount : 0;
     const lastYearBalance =  tb_balance[1] ? tb_balance[1].amount : 0;
     let maxReceiveAmount = user.role === "karyawan_kontrak" ? 1 : 12;
  
@@ -263,8 +266,8 @@ export const getUserByNIK = async (nik) => {
         role: user.role,
         balance : {
             total_amount: currentBalance + lastYearBalance || 0,
-            current_amount: currentBalance || 0,
-            carried_amount: lastYearBalance|| 0,
+            current_amount: currentBalance,
+            carried_amount: lastYearBalance,
             days_used:  approved_request._sum.total_days  || 0,
             pending_request: pending_request._sum.total_days || 0,
         }
