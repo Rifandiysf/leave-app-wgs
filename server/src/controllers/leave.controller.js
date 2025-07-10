@@ -2,7 +2,7 @@ import {
   getAllLeaves,
   getLeavesByType,
 } from "../services/leave.service.js"
-import { createLeave } from "../services/leave.service.js"
+import { createLeave, getHistoryLeave } from "../services/leave.service.js"
 
 
 export const createLeaveRequest = async (req, res) => {
@@ -84,5 +84,32 @@ const getAdminSpecialLeave = async (req, res) => {
     })
   } catch (error) {
     res.status(400).json({ message: error.message })
+  }
+}
+
+export const historyLeave = async (req, res) => {
+  try {
+    const result = await getHistoryLeave()
+    res.status(200).json({succes: true, data: result})
+  } catch (error) {
+    console.error('Error fetching leave history:', error)
+    res.status(500).json({succes: false, message: 'Server Error'})
+  }
+}
+
+export const historyLeaveSearch = async (req, res) => {
+  try {
+    const {value, type, status} = req.query
+
+    const result = await getHistoryLeave({
+      value: value || '',
+      type: type || '',
+      status: status || ''
+    })
+    
+    res.status(200).json({success: true, data: result})
+  } catch (error) {
+    console.error('Error fetching leave history:', error)
+    res.status(500).json({success: false, message: error.message})
   }
 }

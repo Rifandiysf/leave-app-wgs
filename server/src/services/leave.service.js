@@ -1,3 +1,4 @@
+import { leave_type } from "../../generated/prisma/index.js";
 import prisma from "../utils/client.js";
 
 
@@ -34,3 +35,52 @@ export const createLeave = async (data) => {
 
 }
 
+export const getHistoryLeave = async ({value, type, status}) => {
+    const changeFormat = (text) => {
+        return text?.trim().toLowerCase().replace(/\s+/g, '_')
+    }
+    const leaves = await prisma.tb_leave.findMany({
+        where : {
+            ...(type && {leave_type: changeFormat(type)}),
+            ...(status && {status: status})
+        },
+        orderBy : {start_date: 'desc'}
+    })
+
+    const history = await Promise.all(
+        leaves.map(async (leave) => {
+            const user = await prisma.tb_users.findUnique({
+                where : {NIK: leave.NIK},
+                select : {fullname: true}
+            })
+
+            if (value && !user?.fullname.toLowerCase().includes(value.toLowerCase())) {
+                return null
+            }
+
+
+            const latestLog = await prisma.tb_leave_log.findFirst({
+                where: {id_leave: leave.id_leave},
+                orderBy : {changed_at: 'desc'}
+            })
+
+            if (latestLog) {
+                const changer = await prisma.tb_users.findUnique({
+                    where : {NIK : latestLog.changed_by_nik},
+                    select : {fullname : true}
+                })
+            }
+
+            return {
+                name: user?.fullname || 'Unknown',
+                leave_type: leave.leave_type,
+                start_date: leave.start_date,
+                end_date: leave.end_date,
+                leave_used: leave.total_days,
+                status: leave.status
+            }
+        })
+    )
+
+    return history.filter(Boolean)
+}
