@@ -27,11 +27,12 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
           </div>
         </div>
         <nav className="bg-blue-100 p-4 flex-1 pt-5 relative rounded-se-4xl">
-          <div className="space-y-6 text-black font-semibold mt-8">
+          <div className=" text-black font-semibold mt-8">
             <Link href="/user/dashboard" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActiveSidebar('/user/dashboard')}`}>
               <i className="bi bi-person-workspace text-xl w-6 text-center" />
               <span className="ml-3">Dashboard</span>
             </Link>
+            <div className=" h-px bg-gray-500 mt-4 mb-2" />
             <Link href="/user/history" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActiveSidebar('/user/history')}`}>
               <i className="bi bi-clock-history text-xl w-6 text-center" />
               <span className="ml-3">History</span>
@@ -72,7 +73,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="pl-10 pr-4 py-2 border rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-64"
+                  className="pl-10 pr-4 py-2 border rounded-2xl bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-64"
                 />
               </div>
             )}

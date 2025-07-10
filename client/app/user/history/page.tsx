@@ -91,20 +91,20 @@ const HistoryPage = () => {
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-base text-center">
-          <thead className="text-gray-700 font-bold bg-gray-100/70 backdrop-blur-sm">
+          <thead className="text-black  bg-gray-100/70 backdrop-blur-sm">
             <tr className="text-base">
-              <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4">Type</th>
-              <th className="px-6 py-4">Start Leave</th>
-              <th className="px-6 py-4">End Leave</th>
-              <th className="px-6 py-4">Leave Usage</th>
-              <th className="px-6 py-4">Reason</th>
-              <th className="px-6 py-4">Note</th>
+              <th className="px-6 py-4 font-semibold">Status</th>
+              <th className="px-6 py-4 font-semibold">Type</th>
+              <th className="px-6 py-4 font-semibold">Start Leave</th>  
+              <th className="px-6 py-4 font-semibold">End Leave</th>
+              <th className="px-6 py-4 font-semibold">Leave Usage</th>
+              <th className="px-6 py-4 font-semibold">Reason</th>
+              <th className="px-6 py-4 font-semibold">Note</th>
             </tr>
           </thead>
-          <tbody className="text-gray-800 font-semibold">
+          <tbody className="text-gray-800 ">
             {currentData.map((data, idx) => (
-              <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+              <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-100'}>
                 <td className="px-6 py-4">
                   <span className={`w-24 inline-block text-center px-3 py-1.5 rounded-full text-sm font-semibold ${data.statusStyle}`}>
                     {data.statusText}
@@ -145,7 +145,6 @@ const HistoryPage = () => {
         </div>
       )}
 
-   {/* Modal */}
 {/* Modal */}
 {showModal && selectedLeave && (
   <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50">

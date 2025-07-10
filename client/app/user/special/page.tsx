@@ -65,20 +65,20 @@ export default function SpecialPage() {
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-base text-center">
-          <thead className="text-gray-700 font-bold bg-gray-100/70 backdrop-blur-sm">
+          <thead className="text-black  bg-gray-100/70 backdrop-blur-sm">
             <tr className="text-base">
-              <th className="px-6 py-4 align-middle">Status</th>
-              <th className="px-6 py-4 align-middle">Leave Title</th>
-              <th className="px-6 py-4 align-middle">Start Leave</th>
-              <th className="px-6 py-4 align-middle">End Leave</th>
-              <th className="px-6 py-4 align-middle">Amount</th>
-              <th className="px-6 py-4 align-middle">Gender</th>
-              <th className="px-6 py-4 align-middle">Reject Note</th>
+              <th className="px-6 py-4 align-middle font-semibold">Status</th>
+              <th className="px-6 py-4 align-middle font-semibold">Leave Title</th>
+              <th className="px-6 py-4 align-middle font-semibold">Start Leave</th>
+              <th className="px-6 py-4 align-middle font-semibold">End Leave</th>
+              <th className="px-6 py-4 align-middle font-semibold">Amount</th>
+              <th className="px-6 py-4 align-middle font-semibold">Gender</th>
+              <th className="px-6 py-4 align-middle font-semibold">Reject Note</th>
             </tr>
           </thead>
-          <tbody className="text-gray-800 font-semibold">
+          <tbody className="text-gray-800 ">
             {paginatedData.map((row, idx) => (
-              <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+              <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-100'}>
                 <td className="px-6 py-4 align-middle">
                   <span
                     className={classNames(
