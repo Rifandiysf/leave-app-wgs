@@ -43,10 +43,10 @@ export const getLeaveRequests = async (req, res) => {
 
 export const getLeavesByFilter = async (req, res) => {
     try {
-        const { type, status } = req.query;
+        const { value, type, status } = req.query;
         const user = req.session.user;
 
-        const leaves = await getLeavesByFilterService(user.NIK, type, status);
+        const leaves = await getLeavesByFilterService(user.NIK, type, status, value);
 
         res.status(200).json({
             message: 'Filtered leave data retrieved successfully',

@@ -85,7 +85,7 @@ export const getLeavesById = async (NIK, id_leave) => {
     })
 }
 
-export const getLeavesByFilterService = async (NIK, type, status) => {
+export const getLeavesByFilterService = async (NIK, type, status, value) => {
     const whereClause = {
         NIK,
     };
@@ -112,8 +112,17 @@ export const getLeavesByFilterService = async (NIK, type, status) => {
         if (!allowedStatus.includes(lowerStatus)) {
             throw new Error('Invalid leave status. Allowed: waiting, approved, reject');
         }
-
         whereClause.status = lowerStatus;
+    }
+
+    if (value) {
+        whereClause.OR = [
+            {
+                title: {
+                    contains: value, mode: 'insensitive'
+                }
+            }
+        ]
     }
 
     return await prisma.tb_leave.findMany({
