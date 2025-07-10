@@ -70,7 +70,6 @@ export const createLeave = async (data) => {
 
 
 export const getLeavesByNIK = async (NIK) => {
-    console.log(NIK);
     return await prisma.tb_leave.findMany({
         where: {
             NIK: NIK,

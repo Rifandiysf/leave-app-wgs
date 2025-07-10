@@ -1,4 +1,4 @@
-import { createLeave, getLeaveBalanceByYear, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK} from "../services/user.service.js"
+import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK } from "../services/user.service.js"
 
 
 export const createLeaveRequest = async (req, res) => {
@@ -24,17 +24,19 @@ export const createLeaveRequest = async (req, res) => {
     }
 }
 
-export const test = async (req, res, next) => {
-    console.log('test');
-    next();
-}
 
 export const getLeaveRequests = async (req, res) => {
     try {
         const user = req.session.user
-        
-        console.log(`${user.NIK} test`);
+
         const leaves = await getLeavesByNIK(user.NIK)
+
+        if (!leaves || leaves.length === 0) {
+            res.status(201).json({
+                message: "The data doesn't exist",
+                data: leaves,
+            })
+        }
 
         res.status(201).json({
             message: "Leave requests retrieved successfully",
@@ -54,6 +56,13 @@ export const getLeavesByFilter = async (req, res) => {
         const user = req.session.user;
 
         const leaves = await getLeavesByFilterService(user.NIK, type, status);
+
+        if (!leaves || leaves.length === 0) {
+            res.status(201).json({
+                message: "The data doesn't exist",
+                data: leaves,
+            })
+        }
 
         res.status(200).json({
             message: 'Filtered leave data retrieved successfully',
@@ -95,7 +104,7 @@ export const allUsers = async (req, res) => {
         res.status(200).json(dataUsers)
     } catch (error) {
         console.error(error)
-        res.status(500).json({message : 'Failed to retrieve user data and leave quota.'})
+        res.status(500).json({ message: 'Failed to retrieve user data and leave quota.' })
     }
 }
 
@@ -104,7 +113,7 @@ export const getUser = async (req, res) => {
     const { role, NIK } = req.session.user;
     const isAdmin = ["admin", "super_admin"].includes(role);
     try {
-        if(!isAdmin) {
+        if (!isAdmin) {
             if (NIK !== nik) {
                 const err = new Error("User requested has no permission");
                 err.statusCode = 400;
@@ -119,7 +128,7 @@ export const getUser = async (req, res) => {
             message: `Data retrieve successfully`,
             requested_by: {
                 role: role,
-                nik : NIK
+                nik: NIK
             },
             data: user
         });
@@ -158,7 +167,7 @@ export const deleteUser = async (req, res) => {
         res.status(200).json({
             status: "success",
             message: "successfully deleted user data",
-            data: deletedUser 
+            data: deletedUser
         })
     } catch (error) {
         res.status(400).json({
