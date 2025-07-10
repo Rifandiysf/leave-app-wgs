@@ -15,11 +15,6 @@ import { Input } from "../../components/ui/input"
 import { Label } from "@/app/components/ui/label"
 import Image from "next/image"
 
-const DUMMY_USER = {
-    email: 'admin@gmail.com',
-    password: 'password123'
-}
-
 const LoginPage = () => {
     const router = useRouter()
 
@@ -32,40 +27,65 @@ const LoginPage = () => {
     const [passwordError, setPasswordError] = useState('')
     const [generalError, setGeneralError] = useState('')
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setEmailError('')
         setPasswordError('')
         setGeneralError('')
         setIsLoading(true)
 
-        setTimeout(() => {
-            let hasError = false
-
-            if (!email) {
-                setEmailError('Email wajib diisi')
-                hasError = true
-            }
-
-            if (!password) {
-                setPasswordError('Password wajib diisi')
-                hasError = true
-            }
-
-            if (hasError) {
-                setIsLoading(false)
-                return
-            }
-
-            if (email === DUMMY_USER.email && password === DUMMY_USER.password) {
-                router.push('/')
-            } else {
-                setGeneralError('Email atau password salah')
-            }
-
+        if (!email) {
+            setEmailError('Email wajib diisi')
             setIsLoading(false)
-        }, 1200)
+            return
+        }
+
+        if (!password) {
+            setPasswordError('Password wajib diisi')
+            setIsLoading(false)
+            return
+        }
+
+        try {
+            const res = await fetch(`http://fedora:3001/api/v1/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ email, password }),
+            })
+
+            const contentType = res.headers.get('content-type') || ''
+
+            if (!res.ok) {
+                if (contentType.includes('application/json')) {
+                    const errorData = await res.json()
+                    throw new Error(errorData.message || 'Gagal login')
+                } else {
+                    const errorText = await res.text()
+                    console.error('Unexpected HTML Response:', errorText.slice(0, 200))
+                    throw new Error('Server mengembalikan format tidak valid (bukan JSON)')
+                }
+            }
+
+            // Jika login berhasil
+            const data = await res.json()
+            console.log('Login berhasil:', data)
+
+            // Arahkan ke home atau dashboard
+            router.push("/")
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                setGeneralError(error.message)
+            } else {
+                setGeneralError('Terjadi kesalahan tidak diketahui')
+            }
+        } finally {
+            setIsLoading(false)
+        }
     }
+
 
     return (
         <div className="w-full h-full flex flex-col justify-center items-center gap-4 px-4">
@@ -146,11 +166,6 @@ const LoginPage = () => {
                                 <Image src="/images/google.svg" alt="google" width={20} height={20} />
                                 Login with Google
                             </Button>
-
-                            <div className="text-xs text-gray-500 text-center mt-2">
-                                <p><strong>Email:</strong> admin@gmail.com</p>
-                                <p><strong>Password:</strong> password123</p>
-                            </div>
                         </CardFooter>
                     </form>
                 </CardContent>
