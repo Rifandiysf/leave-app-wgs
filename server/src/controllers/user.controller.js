@@ -30,7 +30,6 @@ export const test = async (req, res, next) => {
 }
 
 export const getLeaveRequests = async (req, res) => {
-    console.log(`${user.NIK} test`);
     try {
         const user = req.session.user
         

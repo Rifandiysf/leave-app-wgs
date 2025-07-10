@@ -8,13 +8,14 @@ import { getAllUsers } from "../services/user.service.js";
 
 const userRoutes = express.Router();
 
+userRoutes.post('/leave', validate(leaveRequestSchema), createLeaveRequest);
+userRoutes.get('/leave', getLeaveRequests);
+userRoutes.get('/leave/search', getLeavesByFilter);
+userRoutes.get('/leave/:id', getLeaveRequestsById);
+
 userRoutes.get('/:nik', isAuthenticated, getUser);
 userRoutes.patch('/:nik', isAuthenticated, updateUser);
 userRoutes.delete('/:nik', isAuthenticated, validateRole("admin", "super_admin"), deleteUser);
-userRoutes.post('/leave', validate(leaveRequestSchema), createLeaveRequest);
-userRoutes.get('/leave', getLeaveRequests);
-userRoutes.get('/leave/search', getLeavesByFilter)
-userRoutes.get('/leave/:id', getLeaveRequestsById)
 
 userRoutes.get('/', allUsers);
 
