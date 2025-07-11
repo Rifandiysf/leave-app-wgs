@@ -15,56 +15,61 @@ import { Input } from "../../components/ui/input"
 import { Label } from "@/app/components/ui/label"
 import Image from "next/image"
 
-const DUMMY_USER = {
-    email: 'admin@gmail.com',
-    password: 'password123'
-}
-
 const LoginPage = () => {
     const router = useRouter()
-
-    const [isLoading, setIsLoading] = useState(false)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
-
     const [emailError, setEmailError] = useState('')
     const [passwordError, setPasswordError] = useState('')
     const [generalError, setGeneralError] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setEmailError('')
         setPasswordError('')
         setGeneralError('')
+
+        let hasError = false
+
+        if (!email) {
+            setEmailError('Email wajib diisi')
+            hasError = true
+        }
+
+        if (!password) {
+            setPasswordError('Password wajib diisi')
+            hasError = true
+        }
+
+        if (hasError) return
+
         setIsLoading(true)
 
-        setTimeout(() => {
-            let hasError = false
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', 
+                body: JSON.stringify({ email, password })
+            })
 
-            if (!email) {
-                setEmailError('Email wajib diisi')
-                hasError = true
-            }
-
-            if (!password) {
-                setPasswordError('Password wajib diisi')
-                hasError = true
-            }
-
-            if (hasError) {
+            if (!res.ok) {
+                setGeneralError('Email atau password salah')
                 setIsLoading(false)
                 return
             }
 
-            if (email === DUMMY_USER.email && password === DUMMY_USER.password) {
-                router.push('/')
-            } else {
-                setGeneralError('Email atau password salah')
-            }
+            // const data = await res.json()
 
+            router.push('/')
+        } catch (err) {
+            console.error("Login error:", err)
+            setGeneralError("Terjadi kesalahan, coba beberapa saat lagi")
+        } finally {
             setIsLoading(false)
-        }, 1200)
+        }
     }
 
     return (
@@ -133,24 +138,21 @@ const LoginPage = () => {
 
                         <CardFooter className="flex-col gap-3 mt-6 px-0">
                             <Button type="submit" className="w-full text-black" disabled={isLoading}>
-                                {isLoading && (
-                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.37 0 0 5.37 0 12h4zm2 5.29A7.96 7.96 0 014 12H0c0 3.04 1.14 5.82 3 7.94l3-2.65z" />
-                                    </svg>
-                                )}
-                                {isLoading ? "Processing…" : "Login"}
+                                {isLoading ? (
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.37 0 0 5.37 0 12h4zm2 5.29A7.96 7.96 0 014 12H0c0 3.04 1.14 5.82 3 7.94l3-2.65z" />
+                                        </svg>
+                                        Processing…
+                                    </>
+                                ) : 'Login'}
                             </Button>
 
                             <Button variant="outline" className="w-full bg-white flex justify-center items-center gap-2">
                                 <Image src="/images/google.svg" alt="google" width={20} height={20} />
                                 Login with Google
                             </Button>
-
-                            <div className="text-xs text-gray-500 text-center mt-2">
-                                <p><strong>Email:</strong> admin@gmail.com</p>
-                                <p><strong>Password:</strong> password123</p>
-                            </div>
                         </CardFooter>
                     </form>
                 </CardContent>
