@@ -3,7 +3,7 @@ import { fetchUserData } from "../services/auth.service.js";
 export const login = async (req, res, next) => {
     const { email, password } = req.body
     try {
-        const user = await fetchUserData("email", email);
+        const user = req.user;
 
         req.session.user = {
             NIK: user.NIK, loginDate: (new Date()).toISOString(),

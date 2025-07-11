@@ -5,25 +5,26 @@ import { role } from "../../generated/prisma/index.js";
 
 
 export const fetchUserData = async (params, uniqueId) => {
-    const user = await prisma.tb_users.findUnique({
+    try {
+        const user = await prisma.tb_users.findUnique({
         where: {
             [params]: uniqueId,
-            NOT: {
-                status_active: "resign"
-            }
         }
     })
-    
-    let password = await bcrypt.hash(user.password, 10);
 
-    const userCopy = {
-        NIK: user.NIK,
-        fullname: user.fullname,
-        email: user.email,
-        role: user.role,
-        status: user.status_active,
-        password: password
+        let password = await bcrypt.hash(user.password, 10);
+
+        const userCopy = {
+            NIK: user.NIK,
+            fullname: user.fullname,
+            email: user.email,
+            role: user.role,
+            status: user.status_active,
+            password: password
+        }
+        
+        return userCopy;
+    } catch (error) {
+        throw new Error("Password and email are not matched");
     }
-
-    return userCopy;
 }
