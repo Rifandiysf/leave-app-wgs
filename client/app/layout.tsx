@@ -3,7 +3,6 @@
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import Sidebar from './components/layout/sidebar'
-import { useState } from 'react'
 import Header from './components/layout/header'
 import { usePathname } from 'next/navigation'
 
@@ -25,14 +24,13 @@ export default function RootLayout({
   const pathname = usePathname()
   const hidePaths = ['/auth/login']
   const shouldHidden = hidePaths.includes(pathname)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <section className='flex h-screen bg-white relative overflow-hidden'>
-          {!shouldHidden && <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
+          {!shouldHidden && <Sidebar />}
           <main className='flex-1 p-4 md:p-6 lg:p-10 overflow-y-auto w-full lg:w-auto'>
-            {!shouldHidden && <Header onMenuClick={() => setSidebarOpen(true)} />}
+            {!shouldHidden && <Header/>}
             {children}
           </main>
         </section>

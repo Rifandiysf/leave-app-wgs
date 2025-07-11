@@ -1,7 +1,8 @@
 {
   "name": "leave-app-wgs",
   "version": "0.1.0",
-  "private": true,
+  "type": "module",
+  "private": false,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
