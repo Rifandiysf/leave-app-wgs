@@ -8,18 +8,48 @@
     },
   "paths":
     {
-      "/api/v1/users":
+      "/auth/login":
         {
-          "get":
+          "post":
             {
-              "summary": "Retrieve all user data with current year, last year, and total balance",
-              "description": "Menampilkan semua data user termasuk balance tahun sekarang, tahun lalu, dan total balance.",
-              "tags": ["User"],
+              "summary": "Login user",
+              "tags": ["Auth"],
+              "description": "Login user dan menyimpan session di server.",
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "type": "object",
+                              "required": ["email", "password"],
+                              "properties":
+                                {
+                                  "email":
+                                    {
+                                      "type": "string",
+                                      "format": "email",
+                                      "example": "user@example.com",
+                                    },
+                                  "password":
+                                    {
+                                      "type": "string",
+                                      "minLength": 4,
+                                      "example": "yourpassword",
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
               "responses":
                 {
-                  "200":
+                  "201":
                     {
-                      "description": "Successfully retrieved all users with balances",
+                      "description": "Login berhasil",
                       "content":
                         {
                           "application/json":
@@ -29,8 +59,106 @@
                                   "type": "object",
                                   "properties":
                                     {
-                                      "message": { "type": "string" },
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Welcome John Doe",
+                                        },
+                                      "loginDate":
+                                        {
+                                          "type": "string",
+                                          "format": "date-time",
+                                          "example": "2025-07-11T07:00:00.000Z",
+                                        },
                                       "data":
+                                        {
+                                          "type": "object",
+                                          "properties":
+                                            {
+                                              "NIK":
+                                                {
+                                                  "type": "string",
+                                                  "example": "123456",
+                                                },
+                                              "fullname":
+                                                {
+                                                  "type": "string",
+                                                  "example": "John Doe",
+                                                },
+                                              "email":
+                                                {
+                                                  "type": "string",
+                                                  "example": "user@example.com",
+                                                },
+                                              "role":
+                                                {
+                                                  "type": "string",
+                                                  "example": "admin",
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Role tidak diizinkan (misalnya magang)",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Invalid role",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "User tidak ditemukan (email tidak terdaftar)",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "user not found",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "422":
+                    {
+                      "description": "Validasi form gagal (Zod)",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "errors":
                                         {
                                           "type": "array",
                                           "items":
@@ -38,66 +166,27 @@
                                               "type": "object",
                                               "properties":
                                                 {
-                                                  "user":
+                                                  "field":
                                                     {
-                                                      "$ref": "#/components/schemas/tb_users",
+                                                      "type": "string",
+                                                      "example": "email",
                                                     },
-                                                  "balance_this_year":
-                                                    { "type": "integer" },
-                                                  "balance_last_year":
-                                                    { "type": "integer" },
-                                                  "balance_total":
-                                                    { "type": "integer" },
+                                                  "message":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "Invalid email address",
+                                                    },
                                                 },
                                             },
                                         },
                                     },
                                 },
-                              "example":
-                                {
-                                  "message": "Successfully retrieved all users with balances",
-                                  "data":
-                                    [
-                                      {
-                                        "user":
-                                          {
-                                            "NIK": "789012",
-                                            "fullname": "Ayu Rahma",
-                                            "email": "ayu.rahma@example.com",
-                                            "password": "hashed_password_123",
-                                            "gender": "female",
-                                            "role": "karyawan_kontrak",
-                                            "status_active": "active",
-                                            "join_date": "2024-05-10",
-                                          },
-                                        "balance_this_year": 6,
-                                        "balance_last_year": 4,
-                                        "balance_total": 10,
-                                      },
-                                      {
-                                        "user":
-                                          {
-                                            "NIK": "456789",
-                                            "fullname": "Budi Santoso",
-                                            "email": "budi.santoso@example.com",
-                                            "password": "hashed_password_456",
-                                            "gender": "male",
-                                            "role": "karyawan_tetap",
-                                            "status_active": "resign",
-                                            "join_date": "2022-08-01",
-                                          },
-                                        "balance_this_year": 10,
-                                        "balance_last_year": 12,
-                                        "balance_total": 22,
-                                      },
-                                    ],
-                                },
                             },
                         },
                     },
-                  "400":
+                  "500":
                     {
-                      "description": "Bad Request - Invalid request",
+                      "description": "Internal server error",
                       "content":
                         {
                           "application/json":
@@ -106,29 +195,13 @@
                                 {
                                   "type": "object",
                                   "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                { "message": "Bad Request - Invalid input" },
-                            },
-                        },
-                    },
-                  "401":
-                    {
-                      "description": "Unauthorized - User is not logged in",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                {
-                                  "message": "Unauthorized. Please login to access this resource.",
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Internal server error",
+                                        },
+                                    },
                                 },
                             },
                         },
@@ -136,28 +209,18 @@
                 },
             },
         },
-      "/api/v1/users/{nik}":
+      "/auth/logout":
         {
           "get":
             {
-              "summary": "Retrieve a user by NIK including balances",
-              "description": "Retrieve user data with total balance, current year balance, and last year balance",
-              "tags": ["User"],
-              "parameters":
-                [
-                  {
-                    "name": "nik",
-                    "in": "path",
-                    "required": true,
-                    "schema": { "type": "string" },
-                    "description": "The NIK of the user to retrieve",
-                  },
-                ],
+              "summary": "Logout user",
+              "tags": ["Auth"],
+              "description": "Menghapus session user dari server",
               "responses":
                 {
-                  "201":
+                  "200":
                     {
-                      "description": "Successfully retrieved user data with balances",
+                      "description": "Logout berhasil",
                       "content":
                         {
                           "application/json":
@@ -167,423 +230,176 @@
                                   "type": "object",
                                   "properties":
                                     {
-                                      "message": { "type": "string" },
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Successfully logged out",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Belum login (session tidak ada)",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Unauthorized. Please login to access this resource.",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/users/{nik}":
+        {
+          "get":
+            {
+              "summary": "Ambil informasi balance cuti user dan data user",
+              "tags": ["Dashboard user"],
+              "description": "Mengembalikan data cuti seperti current balance, carried forward, total used, dan pending requests.user  hanya bisa melihat dirinya sendiri.",
+              "parameters":
+                [
+                  {
+                    "name": "nik",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string", "example": "102938" },
+                    "description": "NIK dari user yang datanya ingin diambil",
+                  },
+                ],
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Data berhasil diambil",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "status":
+                                        {
+                                          "type": "string",
+                                          "example": "successful",
+                                        },
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Data retrieve successfully",
+                                        },
+                                      "requested_by":
+                                        {
+                                          "type": "object",
+                                          "properties":
+                                            {
+                                              "role":
+                                                {
+                                                  "type": "string",
+                                                  "example": "user",
+                                                },
+                                              "nik":
+                                                {
+                                                  "type": "string",
+                                                  "example": "102938",
+                                                },
+                                            },
+                                        },
                                       "data":
                                         {
                                           "type": "object",
                                           "properties":
                                             {
-                                              "user":
+                                              "NIK":
                                                 {
-                                                  "$ref": "#/components/schemas/tb_users",
+                                                  "type": "string",
+                                                  "example": "102938",
                                                 },
-                                              "total_balance":
-                                                { "type": "integer" },
-                                              "current_year_balance":
-                                                { "type": "integer" },
-                                              "last_year_balance":
-                                                { "type": "integer" },
+                                              "fullname":
+                                                {
+                                                  "type": "string",
+                                                  "example": "John Doe",
+                                                },
+                                              "gender":
+                                                {
+                                                  "type": "string",
+                                                  "example": "male",
+                                                },
+                                              "status_active":
+                                                {
+                                                  "type": "string",
+                                                  "example": "active",
+                                                },
+                                              "role":
+                                                {
+                                                  "type": "string",
+                                                  "example": "user",
+                                                },
+                                              "balance":
+                                                {
+                                                  "type": "object",
+                                                  "properties":
+                                                    {
+                                                      "total_amount":
+                                                        {
+                                                          "type": "number",
+                                                          "example": 14,
+                                                          "description": "Total cuti tersedia (current + carried)",
+                                                        },
+                                                      "current_amount":
+                                                        {
+                                                          "type": "number",
+                                                          "example": 12,
+                                                          "description": "Jumlah cuti dari tahun berjalan",
+                                                        },
+                                                      "carried_amount":
+                                                        {
+                                                          "type": "number",
+                                                          "example": 2,
+                                                          "description": "Jumlah cuti yang dibawa dari tahun sebelumnya",
+                                                        },
+                                                      "days_used":
+                                                        {
+                                                          "type": "number",
+                                                          "example": 4,
+                                                          "description": "Jumlah hari cuti yang telah disetujui dan digunakan",
+                                                        },
+                                                      "pending_request":
+                                                        {
+                                                          "type": "number",
+                                                          "example": 1,
+                                                          "description": "Jumlah hari cuti yang masih pending",
+                                                        },
+                                                    },
+                                                },
                                             },
                                         },
                                     },
-                                },
-                              "example":
-                                {
-                                  "message": "Successfully retrieved user by NIK",
-                                  "data":
-                                    {
-                                      "user":
-                                        {
-                                          "NIK": "123456",
-                                          "fullname": "Example User",
-                                          "email": "example.user@example.com",
-                                          "password": "hashed_password_123",
-                                          "gender": "male",
-                                          "role": "karyawan_tetap",
-                                          "status_active": "active",
-                                          "join_date": "2023-04-01",
-                                        },
-                                      "total_balance": 12,
-                                      "current_year_balance": 6,
-                                      "last_year_balance": 6,
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "400":
-                    {
-                      "description": "Bad Request - Invalid NIK format or input",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                { "message": "Bad Request - Invalid NIK" },
-                            },
-                        },
-                    },
-                  "401":
-                    {
-                      "description": "Unauthorized - User is not logged in",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                {
-                                  "message": "Unauthorized. Please login to access this resource.",
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-          {
-            "summary": "Retrieve a user by NIK",
-            "tags": ["User"],
-            "parameters":
-              [
-                {
-                  "name": "nik",
-                  "in": "path",
-                  "required": true,
-                  "schema": { "type": "string" },
-                  "description": "The NIK of the user to retrieve",
-                },
-              ],
-            "responses":
-              {
-                "201":
-                  {
-                    "description": "Successfully retrieved user by NIK",
-                    "content":
-                      {
-                        "application/json":
-                          {
-                            "schema":
-                              {
-                                "type": "object",
-                                "properties":
-                                  {
-                                    "message": { "type": "string" },
-                                    "data":
-                                      {
-                                        "$ref": "#/components/schemas/tb_users",
-                                      },
-                                  },
-                              },
-                            "example":
-                              {
-                                "message": "Successfully retrieved user by 789012",
-                                "data":
-                                  {
-                                    "NIK": "789012",
-                                    "fullname": "Ayu Rahma",
-                                    "email": "ayu.rahma@example.com",
-                                    "password": "hashed_password_123",
-                                    "gender": "female",
-                                    "role": "karyawan_kontrak",
-                                    "status_active": "active",
-                                    "join_date": "2024-05-10",
-                                  },
-                              },
-                          },
-                      },
-                  },
-                "400":
-                  {
-                    "description": "Bad Request - Invalid NIK format or input",
-                    "content":
-                      {
-                        "application/json":
-                          {
-                            "schema":
-                              {
-                                "type": "object",
-                                "properties":
-                                  { "message": { "type": "string" } },
-                              },
-                            "example":
-                              { "message": "Bad Request - Invalid NIK" },
-                          },
-                      },
-                  },
-                "401":
-                  {
-                    "description": "Unauthorized - User is not logged in",
-                    "content":
-                      {
-                        "application/json":
-                          {
-                            "schema":
-                              {
-                                "type": "object",
-                                "properties":
-                                  { "message": { "type": "string" } },
-                              },
-                            "example":
-                              {
-                                "message": "Unauthorized. Please login to access this resource.",
-                              },
-                          },
-                      },
-                  },
-              },
-          },
-          "put":
-            {
-              "summary": "Update user data by NIK",
-              "tags": ["User"],
-              "parameters":
-                [
-                  {
-                    "name": "nik",
-                    "in": "path",
-                    "required": true,
-                    "schema": { "type": "string" },
-                    "description": "The NIK of the user to update",
-                  },
-                ],
-              "requestBody":
-                {
-                  "required": true,
-                  "content":
-                    {
-                      "application/json":
-                        {
-                          "schema":
-                            {
-                              "type": "object",
-                              "properties":
-                                {
-                                  "fullname": { "type": "string" },
-                                  "email":
-                                    { "type": "string", "format": "email" },
-                                  "password": { "type": "string" },
-                                  "gender":
-                                    { "$ref": "#/components/schemas/gender" },
-                                  "role":
-                                    { "$ref": "#/components/schemas/role" },
-                                  "status_active":
-                                    {
-                                      "$ref": "#/components/schemas/status_active",
-                                    },
-                                  "join_date":
-                                    { "type": "string", "format": "date" },
-                                },
-                              "required":
-                                [
-                                  "fullname",
-                                  "email",
-                                  "password",
-                                  "gender",
-                                  "role",
-                                  "status_active",
-                                  "join_date",
-                                ],
-                            },
-                          "example":
-                            {
-                              "fullname": "Ayu Rahma",
-                              "email": "ayu.rahma.updated@example.com",
-                              "password": "new_hashed_password",
-                              "gender": "female",
-                              "role": "admin",
-                              "status_active": "active",
-                              "join_date": "2024-05-10",
-                            },
-                        },
-                    },
-                },
-              "responses":
-                {
-                  "201":
-                    {
-                      "description": "Successfully updated user by NIK",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message": { "type": "string" },
-                                      "data":
-                                        {
-                                          "$ref": "#/components/schemas/tb_users",
-                                        },
-                                    },
-                                },
-                              "example":
-                                {
-                                  "message": "Successfully updated user by 789012",
-                                  "data":
-                                    {
-                                      "NIK": "789012",
-                                      "fullname": "Ayu Rahma",
-                                      "email": "ayu.rahma.updated@example.com",
-                                      "password": "new_hashed_password",
-                                      "gender": "female",
-                                      "role": "admin",
-                                      "status_active": "active",
-                                      "join_date": "2024-05-10",
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "400":
-                    {
-                      "description": "Bad Request - Invalid input data",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                {
-                                  "message": "Bad Request - Invalid input format",
-                                },
-                            },
-                        },
-                    },
-                  "401":
-                    {
-                      "description": "Unauthorized - User is not logged in",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                {
-                                  "message": "Unauthorized. Please login to access this resource.",
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-          "delete":
-            {
-              "summary": "Soft delete user by NIK",
-              "description": "Set status_active to 'resign' and soft delete all user leaves. Only accessible by Admin and Super Admin.",
-              "tags": ["User"],
-              "parameters":
-                [
-                  {
-                    "name": "nik",
-                    "in": "path",
-                    "required": true,
-                    "schema": { "type": "string" },
-                    "description": "The NIK of the user to soft delete",
-                  },
-                ],
-              "responses":
-                {
-                  "201":
-                    {
-                      "description": "Successfully soft deleted user and related leaves",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message": { "type": "string" },
-                                      "data":
-                                        {
-                                          "$ref": "#/components/schemas/tb_users",
-                                        },
-                                    },
-                                },
-                              "example":
-                                {
-                                  "message": "Successfully soft deleted user by 123456",
-                                  "data":
-                                    {
-                                      "NIK": "123456",
-                                      "fullname": "Example User 1",
-                                      "email": "example1@example.com",
-                                      "password": "hashed_password_123",
-                                      "gender": "female",
-                                      "role": "karyawan_kontrak",
-                                      "status_active": "resign",
-                                      "join_date": "2024-05-10",
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "400":
-                    {
-                      "description": "Bad Request - Invalid NIK format or input",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                { "message": "Bad Request - Invalid NIK" },
-                            },
-                        },
-                    },
-                  "401":
-                    {
-                      "description": "Unauthorized - User is not logged in",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                {
-                                  "message": "Unauthorized. Please login to access this resource.",
                                 },
                             },
                         },
                     },
                   "403":
                     {
-                      "description": "Forbidden - Only Admin or Super Admin can perform this action",
+                      "description": "Session tidak valid atau role tidak diizinkan",
                       "content":
                         {
                           "application/json":
@@ -592,11 +408,67 @@
                                 {
                                   "type": "object",
                                   "properties":
-                                    { "message": { "type": "string" } },
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Access denied. No role found.",
+                                        },
+                                    },
                                 },
-                              "example":
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "User tidak ditemukan",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
                                 {
-                                  "message": "Forbidden. You do not have permission to perform this action.",
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "status":
+                                        {
+                                          "type": "string",
+                                          "example": "failed",
+                                        },
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "user not found",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Error dari server",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "status":
+                                        {
+                                          "type": "string",
+                                          "example": "failed",
+                                        },
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Internal server error",
+                                        },
+                                    },
                                 },
                             },
                         },
@@ -604,12 +476,13 @@
                 },
             },
         },
-      "/api/v1/users/leaves":
+      "/users/leave":
         {
           "post":
             {
-              "summary": "Create a new leave for a user",
-              "tags": ["User"],
+              "summary": "Buat permintaan cuti",
+              "tags": ["Dashboard user"],
+              "description": "User yang sudah login dapat mengajukan permintaan cuti. Jika jenis cuti adalah `special_leave` atau `mandatory_leave`, maka id terkait wajib diisi.",
               "requestBody":
                 {
                   "required": true,
@@ -620,26 +493,6 @@
                           "schema":
                             {
                               "type": "object",
-                              "properties":
-                                {
-                                  "title": { "type": "string" },
-                                  "leave_type":
-                                    {
-                                      "$ref": "#/components/schemas/leave_type",
-                                    },
-                                  "start_date":
-                                    { "type": "string", "format": "date" },
-                                  "end_date":
-                                    { "type": "string", "format": "date" },
-                                  "total_days": { "type": "integer" },
-                                  "reason": { "type": "string" },
-                                  "status":
-                                    { "$ref": "#/components/schemas/status" },
-                                  "id_special":
-                                    { "type": "string", "nullable": true },
-                                  "id_mandatory":
-                                    { "type": "string", "nullable": true },
-                                },
                               "required":
                                 [
                                   "title",
@@ -647,49 +500,55 @@
                                   "start_date",
                                   "end_date",
                                   "reason",
-                                  "status",
                                 ],
-                            },
-                          "examples":
-                            {
-                              "personal_leave":
+                              "properties":
                                 {
-                                  "summary": "Personal Leave",
-                                  "value":
+                                  "title":
                                     {
-                                      "title": "Annual Leave",
-                                      "leave_type": "personal_leave",
-                                      "start_date": "2024-08-15",
-                                      "end_date": "2024-08-20",
-                                      "reason": "Family vacation",
+                                      "type": "string",
+                                      "minLength": 3,
+                                      "example": "Izin ke dokter",
                                     },
-                                },
-                              "special_leave":
-                                {
-                                  "summary": "Special Leave",
-                                  "value":
+                                  "leave_type":
                                     {
-                                      "title": "Menstruation Leave",
-                                      "leave_type": "special_leave",
-                                      "start_date": "2024-09-01",
-                                      "end_date": "2024-09-02",
-                                      "reason": "Menstruation pain",
-                                      "status": "pending",
-                                      "id_special": "SP001",
+                                      "type": "string",
+                                      "enum":
+                                        [
+                                          "personal_leave",
+                                          "mandatory_leave",
+                                          "special_leave",
+                                        ],
+                                      "example": "special_leave",
                                     },
-                                },
-                              "mandatory_leave":
-                                {
-                                  "summary": "Mandatory Leave",
-                                  "value":
+                                  "start_date":
                                     {
-                                      "title": "Idul Fitri Holiday",
-                                      "leave_type": "mandatory_leave",
-                                      "start_date": "2024-04-08",
-                                      "end_date": "2024-04-14",
-                                      "reason": "Religious holiday",
-                                      "status": "pending",
-                                      "id_mandatory": "MD001",
+                                      "type": "string",
+                                      "format": "date",
+                                      "example": "2025-08-20",
+                                    },
+                                  "end_date":
+                                    {
+                                      "type": "string",
+                                      "format": "date",
+                                      "example": "2025-08-21",
+                                    },
+                                  "reason":
+                                    {
+                                      "type": "string",
+                                      "minLength": 5,
+                                      "example": "Pemeriksaan kesehatan rutin",
+                                    },
+                                  "id_special":
+                                    {
+                                      "type": "string",
+                                      "nullable": true,
+                                      "example": "spcl123",
+                                    },
+                                  "id_mandatory":
+                                    {
+                                      "type": "string",
+                                      "nullable": true,
+                                      "example": "mdtr456",
                                     },
                                 },
                             },
@@ -700,7 +559,7 @@
                 {
                   "201":
                     {
-                      "description": "Successfully created new leave for user",
+                      "description": "Cuti berhasil diajukan",
                       "content":
                         {
                           "application/json":
@@ -710,81 +569,65 @@
                                   "type": "object",
                                   "properties":
                                     {
-                                      "message": { "type": "string" },
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Leave request created successfully",
+                                        },
                                       "data":
                                         {
-                                          "$ref": "#/components/schemas/tb_leave",
-                                        },
-                                    },
-                                },
-                              "examples":
-                                {
-                                  "personal_leave":
-                                    {
-                                      "summary": "Personal Leave Response",
-                                      "value":
-                                        {
-                                          "message": "Successfully created personal leave",
-                                          "data":
+                                          "type": "object",
+                                          "properties":
                                             {
-                                              "id_leave": "LV001",
-                                              "title": "Annual Leave",
-                                              "leave_type": "personal_leave",
-                                              "start_date": "2024-08-15",
-                                              "end_date": "2024-08-20",
-                                              "total_days": 6,
-                                              "reason": "Family vacation",
-                                              "status": "pending",
-                                              "created_at": "2024-07-08T10:00:00Z",
-                                              "NIK": "123456",
-                                              "id_special": null,
-                                              "id_mandatory": null,
-                                            },
-                                        },
-                                    },
-                                  "special_leave":
-                                    {
-                                      "summary": "Special Leave Response",
-                                      "value":
-                                        {
-                                          "message": "Successfully created special leave",
-                                          "data":
-                                            {
-                                              "id_leave": "LV002",
-                                              "title": "Menstruation Leave",
-                                              "leave_type": "special_leave",
-                                              "start_date": "2024-09-01",
-                                              "end_date": "2024-09-02",
-                                              "total_days": 2,
-                                              "reason": "Menstruation pain",
-                                              "status": "pending",
-                                              "created_at": "2024-07-08T10:05:00Z",
-                                              "NIK": "123456",
-                                              "id_special": "SP001",
-                                              "id_mandatory": null,
-                                            },
-                                        },
-                                    },
-                                  "mandatory_leave":
-                                    {
-                                      "summary": "Mandatory Leave Response",
-                                      "value":
-                                        {
-                                          "message": "Successfully created mandatory leave",
-                                          "data":
-                                            {
-                                              "id_leave": "LV003",
-                                              "title": "Idul Fitri Holiday",
-                                              "leave_type": "mandatory_leave",
-                                              "start_date": "2024-04-08",
-                                              "end_date": "2024-04-14",
-                                              "total_days": 7,
-                                              "reason": "Religious holiday",
-                                              "status": "pending",
-                                              "created_at": "2024-07-08T10:10:00Z",
-                                              "NIK": "123456",
-                                              "id_special": null,
-                                              "id_mandatory": "MD001",
+                                              "title":
+                                                {
+                                                  "type": "string",
+                                                  "example": "Izin ke dokter",
+                                                },
+                                              "leave_type":
+                                                {
+                                                  "type": "string",
+                                                  "example": "special_leave",
+                                                },
+                                              "start_date":
+                                                {
+                                                  "type": "string",
+                                                  "format": "date",
+                                                  "example": "2025-08-20",
+                                                },
+                                              "end_date":
+                                                {
+                                                  "type": "string",
+                                                  "format": "date",
+                                                  "example": "2025-08-21",
+                                                },
+                                              "reason":
+                                                {
+                                                  "type": "string",
+                                                  "example": "Pemeriksaan kesehatan rutin",
+                                                },
+                                              "NIK":
+                                                {
+                                                  "type": "string",
+                                                  "example": "102938",
+                                                },
+                                              "total_days":
+                                                {
+                                                  "type": "integer",
+                                                  "example": 2,
+                                                },
+                                              "id_special":
+                                                {
+                                                  "type": "string",
+                                                  "nullable": true,
+                                                  "example": "spcl123",
+                                                },
+                                              "id_mandatory":
+                                                {
+                                                  "type": "string",
+                                                  "nullable": true,
+                                                  "example": null,
+                                                },
                                             },
                                         },
                                     },
@@ -794,55 +637,7 @@
                     },
                   "400":
                     {
-                      "description": "Bad Request - Invalid input format",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                {
-                                  "message": "Bad Request - Missing required field: title",
-                                },
-                            },
-                        },
-                    },
-                  "401":
-                    {
-                      "description": "Unauthorized - User is not logged in",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                {
-                                  "message": "Unauthorized. Please login to access this resource.",
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-          "get":
-            {
-              "summary": "Retrieve all leaves submitted by a user by NIK",
-              "tags": ["User"],
-              "responses":
-                {
-                  "201":
-                    {
-                      "description": "Successfully retrieved leaves for user",
+                      "description": "Validasi gagal atau ID tidak valid",
                       "content":
                         {
                           "application/json":
@@ -852,223 +647,86 @@
                                   "type": "object",
                                   "properties":
                                     {
-                                      "message": { "type": "string" },
-                                      "data":
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "id_special is required for special leave",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Belum login (tidak ada session)",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Unauthorized. Please login to access this resource.",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "422":
+                    {
+                      "description": "Validasi Zod gagal",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "errors":
                                         {
                                           "type": "array",
                                           "items":
                                             {
-                                              "$ref": "#/components/schemas/tb_leave",
+                                              "type": "object",
+                                              "properties":
+                                                {
+                                                  "field":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "title",
+                                                    },
+                                                  "message":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "Title must be at least 3 characters",
+                                                    },
+                                                },
                                             },
                                         },
                                     },
                                 },
-                              "example":
-                                {
-                                  "message": "Successfully retrieved leaves for user with NIK 123456",
-                                  "data":
-                                    [
-                                      {
-                                        "id_leave": "LV001",
-                                        "title": "Annual Leave",
-                                        "leave_type": "personal_leave",
-                                        "start_date": "2024-08-15",
-                                        "end_date": "2024-08-20",
-                                        "total_days": 6,
-                                        "reason": "Family vacation",
-                                        "status": "pending",
-                                        "created_at": "2024-07-08T10:00:00Z",
-                                        "NIK": "123456",
-                                        "id_special": null,
-                                        "id_mandatory": null,
-                                      },
-                                      {
-                                        "id_leave": "LV002",
-                                        "title": "Sick Leave",
-                                        "leave_type": "personal_leave",
-                                        "start_date": "2024-06-01",
-                                        "end_date": "2024-06-03",
-                                        "total_days": 3,
-                                        "reason": "Fever and flu",
-                                        "status": "approved",
-                                        "created_at": "2024-05-31T09:00:00Z",
-                                        "NIK": "123456",
-                                        "id_special": null,
-                                        "id_mandatory": null,
-                                      },
-                                    ],
-                                },
-                            },
-                        },
-                    },
-                  "400":
-                    {
-                      "description": "Bad Request - Invalid NIK format",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                { "message": "Bad Request - Invalid NIK" },
-                            },
-                        },
-                    },
-                  "401":
-                    {
-                      "description": "Unauthorized - User is not logged in",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                {
-                                  "message": "Unauthorized. Please login to access this resource.",
-                                },
                             },
                         },
                     },
                 },
             },
         },
-      "/api/v1/users/leaves/{id}":
+      "/users/leave/search":
         {
           "get":
             {
-              "summary": "Retrieve a specific leave by ID for a user",
-              "tags": ["User"],
-              "parameters":
-                [
-                  {
-                    "name": "id",
-                    "in": "path",
-                    "required": true,
-                    "schema": { "type": "string" },
-                    "description": "ID of the leave record",
-                  },
-                ],
-              "responses":
-                {
-                  "201":
-                    {
-                      "description": "Successfully retrieved leave data by ID",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message": { "type": "string" },
-                                      "data":
-                                        {
-                                          "$ref": "#/components/schemas/tb_leave",
-                                        },
-                                    },
-                                },
-                              "example":
-                                {
-                                  "message": "Successfully retrieved leave data by ID",
-                                  "data":
-                                    {
-                                      "id_leave": "lv001",
-                                      "title": "Cuti Tahunan",
-                                      "leave_type": "personal_leave",
-                                      "start_date": "2024-07-01",
-                                      "end_date": "2024-07-05",
-                                      "total_days": 5,
-                                      "reason": "Liburan keluarga",
-                                      "status": "pending",
-                                      "created_at": "2024-06-20T10:00:00Z",
-                                      "NIK": "123456",
-                                      "id_special": null,
-                                      "id_mandatory": null,
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "400":
-                    {
-                      "description": "Bad Request - Invalid input or format",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                { "message": "Bad Request - Invalid leave ID" },
-                            },
-                        },
-                    },
-                  "401":
-                    {
-                      "description": "Unauthorized - User not logged in",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                {
-                                  "message": "Unauthorized. Please login to access this resource.",
-                                },
-                            },
-                        },
-                    },
-                  "404":
-                    {
-                      "description": "Not Found - Leave not found for this user",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                {
-                                  "message": "Leave with ID lv001 not found for user 123456",
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-      "/api/v1/leaves/search":
-        {
-          "get":
-            {
-              "summary": "Search leave records by type and/or status",
-"description": "Retrieve leave records filtered by leave type (personal, mandatory, special) and/or status (waiting, approved, reject).\n\nExample :\n- /api/v1/leaves/search?type=personal\n- /api/v1/leaves/search?status=approved\n- /api/v1/leaves/search?type=special&status=waiting",
-              "tags": ["User"],
+              "summary": "Cari cuti berdasarkan filter",
+              "tags": ["Dashboard user"],
+              "description": "Cari data cuti berdasarkan tipe cuti (`personal`, `mandatory`, `special`), status (`pending`, `approved`, `reject`), atau pencarian berdasarkan judul (`value`). Kombinasi ketiganya juga didukung.",
               "parameters":
                 [
                   {
@@ -1080,7 +738,7 @@
                         "type": "string",
                         "enum": ["personal", "mandatory", "special"],
                       },
-                    "description": "Filter by leave type",
+                    "description": "Tipe cuti",
                   },
                   {
                     "name": "status",
@@ -1089,16 +747,23 @@
                     "schema":
                       {
                         "type": "string",
-                        "enum": ["waiting", "approved", "reject"],
+                        "enum": ["pending", "approved", "reject"],
                       },
-                    "description": "Filter by leave status",
+                    "description": "Status cuti",
+                  },
+                  {
+                    "name": "value",
+                    "in": "query",
+                    "required": false,
+                    "schema": { "type": "string" },
+                    "description": "Kata kunci pencarian berdasarkan judul cuti",
                   },
                 ],
               "responses":
                 {
                   "200":
                     {
-                      "description": "Successfully retrieved filtered leave records",
+                      "description": "Data cuti ditemukan",
                       "content":
                         {
                           "application/json":
@@ -1108,89 +773,239 @@
                                   "type": "object",
                                   "properties":
                                     {
-                                      "message": { "type": "string" },
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Filtered leave data retrieved successfully",
+                                        },
                                       "data":
                                         {
                                           "type": "array",
                                           "items":
                                             {
-                                              "$ref": "#/components/schemas/tb_leave",
+                                              "type": "object",
+                                              "properties":
+                                                {
+                                                  "title":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "Izin menghadiri pernikahan",
+                                                    },
+                                                  "leave_type":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "mandatory_leave",
+                                                    },
+                                                  "start_date":
+                                                    {
+                                                      "type": "string",
+                                                      "format": "date",
+                                                      "example": "2025-09-10",
+                                                    },
+                                                  "end_date":
+                                                    {
+                                                      "type": "string",
+                                                      "format": "date",
+                                                      "example": "2025-09-12",
+                                                    },
+                                                  "reason":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "Acara keluarga",
+                                                    },
+                                                  "status":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "approved",
+                                                    },
+                                                  "total_days":
+                                                    {
+                                                      "type": "integer",
+                                                      "example": 3,
+                                                    },
+                                                },
                                             },
                                         },
                                     },
                                 },
-                              "examples":
+                            },
+                        },
+                    },
+                  "201":
+                    {
+                      "description": "Data tidak ditemukan",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
                                 {
-                                  "byTypeOnly":
+                                  "type": "object",
+                                  "properties":
                                     {
-                                      "summary": "Filtered by type only",
-                                      "value":
+                                      "message":
                                         {
-                                          "message": "Filtered leave data retrieved successfully",
-                                          "data":
-                                            [
-                                              {
-                                                "id_leave": "LV001",
-                                                "title": "Annual Leave",
-                                                "leave_type": "mandatory_leave",
-                                                "start_date": "2024-07-01",
-                                                "end_date": "2024-07-05",
-                                                "total_days": 5,
-                                                "reason": "Family vacation",
-                                                "status": "approved",
-                                                "created_at": "2024-06-20T08:00:00Z",
-                                                "id_special": null,
-                                                "id_mandatory": "MD001",
-                                              },
-                                            ],
+                                          "type": "string",
+                                          "example": "The data doesn't exist",
+                                        },
+                                      "data": { "type": "array", "items": {} },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Filter tidak valid",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Invalid leave type. Allowed: personal, mandatory, special",
                                         },
                                     },
-                                  "byStatusOnly":
+                                },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Belum login",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
                                     {
-                                      "summary": "Filtered by status only",
-                                      "value":
+                                      "message":
                                         {
-                                          "message": "Filtered leave data retrieved successfully",
-                                          "data":
-                                            [
-                                              {
-                                                "id_leave": "LV002",
-                                                "title": "Personal Leave",
-                                                "leave_type": "personal_leave",
-                                                "start_date": "2024-08-01",
-                                                "end_date": "2024-08-03",
-                                                "total_days": 3,
-                                                "reason": "Medical emergency",
-                                                "status": "waiting",
-                                                "created_at": "2024-07-25T09:00:00Z",
-                                                "id_special": null,
-                                                "id_mandatory": null,
-                                              },
-                                            ],
+                                          "type": "string",
+                                          "example": "Unauthorized. Please login to access this resource.",
                                         },
                                     },
-                                  "byTypeAndStatus":
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/users/leave/{id}":
+        {
+          "get":
+            {
+              "summary": "Ambil detail cuti berdasarkan ID",
+              "tags": ["Dashboard user"],
+              "description": "Hanya akan mengembalikan data jika ID cuti memang milik user yang sedang login.",
+              "parameters":
+                [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "ID dari data cuti",
+                    "schema": { "type": "string", "example": "lv12345" },
+                  },
+                ],
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Data berhasil diambil",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
                                     {
-                                      "summary": "Filtered by type and status",
-                                      "value":
+                                      "message":
                                         {
-                                          "message": "Filtered leave data retrieved successfully",
-                                          "data":
-                                            [
-                                              {
-                                                "id_leave": "LV003",
-                                                "title": "Special Event Leave",
-                                                "leave_type": "special_leave",
-                                                "start_date": "2024-09-10",
-                                                "end_date": "2024-09-12",
-                                                "total_days": 3,
-                                                "reason": "Attending wedding ceremony",
-                                                "status": "approved",
-                                                "created_at": "2024-08-15T10:00:00Z",
-                                                "id_special": "SPC001",
-                                                "id_mandatory": null,
-                                              },
-                                            ],
+                                          "type": "string",
+                                          "example": "Successfully retrieved leave data by ID",
+                                        },
+                                      "data":
+                                        {
+                                          "type": "array",
+                                          "items":
+                                            {
+                                              "type": "object",
+                                              "properties":
+                                                {
+                                                  "id_leave":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "lv12345",
+                                                    },
+                                                  "title":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "Cuti ke luar kota",
+                                                    },
+                                                  "leave_type":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "personal_leave",
+                                                    },
+                                                  "start_date":
+                                                    {
+                                                      "type": "string",
+                                                      "format": "date",
+                                                      "example": "2025-08-21",
+                                                    },
+                                                  "end_date":
+                                                    {
+                                                      "type": "string",
+                                                      "format": "date",
+                                                      "example": "2025-08-23",
+                                                    },
+                                                  "reason":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "Liburan keluarga",
+                                                    },
+                                                  "status":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "approved",
+                                                    },
+                                                  "total_days":
+                                                    {
+                                                      "type": "integer",
+                                                      "example": 3,
+                                                    },
+                                                  "NIK":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "102938",
+                                                    },
+                                                  "id_special":
+                                                    {
+                                                      "type": "string",
+                                                      "nullable": true,
+                                                      "example": null,
+                                                    },
+                                                  "id_mandatory":
+                                                    {
+                                                      "type": "string",
+                                                      "nullable": true,
+                                                      "example": null,
+                                                    },
+                                                },
+                                            },
                                         },
                                     },
                                 },
@@ -1199,59 +1014,7 @@
                     },
                   "400":
                     {
-                      "description": "Bad request - Invalid query parameter",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                {
-                                  "message": "Invalid leave type. Allowed: personal, mandatory, special",
-                                },
-                            },
-                        },
-                    },
-                  "401":
-                    {
-                      "description": "Unauthorized - User not logged in (session missing)",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                {
-                                  "message": "Unauthorized. Please login to access this resource.",
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-      "/api/v1/leaves":
-        {
-          "get":
-            {
-              "summary": "Retrieve all leave records",
-              "description": "Get all leave records in the system. Only accessible by Admin and Super Admin. Requires session-based authentication.",
-              "tags": ["Leave"],
-              "responses":
-                {
-                  "200":
-                    {
-                      "description": "Successfully retrieved all leave records",
+                      "description": "Kesalahan saat mengambil data cuti (misal ID tidak cocok dengan NIK login)",
                       "content":
                         {
                           "application/json":
@@ -1261,58 +1024,19 @@
                                   "type": "object",
                                   "properties":
                                     {
-                                      "message": { "type": "string" },
-                                      "data":
+                                      "message":
                                         {
-                                          "type": "array",
-                                          "items":
-                                            {
-                                              "$ref": "#/components/schemas/tb_leave",
-                                            },
+                                          "type": "string",
+                                          "example": "Leave not found or not owned by user",
                                         },
                                     },
-                                },
-                              "example":
-                                {
-                                  "message": "Successfully retrieved all leave records",
-                                  "data":
-                                    [
-                                      {
-                                        "id_leave": "LV001",
-                                        "title": "Annual Leave",
-                                        "leave_type": "mandatory_leave",
-                                        "start_date": "2024-07-01",
-                                        "end_date": "2024-07-05",
-                                        "total_days": 5,
-                                        "reason": "Family vacation",
-                                        "status": "approved",
-                                        "created_at": "2024-06-20T08:00:00Z",
-                                        "NIK": "123456",
-                                        "id_special": null,
-                                        "id_mandatory": "MD001",
-                                      },
-                                      {
-                                        "id_leave": "LV002",
-                                        "title": "Personal Leave",
-                                        "leave_type": "personal_leave",
-                                        "start_date": "2024-08-01",
-                                        "end_date": "2024-08-03",
-                                        "total_days": 3,
-                                        "reason": "Medical emergency",
-                                        "status": "pending",
-                                        "created_at": "2024-07-25T09:00:00Z",
-                                        "NIK": "654321",
-                                        "id_special": null,
-                                        "id_mandatory": null,
-                                      },
-                                    ],
                                 },
                             },
                         },
                     },
                   "401":
                     {
-                      "description": "Unauthorized - User not logged in (session missing)",
+                      "description": "Belum login",
                       "content":
                         {
                           "application/json":
@@ -1321,31 +1045,13 @@
                                 {
                                   "type": "object",
                                   "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                {
-                                  "message": "Unauthorized. Please login to access this resource.",
-                                },
-                            },
-                        },
-                    },
-                  "403":
-                    {
-                      "description": "Forbidden - Only Admin or Super Admin can access this endpoint",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    { "message": { "type": "string" } },
-                                },
-                              "example":
-                                {
-                                  "message": "Forbidden. You do not have permission to perform this action.",
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Unauthorized. Please login to access this resource.",
+                                        },
+                                    },
                                 },
                             },
                         },
@@ -1353,6 +1059,7 @@
                 },
             },
         },
+    
     },
   "components":
     {
