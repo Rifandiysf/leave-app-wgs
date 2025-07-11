@@ -11,6 +11,7 @@ export const createLeaveRequest = async (req, res) => {
         const leave = await createLeave({
             ...req.body,
             NIK: user.NIK,
+            total_days: req.workingDays
         })
 
         res.status(201).json({

@@ -5,10 +5,12 @@ import leaveRequestSchema from "../validators/leave.validator.js";
 import { isAuthenticated } from "../middlewares/isAuthenticated.middleware.js";
 import { validateRole } from "../middlewares/validateRole.middleware.js";
 import { getAllUsers } from "../services/user.service.js";
+import { validateLeaveBalance } from "../middlewares/validateLeaveBalance.middleware.js";
+import { validateSpecialLeaveNotWeekend } from "../middlewares/validateSpecialLeaveNotWeekend.js";
 
 const userRoutes = express.Router();
 
-userRoutes.post('/leave', validate(leaveRequestSchema), createLeaveRequest);
+userRoutes.post('/leave', validate(leaveRequestSchema), validateLeaveBalance, validateSpecialLeaveNotWeekend, createLeaveRequest);
 userRoutes.get('/leave', getLeaveRequests);
 userRoutes.get('/leave/search', getLeavesByFilter);
 userRoutes.get('/leave/:id', getLeaveRequestsById);

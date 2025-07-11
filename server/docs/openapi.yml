@@ -482,7 +482,7 @@
             {
               "summary": "Buat permintaan cuti",
               "tags": ["Dashboard user"],
-              "description": "User yang sudah login dapat mengajukan permintaan cuti. Jika jenis cuti adalah `special_leave` atau `mandatory_leave`, maka id terkait wajib diisi.",
+              "description": "User yang sudah login dapat mengajukan permintaan cuti. Jika jenis cuti adalah `special_leave` atau `mandatory_leave`, maka id terkait wajib diisi. Untuk `special_leave`, `end_date` akan dihitung otomatis.",
               "requestBody":
                 {
                   "required": true,
@@ -494,13 +494,7 @@
                             {
                               "type": "object",
                               "required":
-                                [
-                                  "title",
-                                  "leave_type",
-                                  "start_date",
-                                  "end_date",
-                                  "reason",
-                                ],
+                                ["title", "leave_type", "start_date", "reason"],
                               "properties":
                                 {
                                   "title":
@@ -543,12 +537,6 @@
                                       "type": "string",
                                       "nullable": true,
                                       "example": "spcl123",
-                                    },
-                                  "id_mandatory":
-                                    {
-                                      "type": "string",
-                                      "nullable": true,
-                                      "example": "mdtr456",
                                     },
                                 },
                             },
@@ -622,12 +610,6 @@
                                                   "nullable": true,
                                                   "example": "spcl123",
                                                 },
-                                              "id_mandatory":
-                                                {
-                                                  "type": "string",
-                                                  "nullable": true,
-                                                  "example": null,
-                                                },
                                             },
                                         },
                                     },
@@ -642,18 +624,66 @@
                         {
                           "application/json":
                             {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "id_special is required for special leave",
-                                        },
-                                    },
-                                },
+                              "oneOf":
+                                [
+                                  {
+                                    "description": "ID special atau mandatory tidak valid",
+                                    "schema":
+                                      {
+                                        "type": "object",
+                                        "properties":
+                                          {
+                                            "message":
+                                              {
+                                                "type": "string",
+                                                "example": "id_special is required for special leave",
+                                              },
+                                          },
+                                      },
+                                  },
+                                  {
+                                    "description": "Jumlah hari cuti melebihi jatah yang tersedia",
+                                    "schema":
+                                      {
+                                        "type": "object",
+                                        "properties":
+                                          {
+                                            "message":
+                                              {
+                                                "type": "string",
+                                                "example": "Insufficient leave balance. Available: 10 days, Requested: 12 working days",
+                                              },
+                                            "data":
+                                              {
+                                                "type": "object",
+                                                "properties":
+                                                  {
+                                                    "total_balance":
+                                                      {
+                                                        "type": "integer",
+                                                        "example": 12,
+                                                      },
+                                                    "pending_days":
+                                                      {
+                                                        "type": "integer",
+                                                        "example": 2,
+                                                      },
+                                                    "available_balance":
+                                                      {
+                                                        "type": "integer",
+                                                        "example": 10,
+                                                      },
+                                                    "requested_working_days":
+                                                      {
+                                                        "type": "integer",
+                                                        "example": 12,
+                                                      },
+                                                  },
+                                              },
+                                          },
+                                      },
+                                  },
+                                ],
                             },
                         },
                     },
@@ -1059,7 +1089,6 @@
                 },
             },
         },
-    
     },
   "components":
     {

@@ -4,7 +4,7 @@ import leaveRoutes from './leave.route.js';
 import { isAuthenticated } from '../middlewares/isAuthenticated.middleware.js';
 import { validate } from '../middlewares/validate.js';
 import userRoutes from './user.route.js';
-import { validateRole } from '../middlewares/role.middleware.js';
+import { validateRole } from '../middlewares/validateRole.middleware.js';
 
 const router = express.Router();
 
