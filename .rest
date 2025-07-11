@@ -1,7 +1,0 @@
-POST http://fedora:3001/api/v1/auth/login
-Content-Type: application/json
-
-{
-    "email" : "andi.admin@perusahaan.com",
-    "password" : "Admin123!"
-}
