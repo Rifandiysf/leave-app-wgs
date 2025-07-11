@@ -1,4 +1,3 @@
-
 import express from "express";
 import { updateLeaveById } from "../controllers/leave.controller.js";
 import { validate } from "../middlewares/validate.js";

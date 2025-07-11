@@ -11,6 +11,7 @@ export const createLeaveRequest = async (req, res) => {
         const leave = await createLeave({
             ...req.body,
             NIK: user.NIK,
+            total_days: req.workingDays
         })
 
         res.status(201).json({
@@ -52,10 +53,10 @@ export const getLeaveRequests = async (req, res) => {
 
 export const getLeavesByFilter = async (req, res) => {
     try {
-        const { type, status } = req.query;
+        const { value, type, status } = req.query;
         const user = req.session.user;
 
-        const leaves = await getLeavesByFilterService(user.NIK, type, status);
+        const leaves = await getLeavesByFilterService(user.NIK, type, status, value);
 
         if (!leaves || leaves.length === 0) {
             res.status(201).json({
