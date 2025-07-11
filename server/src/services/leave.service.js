@@ -5,18 +5,7 @@ export const getAllLeaves = async () => {
     return await prisma.tb_leave.findMany()
 }
 
-
-// update leave
-
-// update record balance yang terkait dengan NIK di record leave
-//  - pending => approved : -
-//  - pending => reject : none
-//  - approved => reject : +
-
-// post record leave di tb_leave_log
-
-
-export const updateLeave = async (id, status, notes, nik) => {
+export const updateLeave = async (id, status, reason, nik) => {
     try {
         const data = await prisma.tb_leave.findUnique({
             where: {
@@ -26,6 +15,12 @@ export const updateLeave = async (id, status, notes, nik) => {
                 tb_users: true
             }
         });
+
+        if (!data) {
+            const err = new Error("Leave not found");
+            err.statusCode = 404;
+            throw err;
+        }
 
         const userBalance = await prisma.tb_balance.findMany({
             where: {
@@ -88,8 +83,8 @@ export const updateLeave = async (id, status, notes, nik) => {
             }
         })
 
-        // update 2 record balance menggunakan variable carriedBalance dan currentBalance
         // update tabel leave
+        // update 2 record balance menggunakan variable carriedBalance dan currentBalance
         // update tabel tb_leave_logs
         const result = await prisma.$transaction([
             prisma.tb_leave.update({ where: { id_leave: id}, data: { status: status}}),
@@ -98,25 +93,24 @@ export const updateLeave = async (id, status, notes, nik) => {
             prisma.tb_leave_log.create({ data: {
                 old_status: data.status,
                 new_status: status,
-                reason: notes,
+                reason: reason,
                 changed_by_nik: nik,
                 id_leave: data.id_leave,
                 changed_at: new Date()
             }})
         ])
 
-        console.log(result[0])
-        console.log(result[1], result[2])
-        console.log(`currentBalance: ${result[1].amount}\ncarriedBalance: ${result[2].amount}\ncurrentStatus: ${status} \npreviousStatus: ${data.status}`)
+        return result[0]
+        // console.log(result[0])
+        // console.log(result[1], result[2])
+        // console.log(`currentBalance: ${result[1].amount}\ncarriedBalance: ${result[2].amount}\ncurrentStatus: ${status} \npreviousStatus: ${data.status}`)
     } catch (error) {
-        console.error(error.message);
+        throw error;
     }
-    
-   
 }
 
 
-updateLeave('c711b5c6-6a4c-4010-a909-4e59264373c1', 'approved', "disetujui oleh admin", "100005");
+// updateLeave('c711b5c6-6a4c-4010-a909-4e59264373c1', 'approved', "disetujui oleh admin", "100005");
 
 
 

@@ -232,7 +232,7 @@ export const getUserByNIK = async (nik) => {
             created_at: {
                 gte: currentDateFirstMonth,
                 lte: currentDate
-            },
+            },  
             NIK: nik,
             status: "pending",
             leave_type: {
