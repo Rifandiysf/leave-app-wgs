@@ -2,7 +2,7 @@ import {
   getAllLeaves,
   getLeavesByType,
 } from "../services/leave.service.js"
-import { createLeave, getHistoryLeave } from "../services/leave.service.js"
+import { createLeave, getHistoryLeave, getHistoryLeaveSearch} from "../services/leave.service.js"
 
 
 export const createLeaveRequest = async (req, res) => {
@@ -101,7 +101,7 @@ export const historyLeaveSearch = async (req, res) => {
   try {
     const {value, type, status} = req.query
 
-    const result = await getHistoryLeave({
+    const result = await getHistoryLeaveSearch({
       value: value || '',
       type: type || '',
       status: status || ''
