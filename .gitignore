@@ -1,0 +1,33 @@
+# Umum
+.DS_Store
+.env
+.env.local
+.env.development
+.env.production
+node_modules/
+dist/
+build/
+*.log
+
+# Next.js
+.next/
+out/
+coverage/
+
+# VSCode
+.vscode/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Folder client (Next.js)
+client/.env
+client/.next
+client/node_modules
+
+# Folder server (backend)
+server/.env
+server/node_modules
+server/dist
