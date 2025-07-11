@@ -3,6 +3,7 @@ import { PORT, HOSTNAME, SESSION_SECRET} from './config/env.js';
 import routes from './routes/index.route.js';
 import prisma from './utils/client.js';
 import session from 'express-session';
+import cors from 'cors'
 
 const app = express()
 app.use(express.json());
@@ -11,6 +12,16 @@ app.use(session({
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+}))
+
+// const corsOption = {
+//     origin: "http://localhost:3000",
+//     Credential: true
+// }
+
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
 }))
 
 app.use('/api/v1/', routes);
