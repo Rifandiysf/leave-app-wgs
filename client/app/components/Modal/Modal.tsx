@@ -82,7 +82,6 @@ export function Modal({
                             <SelectContent>
                                 <SelectItem value="personal">Personal Leave</SelectItem>
                                 <SelectItem value="special">Special Leave</SelectItem>
-                                <SelectItem value="mandatory">Mandatory</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -95,9 +94,9 @@ export function Modal({
                                     <SelectValue placeholder="Choose Leave Type" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="personal">Personal Leave</SelectItem>
-                                    <SelectItem value="special">Special Leave</SelectItem>
-                                    <SelectItem value="mandatory">Mandatory</SelectItem>
+                                    <SelectItem value="personal">test</SelectItem>
+                                    <SelectItem value="special">test</SelectItem>
+                                    <SelectItem value="mandatory">test</SelectItem>
                                 </SelectContent>
                             </Select>
                             <div className="grid grid-cols-2 gap-2">
