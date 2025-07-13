@@ -25,6 +25,11 @@ export const fetchUserData = async (params, uniqueId) => {
         
         return userCopy;
     } catch (error) {
-        throw new Error("Password and email are not matched");
+        // for development only
+        if (process.env.NODE_ENV = "development") {
+            const err = new Error("User not found");
+            err.statusCode = 404;
+            throw err;
+        }
     }
 }

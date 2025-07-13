@@ -1,3 +1,4 @@
+import { status } from "../../generated/prisma/index.js";
 import { fetchUserData } from "../services/auth.service.js";
 
 export const login = async (req, res, next) => {
@@ -38,7 +39,9 @@ export const logout = (req, res, next) => {
         })
     } catch (error) {
         res.status(400).json({
-            message: error.message
+            status: "failed",
+            message: error.message,
+            status_code: 400
         })
     }
 }

@@ -14,7 +14,7 @@ export const validateUser = async (req, res, next) => {
         const match = await bcrypt.compare(password, user.password);
 
         if (!match || !user) {
-            const error = new Error("Email and password are not valid.");
+            const error = new Error("Email and password are not matched.");
             error.statusCode = 400;
             throw error;
         }
@@ -34,9 +34,10 @@ export const validateUser = async (req, res, next) => {
         req.user = user;
         return next();
     } catch (error) {
-        return res.status(400).json({
+        return res.status(error.statusCode || 400).json({
             status: "failed",
-            message: error.message
+            message: error.message,
+            status_code: error.statusCode
         })
     }
 
