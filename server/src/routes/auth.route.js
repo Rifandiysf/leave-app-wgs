@@ -6,7 +6,7 @@ import loginFormRequest from '../validators/loginForm.validator.js';
 import { isAuthenticated } from '../middlewares/isAuthenticated.middleware.js';
 const authRoutes = express.Router();
 
-authRoutes.post('/login', validate(loginFormRequest),validateUser, login);
+authRoutes.post('/login', validate(loginFormRequest), validateUser, login);
 authRoutes.get('/logout', isAuthenticated, logout);
 
 export default authRoutes;
