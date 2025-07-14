@@ -4,7 +4,9 @@ import {
   getLeavesByFilterService,
   getHistoryLeave,
   getHistoryLeaveSearch,
-  getSpecialLeaveService
+  getSpecialLeaveService,
+  createSpecialLeaveService,
+  updateSpecialLeaveService
 } from "../services/leave.service.js"
 
 
@@ -29,10 +31,11 @@ export const updateLeaveById = async (req, res) => {
     })
   } catch (error) {
     return res.status(400).json({
-      status : 'failed',
+      status: 'failed',
       message: 'failed updated leave data'
     })
-}}
+  }
+}
 
 export const getAllLeaves = async (req, res) => {
   try {
@@ -72,27 +75,27 @@ export const getLeavesByFilter = async (req, res) => {
 export const historyLeave = async (req, res) => {
   try {
     const result = await getHistoryLeave()
-    res.status(200).json({succes: true, data: result})
+    res.status(200).json({ succes: true, data: result })
   } catch (error) {
     console.error('Error fetching leave history:', error)
-    res.status(500).json({succes: false, message: 'Server Error'})
+    res.status(500).json({ succes: false, message: 'Server Error' })
   }
 }
 
 export const historyLeaveSearch = async (req, res) => {
   try {
-    const {value, type, status} = req.query
+    const { value, type, status } = req.query
 
     const result = await getHistoryLeaveSearch({
       value: value || '',
       type: type || '',
       status: status || ''
     })
-    
-    res.status(200).json({success: true, data: result})
+
+    res.status(200).json({ success: true, data: result })
   } catch (error) {
     console.error('Error fetching leave history:', error)
-    res.status(500).json({success: false, message: error.message})
+    res.status(500).json({ success: false, message: error.message })
   }
 }
 
@@ -103,6 +106,44 @@ export const getSpecialLeave = async (req, res) => {
 
     res.status(201).json({
       message: "All special leave was successfully taken",
+      data: specialLeaves
+    })
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+}
+
+export const createSpecialLeave = async (req, res) => {
+  const data = req.body
+  try {
+
+    const specialLeaves = await createSpecialLeaveService(data)
+
+    res.status(201).json({
+      message: "Special leave created successfully",
+      data: specialLeaves,
+    })
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+}
+
+export const updateSpecialLeave = async (req, res) => {
+  try {
+
+    const { id } = req.params
+    const data = req.body
+
+    const specialLeaves = await updateSpecialLeaveService(id, data)
+
+    res.status(201).json({
+      message: "Special leave updated successfully",
       data: specialLeaves
     })
 

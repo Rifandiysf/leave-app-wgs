@@ -76,7 +76,7 @@ export const updateLeave = async (id, status, reason, nik) => {
         });
 
         if (data.status === status) {
-            throw new Error("New status and old status can't be the same");   
+            throw new Error("New status and old status can't be the same");
         }
 
         let currentBalance = userBalance[0] ? userBalance[0].amount : 0;
@@ -96,7 +96,7 @@ export const updateLeave = async (id, status, reason, nik) => {
                 carriedBalance -= data.total_days;
             } else if (data.status === "pending" && status === "approved") {
                 carriedBalance -= data.total_days;
-            } else if (data.status === "pending" && status === "rejected"){
+            } else if (data.status === "pending" && status === "rejected") {
                 currentBalance += data.total_days;
             }
         }
@@ -117,10 +117,10 @@ export const updateLeave = async (id, status, reason, nik) => {
 
         const resultLeave = await prisma.tb_leave.update({
             where: {
-                id_leave : id
+                id_leave: id
             },
             data: {
-                status : status
+                status: status
             }
         })
 
@@ -128,17 +128,19 @@ export const updateLeave = async (id, status, reason, nik) => {
         // update 2 record balance menggunakan variable carriedBalance dan currentBalance
         // update tabel tb_leave_logs
         const result = await prisma.$transaction([
-            prisma.tb_leave.update({ where: { id_leave: id}, data: { status: status}}),
-            prisma.tb_balance.update({ where: { id_balance: userBalance[0].id_balance }, data: { amount: currentBalance} }),
-            prisma.tb_balance.update({ where: {id_balance: userBalance[1].id_balance}, data: { amount: carriedBalance }}),
-            prisma.tb_leave_log.create({ data: {
-                old_status: data.status,
-                new_status: status,
-                reason: reason,
-                changed_by_nik: nik,
-                id_leave: data.id_leave,
-                changed_at: new Date()
-            }})
+            prisma.tb_leave.update({ where: { id_leave: id }, data: { status: status } }),
+            prisma.tb_balance.update({ where: { id_balance: userBalance[0].id_balance }, data: { amount: currentBalance } }),
+            prisma.tb_balance.update({ where: { id_balance: userBalance[1].id_balance }, data: { amount: carriedBalance } }),
+            prisma.tb_leave_log.create({
+                data: {
+                    old_status: data.status,
+                    new_status: status,
+                    reason: reason,
+                    changed_by_nik: nik,
+                    id_leave: data.id_leave,
+                    changed_at: new Date()
+                }
+            })
         ])
 
         return result[0]
@@ -155,23 +157,23 @@ export const updateLeave = async (id, status, reason, nik) => {
 
 
 
-export const getHistoryLeaveSearch = async ({value, type, status}) => {
+export const getHistoryLeaveSearch = async ({ value, type, status }) => {
     const changeFormat = (text) => {
         return text?.trim().toLowerCase().replace(/\s+/g, '_')
     }
     const leaves = await prisma.tb_leave.findMany({
-        where : {
-            ...(type && {leave_type: changeFormat(type)}),
-            ...(status && {status: status})
+        where: {
+            ...(type && { leave_type: changeFormat(type) }),
+            ...(status && { status: status })
         },
-        orderBy : {start_date: 'desc'}
+        orderBy: { start_date: 'desc' }
     })
 
     const history = await Promise.all(
         leaves.map(async (leave) => {
             const user = await prisma.tb_users.findUnique({
-                where : {NIK: leave.NIK},
-                select : {fullname: true}
+                where: { NIK: leave.NIK },
+                select: { fullname: true }
             })
 
             if (value && !user?.fullname.toLowerCase().includes(value.toLowerCase())) {
@@ -180,14 +182,14 @@ export const getHistoryLeaveSearch = async ({value, type, status}) => {
 
 
             const latestLog = await prisma.tb_leave_log.findFirst({
-                where: {id_leave: leave.id_leave},
-                orderBy : {changed_at: 'desc'}
+                where: { id_leave: leave.id_leave },
+                orderBy: { changed_at: 'desc' }
             })
 
             if (latestLog) {
                 const changer = await prisma.tb_users.findUnique({
-                    where : {NIK : latestLog.changed_by_nik},
-                    select : {fullname : true}
+                    where: { NIK: latestLog.changed_by_nik },
+                    select: { fullname: true }
                 })
             }
 
@@ -207,25 +209,25 @@ export const getHistoryLeaveSearch = async ({value, type, status}) => {
 
 export const getHistoryLeave = async () => {
     const leaves = await prisma.tb_leave.findMany({
-        orderBy : {start_date: 'desc'}
+        orderBy: { start_date: 'desc' }
     })
 
     const history = await Promise.all(
         leaves.map(async (leave) => {
             const user = await prisma.tb_users.findUnique({
-                where : {NIK: leave.NIK},
-                select : {fullname: true}
+                where: { NIK: leave.NIK },
+                select: { fullname: true }
             })
 
             const latestLog = await prisma.tb_leave_log.findFirst({
-                where: {id_leave: leave.id_leave},
-                orderBy : {changed_at: 'desc'}
+                where: { id_leave: leave.id_leave },
+                orderBy: { changed_at: 'desc' }
             })
 
             if (latestLog) {
                 const changer = await prisma.tb_users.findUnique({
-                    where : {NIK : latestLog.changed_by_nik},
-                    select : {fullname : true}
+                    where: { NIK: latestLog.changed_by_nik },
+                    select: { fullname: true }
                 })
             }
 
@@ -245,4 +247,19 @@ export const getHistoryLeave = async () => {
 
 export const getSpecialLeaveService = async () => {
     return await prisma.tb_special_leave.findMany({})
+}
+
+export const createSpecialLeaveService = async (data) => {
+    return await prisma.tb_special_leave.create({
+        data,
+    })
+}
+
+export const updateSpecialLeaveService = async (id, data) => {
+    return await prisma.tb_special_leave.update({
+        where: {
+            id_special: id
+        },
+        data
+    })
 }
