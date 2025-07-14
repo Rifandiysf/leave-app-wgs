@@ -749,6 +749,124 @@
                     },
                 },
             },
+          "get":
+            {
+              "summary": "Ambil seluruh riwayat cuti user",
+              "tags": ["Dashboard user"],
+              "description": "Menampilkan seluruh data cuti berdasarkan NIK user yang sedang login. Digunakan di halaman history pengajuan cuti.",
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Data ditemukan (termasuk kemungkinan kosong)",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Leave requests retrieved successfully",
+                                        },
+                                      "data":
+                                        {
+                                          "type": "array",
+                                          "items":
+                                            {
+                                              "type": "object",
+                                              "properties":
+                                                {
+                                                  "id_leave":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "lv7890",
+                                                    },
+                                                  "title":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "Libur keluarga",
+                                                    },
+                                                  "leave_type":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "personal_leave",
+                                                    },
+                                                  "start_date":
+                                                    {
+                                                      "type": "string",
+                                                      "format": "date",
+                                                      "example": "2025-07-01",
+                                                    },
+                                                  "end_date":
+                                                    {
+                                                      "type": "string",
+                                                      "format": "date",
+                                                      "example": "2025-07-03",
+                                                    },
+                                                  "reason":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "Menemani orang tua ke luar kota",
+                                                    },
+                                                  "status":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "approved",
+                                                    },
+                                                  "total_days":
+                                                    {
+                                                      "type": "integer",
+                                                      "example": 3,
+                                                    },
+                                                  "id_special":
+                                                    {
+                                                      "type": "string",
+                                                      "nullable": true,
+                                                      "example": null,
+                                                    },
+                                                  "id_mandatory":
+                                                    {
+                                                      "type": "string",
+                                                      "nullable": true,
+                                                      "example": null,
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Unauthorized - belum login",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Unauthorized. Please login to access this resource.",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
         },
       "/users/leave/search":
         {
@@ -1080,6 +1198,678 @@
                                         {
                                           "type": "string",
                                           "example": "Unauthorized. Please login to access this resource.",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/users/":
+        {
+          "get":
+            {
+              "summary": "Ambil semua data user dan balance cuti",
+              "tags": ["Dashboard admin"],
+              "description": "Hanya dapat diakses oleh role admin dan super_admin. Mengembalikan data user termasuk cuti tahun ini dan tahun lalu.",
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Data user berhasil diambil",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "array",
+                                  "items":
+                                    {
+                                      "type": "object",
+                                      "properties":
+                                        {
+                                          "nik":
+                                            {
+                                              "type": "string",
+                                              "example": "123456",
+                                            },
+                                          "name":
+                                            {
+                                              "type": "string",
+                                              "example": "Ahmad Yusuf",
+                                            },
+                                          "gender":
+                                            {
+                                              "type": "string",
+                                              "example": "male",
+                                            },
+                                          "last_year_leave":
+                                            { "type": "integer", "example": 5 },
+                                          "this_year_leave":
+                                            {
+                                              "type": "integer",
+                                              "example": 12,
+                                            },
+                                          "leave_total":
+                                            {
+                                              "type": "integer",
+                                              "example": 17,
+                                            },
+                                          "role":
+                                            {
+                                              "type": "string",
+                                              "example": "karyawan_tetap",
+                                            },
+                                          "status":
+                                            {
+                                              "type": "string",
+                                              "example": "active",
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "User tidak memiliki role yang diizinkan",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Access denied.",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Gagal mengambil data user dari server",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Failed to retrieve user data and leave quota.",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Belum login (unauthorized)",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Unauthorized. Please login to access this resource.",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/leaves":
+        {
+          "get":
+            {
+              "summary": "Ambil semua data cuti",
+              "tags": ["Dashboard admin"],
+              "description": "Mengembalikan seluruh data pengajuan cuti dari database. Hanya untuk role: super_admin dan admin.",
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Data cuti berhasil diambil",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "All leave requests retrieved successfully",
+                                        },
+                                      "data":
+                                        {
+                                          "type": "array",
+                                          "items":
+                                            {
+                                              "type": "object",
+                                              "properties":
+                                                {
+                                                  "id_leave":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "lv001",
+                                                    },
+                                                  "NIK":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "123456",
+                                                    },
+                                                  "title":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "Libur nasional",
+                                                    },
+                                                  "leave_type":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "mandatory_leave",
+                                                    },
+                                                  "start_date":
+                                                    {
+                                                      "type": "string",
+                                                      "format": "date",
+                                                      "example": "2025-07-01",
+                                                    },
+                                                  "end_date":
+                                                    {
+                                                      "type": "string",
+                                                      "format": "date",
+                                                      "example": "2025-07-03",
+                                                    },
+                                                  "reason":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "Hari raya keagamaan",
+                                                    },
+                                                  "status":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "approved",
+                                                    },
+                                                  "total_days":
+                                                    {
+                                                      "type": "integer",
+                                                      "example": 3,
+                                                    },
+                                                  "id_special":
+                                                    {
+                                                      "type": "string",
+                                                      "nullable": true,
+                                                      "example": null,
+                                                    },
+                                                  "id_mandatory":
+                                                    {
+                                                      "type": "string",
+                                                      "nullable": true,
+                                                      "example": "md101",
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Unauthorized - belum login",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Unauthorized. Please login to access this resource.",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "User tidak memiliki izin role",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Access denied.",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/leaves/search":
+        {
+          "get":
+            {
+              "summary": "Cari dan filter daftar cuti (status pending)",
+              "tags": ["Dashboard admin"],
+              "description": "Mengembalikan daftar cuti dengan status `pending`, berdasarkan `type` dan/atau pencarian `value`. Hanya bisa diakses oleh `admin` atau `super_admin`.",
+              "parameters":
+                [
+                  {
+                    "name": "value",
+                    "in": "query",
+                    "required": false,
+                    "description": "Kata kunci untuk pencarian berdasarkan judul cuti (title)",
+                    "schema": { "type": "string", "example": "keluarga" },
+                  },
+                  {
+                    "name": "type",
+                    "in": "query",
+                    "required": false,
+                    "description": "Jenis cuti: personal, mandatory, atau special",
+                    "schema":
+                      {
+                        "type": "string",
+                        "enum": ["personal", "mandatory", "special"],
+                        "example": "personal",
+                      },
+                  },
+                ],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Data berhasil difilter dan dikembalikan",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Filtered leave data retrieved successfully",
+                                        },
+                                      "data":
+                                        {
+                                          "type": "array",
+                                          "items":
+                                            {
+                                              "type": "object",
+                                              "properties":
+                                                {
+                                                  "id_leave":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "lv001",
+                                                    },
+                                                  "NIK":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "123456",
+                                                    },
+                                                  "title":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "Keperluan keluarga",
+                                                    },
+                                                  "leave_type":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "personal_leave",
+                                                    },
+                                                  "start_date":
+                                                    {
+                                                      "type": "string",
+                                                      "format": "date",
+                                                      "example": "2025-07-01",
+                                                    },
+                                                  "end_date":
+                                                    {
+                                                      "type": "string",
+                                                      "format": "date",
+                                                      "example": "2025-07-03",
+                                                    },
+                                                  "reason":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "Mengantar orang tua ke rumah sakit",
+                                                    },
+                                                  "status":
+                                                    {
+                                                      "type": "string",
+                                                      "example": "pending",
+                                                    },
+                                                  "total_days":
+                                                    {
+                                                      "type": "integer",
+                                                      "example": 3,
+                                                    },
+                                                  "id_special":
+                                                    {
+                                                      "type": "string",
+                                                      "nullable": true,
+                                                      "example": null,
+                                                    },
+                                                  "id_mandatory":
+                                                    {
+                                                      "type": "string",
+                                                      "nullable": true,
+                                                      "example": null,
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Terjadi kesalahan saat pemrosesan filter",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Invalid leave type. Allowed values: personal, mandatory, special",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Akses ditolak karena bukan admin",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Access denied.",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Belum login (unauthorized)",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Unauthorized. Please login to access this resource.",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/leaves/{id}":
+        {
+          "patch":
+            {
+              "summary": "Ubah status pengajuan cuti",
+              "tags": ["Dashboard admin"],
+              "description": "Admin atau Super Admin dapat mengubah status cuti (approved/rejected). Secara otomatis memperbarui balance cuti dan menyimpan riwayat log perubahan.",
+              "parameters":
+                [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "ID dari data cuti yang ingin diubah",
+                    "schema": { "type": "string", "example": "lv002" },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            {
+                              "type": "object",
+                              "required": ["status", "reason"],
+                              "properties":
+                                {
+                                  "status":
+                                    {
+                                      "type": "string",
+                                      "enum": ["approved", "rejected"],
+                                      "example": "approved",
+                                    },
+                                  "reason":
+                                    {
+                                      "type": "string",
+                                      "description": "Alasan perubahan status",
+                                      "example": "Validasi dokumen sudah lengkap",
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Status berhasil diperbarui dan balance cuti disesuaikan",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "status":
+                                        {
+                                          "type": "string",
+                                          "example": "Success",
+                                        },
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Successfully updated leave data",
+                                        },
+                                      "data":
+                                        {
+                                          "type": "object",
+                                          "properties":
+                                            {
+                                              "updated_leave":
+                                                {
+                                                  "type": "object",
+                                                  "properties":
+                                                    {
+                                                      "id_leave":
+                                                        {
+                                                          "type": "string",
+                                                          "example": "lv002",
+                                                        },
+                                                      "status":
+                                                        {
+                                                          "type": "string",
+                                                          "example": "approved",
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Gagal memperbarui status",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "status":
+                                        {
+                                          "type": "string",
+                                          "example": "failed",
+                                        },
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "failed updated leave data",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "401":
+                    {
+                      "description": "Unauthorized - belum login",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Unauthorized. Please login to access this resource.",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Forbidden - bukan role admin/super_admin",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Access denied.",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "404":
+                    {
+                      "description": "Data cuti tidak ditemukan",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Leave not found",
                                         },
                                     },
                                 },
