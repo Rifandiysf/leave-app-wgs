@@ -32,7 +32,7 @@ const DashboardPage = () => {
         leaveTotal: 12,
         role: "Tetap",
         status: <span className="text-[#00c41d] bg-[#82ff9544] p-2 px-3 rounded-full text-xs">ACTIVE</span>
-    },{
+    }, {
         nik: 1234567890123456,
         fullName: "Admin WGS",
         gender: "M",
@@ -41,7 +41,7 @@ const DashboardPage = () => {
         leaveTotal: 12,
         role: "Tetap",
         status: <span className="text-[#00c41d] bg-[#82ff9544] p-2 px-3 rounded-full text-xs">ACTIVE</span>
-    },{
+    }, {
         nik: 1234567890123456,
         fullName: "Admin WGS",
         gender: "M",
@@ -50,7 +50,7 @@ const DashboardPage = () => {
         leaveTotal: 12,
         role: "Tetap",
         status: <span className="text-[#00c41d] bg-[#82ff9544] p-2 px-3 rounded-full text-xs">ACTIVE</span>
-    },{
+    }, {
         nik: 1234567890123456,
         fullName: "Admin WGS",
         gender: "M",
@@ -59,7 +59,7 @@ const DashboardPage = () => {
         leaveTotal: 12,
         role: "Tetap",
         status: <span className="text-[#00c41d] bg-[#82ff9544] p-2 px-3 rounded-full text-xs">ACTIVE</span>
-    },{
+    }, {
         nik: 1234567890123456,
         fullName: "Admin WGS",
         gender: "M",
@@ -68,7 +68,7 @@ const DashboardPage = () => {
         leaveTotal: 12,
         role: "Tetap",
         status: <span className="text-[#00c41d] bg-[#82ff9544] p-2 px-3 rounded-full text-xs">ACTIVE</span>
-    },{
+    }, {
         nik: 1234567890123456,
         fullName: "Admin WGS",
         gender: "M",
@@ -77,7 +77,7 @@ const DashboardPage = () => {
         leaveTotal: 12,
         role: "Tetap",
         status: <span className="text-[#00c41d] bg-[#82ff9544] p-2 px-3 rounded-full text-xs">ACTIVE</span>
-    },{
+    }, {
         nik: 1234567890123456,
         fullName: "Admin WGS",
         gender: "M",
@@ -86,7 +86,7 @@ const DashboardPage = () => {
         leaveTotal: 12,
         role: "Tetap",
         status: <span className="text-[#00c41d] bg-[#82ff9544] p-2 px-3 rounded-full text-xs">ACTIVE</span>
-    },{
+    }, {
         nik: 1234567890123456,
         fullName: "Admin WGS",
         gender: "M",
@@ -136,47 +136,48 @@ const DashboardPage = () => {
             </section>
 
             <section className="relative p-3 min-h-[calc(100dvh-137px)]">
-                <table className="w-full table-auto rounded-t-2xl">
-                    <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] rounded-2xl shadow-2xl">
-                        <tr>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">NIK</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Name</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Gender</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Last Year Leave</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">This Year Leave</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Leave Total</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Role</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Status</th>
-                        </tr>
-                    </thead>
-
-                    <tbody className="cursor-pointer">
-                        {isLoading ? (
-                            Array.from({ length: ITEMS_PER_PAGE }).map((_, rowIdx) => (
-                                <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
-                                    {Array.from({ length: 8 }).map((_, colIdx) => (
-                                        <th key={colIdx} className="p-3">
-                                            <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
-                                        </th>
-                                    ))}
-                                </tr>
-                            ))
-                        ) : (
-                            currentData.map((data, idx) => (
-                                <tr key={idx} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.nik}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.fullName}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.gender}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.lastYearLeave}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.thisYearLeave}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.leaveTotal}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.role}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.status}</th>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                <div className="max-sm:o overflow-x-scroll">
+                    <table className="w-full text-base text-center">
+                        <thead className="text-black bg-[#F0f4f9] backdrop-blur-sm">
+                            <tr className="text-base">
+                                <th className="p-3 align-middle font-semibold">NIK</th>
+                                <th className="p-3 align-middle font-semibold">Name</th>
+                                <th className="p-3 align-middle font-semibold">Gender</th>
+                                <th className="p-3 align-middle font-semibold">Last Year Leave</th>
+                                <th className="p-3 align-middle font-semibold">This Year Leave</th>
+                                <th className="p-3 align-middle font-semibold">Leave Total</th>
+                                <th className="p-3 align-middle font-semibold">Role</th>
+                                <th className="p-3 align-middle font-semibold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody className=" ">
+                            {isLoading ? (
+                                Array.from({ length: ITEMS_PER_PAGE }).map((_, rowIdx) => (
+                                    <tr key={rowIdx} className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-gray-100 animate-pulse'}>
+                                        {Array.from({ length: 8 }).map((_, colIdx) => (
+                                            <td key={colIdx} className="p-3 align-middle">
+                                                <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))
+                            ) : (
+                                currentData.map((data, idx) => (
+                                    <tr key={idx} className="odd:bg-[#e8efff] even:bg-[#f8faff]">
+                                        <td className="p-3 align-middle">{data.nik}</td>
+                                        <td className="p-3 align-middle">{data.fullName}</td>
+                                        <td className="p-3 align-middle">{data.gender}</td>
+                                        <td className="p-3 align-middle">{data.lastYearLeave}</td>
+                                        <td className="p-3 align-middle">{data.thisYearLeave}</td>
+                                        <td className="p-3 align-middle">{data.leaveTotal}</td>
+                                        <td className="p-3 align-middle">{data.role}</td>
+                                        <td className="p-3 align-middle">{data.status}</td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
 
                 <div className="flex justify-center items-center bg-white py-5">
                     <Pagination>

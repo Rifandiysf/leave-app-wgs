@@ -75,62 +75,64 @@ const ListOfLeavePage = () => {
             </section>
 
             <section className="relative p-3 min-h-[calc(100dvh-137px)]">
-                <table className="w-full table-auto rounded-t-2xl">
-                    <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] rounded-2xl shadow-2xl">
-                        <tr>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Name</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Type</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Start Leave</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">End Leave</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Leave Used</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Status</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Action</th>
-                        </tr>
-                    </thead>
+                <div className='max-sm:overflow-x-scroll'>
+                    <table className="w-full table-auto rounded-t-2xl">
+                        <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] rounded-2xl shadow-2xl">
+                            <tr>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">Name</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">Type</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">Start Leave</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">End Leave</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">Leave Used</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">Status</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">Action</th>
+                            </tr>
+                        </thead>
 
-                    <tbody className="cursor-pointer">
-                        {isLoading ? (
-                            Array.from({ length: ITEMS_PER_PAGE }).map((_, rowIdx) => (
-                                <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
-                                    {Array.from({ length: 7 }).map((_, colIdx) => (
-                                        <th key={colIdx} className="p-3">
-                                            <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
+                        <tbody className="cursor-pointer">
+                            {isLoading ? (
+                                Array.from({ length: ITEMS_PER_PAGE }).map((_, rowIdx) => (
+                                    <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
+                                        {Array.from({ length: 7 }).map((_, colIdx) => (
+                                            <th key={colIdx} className="p-3">
+                                                <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
+                                            </th>
+                                        ))}
+                                    </tr>
+                                ))
+                            ) : (
+                                currentData.map((data, idx) => (
+                                    <tr key={idx} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.name}</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.type}</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.startLeave}</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.endLeave}</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.leaveUsed}</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.status}</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
+                                            <Modal
+                                                mode='confirm'
+                                                size='icon'
+                                                variant='ghost'
+                                                title='Accept Request'
+                                                description="Are you sure want to accept this request leave?"
+                                                triggerLabel={<i className="bi bi-check2-circle text-xl"></i>}
+                                            />
+                                            <Modal
+                                                mode='reject'
+                                                size='icon'
+                                                variant='ghost'
+                                                title='Reject Request'
+                                                description='Are you sure want to reject this request leave?'
+                                                triggerLabel={<i className="bi bi-x-circle text-xl"></i>}
+                                            />
                                         </th>
-                                    ))}
-                                </tr>
-                            ))
-                        ) : (
-                            currentData.map((data, idx) => (
-                                <tr key={idx} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.name}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.type}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.startLeave}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.endLeave}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.leaveUsed}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.status}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
-                                        <Modal
-                                            mode='confirm'
-                                            size='icon'
-                                            variant='ghost'
-                                            title='Accept Request'
-                                            description="Are you sure want to accept this request leave?"
-                                            triggerLabel={<i className="bi bi-check2-circle text-xl"></i>}
-                                        />
-                                        <Modal
-                                            mode='reject'
-                                            size='icon'
-                                            variant='ghost'
-                                            title='Reject Request'
-                                            description='Are you sure want to reject this request leave?'
-                                            triggerLabel={<i className="bi bi-x-circle text-xl"></i>}
-                                        />
-                                    </th>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
 
                 <div className="flex justify-center items-center bg-white py-5">
                     <Pagination>

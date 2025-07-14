@@ -63,43 +63,45 @@ const SpecialLeavePage = () => {
             </section>
 
             <section className="relative p-3 min-h-[calc(100dvh-137px)]">
-                <table className="w-full table-auto rounded-t-2xl">
-                    <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] rounded-2xl shadow-2xl">
-                        <tr>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">No</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Leave Title</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Gender</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Amount</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Information</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Action</th>
-                        </tr>
-                    </thead>
+                <div className='max-sm:overflow-x-scroll'>
+                    <table className="w-full table-auto rounded-t-2xl">
+                        <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] rounded-2xl shadow-2xl">
+                            <tr>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">No</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">Leave Title</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">Gender</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">Amount</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">Information</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">Action</th>
+                            </tr>
+                        </thead>
 
-                    <tbody className="cursor-pointer">
-                        {isLoading ? (
-                            Array.from({ length: ITEMS_PER_PAGE }).map((_, rowIdx) => (
-                                <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
-                                    {Array.from({ length: 6 }).map((_, colIdx) => (
-                                        <th key={colIdx} className="p-3">
-                                            <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
-                                        </th>
-                                    ))}
-                                </tr>
-                            ))
-                        ) : (
-                            currentData.map((data, idx) => (
-                                <tr key={idx} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.id}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.leaveTitle}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.gender}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.amount} Days</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.leaveInformation}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.action}</th>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                        <tbody className="cursor-pointer">
+                            {isLoading ? (
+                                Array.from({ length: ITEMS_PER_PAGE }).map((_, rowIdx) => (
+                                    <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
+                                        {Array.from({ length: 6 }).map((_, colIdx) => (
+                                            <th key={colIdx} className="p-3">
+                                                <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
+                                            </th>
+                                        ))}
+                                    </tr>
+                                ))
+                            ) : (
+                                currentData.map((data, idx) => (
+                                    <tr key={idx} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.id}</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.leaveTitle}</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.gender}</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.amount} Days</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.leaveInformation}</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.action}</th>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
 
                 <div className="flex justify-center items-center bg-white py-5">
                     <Pagination>
