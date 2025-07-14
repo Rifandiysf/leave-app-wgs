@@ -6,7 +6,8 @@ import {
   getHistoryLeaveSearch,
   getSpecialLeaveService,
   createSpecialLeaveService,
-  updateSpecialLeaveService
+  updateSpecialLeaveService,
+  deleteSpecialLeaveService
 } from "../services/leave.service.js"
 
 
@@ -155,5 +156,20 @@ export const updateSpecialLeave = async (req, res) => {
 }
 
 export const deleteSpecialLeave = async (req, res) => {
-  
+  try {
+
+    const {id} = req.params
+
+    const specialLeave = await deleteSpecialLeaveService(id)
+
+    res.status(201).json({
+      message: "Special leave deleted succesfully",
+      data: specialLeave
+    })
+
+  } catch(error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
 }
