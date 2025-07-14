@@ -242,3 +242,7 @@ export const getHistoryLeave = async () => {
 
     return history
 }
+
+export const getSpecialLeaveService = async () => {
+    return await prisma.tb_special_leave.findMany({})
+}

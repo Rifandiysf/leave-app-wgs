@@ -3,7 +3,8 @@ import {
   updateLeave,
   getLeavesByFilterService,
   getHistoryLeave,
-  getHistoryLeaveSearch
+  getHistoryLeaveSearch,
+  getSpecialLeaveService
 } from "../services/leave.service.js"
 
 
@@ -92,5 +93,22 @@ export const historyLeaveSearch = async (req, res) => {
   } catch (error) {
     console.error('Error fetching leave history:', error)
     res.status(500).json({success: false, message: error.message})
+  }
+}
+
+export const getSpecialLeave = async (req, res) => {
+  try {
+
+    const specialLeaves = await getSpecialLeaveService()
+
+    res.status(201).json({
+      message: "All special leave was successfully taken",
+      data: specialLeaves
+    })
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
   }
 }
