@@ -1879,6 +1879,205 @@
                 },
             },
         },
+      "/leaves/special":
+        {
+          "get":
+            {
+              "summary": "Ambil semua data cuti khusus",
+              "description": "Endpoint ini digunakan untuk mengambil seluruh data cuti khusus dari database.",
+              "tags": ["Dashboard admin"],
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Data cuti khusus berhasil diambil",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "All special leave was successfully taken",
+                                        },
+                                      "data":
+                                        {
+                                          "type": "array",
+                                          "items":
+                                            {
+                                              "$ref": "#/components/schemas/tb_special_leave",
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400": { "description": "Gagal mengambil data cuti khusus" },
+                },
+            },
+          "post":
+            {
+              "summary": "Buat data cuti khusus",
+              "description": "Endpoint ini digunakan untuk membuat data cuti khusus baru.",
+              "tags": ["Dashboard admin"],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            { "$ref": "#/components/schemas/tb_special_leave" },
+                        },
+                    },
+                },
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Cuti khusus berhasil dibuat",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Special leave created successfully",
+                                        },
+                                      "data":
+                                        {
+                                          "$ref": "#/components/schemas/tb_special_leave",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400": { "description": "Gagal membuat data cuti khusus" },
+                },
+            },
+        },
+      "/leaves/special/{id}":
+        {
+          "patch":
+            {
+              "summary": "Perbarui data cuti khusus",
+              "description": "Endpoint ini digunakan untuk memperbarui data cuti khusus berdasarkan ID.",
+              "tags": ["Dashboard admin"],
+              "parameters":
+                [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "description": "ID dari cuti khusus",
+                    "required": true,
+                    "schema": { "type": "string", "format": "uuid" },
+                  },
+                ],
+              "requestBody":
+                {
+                  "required": true,
+                  "content":
+                    {
+                      "application/json":
+                        {
+                          "schema":
+                            { "$ref": "#/components/schemas/tb_special_leave" },
+                        },
+                    },
+                },
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Cuti khusus berhasil diperbarui",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Special leave updated successfully",
+                                        },
+                                      "data":
+                                        {
+                                          "$ref": "#/components/schemas/tb_special_leave",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    { "description": "Gagal memperbarui data cuti khusus" },
+                },
+            },
+          "delete":
+            {
+              "summary": "Hapus data cuti khusus",
+              "description": "Endpoint ini digunakan untuk menghapus data cuti khusus berdasarkan ID.",
+              "tags": ["Dashboard admin"],
+              "parameters":
+                [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "description": "ID dari cuti khusus yang akan dihapus",
+                    "required": true,
+                    "schema": { "type": "string", "format": "uuid" },
+                  },
+                ],
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Cuti khusus berhasil dihapus",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message":
+                                        {
+                                          "type": "string",
+                                          "example": "Special leave deleted succesfully",
+                                        },
+                                      "data":
+                                        {
+                                          "$ref": "#/components/schemas/tb_special_leave",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400": { "description": "Gagal menghapus data cuti khusus" },
+                },
+            },
+        },
     },
   "components":
     {
