@@ -7,7 +7,11 @@ import {
   getSpecialLeaveService,
   createSpecialLeaveService,
   updateSpecialLeaveService,
-  deleteSpecialLeaveService
+  deleteSpecialLeaveService,
+  createMandatoryLeaveService,
+  getAllMandatoryLeavesService,
+  updateMandatoryLeaveService,
+  deleteMandatoryLeaveService
 } from "../services/leave.service.js"
 
 
@@ -158,7 +162,7 @@ export const updateSpecialLeave = async (req, res) => {
 export const deleteSpecialLeave = async (req, res) => {
   try {
 
-    const {id} = req.params
+    const { id } = req.params
 
     const specialLeave = await deleteSpecialLeaveService(id)
 
@@ -167,9 +171,77 @@ export const deleteSpecialLeave = async (req, res) => {
       data: specialLeave
     })
 
-  } catch(error) {
+  } catch (error) {
     res.status(400).json({
       message: error.message
     })
   }
 }
+
+export const createMandatoryLeave = async (req, res) => {
+  const data = req.body
+  try {
+    const mandatoryLeaves = await createMandatoryLeaveService(data);
+    res.status(201).json({
+      message: "Mandatory leave created successfully",
+      data: mandatoryLeaves
+    });
+  } catch (error) {
+    res.status.json({
+      message: error.message
+    })
+  }
+};
+
+export const getMandatoryLeaves = async (req, res) => {
+  try {
+    const mandatoryLeave = await getAllMandatoryLeavesService();
+    res.status(200).json({
+      message: "All mandatory leave was successfully taken",
+      data: mandatoryLeave
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+};
+
+export const updateMandatoryLeave = async (req, res) => {
+  try {
+
+    const { id } = req.params
+    const data = req.body
+
+    const mandatoryLeave = await updateMandatoryLeaveService(id, data)
+
+    res.status(201).json({
+      message: "Mandatory leave updated successfully",
+      data: mandatoryLeave
+    })
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+};
+
+export const deleteMandatoryLeave = async (req, res) => {
+  try {
+
+    const { id } = req.params
+
+    const mandatoryLeave = await deleteMandatoryLeaveService(id)
+
+    res.status(201).json({
+      message: "Mandatory leave deleted succesfully",
+      data: mandatoryLeave
+    })
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+};
