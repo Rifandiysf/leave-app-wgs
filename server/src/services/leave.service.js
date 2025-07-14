@@ -263,3 +263,11 @@ export const updateSpecialLeaveService = async (id, data) => {
         data
     })
 }
+
+export const deleteSpecialLeaveService = async (id) => {
+    return await prisma.tb_special_leave.delete({
+        where: {
+            id_special: id 
+        }
+    })
+}

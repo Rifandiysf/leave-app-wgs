@@ -10,3 +10,5 @@ export const specialLeaveForm = z.object({
   is_active: z.boolean().optional(),
   description: z.string(),
 });
+
+export const specialLeaveFormUpdate = specialLeaveForm.partial();

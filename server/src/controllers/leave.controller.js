@@ -153,3 +153,7 @@ export const updateSpecialLeave = async (req, res) => {
     })
   }
 }
+
+export const deleteSpecialLeave = async (req, res) => {
+  
+}
