@@ -52,10 +52,10 @@ const LoginPage = () => {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include', 
+                credentials: 'include',
                 body: JSON.stringify({ email, password })
             })
-            
+
             const data = await res.json()
 
             if (!res.ok) {
@@ -64,13 +64,11 @@ const LoginPage = () => {
                 return
             }
 
-            if (data.user?.nik && data.user?.role) {
-                const userData = {
-                    nik: data.user.nik,
-                    role: data.user.role
-                }
-                sessionStorage.setItem('user', JSON.stringify(userData))
+            const userData = {
+                nik: data.data.NIK,
+                role: data.data.role
             }
+            sessionStorage.setItem('user', JSON.stringify(userData))
 
             router.push('/')
         } catch (err) {
