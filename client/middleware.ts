@@ -8,9 +8,9 @@ export default function middleware(request: NextRequest) {
     const isLoginPage = pathname === '/auth/login'
     const isPublicPath = isLoginPage
 
-    if (!session && !isPublicPath) {
-        return NextResponse.redirect(new URL('/auth/login'))
-    }
+    // if (!session && isPublicPath) {
+    //     return NextResponse.redirect(new URL('/auth/login', request.url))
+    // }
 
     if (session && isPublicPath) {
         return NextResponse.redirect(new URL('/', request.url))

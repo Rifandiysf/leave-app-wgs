@@ -31,9 +31,9 @@ app.use(session({
 //     origin: "http://localhost:3000",
 //     credentials: true
 // }
-
+const corsOption = ['http://localhost:3000', 'http://10.10.101.178:3000']
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: corsOption,
     credentials: true
 }))
 
