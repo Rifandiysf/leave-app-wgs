@@ -55,14 +55,22 @@ const LoginPage = () => {
                 credentials: 'include', 
                 body: JSON.stringify({ email, password })
             })
+            
+            const data = await res.json()
 
             if (!res.ok) {
-                setGeneralError('Email atau password salah')
+                setGeneralError(data.message)
                 setIsLoading(false)
                 return
             }
 
-            // const data = await res.json()
+            if (data.user?.nik && data.user?.role) {
+                const userData = {
+                    nik: data.user.nik,
+                    role: data.user.role
+                }
+                sessionStorage.setItem('user', JSON.stringify(userData))
+            }
 
             router.push('/')
         } catch (err) {
