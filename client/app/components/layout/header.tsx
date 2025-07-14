@@ -1,12 +1,31 @@
 'use client'
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 type HeaderProps = {
     role?: "admin" | "user"
 }
 
 export default function Header({ role = "user" }: HeaderProps) {
+    const router = useRouter()
+    const handleLogout = async () => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/logout`, {
+                method: 'GET',
+                // credentials: "include"
+            })
+
+            console.log(res.json())
+            cookieStore.delete('user')
+            sessionStorage.removeItem('user')
+
+            // router.push('/auth/login')
+        } catch (error) {
+            console.error(error)
+        }
+    }
+    
     return (
         <header className="flex items-center justify-between mb-8 sm:mb-4">
             <div className="flex-1"></div>
@@ -32,7 +51,7 @@ export default function Header({ role = "user" }: HeaderProps) {
                             <span className="text-sm font-medium">Settings</span>
                         </div>
 
-                        <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
+                        <div onClick={handleLogout} className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
                             <i className="bi bi-box-arrow-right text-xl" />
                             <span className="text-sm font-medium">Logout</span>
                         </div>
@@ -44,7 +63,7 @@ export default function Header({ role = "user" }: HeaderProps) {
                             <span className="text-sm font-medium">Settings</span>
                         </div>
 
-                        <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
+                        <div onClick={handleLogout} className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
                             <i className="bi bi-box-arrow-right text-xl" />
                             <span className="text-sm font-medium">Logout</span>
                         </div>
