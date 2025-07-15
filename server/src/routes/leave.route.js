@@ -9,8 +9,11 @@ import { mandatoryLeaveForm, mandatoryLeaveFormUpdate } from "../validators/mand
 
 const leaveRoutes = express.Router();
 
-leaveRoutes.get('/logs', validateRole('super_admin', 'admin'), historyLeave);
-leaveRoutes.get('/logs/search', validateRole('super_admin', 'admin'), historyLeaveSearch);
+// temporaly
+leaveRoutes.get('/logs',  historyLeave);
+leaveRoutes.get('/logs/search', historyLeaveSearch);
+// leaveRoutes.get('/logs', validateRole('super_admin', 'admin'), historyLeave);
+// leaveRoutes.get('/logs/search', validateRole('super_admin', 'admin'), historyLeaveSearch);
 
 leaveRoutes.get('/special', getSpecialLeave)
 leaveRoutes.post('/special', validate(specialLeaveForm), createSpecialLeave)
