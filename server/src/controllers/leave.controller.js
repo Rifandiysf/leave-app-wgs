@@ -3,7 +3,15 @@ import {
   updateLeave,
   getLeavesByFilterService,
   getHistoryLeave,
-  getHistoryLeaveSearch
+  getHistoryLeaveSearch,
+  getSpecialLeaveService,
+  createSpecialLeaveService,
+  updateSpecialLeaveService,
+  deleteSpecialLeaveService,
+  createMandatoryLeaveService,
+  getAllMandatoryLeavesService,
+  updateMandatoryLeaveService,
+  deleteMandatoryLeaveService
 } from "../services/leave.service.js"
 
 
@@ -28,10 +36,11 @@ export const updateLeaveById = async (req, res) => {
     })
   } catch (error) {
     return res.status(400).json({
-      status : 'failed',
+      status: 'failed',
       message: 'failed updated leave data'
     })
-}}
+  }
+}
 
 export const getAllLeaves = async (req, res) => {
   try {
@@ -71,26 +80,168 @@ export const getLeavesByFilter = async (req, res) => {
 export const historyLeave = async (req, res) => {
   try {
     const result = await getHistoryLeave()
-    res.status(200).json({succes: true, data: result})
+    res.status(200).json({ succes: true, data: result })
   } catch (error) {
     console.error('Error fetching leave history:', error)
-    res.status(500).json({succes: false, message: 'Server Error'})
+    res.status(500).json({ succes: false, message: 'Server Error' })
   }
 }
 
 export const historyLeaveSearch = async (req, res) => {
   try {
-    const {value, type, status} = req.query
+    const { value, type, status } = req.query
 
     const result = await getHistoryLeaveSearch({
       value: value || '',
       type: type || '',
       status: status || ''
     })
-    
-    res.status(200).json({success: true, data: result})
+
+    res.status(200).json({ success: true, data: result })
   } catch (error) {
     console.error('Error fetching leave history:', error)
-    res.status(500).json({success: false, message: error.message})
+    res.status(500).json({ success: false, message: error.message })
   }
 }
+
+export const getSpecialLeave = async (req, res) => {
+  try {
+
+    const specialLeaves = await getSpecialLeaveService()
+
+    res.status(201).json({
+      message: "All special leave was successfully taken",
+      data: specialLeaves
+    })
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+}
+
+export const createSpecialLeave = async (req, res) => {
+  const data = req.body
+  try {
+
+    const specialLeaves = await createSpecialLeaveService(data)
+
+    res.status(201).json({
+      message: "Special leave created successfully",
+      data: specialLeaves,
+    })
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+}
+
+export const updateSpecialLeave = async (req, res) => {
+  try {
+
+    const { id } = req.params
+    const data = req.body
+
+    const specialLeaves = await updateSpecialLeaveService(id, data)
+
+    res.status(201).json({
+      message: "Special leave updated successfully",
+      data: specialLeaves
+    })
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+}
+
+export const deleteSpecialLeave = async (req, res) => {
+  try {
+
+    const { id } = req.params
+
+    const specialLeave = await deleteSpecialLeaveService(id)
+
+    res.status(201).json({
+      message: "Special leave deleted succesfully",
+      data: specialLeave
+    })
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+}
+
+export const createMandatoryLeave = async (req, res) => {
+  const data = req.body
+  try {
+    const mandatoryLeaves = await createMandatoryLeaveService(data);
+    res.status(201).json({
+      message: "Mandatory leave created successfully",
+      data: mandatoryLeaves
+    });
+  } catch (error) {
+    res.status.json({
+      message: error.message
+    })
+  }
+};
+
+export const getMandatoryLeaves = async (req, res) => {
+  try {
+    const mandatoryLeave = await getAllMandatoryLeavesService();
+    res.status(200).json({
+      message: "All mandatory leave was successfully taken",
+      data: mandatoryLeave
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+};
+
+export const updateMandatoryLeave = async (req, res) => {
+  try {
+
+    const { id } = req.params
+    const data = req.body
+
+    const mandatoryLeave = await updateMandatoryLeaveService(id, data)
+
+    res.status(201).json({
+      message: "Mandatory leave updated successfully",
+      data: mandatoryLeave
+    })
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+};
+
+export const deleteMandatoryLeave = async (req, res) => {
+  try {
+
+    const { id } = req.params
+
+    const mandatoryLeave = await deleteMandatoryLeaveService(id)
+
+    res.status(201).json({
+      message: "Mandatory leave deleted succesfully",
+      data: mandatoryLeave
+    })
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+};
