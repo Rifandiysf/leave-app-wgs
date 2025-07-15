@@ -2031,52 +2031,6 @@
                     { "description": "Gagal memperbarui data cuti khusus" },
                 },
             },
-          "delete":
-            {
-              "summary": "Hapus data cuti khusus",
-              "description": "Endpoint ini digunakan untuk menghapus data cuti khusus berdasarkan ID.",
-              "tags": ["Dashboard admin"],
-              "parameters":
-                [
-                  {
-                    "name": "id",
-                    "in": "path",
-                    "description": "ID dari cuti khusus yang akan dihapus",
-                    "required": true,
-                    "schema": { "type": "string", "format": "uuid" },
-                  },
-                ],
-              "responses":
-                {
-                  "201":
-                    {
-                      "description": "Cuti khusus berhasil dihapus",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Special leave deleted succesfully",
-                                        },
-                                      "data":
-                                        {
-                                          "$ref": "#/components/schemas/tb_special_leave",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "400": { "description": "Gagal menghapus data cuti khusus" },
-                },
-            },
         },
       "/leaves/mandatory":
         {
@@ -2231,52 +2185,6 @@
                         },
                     },
                   "400": { "description": "Gagal memperbarui data cuti wajib" },
-                },
-            },
-          "delete":
-            {
-              "summary": "Hapus data cuti wajib",
-              "description": "Endpoint ini digunakan untuk menghapus data cuti wajib berdasarkan ID.",
-              "tags": ["Dashboard admin"],
-              "parameters":
-                [
-                  {
-                    "name": "id",
-                    "in": "path",
-                    "description": "ID cuti wajib",
-                    "required": true,
-                    "schema": { "type": "string", "format": "uuid" },
-                  },
-                ],
-              "responses":
-                {
-                  "201":
-                    {
-                      "description": "Cuti wajib berhasil dihapus",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Mandatory leave deleted succesfully",
-                                        },
-                                      "data":
-                                        {
-                                          "$ref": "#/components/schemas/tb_mandatory_leave",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "400": { "description": "Gagal menghapus data cuti wajib" },
                 },
             },
         },
