@@ -264,14 +264,6 @@ export const updateSpecialLeaveService = async (id, data) => {
     })
 }
 
-export const deleteSpecialLeaveService = async (id) => {
-    return await prisma.tb_special_leave.delete({
-        where: {
-            id_special: id 
-        }
-    })
-}
-
 export const createMandatoryLeaveService = async (data) => {
   return await prisma.tb_mandatory_leave.create({ data });
 };
@@ -284,11 +276,5 @@ export const updateMandatoryLeaveService = async (id, data) => {
   return await prisma.tb_mandatory_leave.update({
     where: { id_mandatory: id },
     data,
-  });
-};
-
-export const deleteMandatoryLeaveService = async (id) => {
-  return await prisma.tb_mandatory_leave.delete({
-    where: { id_mandatory: id },
   });
 };

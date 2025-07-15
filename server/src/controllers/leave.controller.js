@@ -7,11 +7,9 @@ import {
   getSpecialLeaveService,
   createSpecialLeaveService,
   updateSpecialLeaveService,
-  deleteSpecialLeaveService,
   createMandatoryLeaveService,
   getAllMandatoryLeavesService,
   updateMandatoryLeaveService,
-  deleteMandatoryLeaveService
 } from "../services/leave.service.js"
 
 
@@ -159,25 +157,6 @@ export const updateSpecialLeave = async (req, res) => {
   }
 }
 
-export const deleteSpecialLeave = async (req, res) => {
-  try {
-
-    const { id } = req.params
-
-    const specialLeave = await deleteSpecialLeaveService(id)
-
-    res.status(201).json({
-      message: "Special leave deleted succesfully",
-      data: specialLeave
-    })
-
-  } catch (error) {
-    res.status(400).json({
-      message: error.message
-    })
-  }
-}
-
 export const createMandatoryLeave = async (req, res) => {
   const data = req.body
   try {
@@ -217,25 +196,6 @@ export const updateMandatoryLeave = async (req, res) => {
 
     res.status(201).json({
       message: "Mandatory leave updated successfully",
-      data: mandatoryLeave
-    })
-
-  } catch (error) {
-    res.status(400).json({
-      message: error.message
-    })
-  }
-};
-
-export const deleteMandatoryLeave = async (req, res) => {
-  try {
-
-    const { id } = req.params
-
-    const mandatoryLeave = await deleteMandatoryLeaveService(id)
-
-    res.status(201).json({
-      message: "Mandatory leave deleted succesfully",
       data: mandatoryLeave
     })
 

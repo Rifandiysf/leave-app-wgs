@@ -1,20 +1,31 @@
 import { status } from "../../generated/prisma/index.js";
 import { fetchUserData } from "../services/auth.service.js";
+import { generateToken } from "../utils/jwt.js";
 
 export const login = async (req, res, next) => {
     const { email, password } = req.body
     try {
-        const user = req.user;
+        const payload = await fetchUserData("email", email);
 
-        req.session.user = {
-            NIK: user.NIK, loginDate: (new Date()).toISOString(),
-            role: user.role
-        };
+        if (!payload) {
+            const error = new Error('user not found');
+            error.statusCode = 404;
+            throw error;
+        }
 
+        const user = {
+            NIK: payload.NIK,
+            email: payload.email,
+            fullname: payload.fullname,
+            password: payload.password,
+            role: payload.role
+        }
+
+        const token = generateToken(user);
+        
         return res.status(200).json({
-            message: `Welcome ${user.fullname}`,
-            loginDate: req.session.user.loginDate,
-            data: user
+            message: `Welcome ${payload.fullname}`,
+            data: token,
         })
     } catch (error) {
         return res.status(400).json({
@@ -24,8 +35,14 @@ export const login = async (req, res, next) => {
 }
 
 export const logout = (req, res, next) => {
+    console.log(req.headers.authorization.split(' ')[1])
     try {
-        if (!req.session.user) {
+        // const header = req.header("Authorization");
+        // const token = header.split(' ')[1]
+        // const data = verifyToken(token)
+        // console.log(data);
+        // console.log(req.user.email);
+        if (!req.data.user.fullname) {
             throw new Error('invalid action');
         }
 

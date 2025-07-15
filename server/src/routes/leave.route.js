@@ -1,5 +1,5 @@
 import express from "express";
-import { createMandatoryLeave, createSpecialLeave, deleteMandatoryLeave, deleteSpecialLeave, getMandatoryLeaves, getSpecialLeave, historyLeave, historyLeaveSearch, updateLeaveById, updateMandatoryLeave, updateSpecialLeave } from '../controllers/leave.controller.js';
+import { createMandatoryLeave, createSpecialLeave, getMandatoryLeaves, getSpecialLeave, historyLeave, historyLeaveSearch, updateLeaveById, updateMandatoryLeave, updateSpecialLeave } from '../controllers/leave.controller.js';
 import { validate } from '../middlewares/validate.js';
 import leaveRequestSchema from '../validators/leave.validator.js';
 import { validateRole } from '../middlewares/validateRole.middleware.js';
@@ -15,12 +15,10 @@ leaveRoutes.get('/logs/search', validateRole('super_admin', 'admin'), historyLea
 leaveRoutes.get('/special', getSpecialLeave)
 leaveRoutes.post('/special', validate(specialLeaveForm), createSpecialLeave)
 leaveRoutes.patch('/special/:id', validate(specialLeaveFormUpdate), updateSpecialLeave)
-leaveRoutes.delete('/special/:id', deleteSpecialLeave)
 
 leaveRoutes.get('/mandatory', getMandatoryLeaves)
 leaveRoutes.post('/mandatory', validate(mandatoryLeaveForm), createMandatoryLeave)
 leaveRoutes.patch('/mandatory/:id', validate(mandatoryLeaveFormUpdate), updateMandatoryLeave)
-leaveRoutes.delete('/mandatory/:id', deleteMandatoryLeave)
 
 leaveRoutes.patch('/:id', validate(updateLeaveRequestSchema), updateLeaveById)
 export default leaveRoutes;

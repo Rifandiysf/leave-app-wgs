@@ -1,14 +1,18 @@
 import { fetchUserData } from "../services/auth.service.js";
 import bcrypt from 'bcrypt';
+import { verifyToken } from "../utils/jwt.js";
 
 export const validateUser = async (req, res, next) => {
     const { email, password } = req.body;
+    const header = req.header("Authorization");
+
     try {
-        if (req.session.user) {
-            const error = new Error("user already logged-in");
-            error.statusCode = 400
-            throw error;
-        }
+
+        // if () {
+        //     const error = new Error("user already logged-in");
+        //     error.statusCode = 400
+        //     throw error;
+        // }
 
         const user = await fetchUserData("email", email);
         const match = await bcrypt.compare(password, user.password);
