@@ -25,18 +25,20 @@ import {
 
 type ModalTypeProps = {
     children?: React.ReactNode
+    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
     triggerClassName?: string
     title: string
     triggerLabel: React.ReactNode
     description: string
     showFooter?: boolean
-    mode?: "form" | "info" | "confirm" | "reject"
+    mode?: "form" | "info" | "confirm" | "reject" | "approve"
     variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
     size?: "default" | "sm" | "lg" | "icon"
 }
 
 export function Modal({
     children,
+    onClick,
     triggerClassName,
     title,
     triggerLabel,
@@ -142,14 +144,14 @@ export function Modal({
                         <DialogClose asChild>
                             <Button variant="ghost">Cancel</Button>
                         </DialogClose>
-                        <Button>Save changes</Button>
+                        <Button onClick={onClick}>Save changes</Button>
                     </DialogFooter>
                 )}
             </DialogContent>
         </>
     )
 
-    const ConfirmContent = () => (
+    const ApproveContent = () => (
         <>
             {TriggerButton()}
             <DialogContent className="sm:max-w-[550px]">
@@ -161,7 +163,7 @@ export function Modal({
                     <DialogClose asChild>
                         <Button variant="ghost">Cancel</Button>
                     </DialogClose>
-                    <Button className="bg-green-200 hover:bg-green-300 text-green-600 font-bold">Accept</Button>
+                    <Button onClick={onClick} className="bg-green-200 hover:bg-green-300 text-green-600 font-bold">Accept</Button>
                 </DialogFooter>
             </DialogContent>
         </>
@@ -183,7 +185,24 @@ export function Modal({
                     <DialogClose asChild>
                         <Button variant="ghost">Cancel</Button>
                     </DialogClose>
-                    <Button className="bg-red-200 hover:bg-red-300 text-red-600 font-bold">Reject</Button>
+                    <Button onClick={onClick} className="bg-red-200 hover:bg-red-300 text-red-600 font-bold">Reject</Button>
+                </DialogFooter>
+            </DialogContent>
+        </>
+    )
+
+    const ConfirmContent = () => (
+        <>
+            {TriggerButton()}
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{title}</DialogTitle>
+                </DialogHeader>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant={variant}>Cencel</Button>
+                    </DialogClose>
+                    <Button onClick={onClick} className="bg-red-200 hover:bg-red-300 text-red-600 font-bold">Confirm</Button>
                 </DialogFooter>
             </DialogContent>
         </>
@@ -195,10 +214,12 @@ export function Modal({
                 return FormContent()
             case "info":
                 return InfoContent()
-            case "confirm":
-                return ConfirmContent()
+            case "approve":
+                return ApproveContent()
             case "reject":
                 return RejectContent()
+            case "confirm": 
+                return ConfirmContent()
             default:
                 return TriggerButton()
         }

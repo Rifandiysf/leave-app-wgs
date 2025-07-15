@@ -30,16 +30,8 @@ const ListOfLeavePage = () => {
         endLeave: "3 July 2025",
         leaveUsed: 2,
         status: <span className="text-[#00c41d] bg-[#82ff9544] p-2 px-3 rounded-full text-xs">ACTIVE</span>,
-        action: <div className="flex justify-center items-center">
-            <button className='p-1 px-1.5 cursor-pointer rounded-xl hover:bg-gray-300 transition'>
-                <i className="bi bi-check2-circle text-xl"></i>
-            </button>
-            <button className='py-1 px-1.5 cursor-pointer rounded-xl hover:bg-gray-300 transition'>
-                <i className="bi bi-x-circle text-xl"></i>
-            </button>
-        </div>
-    },
-    ]
+        action: ""
+    },]
 
     const totalPages = Math.ceil(dataListOfLeave.length / ITEMS_PER_PAGE)
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
@@ -111,7 +103,7 @@ const ListOfLeavePage = () => {
                                         <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.status}</th>
                                         <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
                                             <Modal
-                                                mode='confirm'
+                                                mode='approve'
                                                 size='icon'
                                                 variant='ghost'
                                                 title='Accept Request'
