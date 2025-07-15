@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import Modal from "../Modal/Modal"
 
 type HeaderProps = {
     role?: "admin" | "user"
@@ -19,12 +20,12 @@ export default function Header({ role = "user" }: HeaderProps) {
             console.log(res.json())
             sessionStorage.removeItem('user')
 
-            // router.push('/auth/login')
+            router.push('/auth/login')
         } catch (error) {
             console.error(error)
         }
     }
-    
+
     return (
         <header className="flex items-center justify-between mb-8 sm:mb-4">
             <div className="flex-1"></div>
@@ -50,10 +51,19 @@ export default function Header({ role = "user" }: HeaderProps) {
                             <span className="text-sm font-medium">Settings</span>
                         </div>
 
-                        <div onClick={handleLogout} className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
-                            <i className="bi bi-box-arrow-right text-xl" />
-                            <span className="text-sm font-medium">Logout</span>
-                        </div>
+                        <Modal
+                            mode="confirm"
+                            size="default"
+                            variant="ghost"
+                            triggerLabel={
+                                <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
+                                    <i className="bi bi-box-arrow-right text-xl" />
+                                    <span className="text-sm font-medium">Logout</span>
+                                </div>
+                            }
+                            title="Are you sure you want to log out of your account?"
+                            description=""
+                        />
                     </>
                 ) : (
                     <>
@@ -62,10 +72,20 @@ export default function Header({ role = "user" }: HeaderProps) {
                             <span className="text-sm font-medium">Settings</span>
                         </div>
 
-                        <div onClick={handleLogout} className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
-                            <i className="bi bi-box-arrow-right text-xl" />
-                            <span className="text-sm font-medium">Logout</span>
-                        </div>
+                        <Modal
+                            mode="confirm"
+                            size="default"
+                            variant="ghost"
+                            triggerLabel={
+                                <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
+                                    <i className="bi bi-box-arrow-right text-xl" />
+                                    <span className="text-sm font-medium">Logout</span>
+                                </div>
+                            }
+                            title="Are you sure you want to log out of your account?"
+                            description=""
+                            onClick={handleLogout}
+                        />
                     </>
                 )}
             </div>
