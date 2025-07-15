@@ -17,7 +17,6 @@ export default function Header({ role = "user" }: HeaderProps) {
             })
 
             console.log(res.json())
-            cookieStore.delete('user')
             sessionStorage.removeItem('user')
 
             // router.push('/auth/login')
