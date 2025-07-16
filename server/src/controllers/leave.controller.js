@@ -7,11 +7,11 @@ import {
   getSpecialLeaveService,
   createSpecialLeaveService,
   updateSpecialLeaveService,
-  deleteSpecialLeaveService,
   createMandatoryLeaveService,
   getAllMandatoryLeavesService,
   updateMandatoryLeaveService,
-  deleteMandatoryLeaveService
+  getSearchSpecialLeaveService,
+  getSearchMandatoryLeaveService,
 } from "../services/leave.service.js"
 
 
@@ -121,6 +121,25 @@ export const getSpecialLeave = async (req, res) => {
   }
 }
 
+export const getSearchSpecialLeave = async (req, res) => {
+  try {
+
+    const { value } = req.query
+
+    const specialleave = await getSearchSpecialLeaveService(value)
+
+    res.status(201).json({
+      message: 'Search special leave data retrieved successfully',
+      data: specialleave
+    })
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+}
+
 export const createSpecialLeave = async (req, res) => {
   const data = req.body
   try {
@@ -159,25 +178,6 @@ export const updateSpecialLeave = async (req, res) => {
   }
 }
 
-export const deleteSpecialLeave = async (req, res) => {
-  try {
-
-    const { id } = req.params
-
-    const specialLeave = await deleteSpecialLeaveService(id)
-
-    res.status(201).json({
-      message: "Special leave deleted succesfully",
-      data: specialLeave
-    })
-
-  } catch (error) {
-    res.status(400).json({
-      message: error.message
-    })
-  }
-}
-
 export const createMandatoryLeave = async (req, res) => {
   const data = req.body
   try {
@@ -207,6 +207,25 @@ export const getMandatoryLeaves = async (req, res) => {
   }
 };
 
+export const getSearchMandatoryLeave = async (req, res) => {
+  try {
+
+    const { value } = req.query
+
+    const specialleave = await getSearchMandatoryLeaveService(value)
+
+    res.status(201).json({
+      message: 'Search special leave data retrieved successfully',
+      data: specialleave
+    })
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    })
+  }
+}
+
 export const updateMandatoryLeave = async (req, res) => {
   try {
 
@@ -227,21 +246,3 @@ export const updateMandatoryLeave = async (req, res) => {
   }
 };
 
-export const deleteMandatoryLeave = async (req, res) => {
-  try {
-
-    const { id } = req.params
-
-    const mandatoryLeave = await deleteMandatoryLeaveService(id)
-
-    res.status(201).json({
-      message: "Mandatory leave deleted succesfully",
-      data: mandatoryLeave
-    })
-
-  } catch (error) {
-    res.status(400).json({
-      message: error.message
-    })
-  }
-};

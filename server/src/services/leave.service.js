@@ -1,4 +1,3 @@
-import { leave_type } from "../../generated/prisma/index.js";
 import prisma from "../utils/client.js";
 
 
@@ -46,6 +45,7 @@ export const getLeavesByFilterService = async (type, value) => {
 
     return results;
 };
+
 export const updateLeave = async (id, status, reason, nik) => {
     try {
         const data = await prisma.tb_leave.findUnique({
@@ -249,6 +249,17 @@ export const getSpecialLeaveService = async () => {
     return await prisma.tb_special_leave.findMany({})
 }
 
+export const getSearchSpecialLeaveService = async (data) => {
+    return prisma.tb_special_leave.findMany({
+        where: {
+            title: {
+                contains: data,
+                mode: 'insensitive'
+            }
+        }       
+    })
+}
+
 export const createSpecialLeaveService = async (data) => {
     return await prisma.tb_special_leave.create({
         data,
@@ -264,14 +275,6 @@ export const updateSpecialLeaveService = async (id, data) => {
     })
 }
 
-export const deleteSpecialLeaveService = async (id) => {
-    return await prisma.tb_special_leave.delete({
-        where: {
-            id_special: id 
-        }
-    })
-}
-
 export const createMandatoryLeaveService = async (data) => {
   return await prisma.tb_mandatory_leave.create({ data });
 };
@@ -280,15 +283,20 @@ export const getAllMandatoryLeavesService = async () => {
   return await prisma.tb_mandatory_leave.findMany();
 };
 
+export const getSearchMandatoryLeaveService = async (data) => {
+    return prisma.tb_mandatory_leave.findMany({
+        where: {
+            title: {
+                contains: data,
+                mode: 'insensitive'
+            }
+        }       
+    })
+}
+
 export const updateMandatoryLeaveService = async (id, data) => {
   return await prisma.tb_mandatory_leave.update({
     where: { id_mandatory: id },
     data,
-  });
-};
-
-export const deleteMandatoryLeaveService = async (id) => {
-  return await prisma.tb_mandatory_leave.delete({
-    where: { id_mandatory: id },
   });
 };
