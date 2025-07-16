@@ -1,3 +1,4 @@
+import { decode } from "jsonwebtoken";
 import {
   getAllLeavesService,
   updateLeave,
@@ -13,12 +14,14 @@ import {
   getSearchSpecialLeaveService,
   getSearchMandatoryLeaveService,
 } from "../services/leave.service.js"
+import { verifyToken } from "../utils/jwt.js";
 
 
 export const updateLeaveById = async (req, res) => {
   const { id } = req.params;
   const { reason, status } = req.body;
-  const { NIK } = req.session.user
+  const decodeToken = await verifyToken(req);
+  const { NIK } = decodeToken;
 
   try {
     const updatedLeave = await updateLeave(id, status, reason, NIK);

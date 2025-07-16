@@ -19,6 +19,6 @@ userRoutes.get('/:nik', getUser);
 userRoutes.patch('/:nik', updateUser);
 userRoutes.delete('/:nik', validateRole("admin", "super_admin"), deleteUser);
 
-userRoutes.get('/', allUsers);
+userRoutes.get('/', validateRole("admin", "super_admin") ,allUsers);
 
 export default userRoutes;

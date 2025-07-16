@@ -1,3 +1,4 @@
+import { verifyToken } from '../utils/jwt.js';
 import { 
     calculateWorkingDays, 
     getUserLeaveBalance, 
@@ -8,8 +9,7 @@ import {
 export const validateLeaveBalance = async (req, res, next) => {
     try {
         const { start_date, end_date, leave_type } = req.body;
-        const userNIK = req.session.user.NIK;
-
+        const { NIK } = await verifyToken(req.get("authorization").split(' ')[1]);
         if (!['personal_leave', 'mandatory_leave'].includes(leave_type)) {
             return next();
         }
@@ -25,8 +25,8 @@ export const validateLeaveBalance = async (req, res, next) => {
 
         const requestedWorkingDays = calculateWorkingDays(startDate, endDate);
 
-        const totalLeaveBalance = await getUserLeaveBalance(userNIK);
-        const pendingDays = await getPendingLeaveDays(userNIK);
+        const totalLeaveBalance = await getUserLeaveBalance(NIK);
+        const pendingDays = await getPendingLeaveDays(NIK);
         const availableLeaveBalance = totalLeaveBalance - pendingDays;
 
         if (requestedWorkingDays > availableLeaveBalance) {
@@ -47,7 +47,8 @@ export const validateLeaveBalance = async (req, res, next) => {
     } catch (error) {
         console.error('Error in validateLeaveBalance middleware:', error);
         res.status(500).json({
-            message: "Internal server error during leave balance validation"
+            message: "Internal server error during leave balance validation",
+            detail: error.message
         });
     }
 };

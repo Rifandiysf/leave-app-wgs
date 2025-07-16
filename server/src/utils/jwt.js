@@ -21,6 +21,5 @@ export const verifyToken = async (token) =>  {
     }
 
     const decodeToken = jwt.verify(token, JWT_SECRET);
-    console.log(decodeToken);
     return decodeToken;
 }
