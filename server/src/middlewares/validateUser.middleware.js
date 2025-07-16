@@ -4,10 +4,8 @@ import { verifyToken } from "../utils/jwt.js";
 
 export const validateUser = async (req, res, next) => {
     const { email, password } = req.body;
-    const header = req.header("Authorization");
 
     try {
-
         // if () {
         //     const error = new Error("user already logged-in");
         //     error.statusCode = 400

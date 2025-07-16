@@ -8,26 +8,24 @@ export const login = async (req, res, next) => {
     const { email, password } = req.body;
 
     try {
-        const payload = await fetchUserData("email", email);
-        console.log("Payload:", payload);
+        const user = await fetchUserData("email", email);
 
-        if (!payload) {
+        if (!user) {
             const error = new Error('user not found');
             error.statusCode = 404;
             throw error;
         }
 
-        const user = {
-            NIK: payload.NIK,
-            email: payload.email,
-            fullname: payload.fullname,
-            password: payload.password,
-            role: payload.role
+        const userData = {
+            NIK: user.NIK,
+            email: user.email,
+            fullname: user.fullname,
+            password: user.password,
+            role: user.role
         }
 
-        const token = generateToken(user);
-
-        addToken(token);
+        const token = await generateToken(userData);
+        
         res.setHeader('Authorization', `Bearer ${token}`).json({
             success: true,
             message: `Welcome ${user.fullname}`,
@@ -46,7 +44,6 @@ export const login = async (req, res, next) => {
 }
 
 export const logout = (req, res, next) => {
-    console.log()
     try {
         const header = req.get("authorization");
         const token = header?.split(' ')[1];
@@ -56,12 +53,12 @@ export const logout = (req, res, next) => {
         res.status(200).json({
             success: true,
             message: "You have been successfully logged out.",
-        })
+        });
     } catch (error) {
         res.status(400).json({
             status: "failed",
             message: error.message,
             status_code: 400
-        })
+        });
     }
 }

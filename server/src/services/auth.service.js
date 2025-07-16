@@ -6,9 +6,9 @@ import { role } from "../../generated/prisma/index.js";
 export const fetchUserData = async (params, uniqueId) => {
     try {
         const user = await prisma.tb_users.findUnique({
-        where: {
-            [params]: uniqueId,
-        }
+            where: {
+                [params]: uniqueId,
+            }
         })
 
         if (!user) {
@@ -27,7 +27,7 @@ export const fetchUserData = async (params, uniqueId) => {
             status: user.status_active,
             password: password
         }
-        
+
         return userCopy;
     } catch (error) {
         // for development only
@@ -37,14 +37,19 @@ export const fetchUserData = async (params, uniqueId) => {
     }
 }
 
-export const addToken = async (token) => {
-    const addedToken = await prisma.tb_jwt_token.create({
-        data: {
-            access_token: token
-        }
-    })
-
-    return addedToken;
+export const addToken = async (token, nik) => {
+    try {
+        const addedToken = await prisma.tb_jwt_token.create({
+            data: {
+                access_token: token,
+                NIK: nik
+            }
+        })
+            
+        return addedToken;
+    } catch (error) {
+        throw new Error("User already logged in");   
+    }
 }
 
 export const deleteToken = async (token) => {
