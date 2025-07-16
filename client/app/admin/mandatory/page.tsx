@@ -29,10 +29,7 @@ const MandatoryLeavePage = () => {
         gender: "MF",
         amount: 5,
         information: "Berlaku untuk seluruh karyawan laki-laki dalam rangka libur akhir tahun.",
-        action: <div className="flex justify-center items-center gap-2">
-            <button className='p-1 px-1.5 cursor-pointer rounded-lg hover:bg-gray-300 transition'><i className="bi bi-pencil-square text-xl"></i></button>
-            <Switch />
-        </div>
+        action: ""
     },]
 
     const totalPages = Math.ceil(dataMandatoryLeave.length / ITEMS_PER_PAGE)
@@ -95,7 +92,12 @@ const MandatoryLeavePage = () => {
                                         <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.gender}</th>
                                         <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.amount} Days</th>
                                         <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.information}</th>
-                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.action}</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
+                                            <div className="flex justify-center items-center gap-2">
+                                                <button className='p-1 px-1.5 cursor-pointer rounded-lg hover:bg-gray-300 transition'><i className="bi bi-pencil-square text-xl"></i></button>
+                                                <Switch />
+                                            </div>
+                                        </th>
                                     </tr>
                                 ))
                             )}

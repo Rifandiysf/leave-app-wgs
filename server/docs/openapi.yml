@@ -1934,7 +1934,40 @@
                       "application/json":
                         {
                           "schema":
-                            { "$ref": "#/components/schemas/tb_special_leave" },
+                            {
+                              "type": "object",
+                              "required":
+                                [
+                                  "title",
+                                  "applicable_gender",
+                                  "duration",
+                                  "is_active",
+                                  "description",
+                                ],
+                              "properties":
+                                {
+                                  "title":
+                                    {
+                                      "type": "string",
+                                      "example": "Cuti Ayah",
+                                    },
+                                  "applicable_gender":
+                                    {
+                                      "type": "string",
+                                      "enum": ["m", "f", "mf"],
+                                      "example": "m",
+                                    },
+                                  "duration":
+                                    { "type": "integer", "example": 5 },
+                                  "is_active":
+                                    { "type": "boolean", "example": true },
+                                  "description":
+                                    {
+                                      "type": "string",
+                                      "example": "Cuti untuk ayah setelah kelahiran anak",
+                                    },
+                                },
+                            },
                         },
                     },
                 },
@@ -2031,52 +2064,6 @@
                     { "description": "Gagal memperbarui data cuti khusus" },
                 },
             },
-          "delete":
-            {
-              "summary": "Hapus data cuti khusus",
-              "description": "Endpoint ini digunakan untuk menghapus data cuti khusus berdasarkan ID.",
-              "tags": ["Dashboard admin"],
-              "parameters":
-                [
-                  {
-                    "name": "id",
-                    "in": "path",
-                    "description": "ID dari cuti khusus yang akan dihapus",
-                    "required": true,
-                    "schema": { "type": "string", "format": "uuid" },
-                  },
-                ],
-              "responses":
-                {
-                  "201":
-                    {
-                      "description": "Cuti khusus berhasil dihapus",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Special leave deleted succesfully",
-                                        },
-                                      "data":
-                                        {
-                                          "$ref": "#/components/schemas/tb_special_leave",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "400": { "description": "Gagal menghapus data cuti khusus" },
-                },
-            },
         },
       "/leaves/mandatory":
         {
@@ -2134,7 +2121,31 @@
                         {
                           "schema":
                             {
-                              "$ref": "#/components/schemas/tb_mandatory_leave",
+                              "type": "object",
+                              "required":
+                                [
+                                  "title",
+                                  "duration",
+                                  "is_active",
+                                  "description",
+                                ],
+                              "properties":
+                                {
+                                  "title":
+                                    {
+                                      "type": "string",
+                                      "example": "Cuti Nasional",
+                                    },
+                                  "duration":
+                                    { "type": "integer", "example": 3 },
+                                  "is_active":
+                                    { "type": "boolean", "example": true },
+                                  "description":
+                                    {
+                                      "type": "string",
+                                      "example": "Libur nasional yang ditetapkan pemerintah",
+                                    },
+                                },
                             },
                         },
                     },
@@ -2231,52 +2242,6 @@
                         },
                     },
                   "400": { "description": "Gagal memperbarui data cuti wajib" },
-                },
-            },
-          "delete":
-            {
-              "summary": "Hapus data cuti wajib",
-              "description": "Endpoint ini digunakan untuk menghapus data cuti wajib berdasarkan ID.",
-              "tags": ["Dashboard admin"],
-              "parameters":
-                [
-                  {
-                    "name": "id",
-                    "in": "path",
-                    "description": "ID cuti wajib",
-                    "required": true,
-                    "schema": { "type": "string", "format": "uuid" },
-                  },
-                ],
-              "responses":
-                {
-                  "201":
-                    {
-                      "description": "Cuti wajib berhasil dihapus",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Mandatory leave deleted succesfully",
-                                        },
-                                      "data":
-                                        {
-                                          "$ref": "#/components/schemas/tb_mandatory_leave",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "400": { "description": "Gagal menghapus data cuti wajib" },
                 },
             },
         },

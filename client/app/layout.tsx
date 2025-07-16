@@ -5,6 +5,7 @@ import './globals.css'
 import Sidebar from './components/layout/sidebar'
 import Header from './components/layout/header'
 import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -24,13 +25,22 @@ export default function RootLayout({
   const pathname = usePathname()
   const hidePaths = ['/auth/login']
   const shouldHidden = hidePaths.includes(pathname)
+  const [role, setRole] = useState("")
+
+  useEffect(() => {
+    const storeRole = sessionStorage.getItem('user')
+    if (storeRole) {
+      const user = JSON.parse(storeRole)
+      setRole(user.role)
+    }
+  },[])
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <section className='flex h-screen bg-white relative overflow-hidden'>
-          {!shouldHidden && <Sidebar role='admin' />}
+          {!shouldHidden && <Sidebar role={role === 'admin' ? "admin" : "user"} />}
           <main className='flex-1 p-4 md:p-6 lg:p-10 overflow-y-auto w-full lg:w-auto'>
-            {!shouldHidden && <Header role='admin'/>}
+            {!shouldHidden && <Header role={role === 'admin' ? "admin" : "user"}/>}
             {children}
           </main>
         </section>
