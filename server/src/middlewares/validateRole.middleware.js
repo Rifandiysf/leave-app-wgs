@@ -1,8 +1,8 @@
-import { verifyToken } from "../utils/jwt.js";
+import { decodeToken } from "../utils/jwt.js";
 
 export const validateRole = (...role) => {
     return async (req, res, next) => {
-        const user = await verifyToken(req.get("authorization").split(' ')[1]) 
+        const user = await decodeToken(req.get("authorization").split(' ')[1]) 
 
         if (!user) {
             return res.status(403).json({

@@ -1,6 +1,5 @@
 import { deleteToken } from "../services/auth.service.js";
-import { verifyToken } from "../utils/jwt.js";
-
+import { decodeToken } from "../utils/jwt.js";
 export const isAuthenticated = async (req, res, next) => {
     const header = req.get("authorization");
     const token = header?.split(' ')[1];
@@ -10,9 +9,9 @@ export const isAuthenticated = async (req, res, next) => {
             throw new Error("Authorization header not found");
         }
 
-        const decodeToken = await verifyToken(token);
-
-        if (!decodeToken) {
+        const decodedToken = await decodeToken(token);
+        
+        if (!decodedToken) {
             throw new Error("Invalid Credentials");
         }
 

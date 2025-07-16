@@ -1,10 +1,10 @@
 import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK } from "../services/user.service.js"
-import { verifyToken } from "../utils/jwt.js";
+import { decodeToken } from "../utils/jwt.js";
 
 
 export const createLeaveRequest = async (req, res) => {
     try {
-        const user = await verifyToken(req.get('authorization').split(' ')[1])
+        const user = await decodeToken(req.get('authorization').split(' ')[1])
 
         console.log("Request body:", req.body);
         console.log("id_special di body:", req.body.id_special);
@@ -29,7 +29,7 @@ export const createLeaveRequest = async (req, res) => {
 
 export const getLeaveRequests = async (req, res) => {
     try {
-        const user = await verifyToken(req.get('authorization').split(' ')[1])
+        const user = await decodeToken(req.get('authorization').split(' ')[1])
         const leaves = await getLeavesByNIK(user.NIK)
 
         if (!leaves || leaves.length === 0) {
@@ -54,7 +54,7 @@ export const getLeaveRequests = async (req, res) => {
 export const getLeavesByFilter = async (req, res) => {
     try {
         const { value, type, status } = req.query;
-        const user = await verifyToken(req.get('authorization').split(' ')[1]);
+        const user = await decodeToken(req.get('authorization').split(' ')[1]);
 
         const leaves = await getLeavesByFilterService(user.NIK, type, status, value);
 
@@ -82,7 +82,7 @@ export const getLeaveRequestsById = async (req, res) => {
     try {
 
         const { id } = req.params
-        const user = await verifyToken(req.get('authorization').split(' ')[1])
+        const user = await decodeToken(req.get('authorization').split(' ')[1])
 
         const leaves = await getLeavesById(user.NIK, id)
 
@@ -111,7 +111,7 @@ export const allUsers = async (req, res) => {
 
 export const getUser = async (req, res) => {
     const { nik } = req.params;
-    const decode = await verifyToken(req.get("authorization").split(' ')[1]);
+    const decode = await decodeToken(req.get("authorization").split(' ')[1]);
     const { role, NIK } = decode;
     const isAdmin = ["admin", "super_admin"].includes(role);
     try {

@@ -1,12 +1,12 @@
-import { success } from "zod/v4";
-import { role, status } from "../../generated/prisma/index.js";
 import { deleteToken, fetchUserData, addToken } from "../services/auth.service.js";
-import { generateToken } from "../utils/jwt.js";
-import { verifyToken } from "../utils/jwt.js";
+import { generateToken, verifyToken } from "../utils/jwt.js";
 
 export const login = async (req, res, next) => {
-    const { email, password } = req.body;
+    const { email } = req.body;
+    const header = req.get("authorization");
+    const token = header?.split(' ')[1];
 
+    // todo: add validation if token expired then delete that token and create new token;
     try {
         const user = await fetchUserData("email", email);
 
@@ -24,9 +24,9 @@ export const login = async (req, res, next) => {
             role: user.role
         }
 
-        const token = await generateToken(userData);
-        
-        res.setHeader('Authorization', `Bearer ${token}`).json({
+        const newToken = await generateToken(userData);
+
+        res.setHeader('Authorization', `Bearer ${newToken}`).json({
             success: true,
             message: `Welcome ${user.fullname}`,
             data: {
@@ -37,19 +37,18 @@ export const login = async (req, res, next) => {
         });
 
     } catch (error) {
-        console.error("Login error:", error.message);
         return res.status(400).json({
             message: error.message
         });
     }
 }
 
-export const logout = (req, res, next) => {
+export const logout = async (req, res, next) => {
     try {
         const header = req.get("authorization");
         const token = header?.split(' ')[1];
 
-        deleteToken(token);
+        await deleteToken(token);
 
         res.status(200).json({
             success: true,

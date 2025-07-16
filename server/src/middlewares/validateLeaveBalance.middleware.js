@@ -1,4 +1,4 @@
-import { verifyToken } from '../utils/jwt.js';
+import { decodeToken } from '../utils/jwt.js';
 import { 
     calculateWorkingDays, 
     getUserLeaveBalance, 
@@ -9,7 +9,7 @@ import {
 export const validateLeaveBalance = async (req, res, next) => {
     try {
         const { start_date, end_date, leave_type } = req.body;
-        const { NIK } = await verifyToken(req.get("authorization").split(' ')[1]);
+        const { NIK } = await decodeToken(req.get("authorization").split(' ')[1]);
         if (!['personal_leave', 'mandatory_leave'].includes(leave_type)) {
             return next();
         }

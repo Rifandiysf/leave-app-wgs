@@ -14,13 +14,13 @@ import {
   getSearchSpecialLeaveService,
   getSearchMandatoryLeaveService,
 } from "../services/leave.service.js"
-import { verifyToken } from "../utils/jwt.js";
+import { decodeToken } from "../utils/jwt.js";
 
 
 export const updateLeaveById = async (req, res) => {
   const { id } = req.params;
   const { reason, status } = req.body;
-  const decodeToken = await verifyToken(req);
+  const decodeToken = await decodeToken(req);
   const { NIK } = decodeToken;
 
   try {
