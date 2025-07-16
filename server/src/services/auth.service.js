@@ -3,14 +3,19 @@ import prisma from "../utils/client.js";
 import bcrypt from 'bcrypt';
 import { role } from "../../generated/prisma/index.js";
 
-
 export const fetchUserData = async (params, uniqueId) => {
     try {
         const user = await prisma.tb_users.findUnique({
         where: {
             [params]: uniqueId,
         }
-    })
+        })
+
+        if (!user) {
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            throw error;
+        }
 
         let password = await bcrypt.hash(user.password, 10);
 
@@ -27,9 +32,7 @@ export const fetchUserData = async (params, uniqueId) => {
     } catch (error) {
         // for development only
         if (process.env.NODE_ENV = "development") {
-            const err = new Error("User not found");
-            err.statusCode = 404;
-            throw err;
+            throw new Error("Request time out");
         }
     }
 }
