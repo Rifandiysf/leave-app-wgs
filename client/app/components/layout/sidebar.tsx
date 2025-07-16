@@ -38,8 +38,16 @@ export default function Sidebar({ role = "user", }: sideBarProps) {
                             </div>
                         </div>
 
-                        <nav className="bg-blue-100 p-4 flex-1 pt-5 relative rounded-se-4xl">
-                            <div className=" font-semibold mt-8">
+                        <nav className="bg-blue-100 p-4 flex-1 relative rounded-se-4xl">
+                            <div className=" font-semibold">
+                                <Link
+                                    href="/"
+                                    className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/')}`}
+                                >
+                                    <i className="bi bi-arrow-bar-left text-xl w-6 text-center" />
+                                    <span className="ml-3">Back</span>
+                                </Link>
+                                <div className="mt-4 h-px bg-gray-500 mb-2  " />
                                 <Link
                                     href="/admin/dashboard"
                                     className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/dashboard')}`}
@@ -47,7 +55,6 @@ export default function Sidebar({ role = "user", }: sideBarProps) {
                                     <i className="bi bi-person-workspace text-xl w-6 text-center" />
                                     <span className="ml-3">Dashboard</span>
                                 </Link>
-                                <div className="mt-4 h-px bg-gray-500 mb-2  " />
                                 <Link
                                     href="/admin/list-leave"
                                     className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/list-leave')}`}
