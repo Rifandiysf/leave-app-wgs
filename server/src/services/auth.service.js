@@ -48,7 +48,7 @@ export const addToken = async (token, nik) => {
             
         return addedToken;
     } catch (error) {
-        throw new Error("User already logged in");   
+        throw new Error('User already logged in');
     }
 }
 

@@ -3,7 +3,6 @@ import { verifyToken } from "../utils/jwt.js";
 
 export const isAuthenticated = async (req, res, next) => {
     const header = req.get("authorization");
-
     const token = header?.split(' ')[1];
 
     try {
