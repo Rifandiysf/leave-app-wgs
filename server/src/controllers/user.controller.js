@@ -1,4 +1,5 @@
 import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK } from "../services/user.service.js"
+import { verifyToken } from "../utils/jwt.js";
 
 
 export const createLeaveRequest = async (req, res) => {
@@ -111,7 +112,8 @@ export const allUsers = async (req, res) => {
 
 export const getUser = async (req, res) => {
     const { nik } = req.params;
-    const { role, NIK } = req.session.user;
+    const decode = verifyToken(req.get("authorization").split(' ')[1]);
+    const { role, NIK } = decode;
     const isAdmin = ["admin", "super_admin"].includes(role);
     try {
         if (!isAdmin) {

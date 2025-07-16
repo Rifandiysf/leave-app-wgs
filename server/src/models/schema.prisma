@@ -90,6 +90,10 @@ model tb_leave_log {
   tb_leave       tb_leave @relation(fields: [id_leave], references: [id_leave], onDelete: NoAction, onUpdate: NoAction, map: "id_leave")
 }
 
+model tb_jwt_token {
+  access_token  String  @id @db.VarChar(500)
+}
+
 enum applicable_gender {
   m
   f
@@ -125,3 +129,4 @@ enum status_active {
   active
   resign
 }
+

@@ -36,3 +36,23 @@ export const fetchUserData = async (params, uniqueId) => {
         }
     }
 }
+
+export const addToken = async (token) => {
+    const addedToken = await prisma.tb_jwt_token.create({
+        data: {
+            access_token: token
+        }
+    })
+
+    return addedToken;
+}
+
+export const deleteToken = async (token) => {
+    const deletedToken = await prisma.tb_jwt_token.delete({
+        where: {
+            access_token: token
+        }
+    })
+
+    return deletedToken;
+}

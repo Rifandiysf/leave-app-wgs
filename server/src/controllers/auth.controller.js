@@ -1,11 +1,15 @@
-import { status } from "../../generated/prisma/index.js";
-import { fetchUserData } from "../services/auth.service.js";
+import { success } from "zod/v4";
+import { role, status } from "../../generated/prisma/index.js";
+import { deleteToken, fetchUserData, addToken } from "../services/auth.service.js";
 import { generateToken } from "../utils/jwt.js";
+import { verifyToken } from "../utils/jwt.js";
 
 export const login = async (req, res, next) => {
-    const { email, password } = req.body
+    const { email, password } = req.body;
+
     try {
         const payload = await fetchUserData("email", email);
+        console.log("Payload:", payload);
 
         if (!payload) {
             const error = new Error('user not found');
@@ -22,12 +26,19 @@ export const login = async (req, res, next) => {
         }
 
         const token = generateToken(user);
-        
-        return res.status(200).json({
-            message: `Welcome ${payload.fullname}`,
-            data: token,
-        })
+
+        addToken(token);
+        res.setHeader('Authorization', `Bearer ${token}`).json({
+            success: true,
+            message: `Welcome ${user.fullname}`,
+            data: {
+                nik: user.NIK,
+                name: user.fullname,
+                role: user.role
+            }
+        });
     } catch (error) {
+        console.error("Login error:", error.message);
         return res.status(400).json({
             message: error.message
         });
@@ -35,24 +46,16 @@ export const login = async (req, res, next) => {
 }
 
 export const logout = (req, res, next) => {
-    console.log(req.headers.authorization.split(' ')[1])
+    console.log()
     try {
-        // const header = req.header("Authorization");
-        // const token = header.split(' ')[1]
-        // const data = verifyToken(token)
-        // console.log(data);
-        // console.log(req.user.email);
-        if (!req.data.user.fullname) {
-            throw new Error('invalid action');
-        }
+        const header = req.get("authorization");
+        const token = header?.split(' ')[1];
 
-        req.session.destroy((err) => {
-            if (err) throw new Error(err.message);
+        deleteToken(token);
 
-            res.clearCookie('connect.sid');
-            res.status(200).json({
-                message: "you have been logged out"
-            })
+        res.status(200).json({
+            success: true,
+            message: "You have been successfully logged out.",
         })
     } catch (error) {
         res.status(400).json({
