@@ -317,9 +317,9 @@ export const getSearchMandatoryLeaveService = async (data, page = 1, limit = 10)
                 contains: data,
                 mode: 'insensitive'
             },
-            skip,
-            take: limit
-        }
+        },
+        skip,
+        take: limit
     })
 }
 
