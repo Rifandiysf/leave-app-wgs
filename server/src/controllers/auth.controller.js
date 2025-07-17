@@ -1,14 +1,15 @@
-import { deleteToken, fetchUserData, addToken } from "../services/auth.service.js";
-import { generateToken, verifyToken } from "../utils/jwt.js";
+import { deleteToken, fetchUserData } from "../services/auth.service.js";
+import { generateToken } from "../utils/jwt.js";
+import { getDeviceInfo } from "../utils/UAParser.js";
 
 export const login = async (req, res, next) => {
     const { email } = req.body;
     const header = req.get("authorization");
     const token = header?.split(' ')[1];
-
-    // todo: add validation if token expired then delete that token and create new token;
+    
     try {
         const user = await fetchUserData("email", email);
+        const deviceInfo = await getDeviceInfo(req.get("user-agent"));
 
         if (!user) {
             const error = new Error('user not found');
@@ -16,12 +17,15 @@ export const login = async (req, res, next) => {
             throw error;
         }
 
+        const deviceInfoData = `${deviceInfo.browser.version}-${deviceInfo.browser.name}-${deviceInfo.os.name}`;
+        console.log(deviceInfoData);
         const userData = {
             NIK: user.NIK,
             email: user.email,
             fullname: user.fullname,
             password: user.password,
-            role: user.role
+            role: user.role,
+            deviceInfo: deviceInfoData
         }
 
         const newToken = await generateToken(userData);
@@ -45,10 +49,12 @@ export const login = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
     try {
+        const deviceInfo = await getDeviceInfo(req.get("user-agent"));
+        const deviceInfoData = `${deviceInfo.browser.version}-${deviceInfo.browser.name}-${deviceInfo.os.name}`;
         const header = req.get("authorization");
         const token = header?.split(' ')[1];
 
-        await deleteToken(token);
+        await deleteToken(token, deviceInfoData);
 
         res.status(200).json({
             success: true,

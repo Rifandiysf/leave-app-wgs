@@ -11,15 +11,19 @@ export default function Header({ role = "user" }: HeaderProps) {
     const router = useRouter()
     const handleLogout = async () => {
         try {
+            const token = sessionStorage.getItem('token');
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/logout`, {
-                method: 'GET',
-                // credentials: "include"
-            })
+            method: 'GET',
+            headers: {
+                'Authorization': token ?? '',
+                'Content-Type': 'application/json'
+            }
+            });
 
             console.log(res.json())
-            sessionStorage.removeItem('user')
+            sessionStorage.removeItem('token')
 
-            // router.push('/auth/login')
+            router.push('/auth/login')
         } catch (error) {
             console.error(error)
         }

@@ -1,7 +1,4 @@
-import { email } from "zod/v4";
 import prisma from "../utils/client.js";
-import bcrypt from 'bcrypt';
-import { role } from "../../generated/prisma/index.js";
 
 export const fetchUserData = async (params, uniqueId) => {
     try {
@@ -17,12 +14,13 @@ export const fetchUserData = async (params, uniqueId) => {
     }
 }
 
-export const addToken = async (token, nik) => {
+export const addToken = async (token, nik, deviceInfo) => {
     try {
         const addedToken = await prisma.tb_jwt_token.create({
             data: {
                 access_token: token,
-                NIK: nik
+                NIK: nik,
+                user_agent: deviceInfo,
             }
         })
 
@@ -30,14 +28,14 @@ export const addToken = async (token, nik) => {
     } catch (error) {
         return null;
     }
-
 }
 
-export const deleteToken = async (token) => {
+export const deleteToken = async (token, deviceInfo) => {
     try {
         const deletedToken = await prisma.tb_jwt_token.delete({
             where: {
-                access_token: token
+                access_token: token,
+                user_agent: deviceInfo
             }
         })
 

@@ -31,7 +31,6 @@ const LoginPage = () => {
         setEmailError('')
         setPasswordError('')
         setGeneralError('')
-
         let hasError = false
 
         if (!email) {
@@ -56,7 +55,8 @@ const LoginPage = () => {
                 body: JSON.stringify({ email, password })
             })
 
-            const data = await res.json()
+            const data = await res.json();
+            const token = res.headers.get("Authorization");
 
             if (!res.ok) {
                 setGeneralError(data.message)
@@ -68,7 +68,7 @@ const LoginPage = () => {
                 nik: data.data.NIK,
                 role: data.data.role
             }
-            sessionStorage.setItem('user', JSON.stringify(userData))
+            sessionStorage.setItem('token', token ?? '');
 
             router.push('/')
         } catch (err) {
