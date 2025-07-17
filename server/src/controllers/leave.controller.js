@@ -1,67 +1,97 @@
 import {
-  getAllLeaves,
-  getLeavesByType,
+  getAllLeavesService,
+  updateLeave,
+  getLeavesByFilterService,
+  getHistoryLeave,
+  getHistoryLeaveSearch
 } from "../services/leave.service.js"
 
 
-export const getAdminLeaveRequests = async (req, res) => {
-  const { type } = req.query
+export const updateLeaveById = async (req, res) => {
+  const { id } = req.params;
+  const { reason, status } = req.body;
+  const { NIK } = req.session.user
 
-  if (type === "personal") {
-    return getAdminPersonalLeave(req, res)
-  } else if (type === "mandatory") {
-    return getAdminMandatoryLeave(req, res)
-  } else if (type === "special") {
-    return getAdminSpecialLeave(req, res)
-  }
-
-  return getAdminAllLeaveRequests(req, res)
-}
-
-const getAdminAllLeaveRequests = async (req, res) => {
   try {
-    const leaves = await getAllLeaves()
-    res.status(200).json({
-      message: "All leave requests retrieved successfully",
-      data: leaves,
+    const updatedLeave = await updateLeave(id, status, reason, NIK);
+
+    if (!updatedLeave) {
+      throw new Error("leave not found");
+    }
+
+    return res.status(200).json({
+      status: 'Success',
+      message: 'Successfully updated leave data',
+      data: {
+        updated_leave: updatedLeave
+      }
     })
   } catch (error) {
-    res.status(400).json({ message: error.message })
+    return res.status(400).json({
+      status : 'failed',
+      message: 'failed updated leave data'
+    })
+}}
+
+
+export const getAllLeaves = async (req, res) => {
+    try {
+        const leaves = await getAllLeavesService();
+
+        res.status(200).json({ 
+            message: "Pending leave requests retrieved successfully",
+            data: leaves
+        });
+
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Failed to retrieve leave requests",
+            error: error.message
+        });
+    }
+};
+
+export const getLeavesByFilter = async (req, res) => {
+  try {
+    const { value, type } = req.query;
+
+    const leaves = await getLeavesByFilterService(type, value);
+
+    res.status(200).json({
+      message: 'Filtered leave data retrieved successfully',
+      data: leaves
+    });
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    });
   }
 }
 
-const getAdminPersonalLeave = async (req, res) => {
+export const historyLeave = async (req, res) => {
   try {
-    const personalLeaves = await getLeavesByType("personal_leave")
-    res.status(200).json({
-      message: "Personal leave requests retrieved successfully",
-      data: personalLeaves,
-    })
+    const result = await getHistoryLeave()
+    res.status(200).json({succes: true, data: result})
   } catch (error) {
-    res.status(400).json({ message: error.message })
+    console.error('Error fetching leave history:', error)
+    res.status(500).json({succes: false, message: 'Server Error'})
   }
 }
 
-const getAdminMandatoryLeave = async (req, res) => {
+export const historyLeaveSearch = async (req, res) => {
   try {
-    const mandatoryLeaves = await getLeavesByType("mandatory_leave")
-    res.status(200).json({
-      message: "Mandatory leave requests retrieved successfully",
-      data: mandatoryLeaves,
-    })
-  } catch (error) {
-    res.status(400).json({ message: error.message })
-  }
-}
+    const {value, type, status} = req.query
 
-const getAdminSpecialLeave = async (req, res) => {
-  try {
-    const specialLeaves = await getLeavesByType("special_leave")
-    res.status(200).json({
-      message: "Special leave requests retrieved successfully",
-      data: specialLeaves,
+    const result = await getHistoryLeaveSearch({
+      value: value || '',
+      type: type || '',
+      status: status || ''
     })
+    
+    res.status(200).json({success: true, data: result})
   } catch (error) {
-    res.status(400).json({ message: error.message })
+    console.error('Error fetching leave history:', error)
+    res.status(500).json({success: false, message: error.message})
   }
 }

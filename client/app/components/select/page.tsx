@@ -10,9 +10,11 @@ import {
 } from "../ui/select"
 
 type SelectDemoProps = {
-    placeholder?: string,
-    children: ReactNode,
-    className?: string
+    placeholder?: string;
+    children: ReactNode;
+    className?: string;
+    value?: string;
+    onValueChange? : (value: string) => void; 
 }
 
 export function SelectDemo({ placeholder , children, className }: SelectDemoProps) {

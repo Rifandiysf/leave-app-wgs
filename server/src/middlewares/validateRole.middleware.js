@@ -1,19 +1,15 @@
-export const validateRole = (...role) => {
+
+export const validateRole = (...allowedRoles) => {
     return (req, res, next) => {
-        const user = req.session.user; 
+        
+        const user = req.user; 
 
-        if (!user) {
-            return res.status(403).json({
-                message: "Access denied. No role found."
+        if (!user || !allowedRoles.includes(user.role)) {
+            return res.status(403).json({ 
+                message: "Akses ditolak. Anda tidak memiliki hak akses yang diperlukan." 
             });
         }
-
-        if (!role.includes(user.role)) {
-            return res.status(403).json({
-                message: `Access denied.`
-            });
-        }
-
+        
         next();
     };
-}
+};

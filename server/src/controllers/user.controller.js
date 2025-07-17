@@ -1,9 +1,9 @@
-import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK } from "../services/user.service.js"
-
+import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK } from "../services/user.service.js";
+import { filterUsersService } from "../services/user.service.js";
 
 export const createLeaveRequest = async (req, res) => {
     try {
-        const user = req.session.user
+        const user = req.user
 
         console.log("Request body:", req.body);
         console.log("id_special di body:", req.body.id_special);
@@ -11,6 +11,7 @@ export const createLeaveRequest = async (req, res) => {
         const leave = await createLeave({
             ...req.body,
             NIK: user.NIK,
+            total_days: req.workingDays
         })
 
         res.status(201).json({
@@ -27,14 +28,14 @@ export const createLeaveRequest = async (req, res) => {
 
 export const getLeaveRequests = async (req, res) => {
     try {
-        const user = req.session.user
+        const user = req.user
 
         const leaves = await getLeavesByNIK(user.NIK)
 
         if (!leaves || leaves.length === 0) {
             res.status(201).json({
                 message: "The data doesn't exist",
-                data: leaves,
+                data: leaves || [],
             })
         }
 
@@ -52,10 +53,11 @@ export const getLeaveRequests = async (req, res) => {
 
 export const getLeavesByFilter = async (req, res) => {
     try {
-        const { type, status } = req.query;
-        const user = req.session.user;
-
-        const leaves = await getLeavesByFilterService(user.NIK, type, status);
+        const { value, type, status } = req.query;
+        const user = req.user;
+        
+        const leaves = await getLeavesByFilterService(user.NIK, type, status, value);
+        
 
         if (!leaves || leaves.length === 0) {
             res.status(201).json({
@@ -81,7 +83,7 @@ export const getLeaveRequestsById = async (req, res) => {
     try {
 
         const { id } = req.params
-        const user = req.session.user
+        const user = req.user
 
         const leaves = await getLeavesById(user.NIK, id)
 
@@ -110,7 +112,7 @@ export const allUsers = async (req, res) => {
 
 export const getUser = async (req, res) => {
     const { nik } = req.params;
-    const { role, NIK } = req.session.user;
+    const { role, NIK } = req.user;
     const isAdmin = ["admin", "super_admin"].includes(role);
     try {
         if (!isAdmin) {
@@ -142,10 +144,11 @@ export const getUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     const { nik } = req.params
+    const newData = req.body; 
     try {
         const updatedUser = await updateUserByNIK(nik)
 
-        res.status(201).json({
+        res.status(200).json({
             status: "success",
             message: "successfully update user data",
             data: updatedUser
@@ -177,3 +180,13 @@ export const deleteUser = async (req, res) => {
         });
     }
 }
+
+export const filterUsers = async (req, res) => {
+    try {
+        const users = await filterUsersService(req.query);
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal memfilter data pengguna.', error: error.message });
+    }
+};
+
