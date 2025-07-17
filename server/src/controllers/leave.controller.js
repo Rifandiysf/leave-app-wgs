@@ -206,8 +206,8 @@ export const createMandatoryLeave = async (req, res) => {
 
 export const getMandatoryLeaves = async (req, res) => {
   try {
-    const page = parseInt(req.query.page)
-    const limit = parseInt(req.query.limit)
+    const page = parseInt(req.query.page) || 10
+    const limit = parseInt(req.query.limit) | 1
     const mandatoryLeave = await getAllMandatoryLeavesService(page, limit);
     res.status(200).json({
       message: "All mandatory leave was successfully taken",
