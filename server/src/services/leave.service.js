@@ -2,17 +2,24 @@ import prisma from "../utils/client.js";
 
 
 export const getAllLeavesService = async (page, limit) => {
-    const skip = (page - 1) * limit
-    return await prisma.tb_leave.findMany({
+    const skip = (page - 1) * limit;
+
+    const data = await prisma.tb_leave.findMany({
         skip,
         take: limit
-    })
-}
+    });
+
+    const total = await prisma.tb_leave.count();
+    const totalPages = Math.ceil(total / limit);
+
+    return { data, total, page, totalPages };
+};
 
 
-export const getLeavesByFilterService = async (type, value, page = 1, limit = 10) => {
-    const whereClause = {
-        status: 'pending',
+
+export const getLeavesByFilterService = async (type, value, page, limit) => {
+    const where = {
+        status: 'pending'
     };
 
     if (type) {
@@ -21,37 +28,29 @@ export const getLeavesByFilterService = async (type, value, page = 1, limit = 10
             mandatory: 'mandatory_leave',
             special: 'special_leave'
         };
-
-        const mappedType = typeMapping[type.toLowerCase()];
-        if (!mappedType) {
-            throw new Error('Invalid leave type. Allowed values: personal, mandatory, special');
-        }
-
-        whereClause.leave_type = mappedType;
+        const mapped = typeMapping[type.toLowerCase()];
+        if (!mapped) throw new Error('Invalid leave type');
+        where.leave_type = mapped;
     }
 
     if (value) {
-        whereClause.OR = [
-            {
-                title: {
-                    contains: value,
-                    mode: 'insensitive'
-                }
-            }
+        where.OR = [
+            { title: { contains: value, mode: 'insensitive' } }
         ];
     }
 
-    const skip = (page - 1) * limit
+    const skip = (page - 1) * limit;
 
-    console.log('Filter yang dikirim ke Prisma:', whereClause);
-
-    const results = await prisma.tb_leave.findMany({
-        where: whereClause,
+    const data = await prisma.tb_leave.findMany({
+        where,
         skip,
         take: limit
     });
 
-    return results;
+    const total = await prisma.tb_leave.count({ where });
+    const totalPages = Math.ceil(total / limit);
+
+    return { data, total, page, totalPages };
 };
 
 export const updateLeave = async (id, status, reason, nik) => {
@@ -166,39 +165,26 @@ export const updateLeave = async (id, status, reason, nik) => {
 
 
 export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, limit = 10 }) => {
-    const changeFormat = (text) => {
-        return text?.trim().toLowerCase().replace(/\s+/g, '_')
-    }
+    const changeFormat = (text) =>
+        text?.trim().toLowerCase().replace(/\s+/g, '_');
+
     const leaves = await prisma.tb_leave.findMany({
         where: {
             ...(type && { leave_type: changeFormat(type) }),
             ...(status && { status: status })
         },
         orderBy: { start_date: 'desc' }
-    })
+    });
 
     const history = await Promise.all(
         leaves.map(async (leave) => {
             const user = await prisma.tb_users.findUnique({
                 where: { NIK: leave.NIK },
                 select: { fullname: true }
-            })
+            });
 
             if (value && !user?.fullname.toLowerCase().includes(value.toLowerCase())) {
-                return null
-            }
-
-
-            const latestLog = await prisma.tb_leave_log.findFirst({
-                where: { id_leave: leave.id_leave },
-                orderBy: { changed_at: 'desc' }
-            })
-
-            if (latestLog) {
-                const changer = await prisma.tb_users.findUnique({
-                    where: { NIK: latestLog.changed_by_nik },
-                    select: { fullname: true }
-                })
+                return null;
             }
 
             return {
@@ -208,40 +194,36 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
                 end_date: leave.end_date,
                 leave_used: leave.total_days,
                 status: leave.status
-            }
+            };
         })
-    )
+    );
 
     const filtered = history.filter(Boolean);
+    const total = filtered.length;
+    const totalPages = Math.ceil(total / limit);
     const start = (page - 1) * limit;
     const paginated = filtered.slice(start, start + limit);
 
-    return paginated;
-}
+    return {
+        data: paginated,
+        total,
+        page,
+        totalPages
+    };
+};
+
 
 export const getHistoryLeave = async (page, limit) => {
     const leaves = await prisma.tb_leave.findMany({
         orderBy: { start_date: 'desc' }
-    })
+    });
 
     const history = await Promise.all(
         leaves.map(async (leave) => {
             const user = await prisma.tb_users.findUnique({
                 where: { NIK: leave.NIK },
                 select: { fullname: true }
-            })
-
-            const latestLog = await prisma.tb_leave_log.findFirst({
-                where: { id_leave: leave.id_leave },
-                orderBy: { changed_at: 'desc' }
-            })
-
-            if (latestLog) {
-                const changer = await prisma.tb_users.findUnique({
-                    where: { NIK: latestLog.changed_by_nik },
-                    select: { fullname: true }
-                })
-            }
+            });
 
             return {
                 name: user?.fullname || 'Unknown',
@@ -250,37 +232,65 @@ export const getHistoryLeave = async (page, limit) => {
                 end_date: leave.end_date,
                 leave_used: leave.total_days,
                 status: leave.status
-            }
+            };
         })
-    )
+    );
 
+    const total = history.length;
+    const totalPages = Math.ceil(total / limit);
     const start = (page - 1) * limit;
-    const paginatedHistory = history.slice(start, start + limit);
+    const paginated = history.slice(start, start + limit);
 
-    return paginatedHistory;
-}
+    return {
+        data: paginated,
+        total,
+        page,
+        totalPages
+    };
+};
+
 
 export const getSpecialLeaveService = async (page = 1, limit = 10) => {
-    const skip = (page - 1) * limit
-    return await prisma.tb_special_leave.findMany({
-        skip,
-        take: limit
-    })
-}
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+        prisma.tb_special_leave.findMany({
+            skip,
+            take: limit
+        }),
+        prisma.tb_special_leave.count()
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return { data, total, totalPages, page };
+};
+
 
 export const getSearchSpecialLeaveService = async (data, page = 1, limit = 10) => {
-    const skip = (page - 1) * limit
-    return prisma.tb_special_leave.findMany({
-        where: {
-            title: {
-                contains: data,
-                mode: 'insensitive'
-            }
-        },
-        skip,
-        take: limit
-    })
-}
+    const skip = (page - 1) * limit;
+
+    const where = {
+        title: {
+            contains: data,
+            mode: 'insensitive'
+        }
+    };
+
+    const [results, total] = await Promise.all([
+        prisma.tb_special_leave.findMany({
+            where,
+            skip,
+            take: limit
+        }),
+        prisma.tb_special_leave.count({ where })
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return { data: results, total, totalPages, page };
+};
+
 
 export const createSpecialLeaveService = async (data) => {
     return await prisma.tb_special_leave.create({
@@ -302,26 +312,46 @@ export const createMandatoryLeaveService = async (data) => {
 };
 
 export const getAllMandatoryLeavesService = async (page = 1, limit = 10) => {
-    const skip = (page - 1) * limit
-    return await prisma.tb_mandatory_leave.findMany({
-        skip,
-        take: limit
-    });
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+        prisma.tb_mandatory_leave.findMany({
+            skip,
+            take: limit
+        }),
+        prisma.tb_mandatory_leave.count()
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return { data, total, totalPages, page };
 };
 
+
 export const getSearchMandatoryLeaveService = async (data, page = 1, limit = 10) => {
-    const skip = (page - 1) * limit
-    return prisma.tb_mandatory_leave.findMany({
-        where: {
-            title: {
-                contains: data,
-                mode: 'insensitive'
-            },
-        },
-        skip,
-        take: limit
-    })
-}
+    const skip = (page - 1) * limit;
+
+    const where = {
+        title: {
+            contains: data,
+            mode: 'insensitive'
+        }
+    };
+
+    const [results, total] = await Promise.all([
+        prisma.tb_mandatory_leave.findMany({
+            where,
+            skip,
+            take: limit
+        }),
+        prisma.tb_mandatory_leave.count({ where })
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return { data: results, total, totalPages, page };
+};
+
 
 export const updateMandatoryLeaveService = async (id, data) => {
     return await prisma.tb_mandatory_leave.update({

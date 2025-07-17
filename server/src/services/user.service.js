@@ -167,7 +167,7 @@ export const getLeaveBalanceByYear = async (nik, year) => {
     })
 }
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (page, limit) => {
     const currentYear = new Date().getFullYear()
     const lastYear = new Date().getFullYear() - 1
 
