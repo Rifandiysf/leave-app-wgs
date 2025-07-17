@@ -101,7 +101,9 @@ export const getLeaveRequestsById = async (req, res) => {
 
 export const allUsers = async (req, res) => {
     try {
-        const dataUsers = await getAllUsers()
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
+        const dataUsers = await getAllUsers(page, limit)
         res.status(200).json(dataUsers)
     } catch (error) {
         console.error(error)
