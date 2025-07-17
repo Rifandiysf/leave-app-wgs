@@ -1,64 +1,40 @@
-import { deleteToken, fetchUserData, addToken } from "../services/auth.service.js";
-import { generateToken, verifyToken } from "../utils/jwt.js";
 
-export const login = async (req, res, next) => {
-    const { email } = req.body;
-    const header = req.get("authorization");
-    const token = header?.split(' ')[1];
 
-    // todo: add validation if token expired then delete that token and create new token;
+import jwt from 'jsonwebtoken';
+import { SESSION_SECRET } from '../config/env.js';
+
+export const login = async (req, res) => {
     try {
-        const user = await fetchUserData("email", email);
+        const user = req.user;
 
         if (!user) {
-            const error = new Error('user not found');
-            error.statusCode = 404;
-            throw error;
+            return res.status(401).json({ message: "Autentikasi gagal. User tidak ditemukan." });
         }
 
-        const userData = {
+        const payload = {
             NIK: user.NIK,
             email: user.email,
-            fullname: user.fullname,
-            password: user.password,
             role: user.role
-        }
+        };
 
-        const newToken = await generateToken(userData);
+        const token = jwt.sign(payload, SESSION_SECRET, { expiresIn: '1d' });
 
-        res.setHeader('Authorization', `Bearer ${newToken}`).json({
-            success: true,
+        res.status(200).json({
             message: `Welcome ${user.fullname}`,
+            token: token, 
             data: {
-                nik: user.NIK,
-                name: user.fullname,
+                NIK: user.NIK,
+                fullname: user.fullname,
                 role: user.role
             }
         });
 
     } catch (error) {
-        return res.status(400).json({
-            message: error.message
-        });
+        console.error("Login controller error:", error);
+        res.status(500).json({ message: "Terjadi kesalahan pada server" });
     }
-}
+};
 
-export const logout = async (req, res, next) => {
-    try {
-        const header = req.get("authorization");
-        const token = header?.split(' ')[1];
-
-        await deleteToken(token);
-
-        res.status(200).json({
-            success: true,
-            message: "You have been successfully logged out.",
-        });
-    } catch (error) {
-        res.status(400).json({
-            status: "failed",
-            message: error.message,
-            status_code: 400
-        });
-    }
-}
+export const logout = (req, res) => {
+    res.status(200).json({ message: "Logout berhasil" });
+};

@@ -1,32 +1,22 @@
-import { deleteToken } from "../services/auth.service.js";
-import { decodeToken } from "../utils/jwt.js";
-export const isAuthenticated = async (req, res, next) => {
-    const header = req.get("authorization");
-    const token = header?.split(' ')[1];
 
+import jwt from 'jsonwebtoken';
+import { SESSION_SECRET } from '../config/env.js';
+
+export const isAuthenticated = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'No token provided' });
+    }
+
+
+    const token = authHeader.split(' ')[1];
     try {
-        if (!header || !token) {
-            throw new Error("Authorization header not found");
-        }
-
-        const decodedToken = await decodeToken(token);
-        
-        if (!decodedToken) {
-            throw new Error("Invalid Credentials");
-        }
-
-        return next();
-    } catch (error) {
-        if (error.name === "TokenExpiredError" && token) {
-            await deleteToken(token);
-            error.message = "Login session expired";
-        }
-
-        return res.status(408).json({
-            status: false,
-            status_code: 408,
-            message: "Unauthorized. Please login to access this resource.",
-            detail: error.message
-        });
+        const decoded = jwt.verify(token, SESSION_SECRET);
+        console.log("Decoded token:", decoded); 
+        req.user = decoded;
+        next(); 
+    } catch (err) {
+        return res.status(401).json({ message: 'Invalid token' });
     }
 };

@@ -14,12 +14,12 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
     const pathname = usePathname()
     const [welcomeText, setWelcomeText] = useState("Welcome...")
 
-     useEffect(() => {
+    useEffect(() => {
 
         const userSession = sessionStorage.getItem('user');
         if (userSession) {
             const userData = JSON.parse(userSession);
-                    
+
             const name = userData.fullname || (role === 'admin' ? 'Admin' : 'User');
             setWelcomeText(`Welcome, ${name}`);
         } else {
@@ -94,11 +94,11 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
                             <i className={`bi bi-clock-history text-xl ${isBottomActive('/admin/list-leave')}`} />
                             <span>List Of Leave</span>
                         </Link>
-                       <Link href="/admin/amount-leave" className="-mt-8">
+                        <Link href="/admin/amount-leave" className="-mt-8">
                             <div className="w-20 h-20 bg-blue-600 rounded-full flex flex-col justify-center items-center shadow-lg transform hover:scale-105 transition-transform">
                                 <i className="bi bi-calendar-plus text-2xl text-white"></i>
                                 <span className="text-white text-[10px] font-bold mt-1">Amount Leave</span>
-                            </div>  
+                            </div>
                         </Link>
                         <Link href="/admin/mandatory" className="flex flex-col items-center text-xs">
                             <i className={`bi bi-asterisk text-xl ${isBottomActive('/admin/mandatory')}`} />
@@ -108,7 +108,7 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
                             <i className={`bi bi-archive-fill text-xl ${isBottomActive('/admin/special-leave')}`} />
                             <span>Special Leave</span>
                         </Link>
-                        
+
                     </nav>
                 </>
             ) : (
@@ -143,11 +143,11 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
                                     <i className="bi bi-archive-fill text-xl w-6 text-center" />
                                     <span className="ml-3">Mandatory</span>
                                 </Link>
-                                
+
                             </div>
                         </nav>
                     </aside>
-                    
+
                     {/* Navigasi Bawah untuk User (Hanya tampil di mobile) */}
                     <nav className="fixed bottom-0 left-0 w-full bg-white border-t z-50 flex justify-around items-center py-2 lg:hidden">
                         <Link href="/" className="flex flex-col items-center text-xs">
@@ -166,7 +166,7 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
                             <i className={`bi bi-archive-fill text-xl ${isBottomActive('/mandatory')}`} />
                             <span>Mandatory</span>
                         </Link>
-                        
+
                     </nav>
                 </>
             )}

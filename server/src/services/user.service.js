@@ -1,5 +1,8 @@
-import prisma from "../utils/client.js"
+import { PrismaClient } from '@prisma/client';
 import { calculateWorkingDays } from '../utils/leaves.utils.js';
+
+const prisma = new PrismaClient();
+
 
 export const createLeave = async (data) => {
     const {
@@ -167,9 +170,11 @@ export const getLeaveBalanceByYear = async (nik, year) => {
     })
 }
 
-export const getAllUsers = async (page, limit) => {
-    const currentYear = new Date().getFullYear()
-    const lastYear = new Date().getFullYear() - 1
+// user.service.js
+
+export const getAllUsers = async () => {
+    const currentYear = new Date().getFullYear();
+    const lastYear = new Date().getFullYear() - 1;
 
     const users = await prisma.tb_users.findMany({
         orderBy: {
@@ -187,151 +192,83 @@ export const getAllUsers = async (page, limit) => {
     });
 
     const result = users.map(user => {
-        const userLeaveAmount = leaveAmount.filter(b => b.NIK === user.NIK)
+        const userLeaveAmount = leaveAmount.filter(b => b.NIK === user.NIK);
 
-        const currentYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === currentYear)
-        const lastYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === lastYear)
+        const currentYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === currentYear);
+        const lastYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === lastYear);
 
         const current = currentYearAmount?.amount || 0;
         const last = lastYearAmount?.amount || 0;
 
         return {
-            nik: user.NIK,
-            name: user.fullname,
+            NIK: user.NIK,                 
+            fullname: user.fullname,       
+            email: user.email,             
             gender: user.gender,
+            role: user.role,
+            status_active: user.status_active, 
+            join_date: user.join_date,     
             last_year_leave: last,
             this_year_leave: current,
             leave_total: last + current,
-            role: user.role,
-            status: user.status_active
-        }
+        };
     });
 
-    const total = result.length;
-    const totalPages = Math.ceil(total / limit);
-    const start = (page - 1) * limit;
-    const paginatedResult = result.slice(start, start + limit);
-
-    return {
-        data: paginatedResult,
-        total,
-        totalPages,
-        page,
-    };
+    return result;
 };
 
 export const getUserByNIK = async (nik) => {
-    const currentDate = new Date();
-    const currentDateFirstMonth = new Date(new Date().getFullYear(), 0, 1);
-
-    const user = await prisma.tb_users.findUnique({
-        omit: {
-            password: true,
-            email: true,
-        },
-        where: {
-            NIK: nik,
-            NOT: {
-                role: "magang"
-            }
-        },
-        include: {
-            tb_balance: {
-                where: {
-                    expired_date: {
-                        gte: new Date()
-                    }
-                },
-                orderBy: {
-                    expired_date: "desc"
-                }
+    try {
+        const user = await prisma.tb_users.findUnique({
+            where: {
+                NIK: nik
             },
-        }
-    });
+            select: {
+                NIK: true,
+                fullname: true,
+                email: true,
+                gender: true,
+                role: true,
+                status_active: true,
+                join_date: true,
+            }
+        });
 
-    if (!user) {
-        const error = new Error("user not found");
-        error.statusCode = 404;
+        if (!user) {
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            throw error;
+        }
+
+        return user;
+    } catch (error) {
         throw error;
     }
+};
 
-    const { tb_balance, NIK, fullname, gender, status_active } = user;
-    const currentBalance = tb_balance[0] ? tb_balance[0].amount : 0;
-    const lastYearBalance = tb_balance[1] ? tb_balance[1].amount : 0;
-    let maxReceiveAmount = user.role === "karyawan_kontrak" ? 1 : 12;
-
-    const pending_request = await prisma.tb_leave.aggregate({
-        _sum: {
-            total_days: true
-        },
-        where: {
-            created_at: {
-                gte: currentDateFirstMonth,
-                lte: currentDate
+export const updateUserByNIK = async (nik, userData) => {
+    try {
+        const updatedUser = await prisma.tb_users.update({
+            where: {
+                NIK: nik
             },
-            NIK: nik,
-            status: "pending",
-            leave_type: {
-                in: ["personal_leave", "mandatory_leave"]
+            data: userData,
+            select: {
+                NIK: true,
+                fullname: true,
+                email: true,
+                gender: true,
+                role: true,
+                status_active: true,
+                join_date: true,
             }
-        },
-    });
+        });
 
-    const approved_request = await prisma.tb_leave.aggregate({
-        _sum: {
-            total_days: true
-        },
-        where: {
-            end_date: {
-                gte: currentDateFirstMonth,
-                lte: currentDate,
-            },
-            NIK: nik,
-            status: "approved",
-            leave_type: {
-                in: ["personal_leave", "mandatory_leave"]
-            }
-        },
-    });
-
-    const userCopy = {
-        NIK: NIK,
-        fullname: fullname,
-        gender: gender,
-        status_active: status_active,
-        role: user.role,
-        balance: {
-            total_amount: currentBalance + lastYearBalance || 0,
-            current_amount: currentBalance,
-            carried_amount: lastYearBalance,
-            days_used: approved_request._sum.total_days || 0,
-            pending_request: pending_request._sum.total_days || 0,
-        }
+        return updatedUser;
+    } catch (error) {
+        throw error;
     }
-
-    return userCopy;
-}
-
-export const updateUserByNIK = async (nik, data) => {
-    const updatedUser = await prisma.tb_users.update({
-        where: {
-            NIK: nik
-        },
-        data: {
-            status_active: "active",
-            join_date: new Date()
-        }
-    })
-
-    if (!updatedUser) {
-        const error = new Error("user not found");
-        error.statusCode = 404;
-        throw error
-    }
-
-    return updatedUser
-}
-
+};
 export const deleteUserByNIK = async (nik) => {
     const deletedUser = await prisma.tb_users.update({
         where: {
@@ -358,3 +295,69 @@ export const deleteUserByNIK = async (nik) => {
     // })
 
 }
+
+// user.service.js
+
+// Tambahkan fungsi baru ini di file service-mu
+export const filterUsersService = async (queryParams) => {
+    const { gender, status, role, search } = queryParams;
+
+    const whereClause = {};
+
+    if (gender) {
+        whereClause.gender = gender;
+    }
+    if (status) {
+        whereClause.status_active = status;
+    }
+    if (role) {
+        whereClause.role = role;
+    }
+    if (search) {
+        // Mencari di kolom fullname atau NIK
+        whereClause.OR = [
+            { fullname: { contains: search, mode: 'insensitive' } },
+            { NIK: { contains: search, mode: 'insensitive' } }
+        ];
+    }
+
+    const users = await prisma.tb_users.findMany({
+        where: whereClause,
+        orderBy: {
+            fullname: 'asc'
+        }
+    });
+
+    // Kode ini untuk menggabungkan data user dengan data sisa cuti mereka
+    // Sama seperti di fungsi getAllUsers
+    const currentYear = new Date().getFullYear();
+    const lastYear = new Date().getFullYear() - 1;
+    const userNIKs = users.map(u => u.NIK);
+
+    const leaveBalances = await prisma.tb_balance.findMany({
+        where: {
+            NIK: { in: userNIKs },
+            receive_date: {
+                gte: new Date(`${lastYear}-01-01`),
+                lte: new Date(`${currentYear}-12-31`)
+            }
+        }
+    });
+
+    const result = users.map(user => {
+        const userBalances = leaveBalances.filter(b => b.NIK === user.NIK);
+        const currentYearAmount = userBalances.find(b => b.receive_date.getFullYear() === currentYear);
+        const lastYearAmount = userBalances.find(b => b.receive_date.getFullYear() === lastYear);
+        const current = currentYearAmount?.amount || 0;
+        const last = lastYearAmount?.amount || 0;
+
+        return {
+            ...user,
+            last_year_leave: last,
+            this_year_leave: current,
+            leave_total: last + current,
+        };
+    });
+
+    return result;
+};

@@ -41,24 +41,24 @@ export default function Header({ role = "user" }: HeaderProps) {
         }
     }, [])
 
-  const handleLogout = async () => {
+    const handleLogout = async () => {
         try {
             const userSession = sessionStorage.getItem('user');
-             if (!userSession) {
-            console.log("Tidak ada sesi, langsung logout dari frontend.");
-            sessionStorage.removeItem('user');
-            router.push('/auth/login');
-            return;
-        }
-    
-        const token = JSON.parse(userSession).token;
-         const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/logout`;
-
-           await axios.get(apiUrl, {
-            headers: {
-                'Authorization': `Bearer ${token}`
+            if (!userSession) {
+                console.log("Tidak ada sesi, langsung logout dari frontend.");
+                sessionStorage.removeItem('user');
+                router.push('/auth/login');
+                return;
             }
-        });
+
+            const token = JSON.parse(userSession).token;
+            const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/logout`;
+
+            await axios.get(apiUrl, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
 
             console.log("Berhasil logout dari server.");
             sessionStorage.removeItem('user');
