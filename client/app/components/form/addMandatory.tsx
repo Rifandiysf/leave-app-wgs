@@ -19,7 +19,7 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void}) {
     const [title, setTitle] = useState("")
     const [duration, setDuration] = useState(0)
     const [description, setDescription] = useState("")
-    const [isActive, setIsActive] = useState(true) 
+    const [isActive, setIsActive] = useState(false) 
 
     const [titleError, setTitleError] = useState("")
     const [descriptionError, setDescriptionError] = useState("")
@@ -33,7 +33,7 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void}) {
             setTitle("");
             setDuration(0);
             setDescription("");
-            setIsActive(true);
+            setIsActive(false);
             setTitleError("");
             setDescriptionError("");
             setGeneralError("");
