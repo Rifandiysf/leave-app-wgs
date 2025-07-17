@@ -6,33 +6,45 @@ import { role } from "../../generated/prisma/index.js";
 export const fetchUserData = async (params, uniqueId) => {
     try {
         const user = await prisma.tb_users.findUnique({
-        where: {
-            [params]: uniqueId,
-        }
+            where: {
+                [params]: uniqueId,
+            }
         })
 
-        if (!user) {
-            const error = new Error("User not found");
-            error.statusCode = 404;
-            throw error;
-        }
-
-        let password = await bcrypt.hash(user.password, 10);
-
-        const userCopy = {
-            NIK: user.NIK,
-            fullname: user.fullname,
-            email: user.email,
-            role: user.role,
-            status: user.status_active,
-            password: password
-        }
-        
-        return userCopy;
+        return user;
     } catch (error) {
-        // for development only
-        if (process.env.NODE_ENV = "development") {
-            throw new Error("Request time out");
-        }
+        throw error;
     }
+}
+
+export const addToken = async (token, nik) => {
+    try {
+        const addedToken = await prisma.tb_jwt_token.create({
+            data: {
+                access_token: token,
+                NIK: nik
+            }
+        })
+
+        return addedToken;
+    } catch (error) {
+        return null;
+    }
+
+}
+
+export const deleteToken = async (token) => {
+    try {
+        const deletedToken = await prisma.tb_jwt_token.delete({
+            where: {
+                access_token: token
+            }
+        })
+
+        return deletedToken;
+    } catch (error) {
+        error.message = "Invalid token";
+        throw error;
+    }
+        
 }

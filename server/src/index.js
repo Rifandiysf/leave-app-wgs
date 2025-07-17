@@ -1,8 +1,6 @@
 import express, { urlencoded } from 'express';
-import { PORT, HOSTNAME, SESSION_SECRET} from './config/env.js';
+import { PORT, HOSTNAME} from './config/env.js';
 import routes from './routes/index.route.js';
-import prisma from './utils/client.js';
-import session, { MemoryStore } from 'express-session';
 import cors from 'cors'
 import compression from 'compression';
 import responseTime from 'response-time';
@@ -18,15 +16,15 @@ app.use(express.urlencoded( { extended: true}));
 app.use(compression({
     threshold: 0
 }))
-app.use(session({
-    secret: SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    secure: false, // false for development only
-    cookie: {
-        maxAge: 1000 * 60 * 60 * 24 // 1 day
-    }
-}))
+// app.use(session({
+//     secret: SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: false,
+//     secure: false, // false for development only
+//     cookie: {
+//         maxAge: 1000 * 60 * 60 * 24 // 1 day
+//     }
+// }))
 
 
 // const corsOption = {
@@ -36,7 +34,8 @@ app.use(session({
 const corsOption = ['http://localhost:3000', 'http://10.10.101.178:3000']
 app.use(cors({
     origin: corsOption,
-    credentials: true
+    credentials: true,
+    exposedHeaders: ["Authorization"]
 }))
 
 app.use('/api/v1/', routes);

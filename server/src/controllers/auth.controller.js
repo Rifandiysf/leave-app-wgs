@@ -1,21 +1,41 @@
-import { status } from "../../generated/prisma/index.js";
-import { fetchUserData } from "../services/auth.service.js";
+import { deleteToken, fetchUserData, addToken } from "../services/auth.service.js";
+import { generateToken, verifyToken } from "../utils/jwt.js";
 
 export const login = async (req, res, next) => {
-    const { email, password } = req.body
+    const { email } = req.body;
+    const header = req.get("authorization");
+    const token = header?.split(' ')[1];
+
+    // todo: add validation if token expired then delete that token and create new token;
     try {
-        const user = req.user;
+        const user = await fetchUserData("email", email);
 
-        req.session.user = {
-            NIK: user.NIK, loginDate: (new Date()).toISOString(),
+        if (!user) {
+            const error = new Error('user not found');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        const userData = {
+            NIK: user.NIK,
+            email: user.email,
+            fullname: user.fullname,
+            password: user.password,
             role: user.role
-        };
+        }
 
-        return res.status(200).json({
+        const newToken = await generateToken(userData);
+
+        res.setHeader('Authorization', `Bearer ${newToken}`).json({
+            success: true,
             message: `Welcome ${user.fullname}`,
-            loginDate: req.session.user.loginDate,
-            data: user
-        })
+            data: {
+                nik: user.NIK,
+                name: user.fullname,
+                role: user.role
+            }
+        });
+
     } catch (error) {
         return res.status(400).json({
             message: error.message
@@ -23,25 +43,22 @@ export const login = async (req, res, next) => {
     }
 }
 
-export const logout = (req, res, next) => {
+export const logout = async (req, res, next) => {
     try {
-        if (!req.session.user) {
-            throw new Error('invalid action');
-        }
+        const header = req.get("authorization");
+        const token = header?.split(' ')[1];
 
-        req.session.destroy((err) => {
-            if (err) throw new Error(err.message);
+        await deleteToken(token);
 
-            res.clearCookie('connect.sid');
-            res.status(200).json({
-                message: "you have been logged out"
-            })
-        })
+        res.status(200).json({
+            success: true,
+            message: "You have been successfully logged out.",
+        });
     } catch (error) {
         res.status(400).json({
             status: "failed",
             message: error.message,
             status_code: 400
-        })
+        });
     }
 }

@@ -1,3 +1,4 @@
+import { decode } from "jsonwebtoken";
 import {
   getAllLeavesService,
   updateLeave,
@@ -13,12 +14,14 @@ import {
   getSearchSpecialLeaveService,
   getSearchMandatoryLeaveService,
 } from "../services/leave.service.js"
+import { decodeToken } from "../utils/jwt.js";
 
 
 export const updateLeaveById = async (req, res) => {
   const { id } = req.params;
   const { reason, status } = req.body;
-  const { NIK } = req.session.user
+  const decodeToken = await decodeToken(req);
+  const { NIK } = decodeToken;
 
   try {
     const updatedLeave = await updateLeave(id, status, reason, NIK);
@@ -45,7 +48,10 @@ export const updateLeaveById = async (req, res) => {
 export const getAllLeaves = async (req, res) => {
   try {
 
-    const leaves = await getAllLeavesService()
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 10
+
+    const leaves = await getAllLeavesService(page, limit)
 
     res.status(201).json({
       message: "All leave requests retrieved successfully",
@@ -61,9 +67,9 @@ export const getAllLeaves = async (req, res) => {
 
 export const getLeavesByFilter = async (req, res) => {
   try {
-    const { value, type } = req.query;
+    const { value, type, page = 1, limit = 10 } = req.query;
 
-    const leaves = await getLeavesByFilterService(type, value);
+    const leaves = await getLeavesByFilterService(type, value, parseInt(page), parseInt(limit));
 
     res.status(200).json({
       message: 'Filtered leave data retrieved successfully',
@@ -79,7 +85,9 @@ export const getLeavesByFilter = async (req, res) => {
 
 export const historyLeave = async (req, res) => {
   try {
-    const result = await getHistoryLeave()
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 10
+    const result = await getHistoryLeave(page, limit)
     res.status(200).json({ succes: true, data: result })
   } catch (error) {
     console.error('Error fetching leave history:', error)
@@ -89,12 +97,14 @@ export const historyLeave = async (req, res) => {
 
 export const historyLeaveSearch = async (req, res) => {
   try {
-    const { value, type, status } = req.query
+    const { value, type, status, page = 1, limit = 10 } = req.query
 
     const result = await getHistoryLeaveSearch({
       value: value || '',
       type: type || '',
-      status: status || ''
+      status: status || '',
+      page: parseInt(page),
+      limit: parseInt(limit)
     })
 
     res.status(200).json({ success: true, data: result })
@@ -106,8 +116,9 @@ export const historyLeaveSearch = async (req, res) => {
 
 export const getSpecialLeave = async (req, res) => {
   try {
-
-    const specialLeaves = await getSpecialLeaveService()
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 10
+    const specialLeaves = await getSpecialLeaveService(page, limit)
 
     res.status(201).json({
       message: "All special leave was successfully taken",
@@ -124,9 +135,9 @@ export const getSpecialLeave = async (req, res) => {
 export const getSearchSpecialLeave = async (req, res) => {
   try {
 
-    const { value } = req.query
+    const { value, page = 1, limit = 10 } = req.query
 
-    const specialleave = await getSearchSpecialLeaveService(value)
+    const specialleave = await getSearchSpecialLeaveService(value, parseInt(page), parseInt(limit))
 
     res.status(201).json({
       message: 'Search special leave data retrieved successfully',
@@ -195,7 +206,9 @@ export const createMandatoryLeave = async (req, res) => {
 
 export const getMandatoryLeaves = async (req, res) => {
   try {
-    const mandatoryLeave = await getAllMandatoryLeavesService();
+    const page = parseInt(req.query.page)
+    const limit = parseInt(req.query.limit)
+    const mandatoryLeave = await getAllMandatoryLeavesService(page, limit);
     res.status(200).json({
       message: "All mandatory leave was successfully taken",
       data: mandatoryLeave
@@ -210,9 +223,9 @@ export const getMandatoryLeaves = async (req, res) => {
 export const getSearchMandatoryLeave = async (req, res) => {
   try {
 
-    const { value } = req.query
+    const { value, page = 1, limit = 10 } = req.query
 
-    const specialleave = await getSearchMandatoryLeaveService(value)
+    const specialleave = await getSearchMandatoryLeaveService(value, parseInt(page), parseInt(limit))
 
     res.status(201).json({
       message: 'Search special leave data retrieved successfully',
