@@ -214,8 +214,8 @@ export function Modal({
                 return ApproveContent()
             case "reject":
                 return RejectContent()
-            case "confirm": 
-                return ConfirmContent()
+            // case "confirm": 
+            //     return ConfirmContent()
             default:
                 return TriggerButton()
         }

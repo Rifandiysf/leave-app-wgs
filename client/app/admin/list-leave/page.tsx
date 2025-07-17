@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/app/components/ui/pagination";
-import { SearchButton } from "@/app/components/search/page";
 import { SelectDemo } from "@/app/components/select/page";
 import { SelectItem, SelectLabel } from "@/app/components/ui/select";
 import Modal from '@/app/components/Modal/Modal';
@@ -16,24 +15,42 @@ type ApiLeaveType = {
     leave_type: string;
     start_date: string;
     end_date: string;
-    total_days: number;
-    status: string;
+    leave_used: number;
     reason: string;
+    status: string;
 };
 
 const ListOfLeavePage = () => {
     const [leaveData, setLeaveData] = useState<ApiLeaveType[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
+    const [search, setSearch] = useState("")
+    const [debouncedSearch, setDebouncedSearch] = useState("")
     const [viewMode, setViewMode] = useState<'requests' | 'history' | null>(null);
     const [isChoiceModalOpen, setChoiceModalOpen] = useState(true);
-    const ITEMS_PER_PAGE = 8;
+    const ITEMS_PER_PAGE = 7;
 
-    const fetchData = async (mode: 'requests' | 'history') => {
+    // Debounce search
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(search)
+            setCurrentPage(1)
+        }, 500)
+
+        return () => {
+            clearTimeout(handler)
+        }
+    }, [search])
+
+    const fetchData = async (mode: 'requests' | 'history', seaechTerm: string) => {
         setIsLoading(true);
         setLeaveData([]);
         try {
-            const endpoint = mode === 'requests' ? '/leaves' : '/leaves/logs';
+            let endpoint = mode === 'requests' ? '/leaves' : '/leaves/logs';
+            if (seaechTerm) {
+                endpoint += `/search?value=${seaechTerm}`;
+            }
+
             const response = await axiosInstance.get(endpoint);
             if (response.data && Array.isArray(response.data.data)) {
                 setLeaveData(response.data.data);
@@ -47,10 +64,14 @@ const ListOfLeavePage = () => {
     };
 
     useEffect(() => {
+        setCurrentPage(1)
+    }, [debouncedSearch])
+
+    useEffect(() => {
         if (viewMode) {
-            fetchData(viewMode);
+            fetchData(viewMode, search);
         }
-    }, [viewMode]);
+    }, [viewMode, currentPage, search]);
 
     const handleModeSelect = (mode: 'requests' | 'history') => {
         setViewMode(mode);
@@ -67,7 +88,7 @@ const ListOfLeavePage = () => {
         if (!type) return '-';
         return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     };
-    
+
     const getStatusChip = (status: string) => {
         switch (status?.toLowerCase()) {
             case 'pending':
@@ -87,7 +108,7 @@ const ListOfLeavePage = () => {
                 status: newStatus,
                 reason: reason || "Processed by Admin"
             });
-            if(viewMode) fetchData(viewMode); 
+            if (viewMode) fetchData(viewMode, search);
         } catch (error) {
             console.error(`Failed to ${newStatus} request:`, error);
         }
@@ -113,8 +134,16 @@ const ListOfLeavePage = () => {
                         <h1 className="text-2xl font-bold text-gray-800">
                             {viewMode === 'requests' ? 'Leave Requests' : 'Leave History'}
                         </h1>
-                        <div className="flex gap-3 items-center">
-                            <SearchButton placeholder='Search Leave' />
+                        <div className="flex justify-end items-center gap-3 mb-4">
+                            <div className="flex max-sm:w-full">
+                                <input
+                                    type="text"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="Search..."
+                                    className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                />
+                            </div>
                             <SelectDemo placeholder="Type">
                                 <SelectLabel>Type</SelectLabel>
                                 <SelectItem value="personal">Personal</SelectItem>
@@ -154,25 +183,25 @@ const ListOfLeavePage = () => {
                                                 <td className="p-3 align-middle">{formatLeaveType(data.leave_type)}</td>
                                                 <td className="p-3 align-middle">{formatDate(data.start_date)}</td>
                                                 <td className="p-3 align-middle">{formatDate(data.end_date)}</td>
-                                                <td className="p-3 align-middle">{data.total_days}</td>
+                                                <td className="p-3 align-middle">{data.leave_used}</td>
                                                 <td className="p-3 align-middle">{getStatusChip(data.status)}</td>
                                                 {viewMode === 'requests' && (
                                                     <td className="p-2 text-[14px] text-center font-medium border-b-[1.5px] border-[#0000001f]">
-                                                        <Modal 
-                                                            mode='confirm' 
-                                                            size='icon' 
-                                                            variant='ghost' 
-                                                            title='Accept Request' 
-                                                            description={`Accept leave from ${data.name}? Reason: ${data.reason}`} 
-                                                            triggerLabel={<i className="bi bi-check2-circle text-xl"></i>} 
+                                                        <Modal
+                                                            mode='confirm'
+                                                            size='icon'
+                                                            variant='ghost'
+                                                            title='Accept Request'
+                                                            description={`Accept leave from ${data.name}? Reason: ${data.reason}`}
+                                                            triggerLabel={<i className="bi bi-check2-circle text-xl"></i>}
                                                             onConfirm={() => handleAction(data.id_leave, 'approved')}
                                                         />
-                                                        <Modal 
-                                                            mode='reject' 
-                                                            size='icon' 
-                                                            variant='ghost' 
-                                                            title='Reject Request' 
-                                                            description={`Reject leave from ${data.name}?`} 
+                                                        <Modal
+                                                            mode='reject'
+                                                            size='icon'
+                                                            variant='ghost'
+                                                            title='Reject Request'
+                                                            description={`Reject leave from ${data.name}?`}
                                                             triggerLabel={<i className="bi bi-x-circle text-xl"></i>}
                                                             onConfirm={(rejectionReason) => handleAction(data.id_leave, 'rejected', rejectionReason)}
                                                         />

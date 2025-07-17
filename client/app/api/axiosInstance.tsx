@@ -1,19 +1,27 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, 
+    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
 });
-
 
 axiosInstance.interceptors.request.use(
     (config) => {
-        const userSession = sessionStorage.getItem('user');
-        if (userSession) {
-            const token = JSON.parse(userSession).token;
-            if (token) {
-                config.headers['Authorization'] = `Bearer ${token}`;
+        const userToken = localStorage.getItem('token');
+        const userDeviceId = localStorage.getItem('device-id');
+
+        if (userToken) {
+            try {
+                const token = userToken;
+                config.headers['Authorization'] = `${token}`;
+            } catch (err) {
+                console.error('Token parsing error:', err);
             }
         }
+
+        if (userDeviceId) {
+            config.headers['device-id'] = userDeviceId;
+        }
+
         return config;
     },
     (error) => {
