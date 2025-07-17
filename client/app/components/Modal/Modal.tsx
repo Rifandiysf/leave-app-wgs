@@ -34,6 +34,7 @@ type ModalTypeProps = {
     mode?: "form" | "info" | "confirm" | "reject" | "approve"
     variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
     size?: "default" | "sm" | "lg" | "icon"
+    onConfirm?: (reason?: string) => void;
 }
 
 export function Modal({
@@ -46,12 +47,14 @@ export function Modal({
     showFooter = true,
     mode = "form",
     variant = "default",
-    size = "default"
+    size = "default",
+    // TAMBAHKAN PROPERTI INI
+    onConfirm,
 }: ModalTypeProps) {
     const [startLeave, setStartLeave] = useState<Date | undefined>()
     const [endLeave, setEndLeave] = useState<Date | undefined>()
     const [leaveType, setLeaveType] = useState("personal")
-
+    const [rejectionReason, setRejectionReason] = useState('');
     const TriggerButton = () => (
         <DialogTrigger asChild>
             <Button variant={variant} size={size} className={triggerClassName}>
@@ -163,7 +166,9 @@ export function Modal({
                     <DialogClose asChild>
                         <Button variant="ghost">Cancel</Button>
                     </DialogClose>
-                    <Button onClick={onClick} className="bg-green-200 hover:bg-green-300 text-green-600 font-bold">Accept</Button>
+                    <DialogClose asChild>
+                        <Button onClick={() => onConfirm?.()} className="bg-green-200 hover:bg-green-300 text-green-600 font-bold">Accept</Button>
+                    </DialogClose>
                 </DialogFooter>
             </DialogContent>
         </>
@@ -179,30 +184,21 @@ export function Modal({
                 <p>{description}</p>
                 <div className="grid gap-3">
                     <Label htmlFor="reason-reject">Reason</Label>
-                    <Input type="text" id="reason-reject" placeholder="Brief reason for rejection" />
+                    <Input 
+                        type="text" 
+                        id="reason-reject" 
+                        placeholder="Brief reason for rejection" 
+                        value={rejectionReason}
+                        onChange={(e) => setRejectionReason(e.target.value)}
+                    />
                 </div>
                 <DialogFooter>
                     <DialogClose asChild>
                         <Button variant="ghost">Cancel</Button>
                     </DialogClose>
-                    <Button onClick={onClick} className="bg-red-200 hover:bg-red-300 text-red-600 font-bold">Reject</Button>
-                </DialogFooter>
-            </DialogContent>
-        </>
-    )
-
-    const ConfirmContent = () => (
-        <>
-            {TriggerButton()}
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>{title}</DialogTitle>
-                </DialogHeader>
-                <DialogFooter>
                     <DialogClose asChild>
-                        <Button variant={variant}>Cencel</Button>
+                        <Button onClick={() => onConfirm?.(rejectionReason)} className="bg-red-200 hover:bg-red-300 text-red-600 font-bold">Reject</Button>
                     </DialogClose>
-                    <Button onClick={onClick} className="bg-red-200 hover:bg-red-300 text-red-600 font-bold">Confirm</Button>
                 </DialogFooter>
             </DialogContent>
         </>
@@ -218,8 +214,8 @@ export function Modal({
                 return ApproveContent()
             case "reject":
                 return RejectContent()
-            case "confirm": 
-                return ConfirmContent()
+            // case "confirm": 
+            //     return ConfirmContent()
             default:
                 return TriggerButton()
         }

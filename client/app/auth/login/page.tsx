@@ -31,7 +31,6 @@ const LoginPage = () => {
         setEmailError('')
         setPasswordError('')
         setGeneralError('')
-
         let hasError = false
 
         if (!email) {
@@ -49,14 +48,20 @@ const LoginPage = () => {
         setIsLoading(true)
 
         try {
+            const storedDeviceId = localStorage.getItem('device-id') ?? '';
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'device-id': storedDeviceId ?? ''
+                },
                 credentials: 'include',
                 body: JSON.stringify({ email, password })
             })
 
-            const data = await res.json()
+            const data = await res.json();
+            const token = res.headers.get("Authorization");
+            const deviceId = res.headers.get("device-id");
 
             if (!res.ok) {
                 setGeneralError(data.message)
@@ -64,11 +69,8 @@ const LoginPage = () => {
                 return
             }
 
-            const userData = {
-                nik: data.data.NIK,
-                role: data.data.role
-            }
-            sessionStorage.setItem('user', JSON.stringify(userData))
+            localStorage.setItem('token', token ?? '');
+            localStorage.setItem('device-id', deviceId ?? '');
 
             router.push('/')
         } catch (err) {
