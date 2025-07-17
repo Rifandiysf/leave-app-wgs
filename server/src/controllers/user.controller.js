@@ -101,13 +101,31 @@ export const getLeaveRequestsById = async (req, res) => {
 
 export const allUsers = async (req, res) => {
     try {
-        const dataUsers = await getAllUsers()
-        res.status(200).json(dataUsers)
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+
+        const dataUsers = await getAllUsers(page, limit);
+
+        res.status(200).json({
+            message: "Successfully retrieved leave data",
+            pagination: {
+                current_page: dataUsers.page,
+                last_visible_page: dataUsers.totalPages,
+                has_next_page: dataUsers.page < dataUsers.totalPages,
+                item: {
+                    count: dataUsers.data.length,
+                    total: dataUsers.total,
+                    per_page: limit
+                }
+            },
+            data: dataUsers.data,
+        });
     } catch (error) {
-        console.error(error)
-        res.status(500).json({ message: 'Failed to retrieve user data and leave quota.' })
+        console.error(error);
+        res.status(500).json({ message: 'Failed to retrieve user data and leave quota.' });
     }
-}
+};
+
 
 export const getUser = async (req, res) => {
     try {

@@ -167,7 +167,7 @@ export const getLeaveBalanceByYear = async (nik, year) => {
     })
 }
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (page, limit) => {
     const currentYear = new Date().getFullYear()
     const lastYear = new Date().getFullYear() - 1
 
@@ -179,7 +179,7 @@ export const getAllUsers = async () => {
 
     const leaveAmount = await prisma.tb_balance.findMany({
         where: {
-            receive_date : {
+            receive_date: {
                 gte: new Date(`${lastYear}-01-01`),
                 lte: new Date(`${currentYear}-12-31`)
             }
@@ -207,7 +207,17 @@ export const getAllUsers = async () => {
         }
     });
 
-    return result;
+    const total = result.length;
+    const totalPages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const paginatedResult = result.slice(start, start + limit);
+
+    return {
+        data: paginatedResult,
+        total,
+        totalPages,
+        page,
+    };
 };
 
 export const getUserByNIK = async (nik) => {
@@ -240,16 +250,16 @@ export const getUserByNIK = async (nik) => {
     });
 
     if (!user) {
-        const error =  new Error("user not found");
+        const error = new Error("user not found");
         error.statusCode = 404;
         throw error;
     }
-    
+
     const { tb_balance, NIK, fullname, gender, status_active } = user;
     const currentBalance = tb_balance[0] ? tb_balance[0].amount : 0;
-    const lastYearBalance =  tb_balance[1] ? tb_balance[1].amount : 0;
+    const lastYearBalance = tb_balance[1] ? tb_balance[1].amount : 0;
     let maxReceiveAmount = user.role === "karyawan_kontrak" ? 1 : 12;
- 
+
     const pending_request = await prisma.tb_leave.aggregate({
         _sum: {
             total_days: true
@@ -258,7 +268,7 @@ export const getUserByNIK = async (nik) => {
             created_at: {
                 gte: currentDateFirstMonth,
                 lte: currentDate
-            },  
+            },
             NIK: nik,
             status: "pending",
             leave_type: {
@@ -290,11 +300,11 @@ export const getUserByNIK = async (nik) => {
         gender: gender,
         status_active: status_active,
         role: user.role,
-        balance : {
+        balance: {
             total_amount: currentBalance + lastYearBalance || 0,
             current_amount: currentBalance,
             carried_amount: lastYearBalance,
-            days_used:  approved_request._sum.total_days  || 0,
+            days_used: approved_request._sum.total_days || 0,
             pending_request: pending_request._sum.total_days || 0,
         }
     }
@@ -314,7 +324,7 @@ export const updateUserByNIK = async (nik, data) => {
     })
 
     if (!updatedUser) {
-        const error =  new Error("user not found");
+        const error = new Error("user not found");
         error.statusCode = 404;
         throw error
     }
