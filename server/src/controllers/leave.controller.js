@@ -53,7 +53,7 @@ export const getAllLeaves = async (req, res) => {
 
     const leaves = await getAllLeavesService(page, limit)
 
-    res.status(201).json({
+    res.status(200).json({
       message: "All leave requests retrieved successfully",
       data: leaves
     })
@@ -120,7 +120,7 @@ export const getSpecialLeave = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10
     const specialLeaves = await getSpecialLeaveService(page, limit)
 
-    res.status(201).json({
+    res.status(200).json({
       message: "All special leave was successfully taken",
       data: specialLeaves
     })
@@ -139,7 +139,7 @@ export const getSearchSpecialLeave = async (req, res) => {
 
     const specialleave = await getSearchSpecialLeaveService(value, parseInt(page), parseInt(limit))
 
-    res.status(201).json({
+    res.status(200).json({
       message: 'Search special leave data retrieved successfully',
       data: specialleave
     })
@@ -177,7 +177,7 @@ export const updateSpecialLeave = async (req, res) => {
 
     const specialLeaves = await updateSpecialLeaveService(id, data)
 
-    res.status(201).json({
+    res.status(200).json({
       message: "Special leave updated successfully",
       data: specialLeaves
     })
@@ -206,8 +206,8 @@ export const createMandatoryLeave = async (req, res) => {
 
 export const getMandatoryLeaves = async (req, res) => {
   try {
-    const page = parseInt(req.query.page)
-    const limit = parseInt(req.query.limit)
+    const page = parseInt(req.query.page) || 10
+    const limit = parseInt(req.query.limit) | 1
     const mandatoryLeave = await getAllMandatoryLeavesService(page, limit);
     res.status(200).json({
       message: "All mandatory leave was successfully taken",
@@ -227,7 +227,7 @@ export const getSearchMandatoryLeave = async (req, res) => {
 
     const specialleave = await getSearchMandatoryLeaveService(value, parseInt(page), parseInt(limit))
 
-    res.status(201).json({
+    res.status(200).json({
       message: 'Search special leave data retrieved successfully',
       data: specialleave
     })
@@ -247,7 +247,7 @@ export const updateMandatoryLeave = async (req, res) => {
 
     const mandatoryLeave = await updateMandatoryLeaveService(id, data)
 
-    res.status(201).json({
+    res.status(200).json({
       message: "Mandatory leave updated successfully",
       data: mandatoryLeave
     })
