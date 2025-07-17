@@ -45,7 +45,6 @@ export const verifyToken = async (token, deviceId) => {
         });
 
         if (!oldToken) {
-            console.log("Token not found in database");
             return false;
         }
 

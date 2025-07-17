@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config/env.js';
 import { deleteToken } from '../services/auth.service.js';
-import { decodeToken } from '../utils/jwt.js';
+import { decodeToken, verifyToken } from '../utils/jwt.js';
 
 export const isAuthenticated = async (req, res, next) => {
     const header = req.get("authorization");
@@ -15,7 +15,9 @@ export const isAuthenticated = async (req, res, next) => {
 
         const decodedToken = await decodeToken(token);
 
-        if (!decodedToken) {
+        const isValid = await verifyToken(token);
+
+        if (!decodedToken || !isValid) {
             throw new Error("Invalid session: your authentication token is either incorrect or expired.");
         }
 
