@@ -24,4 +24,5 @@ leaveRoutes.post('/mandatory', validate(mandatoryLeaveForm), createMandatoryLeav
 leaveRoutes.patch('/mandatory/:id', validate(mandatoryLeaveFormUpdate), updateMandatoryLeave)
 
 leaveRoutes.patch('/:id', validate(updateLeaveRequestSchema), updateLeaveById)
+
 export default leaveRoutes;
