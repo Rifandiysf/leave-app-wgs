@@ -50,7 +50,12 @@ export const verifyToken = async (token) => {
 };
 
 export const decodeToken = async (token) => {
-    const decodeToken = jwt.decode(token, JWT_SECRET);
+    try {
+        const decodeToken = jwt.verify(token, JWT_SECRET);
 
-    return decodeToken;
+        return decodeToken;
+    } catch (error) {
+        throw error;
+    }
+    
 }

@@ -1,5 +1,7 @@
-import { deleteToken } from "../services/auth.service.js";
-import { decodeToken } from "../utils/jwt.js";
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../config/env.js';
+import { deleteToken } from '../services/auth.service.js';
+
 export const isAuthenticated = async (req, res, next) => {
     const header = req.get("authorization");
     const token = header?.split(' ')[1];
@@ -9,10 +11,10 @@ export const isAuthenticated = async (req, res, next) => {
             throw new Error("Authorization header not found");
         }
 
-        const decodedToken = await decodeToken(token);
+        const decodedToken = jwt.verify(token, JWT_SECRET);
         
         if (!decodedToken) {
-            throw new Error("Invalid Credentials");
+            throw new Error("Invalid session: your authentication token is either incorrect or expired.");
         }
 
         return next();
