@@ -33,22 +33,23 @@ export const updateLeaveById = async (req, res) => {
     })
 }}
 
+
 export const getAllLeaves = async (req, res) => {
-  try {
+    try {
+        const leaves = await getAllLeavesService();
 
-    const leaves = await getAllLeavesService()
+        res.status(200).json({ 
+            message: "Pending leave requests retrieved successfully",
+            data: leaves
+        });
 
-    res.status(201).json({
-      message: "All leave requests retrieved successfully",
-      data: leaves
-    })
-
-  } catch (error) {
-    res.status(400).json({
-      message: error.message
-    })
-  }
-}
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Failed to retrieve leave requests",
+            error: error.message
+        });
+    }
+};
 
 export const getLeavesByFilter = async (req, res) => {
   try {

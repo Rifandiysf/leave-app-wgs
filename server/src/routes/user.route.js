@@ -1,24 +1,30 @@
-import express from "express";
-import { createLeaveRequest, getLeaveRequestsById, getLeavesByFilter, allUsers, getUser, updateUser, deleteUser, getLeaveRequests} from "../controllers/user.controller.js";
-import { validate } from "../middlewares/validate.js";
-import leaveRequestSchema from "../validators/leave.validator.js";
-import { isAuthenticated } from "../middlewares/isAuthenticated.middleware.js";
-import { validateRole } from "../middlewares/validateRole.middleware.js";
-import { getAllUsers } from "../services/user.service.js";
-import { validateLeaveBalance } from "../middlewares/validateLeaveBalance.middleware.js";
-import { validateSpecialLeaveNotWeekend } from "../middlewares/validateSpecialLeaveNotWeekend.js";
+import express from 'express';
 
-const userRoutes = express.Router();
+import { 
+    allUsers, 
+    getUser, 
+    updateUser, 
+    deleteUser,
+    createLeaveRequest,
+    getLeaveRequests,
+    getLeavesByFilter,
+    getLeaveRequestsById,
+    filterUsers 
+} from '../controllers/user.controller.js';
 
-userRoutes.post('/leave', validate(leaveRequestSchema), validateLeaveBalance, validateSpecialLeaveNotWeekend, createLeaveRequest);
-userRoutes.get('/leave', getLeaveRequests);
-userRoutes.get('/leave/search', getLeavesByFilter);
-userRoutes.get('/leave/:id', getLeaveRequestsById);
+import { isAuthenticated } from '../middlewares/isAuthenticated.middleware.js';
 
-userRoutes.get('/:nik', getUser);
-userRoutes.patch('/:nik', updateUser);
-userRoutes.delete('/:nik', validateRole("admin", "super_admin"), deleteUser);
+const router = express.Router();
 
-userRoutes.get('/', allUsers);
+router.post('/leave', isAuthenticated, createLeaveRequest);
+router.get('/leave/requests', isAuthenticated, getLeaveRequests);
+router.get('/leave/filter', isAuthenticated, getLeavesByFilter);
+router.get('/leave/:id', isAuthenticated, getLeaveRequestsById);
 
-export default userRoutes;
+router.get('/', isAuthenticated, allUsers);
+router.get('/filter', isAuthenticated, filterUsers); 
+router.get('/:nik', isAuthenticated, getUser);       
+router.put('/:nik', isAuthenticated, updateUser);
+router.delete('/:nik', isAuthenticated, deleteUser);
+
+export default router;

@@ -5,6 +5,7 @@ import './globals.css'
 import Sidebar from './components/layout/sidebar'
 import Header from './components/layout/header'
 import { usePathname } from 'next/navigation'
+import axios from 'axios'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -21,16 +22,23 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+   axios.defaults.withCredentials = true;
+
   const pathname = usePathname()
   const hidePaths = ['/auth/login']
   const shouldHidden = hidePaths.includes(pathname)
+  const isAdminPath = pathname.startsWith('/admin')
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <section className='flex h-screen bg-white relative overflow-hidden'>
-          {!shouldHidden && <Sidebar role='admin' />}
+          {!shouldHidden && (
+            <Sidebar role={isAdminPath ? 'admin' : 'user'} />
+          )}
           <main className='flex-1 p-4 md:p-6 lg:p-10 overflow-y-auto w-full lg:w-auto'>
-            {!shouldHidden && <Header role='admin'/>}
+            {!shouldHidden && <Header role={isAdminPath ? 'admin' : 'user'} />}
+
             {children}
           </main>
         </section>

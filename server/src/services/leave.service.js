@@ -2,10 +2,44 @@ import { leave_type } from "../../generated/prisma/index.js";
 import prisma from "../utils/client.js";
 
 
-export const getAllLeavesService = async () => {
-    return await prisma.tb_leave.findMany({})
-}
 
+
+export const getAllLeavesService = async () => {
+    const pendingLeaves = await prisma.tb_leave.findMany({
+        where: {
+            status: 'pending'
+        },
+        orderBy: {
+            created_at: 'asc' 
+        }
+    });
+
+
+    const result = await Promise.all(
+        pendingLeaves.map(async (leave) => {
+            const user = await prisma.tb_users.findUnique({
+                where: { NIK: leave.NIK },
+                select: { fullname: true }
+            });
+
+
+            return {
+                id_leave: leave.id_leave,
+                name: user?.fullname || 'Unknown User', 
+                leave_type: leave.leave_type,
+                start_date: leave.start_date,
+                end_date: leave.end_date,
+                total_days: leave.total_days,
+                status: leave.status,
+                reason: leave.reason
+            };
+        })
+
+    );
+    
+
+    return result;
+};
 
 export const getLeavesByFilterService = async (type, value) => {
     const whereClause = {
@@ -88,7 +122,6 @@ export const updateLeave = async (id, status, reason, nik) => {
             maxAmountReceive = 1;
         }
 
-        // kondisi berdasarkan status leave saat ini dan status mendatang
         if (data.leave_type !== "special_leave") {
             if (data.status === "approved" && status === "rejected") {
                 currentBalance += data.total_days;
@@ -101,14 +134,14 @@ export const updateLeave = async (id, status, reason, nik) => {
             }
         }
 
-        // jika carried balance seteleah dikurangi hasilnya minus
+  
         if (carriedBalance < 0) {
             tempBalance = -1 * (carriedBalance)
             currentBalance -= tempBalance;
             carriedBalance = 0;
         }
 
-        // jika current balance setelah ditambah ternyata hasilnya lebih dari 12
+    
         if (currentBalance > maxAmountReceive) {
             tempBalance = currentBalance - maxAmountReceive
             carriedBalance += tempBalance;
@@ -124,9 +157,7 @@ export const updateLeave = async (id, status, reason, nik) => {
             }
         })
 
-        // update tabel leave
-        // update 2 record balance menggunakan variable carriedBalance dan currentBalance
-        // update tabel tb_leave_logs
+    
         const result = await prisma.$transaction([
             prisma.tb_leave.update({ where: { id_leave: id}, data: { status: status}}),
             prisma.tb_balance.update({ where: { id_balance: userBalance[0].id_balance }, data: { amount: currentBalance} }),
@@ -142,16 +173,13 @@ export const updateLeave = async (id, status, reason, nik) => {
         ])
 
         return result[0]
-        // console.log(result[0])
-        // console.log(result[1], result[2])
-        // console.log(`currentBalance: ${result[1].amount}\ncarriedBalance: ${result[2].amount}\ncurrentStatus: ${status} \npreviousStatus: ${data.status}`)
+
     } catch (error) {
         throw error;
     }
 }
 
 
-// updateLeave('c711b5c6-6a4c-4010-a909-4e59264373c1', 'approved', "disetujui oleh admin", "100005");
 
 
 
@@ -234,11 +262,11 @@ export const getHistoryLeave = async () => {
                 leave_type: leave.leave_type,
                 start_date: leave.start_date,
                 end_date: leave.end_date,
-                leave_used: leave.total_days,
+                total_days: leave.total_days,
                 status: leave.status
             }
         })
     )
-
+    
     return history
 }

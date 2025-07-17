@@ -1,47 +1,40 @@
-import { status } from "../../generated/prisma/index.js";
-import { fetchUserData } from "../services/auth.service.js";
 
-export const login = async (req, res, next) => {
-    const { email, password } = req.body
+
+import jwt from 'jsonwebtoken';
+import { SESSION_SECRET } from '../config/env.js';
+
+export const login = async (req, res) => {
     try {
         const user = req.user;
 
-        req.session.user = {
-            NIK: user.NIK, loginDate: (new Date()).toISOString(),
+        if (!user) {
+            return res.status(401).json({ message: "Autentikasi gagal. User tidak ditemukan." });
+        }
+
+        const payload = {
+            NIK: user.NIK,
+            email: user.email,
             role: user.role
         };
 
-        return res.status(200).json({
+        const token = jwt.sign(payload, SESSION_SECRET, { expiresIn: '1d' });
+
+        res.status(200).json({
             message: `Welcome ${user.fullname}`,
-            loginDate: req.session.user.loginDate,
-            data: user
-        })
-    } catch (error) {
-        return res.status(400).json({
-            message: error.message
+            token: token, 
+            data: {
+                NIK: user.NIK,
+                fullname: user.fullname,
+                role: user.role
+            }
         });
-    }
-}
 
-export const logout = (req, res, next) => {
-    try {
-        if (!req.session.user) {
-            throw new Error('invalid action');
-        }
-
-        req.session.destroy((err) => {
-            if (err) throw new Error(err.message);
-
-            res.clearCookie('connect.sid');
-            res.status(200).json({
-                message: "you have been logged out"
-            })
-        })
     } catch (error) {
-        res.status(400).json({
-            status: "failed",
-            message: error.message,
-            status_code: 400
-        })
+        console.error("Login controller error:", error);
+        res.status(500).json({ message: "Terjadi kesalahan pada server" });
     }
-}
+};
+
+export const logout = (req, res) => {
+    res.status(200).json({ message: "Logout berhasil" });
+};
