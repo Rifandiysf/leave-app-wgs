@@ -93,10 +93,11 @@ model tb_leave_log {
 
 model tb_jwt_token {
   access_token String   @id @db.VarChar(500)
-  NIK          String   @unique @db.VarChar(16)
+  NIK          String   @db.VarChar(16)
+  user_agent   String   @unique @db.VarChar(255)
   tb_users     tb_users @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
 }
-
+  
 enum applicable_gender {
   m
   f
