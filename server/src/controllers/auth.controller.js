@@ -26,13 +26,16 @@ export const login = async (req, res, next) => {
             NIK: user.NIK,
             email: user.email,
             fullname: user.fullname,
-            password: user.password,
             role: user.role,
+        }
+
+        const deviceData = {
             deviceInfo: deviceInfoData,
             deviceId: deviceId
         }
+        
 
-        const newToken = await generateToken(userData);
+        const newToken = await generateToken(userData, deviceData);
 
         res.setHeader('Authorization', `Bearer ${newToken}`);
         res.setHeader('device-id', deviceId);
