@@ -66,7 +66,8 @@ const LoginPage = () => {
 
             const userData = {
                 nik: data.data.NIK,
-                role: data.data.role
+                role: data.data.role,
+                token: data.token
             }
             sessionStorage.setItem('user', JSON.stringify(userData))
 
@@ -165,7 +166,7 @@ const LoginPage = () => {
                 </CardContent>
             </Card>
         </div>
-    )
+    )   
 }
 
 export default LoginPage
