@@ -9,7 +9,7 @@ datasource db {
 }
 
 model tb_balance {
-  id_balance   String   @id @db.VarChar(50) @default(uuid())
+  id_balance   String   @id @default(uuid()) @db.VarChar(50)
   amount       Int      @db.SmallInt
   receive_date DateTime @db.Date
   expired_date DateTime @db.Date
@@ -18,7 +18,7 @@ model tb_balance {
 }
 
 model tb_leave {
-  id_leave           String              @id @db.VarChar(50) @default(uuid())
+  id_leave           String              @id @default(uuid()) @db.VarChar(50)
   title              String              @db.VarChar(255)
   leave_type         leave_type
   start_date         DateTime            @db.Date
@@ -26,7 +26,7 @@ model tb_leave {
   total_days         Int                 @db.SmallInt
   reason             String
   status             status              @default(pending)
-  created_at         DateTime            @db.Timestamptz(0) @default(now())
+  created_at         DateTime            @default(now()) @db.Timestamptz(0)
   NIK                String              @db.VarChar(50)
   id_special         String?             @db.VarChar(50)
   id_mandatory       String?             @db.VarChar(50)
@@ -37,7 +37,7 @@ model tb_leave {
 }
 
 model tb_mandatory_leave {
-  id_mandatory String     @id @db.VarChar(50) @default(uuid())
+  id_mandatory String     @id @default(uuid()) @db.VarChar(50)
   title        String     @db.VarChar(255)
   duration     Int        @db.SmallInt
   is_active    Boolean    @default(true)
@@ -46,7 +46,7 @@ model tb_mandatory_leave {
 }
 
 model tb_special_leave {
-  id_special        String            @id @db.VarChar(50) @default(uuid())
+  id_special        String            @id @default(uuid()) @db.VarChar(50)
   title             String            @db.VarChar(255)
   applicable_gender applicable_gender
   duration          Int               @db.SmallInt
@@ -67,10 +67,11 @@ model tb_users {
   tb_balance            tb_balance[]
   tb_balance_adjustment tb_balance_adjustment[]
   tb_leave              tb_leave[]
+  tb_jwt_token          tb_jwt_token[]
 }
 
 model tb_balance_adjustment {
-  id_adjustment    String   @id @db.VarChar(50) @default(uuid())
+  id_adjustment    String   @id @default(uuid()) @db.VarChar(50)
   adjustment_value Int      @db.SmallInt
   notes            String
   created_at       DateTime @db.Timestamptz(0)
@@ -80,7 +81,7 @@ model tb_balance_adjustment {
 }
 
 model tb_leave_log {
-  id_log         String   @id @db.VarChar(50) @default(uuid())
+  id_log         String   @id @default(uuid()) @db.VarChar(50)
   old_status     status
   new_status     status
   reason         String
@@ -90,10 +91,16 @@ model tb_leave_log {
   tb_leave       tb_leave @relation(fields: [id_leave], references: [id_leave], onDelete: NoAction, onUpdate: NoAction, map: "id_leave")
 }
 
+model tb_jwt_token {
+  access_token String   @id @db.VarChar(500)
+  NIK          String   @unique @db.VarChar(16)
+  tb_users     tb_users @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
+}
+
 enum applicable_gender {
   m
   f
-  mf 
+  mf
 }
 
 enum gender {
