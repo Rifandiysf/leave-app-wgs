@@ -110,11 +110,12 @@ export const allUsers = async (req, res) => {
 }
 
 export const getUser = async (req, res) => {
-    const { nik } = req.params;
-    const decode = await decodeToken(req.get("authorization").split(' ')[1]);
-    const { role, NIK } = decode;
-    const isAdmin = ["admin", "super_admin"].includes(role);
     try {
+        const decode = await decodeToken(req.get("authorization").split(' ')[1]);
+        const { role, NIK } = decode;
+        const { nik } = req.params;
+        const isAdmin = ["admin", "super_admin"].includes(role);
+
         if (!isAdmin) {
             if (NIK !== nik) {
                 const err = new Error("User requested has no permission");

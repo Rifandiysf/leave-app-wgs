@@ -21,7 +21,7 @@ const corsOption = ['http://localhost:3000', 'http://10.10.101.178:3000']
 app.use(cors({
     origin: corsOption,
     credentials: true,
-    exposedHeaders: ["Authorization"]
+    exposedHeaders: ["Authorization", "device-id"]
 }))
 
 app.use('/api/v1/', routes);

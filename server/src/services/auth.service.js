@@ -14,13 +14,14 @@ export const fetchUserData = async (params, uniqueId) => {
     }
 }
 
-export const addToken = async (token, nik, deviceInfo) => {
+export const addToken = async (token, nik, deviceInfo, deviceId) => {
     try {
         const addedToken = await prisma.tb_jwt_token.create({
             data: {
                 access_token: token,
                 NIK: nik,
-                user_agent: deviceInfo,
+                device_info: deviceInfo,
+                device_id: deviceId
             }
         })
 
@@ -30,15 +31,14 @@ export const addToken = async (token, nik, deviceInfo) => {
     }
 }
 
-export const deleteToken = async (token, deviceInfo) => {
+export const deleteToken = async (nik, deviceId) => {
     try {
-        const deletedToken = await prisma.tb_jwt_token.delete({
+        const deletedToken = await prisma.tb_jwt_token.deleteMany({
             where: {
-                access_token: token,
-                user_agent: deviceInfo
+                NIK: nik,
+                device_id: deviceId
             }
         })
-
         return deletedToken;
     } catch (error) {
         error.message = "Invalid token";

@@ -92,9 +92,10 @@ model tb_leave_log {
 }
 
 model tb_jwt_token {
-  access_token String   @id @db.VarChar(500)
+  device_info   String  @db.VarChar(255)
+  device_id     String  @unique @db.VarChar(255) 
   NIK          String   @db.VarChar(16)
-  user_agent   String   @unique @db.VarChar(255)
+  access_token String   @id @db.VarChar(500)
   tb_users     tb_users @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
 }
   

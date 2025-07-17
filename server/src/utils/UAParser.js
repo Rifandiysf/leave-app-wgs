@@ -3,7 +3,6 @@ import { UAParser } from 'ua-parser-js'
 export const getDeviceInfo = async (userAgentString) => {
     const parser = new UAParser();
     const result = parser.setUA(userAgentString).getResult();
-    console.log(result.device);
     return {
         ua: result.ua,
         browser: {

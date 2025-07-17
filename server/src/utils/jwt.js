@@ -3,33 +3,26 @@ import { addToken, deleteToken } from '../services/auth.service.js';
 import { JWT_SECRET } from '../config/env.js';
 import prisma from './client.js';
 
-export const generateToken = async (payload, expiresIn = '50s') => {
+export const generateToken = async (payload, expiresIn = '24h') => {
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn });
-    const newToken = await addToken(token, payload.NIK, payload.deviceInfo);
+    const newToken = await addToken(token, payload.NIK, payload.deviceInfo, payload.deviceId);
     if (!newToken) {
         const oldToken = await prisma.tb_jwt_token.findFirst({
             where: {
-                access_token: token,
                 NIK: payload.NIK,
-                user_agent: payload.deviceInfo
+                device_id: payload.deviceId
             }
         });
 
-        console.log(payload.deviceInfo)
-
         if (!oldToken) {
-            const newToken2 = await addToken(token, payload.NIK, payload.deviceInfo);
-            console.log(newToken2)
+            const overlappToken = await addToken(token, payload.NIK, payload.deviceInfo, payload.deviceId);
             return;
         }
 
-        console.log("adasd");
-
-
-        if (!await verifyToken(oldToken.access_token, oldToken.user_agent)) {
+        if (!await verifyToken(oldToken.access_token, oldToken.device_id)) {
             await prisma.$transaction(async (tx) => {
-                await deleteToken(oldToken.access_token, oldToken.user_agent, tx);
-                await addToken(token, payload.NIK, payload.deviceInfo,tx);
+                await deleteToken(oldToken.NIK, oldToken.device_id, tx);
+                await addToken(token, payload.NIK, payload.deviceInfo, payload.deviceId, tx);
             });
         } else {
             const error = new Error("User already logged in");
@@ -41,13 +34,13 @@ export const generateToken = async (payload, expiresIn = '50s') => {
     return token;
 }
 
-export const verifyToken = async (token, deviceInfo) => {
+export const verifyToken = async (token, deviceId) => {
     if (!token) return false;
     try {
         const oldToken = await prisma.tb_jwt_token.findFirst({
             where: {
                 access_token: token,
-                user_agent: deviceInfo
+                device_id: deviceId
             }
         });
 
