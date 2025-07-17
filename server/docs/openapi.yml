@@ -8,13 +8,13 @@
     },
   "paths":
     {
-      "/auth/login":
+      "/api/v1/auth/login":
         {
           "post":
             {
-              "summary": "Login user",
+              "summary": "Login",
+              "description": "Login user menggunakan email dan password",
               "tags": ["Auth"],
-              "description": "Login user dan menyimpan session di server.",
               "requestBody":
                 {
                   "required": true,
@@ -25,181 +25,86 @@
                           "schema":
                             {
                               "type": "object",
-                              "required": ["email", "password"],
                               "properties":
                                 {
                                   "email":
-                                    {
-                                      "type": "string",
-                                      "format": "email",
-                                      "example": "user@example.com",
-                                    },
+                                    { "type": "string", "format": "email" },
                                   "password":
                                     {
                                       "type": "string",
-                                      "minLength": 4,
-                                      "example": "yourpassword",
+                                      "minLength": 8,
+                                      "maxLength": 16,
                                     },
                                 },
+                              "required": ["email", "password"],
                             },
                         },
                     },
                 },
               "responses":
                 {
-                  "201":
+                  "200":
                     {
                       "description": "Login berhasil",
                       "content":
                         {
                           "application/json":
                             {
-                              "schema":
+                              "example":
                                 {
-                                  "type": "object",
-                                  "properties":
+                                  "success": true,
+                                  "message": "Welcome John Doe",
+                                  "data":
                                     {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Welcome John Doe",
-                                        },
-                                      "loginDate":
-                                        {
-                                          "type": "string",
-                                          "format": "date-time",
-                                          "example": "2025-07-11T07:00:00.000Z",
-                                        },
-                                      "data":
-                                        {
-                                          "type": "object",
-                                          "properties":
-                                            {
-                                              "NIK":
-                                                {
-                                                  "type": "string",
-                                                  "example": "123456",
-                                                },
-                                              "fullname":
-                                                {
-                                                  "type": "string",
-                                                  "example": "John Doe",
-                                                },
-                                              "email":
-                                                {
-                                                  "type": "string",
-                                                  "example": "user@example.com",
-                                                },
-                                              "role":
-                                                {
-                                                  "type": "string",
-                                                  "example": "admin",
-                                                },
-                                            },
-                                        },
+                                      "nik": "12345678",
+                                      "name": "John Doe",
+                                      "role": "admin",
                                     },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Email dan password tidak cocok atau user tidak ditemukan",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example":
+                                {
+                                  "status": "failed",
+                                  "message": "Email and password are not matched.",
+                                  "status_code": 400,
                                 },
                             },
                         },
                     },
                   "401":
                     {
-                      "description": "Role tidak diizinkan (misalnya magang)",
+                      "description": "User tidak aktif atau role tidak diperbolehkan",
                       "content":
                         {
                           "application/json":
                             {
-                              "schema":
+                              "examples":
                                 {
-                                  "type": "object",
-                                  "properties":
+                                  "Resign":
                                     {
-                                      "message":
+                                      "value":
                                         {
-                                          "type": "string",
-                                          "example": "Invalid role",
+                                          "status": "failed",
+                                          "message": "Account is inactive",
+                                          "status_code": 401,
                                         },
                                     },
-                                },
-                            },
-                        },
-                    },
-                  "404":
-                    {
-                      "description": "User tidak ditemukan (email tidak terdaftar)",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
+                                  "Role tidak diizinkan":
                                     {
-                                      "message":
+                                      "value":
                                         {
-                                          "type": "string",
-                                          "example": "user not found",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "422":
-                    {
-                      "description": "Validasi form gagal (Zod)",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "errors":
-                                        {
-                                          "type": "array",
-                                          "items":
-                                            {
-                                              "type": "object",
-                                              "properties":
-                                                {
-                                                  "field":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "email",
-                                                    },
-                                                  "message":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "Invalid email address",
-                                                    },
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "500":
-                    {
-                      "description": "Internal server error",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Internal server error",
+                                          "status": "failed",
+                                          "message": "Your role does not have access to this system.",
+                                          "status_code": 401,
                                         },
                                     },
                                 },
@@ -209,13 +114,14 @@
                 },
             },
         },
-      "/auth/logout":
+      "/api/v1/auth/logout":
         {
           "get":
             {
-              "summary": "Logout user",
+              "summary": "Logout",
+              "description": "Logout user dan hapus token dari database",
               "tags": ["Auth"],
-              "description": "Menghapus session user dari server",
+              "security": [{ "bearerAuth": [] }],
               "responses":
                 {
                   "200":
@@ -225,39 +131,43 @@
                         {
                           "application/json":
                             {
-                              "schema":
+                              "example":
                                 {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Successfully logged out",
-                                        },
-                                    },
+                                  "success": true,
+                                  "message": "You have been successfully logged out.",
+                                },
+                            },
+                        },
+                    },
+                  "408":
+                    {
+                      "description": "Token expired atau tidak valid",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example":
+                                {
+                                  "status": false,
+                                  "status_code": 408,
+                                  "message": "Unauthorized. Please login to access this resource.",
+                                  "detail": "Login session expired",
                                 },
                             },
                         },
                     },
                   "400":
                     {
-                      "description": "Belum login (session tidak ada)",
+                      "description": "Error lain saat logout",
                       "content":
                         {
                           "application/json":
                             {
-                              "schema":
+                              "example":
                                 {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Unauthorized. Please login to access this resource.",
-                                        },
-                                    },
+                                  "status": "failed",
+                                  "message": "Something went wrong.",
+                                  "status_code": 400,
                                 },
                             },
                         },
@@ -1207,430 +1117,61 @@
                 },
             },
         },
-      "/users/":
+      "/api/v1/users":
         {
           "get":
             {
-              "summary": "Ambil semua data user dan balance cuti",
               "tags": ["Dashboard admin"],
-              "description": "Hanya dapat diakses oleh role admin dan super_admin. Mengembalikan data user termasuk cuti tahun ini dan tahun lalu.",
-              "responses":
-                {
-                  "201":
-                    {
-                      "description": "Data user berhasil diambil",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "array",
-                                  "items":
-                                    {
-                                      "type": "object",
-                                      "properties":
-                                        {
-                                          "nik":
-                                            {
-                                              "type": "string",
-                                              "example": "123456",
-                                            },
-                                          "name":
-                                            {
-                                              "type": "string",
-                                              "example": "Ahmad Yusuf",
-                                            },
-                                          "gender":
-                                            {
-                                              "type": "string",
-                                              "example": "male",
-                                            },
-                                          "last_year_leave":
-                                            { "type": "integer", "example": 5 },
-                                          "this_year_leave":
-                                            {
-                                              "type": "integer",
-                                              "example": 12,
-                                            },
-                                          "leave_total":
-                                            {
-                                              "type": "integer",
-                                              "example": 17,
-                                            },
-                                          "role":
-                                            {
-                                              "type": "string",
-                                              "example": "karyawan_tetap",
-                                            },
-                                          "status":
-                                            {
-                                              "type": "string",
-                                              "example": "active",
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "403":
-                    {
-                      "description": "User tidak memiliki role yang diizinkan",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Access denied.",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "500":
-                    {
-                      "description": "Gagal mengambil data user dari server",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Failed to retrieve user data and leave quota.",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "401":
-                    {
-                      "description": "Belum login (unauthorized)",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Unauthorized. Please login to access this resource.",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-      "/leaves":
-        {
-          "get":
-            {
-              "summary": "Ambil semua data cuti",
-              "tags": ["Dashboard admin"],
-              "description": "Mengembalikan seluruh data pengajuan cuti dari database. Hanya untuk role: super_admin dan admin.",
-              "responses":
-                {
-                  "201":
-                    {
-                      "description": "Data cuti berhasil diambil",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "All leave requests retrieved successfully",
-                                        },
-                                      "data":
-                                        {
-                                          "type": "array",
-                                          "items":
-                                            {
-                                              "type": "object",
-                                              "properties":
-                                                {
-                                                  "id_leave":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "lv001",
-                                                    },
-                                                  "NIK":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "123456",
-                                                    },
-                                                  "title":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "Libur nasional",
-                                                    },
-                                                  "leave_type":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "mandatory_leave",
-                                                    },
-                                                  "start_date":
-                                                    {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "example": "2025-07-01",
-                                                    },
-                                                  "end_date":
-                                                    {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "example": "2025-07-03",
-                                                    },
-                                                  "reason":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "Hari raya keagamaan",
-                                                    },
-                                                  "status":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "approved",
-                                                    },
-                                                  "total_days":
-                                                    {
-                                                      "type": "integer",
-                                                      "example": 3,
-                                                    },
-                                                  "id_special":
-                                                    {
-                                                      "type": "string",
-                                                      "nullable": true,
-                                                      "example": null,
-                                                    },
-                                                  "id_mandatory":
-                                                    {
-                                                      "type": "string",
-                                                      "nullable": true,
-                                                      "example": "md101",
-                                                    },
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "401":
-                    {
-                      "description": "Unauthorized - belum login",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Unauthorized. Please login to access this resource.",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "403":
-                    {
-                      "description": "User tidak memiliki izin role",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Access denied.",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-      "/leaves/search":
-        {
-          "get":
-            {
-              "summary": "Cari dan filter daftar cuti (status pending)",
-              "tags": ["Dashboard admin"],
-              "description": "Mengembalikan daftar cuti dengan status `pending`, berdasarkan `type` dan/atau pencarian `value`. Hanya bisa diakses oleh `admin` atau `super_admin`.",
+              "summary": "Ambil semua data user dan sisa cuti",
+              "description": "Mengembalikan daftar user dengan informasi sisa cuti tahun ini dan tahun lalu. Hanya dapat diakses oleh user dengan role 'admin' atau 'super_admin'. Wajib login menggunakan token JWT.",
+              "security": [{ "bearerAuth": [] }],
               "parameters":
                 [
                   {
-                    "name": "value",
+                    "name": "page",
                     "in": "query",
+                    "description": "Nomor halaman untuk pagination",
                     "required": false,
-                    "description": "Kata kunci untuk pencarian berdasarkan judul cuti (title)",
-                    "schema": { "type": "string", "example": "keluarga" },
+                    "schema": { "type": "integer", "default": 1 },
                   },
                   {
-                    "name": "type",
+                    "name": "limit",
                     "in": "query",
+                    "description": "Jumlah data per halaman",
                     "required": false,
-                    "description": "Jenis cuti: personal, mandatory, atau special",
-                    "schema":
-                      {
-                        "type": "string",
-                        "enum": ["personal", "mandatory", "special"],
-                        "example": "personal",
-                      },
+                    "schema": { "type": "integer", "default": 10 },
                   },
                 ],
               "responses":
                 {
                   "200":
                     {
-                      "description": "Data berhasil difilter dan dikembalikan",
+                      "description": "Berhasil mengambil data user dan sisa cuti",
                       "content":
                         {
                           "application/json":
                             {
-                              "schema":
+                              "example":
                                 {
-                                  "type": "object",
-                                  "properties":
+                                  "message": "Sucessfullt retrieved leave data",
+                                  "data":
                                     {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Filtered leave data retrieved successfully",
-                                        },
                                       "data":
-                                        {
-                                          "type": "array",
-                                          "items":
-                                            {
-                                              "type": "object",
-                                              "properties":
-                                                {
-                                                  "id_leave":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "lv001",
-                                                    },
-                                                  "NIK":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "123456",
-                                                    },
-                                                  "title":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "Keperluan keluarga",
-                                                    },
-                                                  "leave_type":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "personal_leave",
-                                                    },
-                                                  "start_date":
-                                                    {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "example": "2025-07-01",
-                                                    },
-                                                  "end_date":
-                                                    {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "example": "2025-07-03",
-                                                    },
-                                                  "reason":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "Mengantar orang tua ke rumah sakit",
-                                                    },
-                                                  "status":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "pending",
-                                                    },
-                                                  "total_days":
-                                                    {
-                                                      "type": "integer",
-                                                      "example": 3,
-                                                    },
-                                                  "id_special":
-                                                    {
-                                                      "type": "string",
-                                                      "nullable": true,
-                                                      "example": null,
-                                                    },
-                                                  "id_mandatory":
-                                                    {
-                                                      "type": "string",
-                                                      "nullable": true,
-                                                      "example": null,
-                                                    },
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "400":
-                    {
-                      "description": "Terjadi kesalahan saat pemrosesan filter",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Invalid leave type. Allowed values: personal, mandatory, special",
-                                        },
+                                        [
+                                          {
+                                            "nik": "1234567890",
+                                            "name": "John Doe",
+                                            "gender": "male",
+                                            "last_year_leave": 3,
+                                            "this_year_leave": 12,
+                                            "leave_total": 15,
+                                            "role": "karyawan_tetap",
+                                            "status": "active",
+                                          },
+                                        ],
+                                      "total": 1,
+                                      "totalPages": 1,
+                                      "page": 1,
                                     },
                                 },
                             },
@@ -1638,44 +1179,40 @@
                     },
                   "403":
                     {
-                      "description": "Akses ditolak karena bukan admin",
+                      "description": "Akses ditolak karena role tidak sesuai",
+                      "content":
+                        {
+                          "application/json":
+                            { "example": { "message": "Access denied." } },
+                        },
+                    },
+                  "408":
+                    {
+                      "description": "Token expired atau tidak valid",
                       "content":
                         {
                           "application/json":
                             {
-                              "schema":
+                              "example":
                                 {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Access denied.",
-                                        },
-                                    },
+                                  "status": false,
+                                  "status_code": 408,
+                                  "message": "Unauthorized. Please login to access this resource.",
+                                  "detail": "Login session expired",
                                 },
                             },
                         },
                     },
-                  "401":
+                  "500":
                     {
-                      "description": "Belum login (unauthorized)",
+                      "description": "Kesalahan saat mengambil data user",
                       "content":
                         {
                           "application/json":
                             {
-                              "schema":
+                              "example":
                                 {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Unauthorized. Please login to access this resource.",
-                                        },
-                                    },
+                                  "message": "Failed to retrieve user data and leave quota.",
                                 },
                             },
                         },
@@ -1683,21 +1220,235 @@
                 },
             },
         },
-      "/leaves/{id}":
+      "/api/v1/leaves":
+        {
+          "get":
+            {
+              "summary": "Ambil semua data cuti (leaves)",
+              "description": "Endpoint ini hanya dapat diakses oleh user dengan role 'admin' atau 'super_admin'. Wajib login (JWT). Mendukung pagination.",
+              "tags": ["Dashboard admin"],
+              "security": [{ "bearerAuth": [] }],
+              "parameters":
+                [
+                  {
+                    "name": "page",
+                    "in": "query",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 1 },
+                  },
+                  {
+                    "name": "limit",
+                    "in": "query",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 10 },
+                  },
+                ],
+              "responses":
+                {
+                  "201":
+                    {
+                      "description": "Berhasil mengambil semua data cuti",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example":
+                                {
+                                  "message": "All leave requests retrieved successfully",
+                                  "data":
+                                    [
+                                      {
+                                        "id_leave": "uuid",
+                                        "title": "Cuti Tahunan",
+                                        "leave_type": "personal_leave",
+                                        "start_date": "2025-07-01",
+                                        "end_date": "2025-07-02",
+                                        "total_days": 2,
+                                        "reason": "Liburan",
+                                        "status": "pending",
+                                        "created_at": "2025-06-25T10:00:00.000Z",
+                                        "NIK": "1234567890",
+                                        "id_special": null,
+                                        "id_mandatory": null,
+                                      },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Terjadi kesalahan saat mengambil data",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example": { "message": "Internal server error" },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Akses ditolak karena role tidak sesuai",
+                      "content":
+                        {
+                          "application/json":
+                            { "example": { "message": "Access denied." } },
+                        },
+                    },
+                  "408":
+                    {
+                      "description": "Token expired atau tidak valid",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example":
+                                {
+                                  "status": false,
+                                  "status_code": 408,
+                                  "message": "Unauthorized. Please login to access this resource.",
+                                  "detail": "Login session expired",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/api/v1/leaves/search":
+        {
+          "get":
+            {
+              "summary": "Cari data cuti berdasarkan filter",
+              "description": "Hanya user dengan role 'admin' atau 'super_admin' yang dapat mengakses. Data difilter berdasarkan 'type' dan 'value'. Hanya status 'pending' yang ditampilkan.",
+              "tags": ["Dashboard admin"],
+              "security": [{ "bearerAuth": [] }],
+              "parameters":
+                [
+                  {
+                    "name": "value",
+                    "in": "query",
+                    "required": false,
+                    "schema": { "type": "string" },
+                    "description": "Kata kunci pencarian (misal: judul)",
+                  },
+                  {
+                    "name": "type",
+                    "in": "query",
+                    "required": false,
+                    "schema":
+                      {
+                        "type": "string",
+                        "enum": ["personal", "mandatory", "special"],
+                      },
+                    "description": "Tipe cuti yang difilter",
+                  },
+                  {
+                    "name": "page",
+                    "in": "query",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 1 },
+                  },
+                  {
+                    "name": "limit",
+                    "in": "query",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 10 },
+                  },
+                ],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Berhasil mengambil data cuti yang difilter",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example":
+                                {
+                                  "message": "Filtered leave data retrieved successfully",
+                                  "data":
+                                    [
+                                      {
+                                        "id_leave": "uuid",
+                                        "title": "Cuti Khusus",
+                                        "leave_type": "special_leave",
+                                        "start_date": "2025-08-10",
+                                        "end_date": "2025-08-12",
+                                        "total_days": 3,
+                                        "reason": "Acara keluarga",
+                                        "status": "pending",
+                                        "created_at": "2025-08-01T09:00:00.000Z",
+                                        "NIK": "9876543210",
+                                        "id_special": "spc001",
+                                        "id_mandatory": null,
+                                      },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Kesalahan input filter atau validasi",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example":
+                                {
+                                  "message": "Invalid leave type. Allowed values: personal, mandatory, special",
+                                },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Akses ditolak karena role tidak sesuai",
+                      "content":
+                        {
+                          "application/json":
+                            { "example": { "message": "Access denied." } },
+                        },
+                    },
+                  "408":
+                    {
+                      "description": "Token expired atau tidak valid",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example":
+                                {
+                                  "status": false,
+                                  "status_code": 408,
+                                  "message": "Unauthorized. Please login to access this resource.",
+                                  "detail": "Login session expired",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/api/v1/leaves/{id}":
         {
           "patch":
             {
-              "summary": "Ubah status pengajuan cuti",
               "tags": ["Dashboard admin"],
-              "description": "Admin atau Super Admin dapat mengubah status cuti (approved/rejected). Secara otomatis memperbarui balance cuti dan menyimpan riwayat log perubahan.",
+              "summary": "Update status cuti berdasarkan ID",
+              "description": "Admin dan Super Admin dapat menyetujui atau menolak cuti. Update akan mempengaruhi balance (sisa cuti) dan membuat log di tb_leave_log.",
+              "security": [{ "bearerAuth": [] }],
               "parameters":
                 [
                   {
                     "name": "id",
                     "in": "path",
+                    "description": "ID leave yang ingin di-update",
                     "required": true,
-                    "description": "ID dari data cuti yang ingin diubah",
-                    "schema": { "type": "string", "example": "lv002" },
+                    "schema": { "type": "string" },
                   },
                 ],
               "requestBody":
@@ -1710,168 +1461,77 @@
                           "schema":
                             {
                               "type": "object",
-                              "required": ["status", "reason"],
                               "properties":
                                 {
                                   "status":
-                                    {
-                                      "type": "string",
-                                      "enum": ["approved", "rejected"],
-                                      "example": "approved",
-                                    },
-                                  "reason":
-                                    {
-                                      "type": "string",
-                                      "description": "Alasan perubahan status",
-                                      "example": "Validasi dokumen sudah lengkap",
-                                    },
+                                    { "$ref": "#/components/schemas/status" },
+                                  "reason": { "type": "string" },
                                 },
+                              "required": ["status", "reason"],
+                            },
+                          "example":
+                            {
+                              "status": "approved",
+                              "reason": "Semua dokumen sudah lengkap dan sesuai",
                             },
                         },
                     },
                 },
               "responses":
                 {
-                  "201":
+                  "200":
                     {
-                      "description": "Status berhasil diperbarui dan balance cuti disesuaikan",
+                      "description": "Berhasil memperbarui status cuti",
                       "content":
                         {
                           "application/json":
                             {
-                              "schema":
+                              "example":
                                 {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "status":
-                                        {
-                                          "type": "string",
-                                          "example": "Success",
-                                        },
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Successfully updated leave data",
-                                        },
-                                      "data":
-                                        {
-                                          "type": "object",
-                                          "properties":
-                                            {
-                                              "updated_leave":
-                                                {
-                                                  "type": "object",
-                                                  "properties":
-                                                    {
-                                                      "id_leave":
-                                                        {
-                                                          "type": "string",
-                                                          "example": "lv002",
-                                                        },
-                                                      "status":
-                                                        {
-                                                          "type": "string",
-                                                          "example": "approved",
-                                                        },
-                                                    },
-                                                },
-                                            },
-                                        },
-                                    },
+                                  "status": "Success",
+                                  "message": "Successfully updated leave data",
+                                  "data": { "new data": "new data" },
                                 },
                             },
                         },
                     },
                   "400":
                     {
-                      "description": "Gagal memperbarui status",
+                      "description": "Gagal memperbarui cuti (misalnya ID tidak ditemukan, status tidak valid)",
                       "content":
                         {
                           "application/json":
                             {
-                              "schema":
+                              "example":
                                 {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "status":
-                                        {
-                                          "type": "string",
-                                          "example": "failed",
-                                        },
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "failed updated leave data",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "401":
-                    {
-                      "description": "Unauthorized - belum login",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Unauthorized. Please login to access this resource.",
-                                        },
-                                    },
+                                  "status": "failed",
+                                  "message": "failed updated leave data",
                                 },
                             },
                         },
                     },
                   "403":
                     {
-                      "description": "Forbidden - bukan role admin/super_admin",
+                      "description": "Akses ditolak karena role tidak sesuai",
                       "content":
                         {
                           "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Access denied.",
-                                        },
-                                    },
-                                },
-                            },
+                            { "example": { "message": "Access denied." } },
                         },
                     },
-                  "404":
+                  "408":
                     {
-                      "description": "Data cuti tidak ditemukan",
+                      "description": "Token expired atau tidak valid",
                       "content":
                         {
                           "application/json":
                             {
-                              "schema":
+                              "example":
                                 {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Leave not found",
-                                        },
-                                    },
+                                  "status": false,
+                                  "status_code": 408,
+                                  "message": "Unauthorized. Please login to access this resource.",
+                                  "detail": "Login session expired",
                                 },
                             },
                         },
@@ -1879,53 +1539,264 @@
                 },
             },
         },
-      "/leaves/special":
+      "/api/v1/leaves/logs":
         {
           "get":
             {
-              "summary": "Ambil semua data cuti khusus",
-              "description": "Endpoint ini digunakan untuk mengambil seluruh data cuti khusus dari database.",
               "tags": ["Dashboard admin"],
+              "summary": "Ambil riwayat cuti seluruh karyawan",
+              "description": "Mengambil semua riwayat cuti dari seluruh karyawan, hanya dapat diakses oleh admin dan super_admin.",
+              "security": [{ "bearerAuth": [] }],
+              "parameters":
+                [
+                  {
+                    "name": "page",
+                    "in": "query",
+                    "description": "Nomor halaman",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 1 },
+                  },
+                  {
+                    "name": "limit",
+                    "in": "query",
+                    "description": "Jumlah item per halaman",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 10 },
+                  },
+                ],
               "responses":
                 {
-                  "201":
+                  "200":
                     {
-                      "description": "Data cuti khusus berhasil diambil",
+                      "description": "Berhasil mengambil riwayat cuti",
                       "content":
                         {
                           "application/json":
                             {
-                              "schema":
+                              "example":
                                 {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "All special leave was successfully taken",
-                                        },
-                                      "data":
-                                        {
-                                          "type": "array",
-                                          "items":
-                                            {
-                                              "$ref": "#/components/schemas/tb_special_leave",
-                                            },
-                                        },
-                                    },
+                                  "succes": true,
+                                  "data":
+                                    [
+                                      {
+                                        "name": "John Doe",
+                                        "leave_type": "personal_leave",
+                                        "start_date": "2025-05-01",
+                                        "end_date": "2025-05-03",
+                                        "leave_used": 3,
+                                        "status": "approved",
+                                      },
+                                    ],
                                 },
                             },
                         },
                     },
-                  "400": { "description": "Gagal mengambil data cuti khusus" },
+                  "403":
+                    {
+                      "description": "Akses ditolak karena role tidak sesuai",
+                      "content":
+                        {
+                          "application/json":
+                            { "example": { "message": "Access denied." } },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Kesalahan server saat mengambil data riwayat cuti",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example":
+                                { "succes": false, "message": "Server Error" },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/api/v1/leaves/logs/search":
+        {
+          "get":
+            {
+              "tags": ["Dashboard admin"],
+              "summary": "Cari riwayat cuti berdasarkan filter",
+              "description": "Admin dan Super Admin dapat mencari riwayat cuti berdasarkan nama, tipe cuti, dan status.",
+              "security": [{ "bearerAuth": [] }],
+              "parameters":
+                [
+                  {
+                    "name": "value",
+                    "in": "query",
+                    "description": "Kata kunci nama karyawan",
+                    "required": false,
+                    "schema": { "type": "string" },
+                  },
+                  {
+                    "name": "type",
+                    "in": "query",
+                    "description": "Tipe cuti (personal_leave, mandatory_leave, special_leave)",
+                    "required": false,
+                    "schema":
+                      {
+                        "type": "string",
+                        "enum":
+                          [
+                            "personal_leave",
+                            "mandatory_leave",
+                            "special_leave",
+                          ],
+                      },
+                  },
+                  {
+                    "name": "status",
+                    "in": "query",
+                    "description": "Status cuti (pending, approved, rejected)",
+                    "required": false,
+                    "schema":
+                      {
+                        "type": "string",
+                        "enum": ["pending", "approved", "rejected"],
+                      },
+                  },
+                  {
+                    "name": "page",
+                    "in": "query",
+                    "description": "Nomor halaman",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 1 },
+                  },
+                  {
+                    "name": "limit",
+                    "in": "query",
+                    "description": "Jumlah item per halaman",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 10 },
+                  },
+                ],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Berhasil mengambil data riwayat cuti yang difilter",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example":
+                                {
+                                  "success": true,
+                                  "data":
+                                    [
+                                      {
+                                        "name": "Jane Smith",
+                                        "leave_type": "special_leave",
+                                        "start_date": "2025-04-01",
+                                        "end_date": "2025-04-02",
+                                        "leave_used": 2,
+                                        "status": "pending",
+                                      },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                  "403":
+                    {
+                      "description": "Akses ditolak karena role tidak sesuai",
+                      "content":
+                        {
+                          "application/json":
+                            { "example": { "message": "Access denied." } },
+                        },
+                    },
+                  "500":
+                    {
+                      "description": "Kesalahan server saat mengambil data",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example":
+                                {
+                                  "success": false,
+                                  "message": "Something went wrong",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/api/v1/leaves/special":
+        {
+          "get":
+            {
+              "tags": ["Dashboard admin"],
+              "summary": "Ambil semua data special leave",
+              "description": "Mengambil seluruh data special leave dengan pagination.",
+              "security": [{ "bearerAuth": [] }],
+              "parameters":
+                [
+                  {
+                    "name": "page",
+                    "in": "query",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 1 },
+                  },
+                  {
+                    "name": "limit",
+                    "in": "query",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 10 },
+                  },
+                ],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Data special leave berhasil diambil",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example":
+                                {
+                                  "message": "All special leave was successfully taken",
+                                  "data":
+                                    [
+                                      {
+                                        "id_special": "b1d3a79f-cc88-4d12-b749-2ed5c40d9ac4",
+                                        "title": "Cuti Menikah",
+                                        "applicable_gender": "mf",
+                                        "duration": 3,
+                                        "is_active": true,
+                                        "description": "Cuti untuk acara pernikahan",
+                                      },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Terjadi kesalahan saat mengambil data",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example": { "message": "Something went wrong" },
+                            },
+                        },
+                    },
                 },
             },
           "post":
             {
-              "summary": "Buat data cuti khusus",
-              "description": "Endpoint ini digunakan untuk membuat data cuti khusus baru.",
               "tags": ["Dashboard admin"],
+              "summary": "Buat special leave baru",
+              "description": "Membuat data cuti khusus baru berdasarkan input yang tervalidasi.",
+              "security": [{ "bearerAuth": [] }],
               "requestBody":
                 {
                   "required": true,
@@ -1933,40 +1804,13 @@
                     {
                       "application/json":
                         {
-                          "schema":
+                          "example":
                             {
-                              "type": "object",
-                              "required":
-                                [
-                                  "title",
-                                  "applicable_gender",
-                                  "duration",
-                                  "is_active",
-                                  "description",
-                                ],
-                              "properties":
-                                {
-                                  "title":
-                                    {
-                                      "type": "string",
-                                      "example": "Cuti Ayah",
-                                    },
-                                  "applicable_gender":
-                                    {
-                                      "type": "string",
-                                      "enum": ["m", "f", "mf"],
-                                      "example": "m",
-                                    },
-                                  "duration":
-                                    { "type": "integer", "example": 5 },
-                                  "is_active":
-                                    { "type": "boolean", "example": true },
-                                  "description":
-                                    {
-                                      "type": "string",
-                                      "example": "Cuti untuk ayah setelah kelahiran anak",
-                                    },
-                                },
+                              "title": "Cuti Melahirkan",
+                              "applicable_gender": "f",
+                              "duration": 90,
+                              "is_active": true,
+                              "description": "Cuti untuk persalinan",
                             },
                         },
                     },
@@ -1975,47 +1819,128 @@
                 {
                   "201":
                     {
-                      "description": "Cuti khusus berhasil dibuat",
+                      "description": "Data special leave berhasil dibuat",
                       "content":
                         {
                           "application/json":
                             {
-                              "schema":
+                              "example":
                                 {
-                                  "type": "object",
-                                  "properties":
+                                  "message": "Special leave created successfully",
+                                  "data":
                                     {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Special leave created successfully",
-                                        },
-                                      "data":
-                                        {
-                                          "$ref": "#/components/schemas/tb_special_leave",
-                                        },
+                                      "id_special": "a1234567-b89c-123d-e456-426614174000",
+                                      "title": "Cuti Melahirkan",
+                                      "applicable_gender": "f",
+                                      "duration": 90,
+                                      "is_active": true,
+                                      "description": "Cuti untuk persalinan",
                                     },
                                 },
                             },
                         },
                     },
-                  "400": { "description": "Gagal membuat data cuti khusus" },
+                  "400":
+                    {
+                      "description": "Validasi atau error server saat membuat data",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example":
+                                {
+                                  "message": "Validation failed or creation error",
+                                },
+                            },
+                        },
+                    },
                 },
             },
         },
-      "/leaves/special/{id}":
+      "/api/v1/leaves/special/search":
+        {
+          "get":
+            {
+              "tags": ["Dashboard admin"],
+              "summary": "Cari data special leave",
+              "description": "Mencari special leave berdasarkan `title` menggunakan keyword.",
+              "security": [{ "bearerAuth": [] }],
+              "parameters":
+                [
+                  {
+                    "name": "value",
+                    "in": "query",
+                    "required": false,
+                    "schema": { "type": "string" },
+                  },
+                  {
+                    "name": "page",
+                    "in": "query",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 1 },
+                  },
+                  {
+                    "name": "limit",
+                    "in": "query",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 10 },
+                  },
+                ],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Data hasil pencarian berhasil diambil",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example":
+                                {
+                                  "message": "Search special leave data retrieved successfully",
+                                  "data":
+                                    [
+                                      {
+                                        "id_special": "abc12345-def6-7890-gh12-ijk345lmnopq",
+                                        "title": "Cuti Khitanan Anak",
+                                        "applicable_gender": "m",
+                                        "duration": 2,
+                                        "is_active": true,
+                                        "description": "Cuti untuk keperluan khitanan anak laki-laki",
+                                      },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Kesalahan saat pencarian",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example":
+                                { "message": "Invalid query or server error" },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/api/v1/leaves/special/{id}":
         {
           "patch":
             {
-              "summary": "Perbarui data cuti khusus",
-              "description": "Endpoint ini digunakan untuk memperbarui data cuti khusus berdasarkan ID.",
               "tags": ["Dashboard admin"],
+              "summary": "Update special leave berdasarkan ID",
+              "description": "Melakukan pembaruan data special leave berdasarkan ID.",
+              "security": [{ "bearerAuth": [] }],
               "parameters":
                 [
                   {
                     "name": "id",
                     "in": "path",
-                    "description": "ID dari cuti khusus",
                     "required": true,
                     "schema": { "type": "string", "format": "uuid" },
                   },
@@ -2027,51 +1952,77 @@
                     {
                       "application/json":
                         {
-                          "schema":
-                            { "$ref": "#/components/schemas/tb_special_leave" },
+                          "example":
+                            {
+                              "title": "Cuti Menikah",
+                              "duration": 5,
+                              "is_active": false,
+                              "description": "Pembaruan cuti menikah",
+                            },
                         },
                     },
                 },
               "responses":
                 {
-                  "201":
+                  "200":
                     {
-                      "description": "Cuti khusus berhasil diperbarui",
+                      "description": "Berhasil update data special leave",
                       "content":
                         {
                           "application/json":
                             {
-                              "schema":
+                              "example":
                                 {
-                                  "type": "object",
-                                  "properties":
+                                  "message": "Special leave updated successfully",
+                                  "data":
                                     {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Special leave updated successfully",
-                                        },
-                                      "data":
-                                        {
-                                          "$ref": "#/components/schemas/tb_special_leave",
-                                        },
+                                      "id_special": "b1d3a79f-cc88-4d12-b749-2ed5c40d9ac4",
+                                      "title": "Cuti Menikah",
+                                      "applicable_gender": "mf",
+                                      "duration": 5,
+                                      "is_active": false,
+                                      "description": "Pembaruan cuti menikah",
                                     },
                                 },
                             },
                         },
                     },
                   "400":
-                    { "description": "Gagal memperbarui data cuti khusus" },
+                    {
+                      "description": "Kesalahan saat melakukan update",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "example":
+                                { "message": "Update failed or invalid ID" },
+                            },
+                        },
+                    },
                 },
             },
         },
-      "/leaves/mandatory":
+      "/api/v1/leaves/mandatory":
         {
           "get":
             {
-              "summary": "Ambil semua data cuti wajib",
-              "description": "Endpoint ini digunakan untuk mengambil seluruh data cuti wajib dari sistem.",
               "tags": ["Dashboard admin"],
+              "summary": "Ambil semua data cuti wajib",
+              "parameters":
+                [
+                  {
+                    "name": "page",
+                    "in": "query",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 1 },
+                  },
+                  {
+                    "name": "limit",
+                    "in": "query",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 10 },
+                  },
+                ],
               "responses":
                 {
                   "200":
@@ -2086,11 +2037,7 @@
                                   "type": "object",
                                   "properties":
                                     {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "All mandatory leave was successfully taken",
-                                        },
+                                      "message": { "type": "string" },
                                       "data":
                                         {
                                           "type": "array",
@@ -2104,14 +2051,12 @@
                             },
                         },
                     },
-                  "400": { "description": "Gagal mengambil data cuti wajib" },
                 },
             },
           "post":
             {
-              "summary": "Buat data cuti wajib",
-              "description": "Endpoint ini digunakan untuk membuat entri baru cuti wajib.",
               "tags": ["Dashboard admin"],
+              "summary": "Buat data cuti wajib",
               "requestBody":
                 {
                   "required": true,
@@ -2122,30 +2067,20 @@
                           "schema":
                             {
                               "type": "object",
-                              "required":
-                                [
-                                  "title",
-                                  "duration",
-                                  "is_active",
-                                  "description",
-                                ],
                               "properties":
                                 {
                                   "title":
-                                    {
-                                      "type": "string",
-                                      "example": "Cuti Nasional",
-                                    },
+                                    { "type": "string", "maxLength": 255 },
                                   "duration":
-                                    { "type": "integer", "example": 3 },
-                                  "is_active":
-                                    { "type": "boolean", "example": true },
-                                  "description":
                                     {
-                                      "type": "string",
-                                      "example": "Libur nasional yang ditetapkan pemerintah",
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 365,
                                     },
+                                  "is_active": { "type": "boolean" },
+                                  "description": { "type": "string" },
                                 },
+                              "required": ["title", "duration", "description"],
                             },
                         },
                     },
@@ -2154,7 +2089,7 @@
                 {
                   "201":
                     {
-                      "description": "Cuti wajib berhasil dibuat",
+                      "description": "Data cuti wajib berhasil dibuat",
                       "content":
                         {
                           "application/json":
@@ -2164,11 +2099,7 @@
                                   "type": "object",
                                   "properties":
                                     {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Mandatory leave created successfully",
-                                        },
+                                      "message": { "type": "string" },
                                       "data":
                                         {
                                           "$ref": "#/components/schemas/tb_mandatory_leave",
@@ -2178,23 +2109,110 @@
                             },
                         },
                     },
-                  "400": { "description": "Gagal membuat data cuti wajib" },
+                  "400":
+                    {
+                      "description": "Validasi gagal atau input tidak sesuai",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                            },
+                        },
+                    },
                 },
             },
         },
-      "/leaves/mandatory/{id}":
+      "/api/v1/leaves/mandatory/search":
+        {
+          "get":
+            {
+              "tags": ["Dashboard admin"],
+              "summary": "Cari cuti wajib berdasarkan judul",
+              "parameters":
+                [
+                  {
+                    "name": "value",
+                    "in": "query",
+                    "required": true,
+                    "schema": { "type": "string" },
+                  },
+                  {
+                    "name": "page",
+                    "in": "query",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 1 },
+                  },
+                  {
+                    "name": "limit",
+                    "in": "query",
+                    "required": false,
+                    "schema": { "type": "integer", "default": 10 },
+                  },
+                ],
+              "responses":
+                {
+                  "200":
+                    {
+                      "description": "Data hasil pencarian cuti wajib berhasil diambil",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    {
+                                      "message": { "type": "string" },
+                                      "data":
+                                        {
+                                          "type": "array",
+                                          "items":
+                                            {
+                                              "$ref": "#/components/schemas/tb_mandatory_leave",
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                  "400":
+                    {
+                      "description": "Kesalahan permintaan pencarian",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+      "/api/v1/leaves/mandatory/{id}":
         {
           "patch":
             {
-              "summary": "Perbarui data cuti wajib",
-              "description": "Endpoint ini digunakan untuk memperbarui data cuti wajib berdasarkan ID.",
               "tags": ["Dashboard admin"],
+              "summary": "Perbarui data cuti wajib",
               "parameters":
                 [
                   {
                     "name": "id",
                     "in": "path",
-                    "description": "ID cuti wajib",
                     "required": true,
                     "schema": { "type": "string", "format": "uuid" },
                   },
@@ -2208,16 +2226,29 @@
                         {
                           "schema":
                             {
-                              "$ref": "#/components/schemas/tb_mandatory_leave",
+                              "type": "object",
+                              "properties":
+                                {
+                                  "title":
+                                    { "type": "string", "maxLength": 255 },
+                                  "duration":
+                                    {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 365,
+                                    },
+                                  "is_active": { "type": "boolean" },
+                                  "description": { "type": "string" },
+                                },
                             },
                         },
                     },
                 },
               "responses":
                 {
-                  "201":
+                  "200":
                     {
-                      "description": "Cuti wajib berhasil diperbarui",
+                      "description": "Data cuti wajib berhasil diperbarui",
                       "content":
                         {
                           "application/json":
@@ -2227,11 +2258,7 @@
                                   "type": "object",
                                   "properties":
                                     {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Mandatory leave updated successfully",
-                                        },
+                                      "message": { "type": "string" },
                                       "data":
                                         {
                                           "$ref": "#/components/schemas/tb_mandatory_leave",
@@ -2241,7 +2268,22 @@
                             },
                         },
                     },
-                  "400": { "description": "Gagal memperbarui data cuti wajib" },
+                  "400":
+                    {
+                      "description": "Validasi gagal atau data tidak ditemukan",
+                      "content":
+                        {
+                          "application/json":
+                            {
+                              "schema":
+                                {
+                                  "type": "object",
+                                  "properties":
+                                    { "message": { "type": "string" } },
+                                },
+                            },
+                        },
+                    },
                 },
             },
         },
