@@ -1,12 +1,16 @@
 import prisma from "../utils/client.js";
 
 
-export const getAllLeavesService = async () => {
-    return await prisma.tb_leave.findMany({})
+export const getAllLeavesService = async (page, limit) => {
+    const skip = (page - 1) * limit
+    return await prisma.tb_leave.findMany({
+        skip,
+        take: limit
+    })
 }
 
 
-export const getLeavesByFilterService = async (type, value) => {
+export const getLeavesByFilterService = async (type, value, page = 1, limit = 10) => {
     const whereClause = {
         status: 'pending',
     };
@@ -37,10 +41,14 @@ export const getLeavesByFilterService = async (type, value) => {
         ];
     }
 
+    const skip = (page - 1) * limit
+
     console.log('Filter yang dikirim ke Prisma:', whereClause);
 
     const results = await prisma.tb_leave.findMany({
-        where: whereClause
+        where: whereClause,
+        skip,
+        take: limit
     });
 
     return results;
@@ -157,7 +165,7 @@ export const updateLeave = async (id, status, reason, nik) => {
 
 
 
-export const getHistoryLeaveSearch = async ({ value, type, status }) => {
+export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, limit = 10 }) => {
     const changeFormat = (text) => {
         return text?.trim().toLowerCase().replace(/\s+/g, '_')
     }
@@ -204,10 +212,14 @@ export const getHistoryLeaveSearch = async ({ value, type, status }) => {
         })
     )
 
-    return history.filter(Boolean)
+    const filtered = history.filter(Boolean);
+    const start = (page - 1) * limit;
+    const paginated = filtered.slice(start, start + limit);
+
+    return paginated;
 }
 
-export const getHistoryLeave = async () => {
+export const getHistoryLeave = async (page, limit) => {
     const leaves = await prisma.tb_leave.findMany({
         orderBy: { start_date: 'desc' }
     })
@@ -242,21 +254,31 @@ export const getHistoryLeave = async () => {
         })
     )
 
-    return history
+    const start = (page - 1) * limit;
+    const paginatedHistory = history.slice(start, start + limit);
+
+    return paginatedHistory;
 }
 
-export const getSpecialLeaveService = async () => {
-    return await prisma.tb_special_leave.findMany({})
+export const getSpecialLeaveService = async (page = 1, limit = 10) => {
+    const skip = (page - 1) * limit
+    return await prisma.tb_special_leave.findMany({
+        skip,
+        take: limit
+    })
 }
 
-export const getSearchSpecialLeaveService = async (data) => {
+export const getSearchSpecialLeaveService = async (data, page = 1, limit = 10) => {
+    const skip = (page - 1) * limit
     return prisma.tb_special_leave.findMany({
         where: {
             title: {
                 contains: data,
                 mode: 'insensitive'
             }
-        }       
+        },
+        skip,
+        take: limit
     })
 }
 
@@ -276,27 +298,34 @@ export const updateSpecialLeaveService = async (id, data) => {
 }
 
 export const createMandatoryLeaveService = async (data) => {
-  return await prisma.tb_mandatory_leave.create({ data });
+    return await prisma.tb_mandatory_leave.create({ data });
 };
 
-export const getAllMandatoryLeavesService = async () => {
-  return await prisma.tb_mandatory_leave.findMany();
+export const getAllMandatoryLeavesService = async (page = 1, limit = 10) => {
+    const skip = (page - 1) * limit
+    return await prisma.tb_mandatory_leave.findMany({
+        skip,
+        take: limit
+    });
 };
 
-export const getSearchMandatoryLeaveService = async (data) => {
+export const getSearchMandatoryLeaveService = async (data, page = 1, limit = 10) => {
+    const skip = (page - 1) * limit
     return prisma.tb_mandatory_leave.findMany({
         where: {
             title: {
                 contains: data,
                 mode: 'insensitive'
-            }
-        }       
+            },
+            skip,
+            take: limit
+        }
     })
 }
 
 export const updateMandatoryLeaveService = async (id, data) => {
-  return await prisma.tb_mandatory_leave.update({
-    where: { id_mandatory: id },
-    data,
-  });
+    return await prisma.tb_mandatory_leave.update({
+        where: { id_mandatory: id },
+        data,
+    });
 };
