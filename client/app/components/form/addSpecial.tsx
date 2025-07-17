@@ -21,7 +21,7 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
     const [gender, setGender] = useState("")
     const [duration, setDuration] = useState(0)
     const [description, setDescription] = useState("")
-    const [isActive, setIsActive] = useState(true)
+    const [isActive, setIsActive] = useState(false)
 
     const [titleError, setTitleError] = useState("")
     const [descriptionError, setDescriptionError] = useState("")
@@ -36,7 +36,7 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
             setGender("");
             setDuration(0);
             setDescription("");
-            setIsActive(true);
+            setIsActive(false);
             setTitleError("");
             setDescriptionError("");
             setGeneralError("");
