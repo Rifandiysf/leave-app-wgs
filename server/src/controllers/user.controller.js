@@ -104,7 +104,10 @@ export const allUsers = async (req, res) => {
         const page = parseInt(req.query.page) || 1
         const limit = parseInt(req.query.limit) || 10
         const dataUsers = await getAllUsers(page, limit)
-        res.status(200).json(dataUsers)
+        res.status(200).json({
+            message: "Sucessfullt retrieved leave data",
+            data: dataUsers
+        })
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: 'Failed to retrieve user data and leave quota.' })
