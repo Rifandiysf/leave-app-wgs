@@ -12,7 +12,10 @@ export const getAllLeavesService = async (page, limit) => {
                 select: { fullname: true }
             }
         },
-        orderBy: { created_at: 'desc' }
+        orderBy: { created_at: 'desc' },
+        where : {
+            status: 'pending'
+        }
     });
 
     const total = await prisma.tb_leave.count();
