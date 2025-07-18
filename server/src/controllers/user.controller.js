@@ -103,8 +103,9 @@ export const allUsers = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || ''
 
-        const dataUsers = await getAllUsers(page, limit);
+        const dataUsers = await getAllUsers(page, limit, search);
 
         res.status(200).json({
             message: "Successfully retrieved leave data",
@@ -125,6 +126,7 @@ export const allUsers = async (req, res) => {
         res.status(500).json({ message: 'Failed to retrieve user data and leave quota.' });
     }
 };
+
 
 
 export const getUser = async (req, res) => {
