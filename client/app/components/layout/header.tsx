@@ -39,7 +39,7 @@ export default function Header() {
 
         try {
             await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/logout`, {
-                method: 'POST',
+                method: 'GET',
                 headers: {
                     Authorization: `${token}`,
                     'device-id': deviceId || '',

@@ -12,9 +12,9 @@ import {
     PaginationNext,
     PaginationPrevious
 } from "@/app/components/ui/pagination";
-import { SearchButton } from "@/app/components/search/page";
 import { SelectDemo } from "@/app/components/select/page";
 import { SelectItem, SelectLabel } from "@/app/components/ui/select";
+import withAuth from "@/lib/auth/withAuth";
 
 type dataLeaveType = {
     nik: string,
@@ -220,4 +220,4 @@ const DashboardPage = () => {
     );
 }
 
-export default DashboardPage;
+export default withAuth(DashboardPage, { requireAdmin: true });

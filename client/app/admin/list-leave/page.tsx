@@ -8,6 +8,7 @@ import { SelectItem, SelectLabel } from "@/app/components/ui/select";
 import Modal from '@/app/components/Modal/Modal';
 import axiosInstance from '@/app/api/axiosInstance';
 import { LeaveChoiceModal } from '@/app/components/LeaveChoiceModal/page';
+import withAuth from '@/lib/auth/withAuth';
 
 type ApiLeaveType = {
     id_leave: string;
@@ -248,4 +249,4 @@ const ListOfLeavePage = () => {
     );
 }
 
-export default ListOfLeavePage;
+export default withAuth(ListOfLeavePage, { requireAdmin: true });

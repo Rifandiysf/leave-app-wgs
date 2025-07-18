@@ -2,8 +2,9 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import withAuth from "@/lib/auth/withAuth"
 
-export default function AmountLeavePage() {
+const AmountLeavePage = () => {
   const [showModal, setShowModal] = useState(true)
   const router = useRouter()
 
@@ -67,3 +68,5 @@ export default function AmountLeavePage() {
     </div>
   )
 }
+
+export default withAuth(AmountLeavePage)

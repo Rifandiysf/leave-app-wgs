@@ -13,6 +13,7 @@ import {
 import { Switch } from "@/app/components/ui/switch"
 import { AddMandatory } from '@/app/components/form/addMandatory'
 import { EditMandatory } from '@/app/components/form/editMandatory'
+import withAuth from '@/lib/auth/withAuth'
 
 type dataMandatoryLeaveType = {
     id_mandatory: string,
@@ -229,4 +230,4 @@ const MandatoryLeavePage = () => {
     )
 }
 
-export default MandatoryLeavePage
+export default withAuth(MandatoryLeavePage, { requireAdmin: true })

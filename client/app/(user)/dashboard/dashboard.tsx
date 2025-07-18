@@ -3,8 +3,9 @@
 import { Card } from "../../components/ui/card"
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import { Modal } from "@/app/components/Modal/Modal"
+import withAuth from "@/lib/auth/withAuth"
 
-export default function UserDashboard() {
+const UserDashboard = () => {
   return (
     <>
       <div className="flex flex-col mb-4">
@@ -116,3 +117,5 @@ export default function UserDashboard() {
     </>
   )
 }
+
+export default withAuth(UserDashboard)

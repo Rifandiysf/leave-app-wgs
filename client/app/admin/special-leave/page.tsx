@@ -13,6 +13,7 @@ import {
 import { Switch } from "@/app/components/ui/switch"
 import { AddSpecial } from '@/app/components/form/addSpecial'
 import { EditSpecial } from '@/app/components/form/editSpecial'
+import withAuth from '@/lib/auth/withAuth'
 
 type dataSpecialLeaveType = {
     id_special: string,
@@ -232,4 +233,4 @@ const SpecialLeavePage = () => {
     )
 }
 
-export default SpecialLeavePage
+export default withAuth(SpecialLeavePage, { requireAdmin: true })

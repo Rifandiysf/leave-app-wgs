@@ -14,7 +14,7 @@ import {
 } from "@/app/components/ui/dialog"
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
-import { DatePickerField } from "../date-picker/page"
+import { DatePickerField } from "../date-picker/datePicker"
 import {
     Select,
     SelectItem,

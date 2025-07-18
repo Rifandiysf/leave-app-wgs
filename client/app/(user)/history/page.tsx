@@ -11,6 +11,7 @@ import {
     PaginationPrevious
 } from "../../components/ui/pagination"
 import Modal from "@/app/components/Modal/Modal"
+import withAuth from "@/lib/auth/withAuth"
 
 type LeaveHistoryType = {
     status: ReactNode
@@ -178,4 +179,4 @@ const HistoryPage = () => {
     )
 }
 
-export default HistoryPage
+export default withAuth(HistoryPage)
