@@ -167,11 +167,17 @@ export const getLeaveBalanceByYear = async (nik, year) => {
     })
 }
 
-export const getAllUsers = async (page, limit) => {
-    const currentYear = new Date().getFullYear()
-    const lastYear = new Date().getFullYear() - 1
+export const getAllUsers = async (page, limit, search = '') => {
+    const currentYear = new Date().getFullYear();
+    const lastYear = currentYear - 1;
 
     const users = await prisma.tb_users.findMany({
+        where: {
+            OR: [
+                { fullname: { contains: search, mode: 'insensitive' } },
+                { NIK: { contains: search, mode: 'insensitive' } },
+            ]
+        },
         orderBy: {
             fullname: 'asc'
         }
@@ -187,10 +193,10 @@ export const getAllUsers = async (page, limit) => {
     });
 
     const result = users.map(user => {
-        const userLeaveAmount = leaveAmount.filter(b => b.NIK === user.NIK)
+        const userLeaveAmount = leaveAmount.filter(b => b.NIK === user.NIK);
 
-        const currentYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === currentYear)
-        const lastYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === lastYear)
+        const currentYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === currentYear);
+        const lastYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === lastYear);
 
         const current = currentYearAmount?.amount || 0;
         const last = lastYearAmount?.amount || 0;
@@ -204,7 +210,7 @@ export const getAllUsers = async (page, limit) => {
             leave_total: last + current,
             role: user.role,
             status: user.status_active
-        }
+        };
     });
 
     const total = result.length;
@@ -219,6 +225,9 @@ export const getAllUsers = async (page, limit) => {
         page,
     };
 };
+
+
+
 
 export const getUserByNIK = async (nik) => {
     const currentDate = new Date();
