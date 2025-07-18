@@ -1,4 +1,4 @@
-import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK } from "../services/user.service.js"
+import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK, adjustModifyAmount } from "../services/user.service.js"
 import { decodeToken } from "../utils/jwt.js";
 
 
@@ -198,5 +198,22 @@ export const deleteUser = async (req, res) => {
             message: "failed to delete user data",
             reason: error.message
         });
+    }
+}
+
+export const modifyAmount = async (req, res) => {
+    const { nik } = req.params
+    const {adjustment_value, notes} = req.body
+
+    const actor = req.session.user.role
+    if (!actor) {
+        return res.status(401).json({ message: 'Unauthorized: actor (role) not found in session' });
+    }
+
+    try {
+        const result = await adjustModifyAmount(nik, adjustment_value, notes, actor)
+        res.status(200).json({message: 'Balance adjusted successfully', data: result})
+    } catch (error) {
+        res.status(400).json({message: error.message})
     }
 }

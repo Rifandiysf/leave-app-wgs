@@ -222,13 +222,11 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
 
 export const getHistoryLeave = async (page, limit) => {
     const leaves = await prisma.tb_leave.findMany({
-        where: {
-            NOT: {
-                status: 'pending'
-            }
+        where : {
+            NOT: {status: 'pending'}
         },
-        orderBy: { start_date: 'desc' }
-    });
+        orderBy : {start_date: 'desc'}
+    })
 
     const history = await Promise.all(
         leaves.map(async (leave) => {
