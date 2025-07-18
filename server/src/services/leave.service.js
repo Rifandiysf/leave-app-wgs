@@ -6,7 +6,13 @@ export const getAllLeavesService = async (page, limit) => {
 
     const data = await prisma.tb_leave.findMany({
         skip,
-        take: limit
+        take: limit,
+        include: {
+            tb_users: {
+                select: { fullname: true }
+            }
+        },
+        orderBy: { created_at: 'desc' }
     });
 
     const total = await prisma.tb_leave.count();
@@ -14,8 +20,6 @@ export const getAllLeavesService = async (page, limit) => {
 
     return { data, total, page, totalPages };
 };
-
-
 
 export const getLeavesByFilterService = async (type, value, page, limit) => {
     const where = {
