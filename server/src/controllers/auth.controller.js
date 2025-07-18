@@ -11,7 +11,7 @@ export const login = async (req, res, next) => {
     }
 
     try {
-        const user = await fetchUserData("email", email);
+        const user = await fetchUserData("email", email.toLowerCase());
         const deviceInfo = await getDeviceInfo(req.get("user-agent"));
 
         if (!user) {

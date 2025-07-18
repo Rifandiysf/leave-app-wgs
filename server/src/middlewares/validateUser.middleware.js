@@ -6,7 +6,7 @@ export const validateUser = async (req, res, next) => {
     const { email, password } = req.body;
 
     try {
-        const user = await fetchUserData("email", email);
+        const user = await fetchUserData("email", email.toLowerCase());
         
         if (!user) {
             const error = new Error("User not found");
