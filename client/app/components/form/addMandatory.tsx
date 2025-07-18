@@ -15,11 +15,11 @@ import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
 import { Switch } from "@/app/components/ui/switch"
 
-export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void}) {
+export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
     const [title, setTitle] = useState("")
     const [duration, setDuration] = useState(0)
     const [description, setDescription] = useState("")
-    const [isActive, setIsActive] = useState(true) 
+    const [isActive, setIsActive] = useState(false)
 
     const [titleError, setTitleError] = useState("")
     const [descriptionError, setDescriptionError] = useState("")
@@ -33,7 +33,7 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void}) {
             setTitle("");
             setDuration(0);
             setDescription("");
-            setIsActive(true);
+            setIsActive(false);
             setTitleError("");
             setDescriptionError("");
             setGeneralError("");
@@ -76,10 +76,14 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void}) {
         }
 
         try {
+            const token = localStorage.getItem('token');
+            const deviceId = localStorage.getItem('device-id');
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/mandatory`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    ...(token && { Authorization: `${token}` }),
+                    ...(deviceId && { 'device-id': deviceId }),
                 },
                 credentials: 'include',
                 body: JSON.stringify(payload),
