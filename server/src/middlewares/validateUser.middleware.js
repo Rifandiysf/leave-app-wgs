@@ -35,15 +35,9 @@ export const validateUser = async (req, res, next) => {
             throw error;
         }
 
-
         return next();
     } catch (error) {
-        const statusCode = error && error.statusCode ? error.statusCode : 400;
-        return res.status(statusCode).json({
-            status: "failed",
-            message: error.message,
-            status_code: statusCode
-        })
+        next(error);
     }
 
 }

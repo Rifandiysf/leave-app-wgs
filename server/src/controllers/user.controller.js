@@ -26,7 +26,6 @@ export const createLeaveRequest = async (req, res) => {
     }
 }
 
-
 export const getLeaveRequests = async (req, res) => {
     try {
         const user = await decodeToken(req.get('authorization').split(' ')[1])
@@ -77,7 +76,6 @@ export const getLeavesByFilter = async (req, res) => {
     }
 };
 
-
 export const getLeaveRequestsById = async (req, res) => {
     try {
 
@@ -97,7 +95,6 @@ export const getLeaveRequestsById = async (req, res) => {
         })
     }
 }
-
 
 export const allUsers = async (req, res) => {
     try {
@@ -127,9 +124,7 @@ export const allUsers = async (req, res) => {
     }
 };
 
-
-
-export const getUser = async (req, res) => {
+export const getUser = async (req, res, next) => {
     try {
         const decode = await decodeToken(req.get("authorization").split(' ')[1]);
         const { role, NIK } = decode;
@@ -156,10 +151,7 @@ export const getUser = async (req, res) => {
             data: user
         });
     } catch (error) {
-        res.status(error.statusCode).json({
-            status: "failed",
-            message: error.message,
-        })
+        next(error);
     }
 }
 

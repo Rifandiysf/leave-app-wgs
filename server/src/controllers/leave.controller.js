@@ -16,7 +16,6 @@ import {
 } from "../services/leave.service.js"
 import { decodeToken } from "../utils/jwt.js";
 
-
 export const updateLeaveById = async (req, res) => {
   const { id } = req.params;
   const { reason, status } = req.body;
@@ -161,7 +160,6 @@ export const historyLeaveSearch = async (req, res) => {
   }
 };
 
-
 export const getSpecialLeave = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -190,7 +188,6 @@ export const getSpecialLeave = async (req, res) => {
   }
 };
 
-
 export const getSearchSpecialLeave = async (req, res) => {
   try {
     const { value = '', page = 1, limit = 10 } = req.query;
@@ -217,7 +214,6 @@ export const getSearchSpecialLeave = async (req, res) => {
     });
   }
 };
-
 
 export const createSpecialLeave = async (req, res) => {
   const data = req.body
@@ -298,7 +294,6 @@ export const getMandatoryLeaves = async (req, res) => {
   }
 };
 
-
 export const getSearchMandatoryLeave = async (req, res) => {
   try {
     const { value = '', page = 1, limit = 10 } = req.query;
@@ -323,7 +318,6 @@ export const getSearchMandatoryLeave = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
-
 
 export const updateMandatoryLeave = async (req, res) => {
   try {

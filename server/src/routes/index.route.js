@@ -8,11 +8,6 @@ import { validateRole } from '../middlewares/validateRole.middleware.js';
 
 const router = express.Router();
 
-//temporaly
-// router.use('/auth', authRoutes);
-// router.use('/users', userRoutes);
-// router.use('/leaves', leaveRoutes);
-
 router.use('/auth', authRoutes);
 router.use('/users', isAuthenticated, userRoutes);
 router.use('/leaves', isAuthenticated, validateRole('super_admin', 'admin'), leaveRoutes);
