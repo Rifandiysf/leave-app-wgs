@@ -1,4 +1,3 @@
-import { decode } from "jsonwebtoken";
 import {
   getAllLeavesService,
   updateLeave,
@@ -20,28 +19,27 @@ import { decodeToken } from "../utils/jwt.js";
 export const updateLeaveById = async (req, res) => {
   const { id } = req.params;
   const { reason, status } = req.body;
-  const decodeToken = await decodeToken(req);
-  const { NIK } = decodeToken;
+  const decodedToken = await decodeToken(req.get('authorization').split(' ')[1]);
+  const { NIK } = decodedToken;
 
   try {
     const updatedLeave = await updateLeave(id, status, reason, NIK);
 
     if (!updatedLeave) {
-      throw new Error("leave not found");
+      const error = new Error("leave not found");
+      error.statusCode = 404;
+      error.cause = "leave not found in database"
     }
 
     return res.status(200).json({
-      status: 'Success',
+      success: true,
       message: 'Successfully updated leave data',
       data: {
         updated_leave: updatedLeave
       }
     })
   } catch (error) {
-    return res.status(400).json({
-      status: 'failed',
-      message: 'failed updated leave data'
-    })
+    next(error)
   }
 }
 

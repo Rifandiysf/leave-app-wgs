@@ -1,3 +1,4 @@
+import { success } from "zod/v4";
 import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK, adjustModifyAmount } from "../services/user.service.js"
 import { decodeToken } from "../utils/jwt.js";
 
@@ -134,7 +135,7 @@ export const getUser = async (req, res, next) => {
         if (!isAdmin) {
             if (NIK !== nik) {
                 const err = new Error("User requested has no permission");
-                err.statusCode = 400;
+                err.statusCode = 401;
                 throw err;
             }
         }
@@ -142,7 +143,7 @@ export const getUser = async (req, res, next) => {
         const user = await getUserByNIK(nik);
 
         res.status(200).json({
-            status: "successful",
+            success: true,
             message: `Data retrieve successfully`,
             requested_by: {
                 role: role,
