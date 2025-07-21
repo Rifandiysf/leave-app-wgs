@@ -6,9 +6,10 @@ import compression from 'compression';
 import responseTime from 'response-time';
 import morgan from 'morgan'
 import timeout from 'connect-timeout';
+import errorHandler from './middlewares/errorHandler.middleware.js';
 
 const app = express()
-app.use(timeout('7s'));
+app.use(timeout('5s'));
 app.use(morgan('dev'));
 app.use(responseTime());
 app.use(express.json());
@@ -25,16 +26,9 @@ app.use(cors({
 }))
 
 app.use('/api/v1/', routes);
-app.use((err, req, res, next) => {
-    res.status(err.status || 500).json({
-        status: false,
-        message: err.message || 'Internal Server Error'
-    });
-});
+app.use(errorHandler);
+
 
 app.listen(PORT, HOSTNAME, () => {
     console.log(`Server running at http://${HOSTNAME}:${PORT}`);
 });
-
-// root for testing
-

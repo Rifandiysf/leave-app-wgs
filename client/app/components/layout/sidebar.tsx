@@ -51,20 +51,14 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
                         <nav className="bg-blue-100 p-4 flex-1 relative rounded-se-4xl">
                             <div className=" font-semibold">
                                 <Link
-                                    href="/"
-                                    className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/')}`}
-                                >
-                                    <i className="bi bi-arrow-bar-left text-xl w-6 text-center" />
-                                    <span className="ml-3">Back</span>
-                                </Link>
-                                <div className="mt-4 h-px bg-gray-500 mb-2  " />
-                                <Link
                                     href="/admin/dashboard"
-                                    className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/dashboard')}`}
+                                    className={`flex items-center py-3 px-6 rounded-full transition-colors mt-10    ${isActive('/admin/dashboard')}`}
                                 >
                                     <i className="bi bi-person-workspace text-xl w-6 text-center" />
                                     <span className="ml-3">Dashboard</span>
                                 </Link>
+                                <div className="mt-2 h-px bg-gray-500 mb-2  " />
+                             
                                 <Link
                                     href="/admin/employee-list"
                                     className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/employee-list')}`}>

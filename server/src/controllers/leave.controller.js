@@ -1,4 +1,3 @@
-import { decode } from "jsonwebtoken";
 import {
   getAllLeavesService,
   updateLeave,
@@ -14,38 +13,37 @@ import {
   getSearchSpecialLeaveService,
   getSearchMandatoryLeaveService,
 } from "../services/leave.service.js"
+import { responsePagination } from "../utils/responsePagination.utils.js";
 import { decodeToken } from "../utils/jwt.js";
-
 
 export const updateLeaveById = async (req, res) => {
   const { id } = req.params;
   const { reason, status } = req.body;
-  const decodeToken = await decodeToken(req);
-  const { NIK } = decodeToken;
+  const decodedToken = await decodeToken(req.get('authorization').split(' ')[1]);
+  const { NIK } = decodedToken;
 
   try {
     const updatedLeave = await updateLeave(id, status, reason, NIK);
 
     if (!updatedLeave) {
-      throw new Error("leave not found");
+      const error = new Error("leave not found");
+      error.statusCode = 404;
+      error.cause = "leave not found in database"
     }
 
     return res.status(200).json({
-      status: 'Success',
+      success: true,
       message: 'Successfully updated leave data',
       data: {
         updated_leave: updatedLeave
       }
     })
   } catch (error) {
-    return res.status(400).json({
-      status: 'failed',
-      message: 'failed updated leave data'
-    })
+    next(error)
   }
 }
 
-export const getAllLeaves = async (req, res) => {
+export const getAllLeaves = async (req, res, next) => {
   try {
 
     const page = parseInt(req.query.page) || 1
@@ -53,83 +51,44 @@ export const getAllLeaves = async (req, res) => {
 
     const leaves = await getAllLeavesService(page, limit)
 
-    res.status(200).json({
-      message: "Leave data retrieved successfully",
-      pagination: {
-        current_page: leaves.page,
-        last_visible_page: leaves.totalPages,
-        has_next_page: leaves.page < leaves.totalPages,
-        item: {
-          count: leaves.data.length,
-          total: leaves.total,
-          per_page: limit
-        }
-      },
-      data: leaves.data,
-    });
+    const paginationResponse = responsePagination("Leave data retrieved successfully", leaves, limit);
+
+    res.status(200).json(paginationResponse);
 
   } catch (error) {
-    res.status(400).json({
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const getLeavesByFilter = async (req, res) => {
+export const getLeavesByFilter = async (req, res, next) => {
   try {
     const { value, type, page = 1, limit = 10 } = req.query;
 
     const leaves = await getLeavesByFilterService(type, value, parseInt(page), parseInt(limit));
 
-    res.status(200).json({
-      message: "Filtered leave data retrieved successfully",
-      pagination: {
-        current_page: leaves.page,
-        last_visible_page: leaves.totalPages,
-        has_next_page: leaves.page < leaves.totalPages,
-        item: {
-          count: leaves.data.length,
-          total: leaves.total,
-          per_page: limit
-        }
-      },
-      data: leaves.data,
-    });
+    const paginationResponse = responsePagination("Filtered leave data retrieved successfully", leaves, limit);
+
+    res.status(200).json(paginationResponse);
 
   } catch (error) {
-    res.status(400).json({
-      message: error.message
-    });
+    next(error)
   }
 }
 
-export const historyLeave = async (req, res) => {
+export const historyLeave = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
     const result = await getHistoryLeave(page, limit)
-    res.status(200).json({
-      success: true,
-      pagination: {
-        current_page: result.page,
-        last_visible_page: result.totalPages,
-        has_next_page: result.page < result.totalPages,
-        item: {
-          count: result.data.length,
-          total: result.total,
-          per_page: limit
-        }
-      },
-      data: result.data,
-    })
+    const paginationResponse = responsePagination("Leave data log retrieved successfully", result, limit);
+    res.status(200).json(paginationResponse)
 
   } catch (error) {
-    console.error('Error fetching leave history:', error)
-    res.status(500).json({ succes: false, message: 'Server Error' })
+    next(error)
   }
 }
 
-export const historyLeaveSearch = async (req, res) => {
+export const historyLeaveSearch = async (req, res, next) => {
   try {
     const { value = '', type = '', status = '', page = 1, limit = 10 } = req.query;
 
@@ -141,83 +100,41 @@ export const historyLeaveSearch = async (req, res) => {
       limit: parseInt(limit)
     });
 
-    res.status(200).json({
-      success: true,
-      pagination: {
-        current_page: result.page,
-        last_visible_page: result.totalPages,
-        has_next_page: result.page < result.totalPages,
-        item: {
-          count: result.data.length,
-          total: result.total,
-          per_page: parseInt(limit)
-        }
-      },
-      data: result.data,
-    });
+    const paginationResponse = responsePagination("Filtered leave data log retrieved successfully", result, limit);
+    res.status(200).json(paginationResponse)
   } catch (error) {
-    console.error('Error fetching leave history:', error);
-    res.status(500).json({ success: false, message: error.message });
+    next(error)
   }
 };
 
-
-export const getSpecialLeave = async (req, res) => {
+export const getSpecialLeave = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
     const result = await getSpecialLeaveService(page, limit);
 
-    res.status(200).json({
-      message: "All special leave was successfully taken",
-      pagination: {
-        current_page: result.page,
-        last_visible_page: result.totalPages,
-        has_next_page: result.page < result.totalPages,
-        item: {
-          count: result.data.length,
-          total: result.total,
-          per_page: limit
-        }
-      },
-      data: result.data,
-    });
+    const paginationResponse = responsePagination("All special leave was successfully taken", result, limit);
+
+    res.status(200).json(paginationResponse);
   } catch (error) {
-    res.status(400).json({
-      message: error.message
-    });
+    next(error)
   }
 };
 
-
-export const getSearchSpecialLeave = async (req, res) => {
+export const getSearchSpecialLeave = async (req, res, next) => {
   try {
     const { value = '', page = 1, limit = 10 } = req.query;
 
     const result = await getSearchSpecialLeaveService(value, parseInt(page), parseInt(limit));
 
-    res.status(200).json({
-      message: 'Search special leave data retrieved successfully',
-      pagination: {
-        current_page: result.page,
-        last_visible_page: result.totalPages,
-        has_next_page: result.page < result.totalPages,
-        item: {
-          count: result.data.length,
-          total: result.total,
-          per_page: parseInt(limit)
-        }
-      },
-      data: result.data,
-    });
+    const paginationResponse = responsePagination("Search special leave data retrieved successfully", result, limit);
+
+    res.status(200).json(paginationResponse);
   } catch (error) {
-    res.status(400).json({
-      message: error.message
-    });
+    next(error)
   }
 };
-
 
 export const createSpecialLeave = async (req, res) => {
   const data = req.body
@@ -257,73 +174,48 @@ export const updateSpecialLeave = async (req, res) => {
   }
 }
 
-export const createMandatoryLeave = async (req, res) => {
+export const createMandatoryLeave = async (req, res, next) => {
   const data = req.body
   try {
     const mandatoryLeaves = await createMandatoryLeaveService(data);
     res.status(201).json({
+      success: true,
       message: "Mandatory leave created successfully",
       data: mandatoryLeaves
     });
   } catch (error) {
-    res.status.json({
-      message: error.message
-    })
+    next(error)
   }
 };
 
-export const getMandatoryLeaves = async (req, res) => {
+export const getMandatoryLeaves = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
     const result = await getAllMandatoryLeavesService(page, limit);
 
-    res.status(200).json({
-      message: "All mandatory leave was successfully taken",
-      pagination: {
-        current_page: result.page,
-        last_visible_page: result.totalPages,
-        has_next_page: result.page < result.totalPages,
-        item: {
-          count: result.data.length,
-          total: result.total,
-          per_page: limit
-        }
-      },
-      data: result.data,
-    });
+    const paginationResponse = responsePagination("All mandatory leave was successfully taken", result, limit);
+
+    res.status(200).json(paginationResponse);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    next(error)
   }
 };
 
-
-export const getSearchMandatoryLeave = async (req, res) => {
+export const getSearchMandatoryLeave = async (req, res, next) => {
   try {
     const { value = '', page = 1, limit = 10 } = req.query;
 
     const result = await getSearchMandatoryLeaveService(value, parseInt(page), parseInt(limit));
 
-    res.status(200).json({
-      message: 'Search mandatory leave data retrieved successfully',
-      pagination: {
-        current_page: result.page,
-        last_visible_page: result.totalPages,
-        has_next_page: result.page < result.totalPages,
-        item: {
-          count: result.data.length,
-          total: result.total,
-          per_page: parseInt(limit)
-        }
-      },
-      data: result.data,
-    });
+    const paginationResponse = responsePagination("Search mandatory leave data retrived succesfully", result, limit);
+
+    res.status(200).json(paginationResponse);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    next(error);
   }
 };
-
 
 export const updateMandatoryLeave = async (req, res) => {
   try {
