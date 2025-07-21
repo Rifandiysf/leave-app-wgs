@@ -14,16 +14,18 @@ import {
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
 import { Switch } from "@/app/components/ui/switch"
+import { DatePickerField } from "../date-picker/datePicker"
 
 export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
     const [title, setTitle] = useState("")
-    const [duration, setDuration] = useState(0)
     const [description, setDescription] = useState("")
+    const [startDate, setStartDate] = useState<Date>()
+    const [endDate, setEndDate] = useState<Date>()
     const [isActive, setIsActive] = useState(false)
 
     const [titleError, setTitleError] = useState("")
     const [descriptionError, setDescriptionError] = useState("")
-    const [durationError, setDurationError] = useState("")
+    const [dateError, setDateError] = useState("")
     const [generalError, setGeneralError] = useState('')
     const [generalSuccess, setGeneralSuccess] = useState('')
     const [isLoading, setIsLoading] = useState(false)
@@ -32,12 +34,14 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
     useEffect(() => {
         if (!isDialogOpen) {
             setTitle("");
-            setDuration(0);
             setDescription("");
             setIsActive(false);
+            setStartDate(undefined);
+            setEndDate(undefined);
+
             setTitleError("");
             setDescriptionError("");
-            setDurationError("");
+            setDateError("")
             setGeneralError("");
             setGeneralSuccess("");
         }
@@ -49,8 +53,8 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
         setGeneralError("")
         setGeneralSuccess("")
         setTitleError("")
-        setDescriptionError("")
-        setDurationError("")
+        setDescription("")
+        setDateError("")
 
         let hasError = false;
         if (!title.trim()) {
@@ -61,9 +65,12 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
             setDescriptionError("Description cannot be empty");
             hasError = true;
         }
-        if (duration <= 0) {
-            setDurationError("Duration cannot be 0 days");
-            hasError = true;
+        if (!startDate || !endDate) {
+            setDateError("Both start and end date are required.")
+            hasError = true
+        } else if (endDate < startDate) {
+            setDateError("End date cannot be before start date.")
+            hasError = true
         }
 
         if (hasError) {
@@ -73,9 +80,10 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
         setIsLoading(true)
         const payload = {
             title,
-            duration,
             is_active: isActive,
             description,
+            start_date: startDate?.toISOString().split("T")[0],
+            end_date: endDate?.toISOString().split("T")[0],
         }
 
         try {
@@ -152,18 +160,12 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
                             )}
                         </div>
                         <div className="grid gap-3">
-                            <Label htmlFor="duration">Duration</Label>
-                            <Input
-                                id="duration"
-                                type="number"
-                                min={0}
-                                value={duration}
-                                onChange={(e) => setDuration(Number(e.target.value))}
-                                placeholder="Set amount in days"
-                                className={durationError ? 'border-red-400' : ''}
-                            />
-                            {durationError && (
-                                <p className="text-sm text-red-600 mt-1">{durationError}</p>
+                            <div className="grid grid-cols-2 gap-2">
+                                <DatePickerField label="Start Leave" value={startDate} onChange={(value) => { setStartDate(value) }} className={dateError ? 'border-red-400' : ''}/>
+                                <DatePickerField label="End Leave" value={endDate} onChange={(value) => { setEndDate(value) }} className={dateError ? 'border-red-400' : ''}/>
+                            </div>
+                            {dateError && (
+                                <p className="text-sm text-red-600 mt-1">{dateError}</p>
                             )}
                         </div>
                         <div className="grid gap-3">
