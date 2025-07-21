@@ -44,7 +44,7 @@ export const updateLeaveById = async (req, res) => {
   }
 }
 
-export const getAllLeaves = async (req, res) => {
+export const getAllLeaves = async (req, res, next) => {
   try {
 
     const page = parseInt(req.query.page) || 1
@@ -68,13 +68,11 @@ export const getAllLeaves = async (req, res) => {
     });
 
   } catch (error) {
-    res.status(400).json({
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const getLeavesByFilter = async (req, res) => {
+export const getLeavesByFilter = async (req, res, next) => {
   try {
     const { value, type, page = 1, limit = 10 } = req.query;
 
@@ -96,13 +94,11 @@ export const getLeavesByFilter = async (req, res) => {
     });
 
   } catch (error) {
-    res.status(400).json({
-      message: error.message
-    });
+    next(error)
   }
 }
 
-export const historyLeave = async (req, res) => {
+export const historyLeave = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
@@ -123,12 +119,11 @@ export const historyLeave = async (req, res) => {
     })
 
   } catch (error) {
-    console.error('Error fetching leave history:', error)
-    res.status(500).json({ succes: false, message: 'Server Error' })
+    next(error)
   }
 }
 
-export const historyLeaveSearch = async (req, res) => {
+export const historyLeaveSearch = async (req, res, next) => {
   try {
     const { value = '', type = '', status = '', page = 1, limit = 10 } = req.query;
 
@@ -155,12 +150,11 @@ export const historyLeaveSearch = async (req, res) => {
       data: result.data,
     });
   } catch (error) {
-    console.error('Error fetching leave history:', error);
-    res.status(500).json({ success: false, message: error.message });
+    next(error)
   }
 };
 
-export const getSpecialLeave = async (req, res) => {
+export const getSpecialLeave = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -182,13 +176,11 @@ export const getSpecialLeave = async (req, res) => {
       data: result.data,
     });
   } catch (error) {
-    res.status(400).json({
-      message: error.message
-    });
+    next(error)
   }
 };
 
-export const getSearchSpecialLeave = async (req, res) => {
+export const getSearchSpecialLeave = async (req, res, next) => {
   try {
     const { value = '', page = 1, limit = 10 } = req.query;
 
@@ -209,9 +201,7 @@ export const getSearchSpecialLeave = async (req, res) => {
       data: result.data,
     });
   } catch (error) {
-    res.status(400).json({
-      message: error.message
-    });
+    next(error)
   }
 };
 
@@ -267,7 +257,7 @@ export const createMandatoryLeave = async (req, res, next) => {
   }
 };
 
-export const getMandatoryLeaves = async (req, res) => {
+export const getMandatoryLeaves = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -289,11 +279,11 @@ export const getMandatoryLeaves = async (req, res) => {
       data: result.data,
     });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    next(error)
   }
 };
 
-export const getSearchMandatoryLeave = async (req, res) => {
+export const getSearchMandatoryLeave = async (req, res, next) => {
   try {
     const { value = '', page = 1, limit = 10 } = req.query;
 
@@ -314,7 +304,7 @@ export const getSearchMandatoryLeave = async (req, res) => {
       data: result.data,
     });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    next(error)
   }
 };
 
