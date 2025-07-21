@@ -33,7 +33,6 @@ export const createLeave = async (data) => {
         const duration = specialLeave.duration;
         const startDate = new Date(start_date);
 
-        // ⏱ Hitung end_date = start_date + (duration - 1) hari kerja
         let count = 0;
         let tempDate = new Date(startDate);
         while (count < duration - 1) {

@@ -13,9 +13,9 @@ export const getAllLeavesService = async (page, limit) => {
             }
         },
         orderBy: { created_at: 'desc' },
-        where : {
+        where: {
             status: 'pending'
-        }
+        },
     });
 
     const total = await prisma.tb_leave.count();
@@ -49,6 +49,7 @@ export const getLeavesByFilterService = async (type, value, page, limit) => {
     const skip = (page - 1) * limit;
 
     const data = await prisma.tb_leave.findMany({
+        orderBy: { created_at: 'desc' },
         where,
         skip,
         take: limit
@@ -180,7 +181,7 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
             ...(type && { leave_type: changeFormat(type) }),
             ...(status && { status: status })
         },
-        orderBy: { start_date: 'desc' }
+        orderBy: { created_at: 'desc' },
     });
 
     const history = await Promise.all(
@@ -222,10 +223,10 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
 
 export const getHistoryLeave = async (page, limit) => {
     const leaves = await prisma.tb_leave.findMany({
-        where : {
-            NOT: {status: 'pending'}
+        where: {
+            NOT: { status: 'pending' }
         },
-        orderBy : {start_date: 'desc'}
+        orderBy: { created_at: 'desc' },
     })
 
     const history = await Promise.all(
@@ -266,9 +267,10 @@ export const getSpecialLeaveService = async (page = 1, limit = 10) => {
     const [data, total] = await Promise.all([
         prisma.tb_special_leave.findMany({
             skip,
-            take: limit
+            take: limit,
+            orderBy: { title: 'asc' },
         }),
-        prisma.tb_special_leave.count()
+        prisma.tb_special_leave.count(),
     ]);
 
     const totalPages = Math.ceil(total / limit);
@@ -291,7 +293,8 @@ export const getSearchSpecialLeaveService = async (data, page = 1, limit = 10) =
         prisma.tb_special_leave.findMany({
             where,
             skip,
-            take: limit
+            take: limit,
+            orderBy: { title: 'asc' },
         }),
         prisma.tb_special_leave.count({ where })
     ]);
@@ -327,7 +330,8 @@ export const getAllMandatoryLeavesService = async (page = 1, limit = 10) => {
     const [data, total] = await Promise.all([
         prisma.tb_mandatory_leave.findMany({
             skip,
-            take: limit
+            take: limit,
+            orderBy: { start_date: 'asc' },
         }),
         prisma.tb_mandatory_leave.count()
     ]);
@@ -352,7 +356,8 @@ export const getSearchMandatoryLeaveService = async (data, page = 1, limit = 10)
         prisma.tb_mandatory_leave.findMany({
             where,
             skip,
-            take: limit
+            take: limit,
+            orderBy: { start_date: 'asc' },
         }),
         prisma.tb_mandatory_leave.count({ where })
     ]);
