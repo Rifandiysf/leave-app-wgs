@@ -61,7 +61,7 @@ export const getLeavesByFilterService = async (type, value, page, limit) => {
     return { data, total, page, totalPages };
 };
 
-export const updateLeave = async (id, status, reason, nik) => {
+export const updateLeaves = async (id, status, reason, nik) => {
     try {
         const data = await prisma.tb_leave.findUnique({
             where: {
@@ -94,6 +94,7 @@ export const updateLeave = async (id, status, reason, nik) => {
             throw new Error("New status and old status can't be the same");
         }
 
+        // dari sini harus di fix
         let currentBalance = userBalance[0] ? userBalance[0].amount : 0;
         let carriedBalance = userBalance[1] ? userBalance[1].amount : 0;
         let tempBalance = 0;
@@ -374,3 +375,106 @@ export const updateMandatoryLeaveService = async (id, data) => {
         data,
     });
 };
+
+export const updateLeave = async (id, status, reason, nik) => {
+    try {
+        const data = await prisma.tb_leave.findUnique({
+            where: { id_leave: id },
+            include: { tb_users: true }
+        });
+
+        if (!data) {
+            const err = new Error("Leave not found");
+            err.statusCode = 404;
+            throw err;
+        }
+
+        if (data.status === status) {
+            throw new Error("New status and old status can't be the same");
+        }
+
+        const userBalance = await prisma.tb_balance.findMany({
+            where: {
+                NIK: data.NIK,
+                expired_date: { gte: new Date() }
+            },
+            orderBy: {
+                expired_date: "asc"
+            }
+        });
+
+        const originalStatus = data.status;
+        const totalDays = data.total_days;
+        let daysToHandle = totalDays;
+
+        const updatedBalances = [...userBalance];
+        const isContract = data.tb_users.role === "karyawan_kontrak";
+        const limitPerRecord = isContract ? 1 : 12;
+
+        if (data.leave_type !== "special_leave") {
+            if (
+                (originalStatus === "pending" || originalStatus === "rejected") &&
+                status === "approved"
+            ) {
+                for (let i = 0; i < updatedBalances.length; i++) {
+                    if (daysToHandle === 0) break;
+
+                    const deduct = Math.min(updatedBalances[i].amount, daysToHandle);
+                    updatedBalances[i].amount -= deduct;
+                    daysToHandle -= deduct;
+                }
+
+                if (daysToHandle > 0) {
+                    throw new Error("Insufficient balance to approve leave");
+                }
+            }
+
+            else if (originalStatus === "approved" && status === "rejected") {
+                for (let i = 0; i < updatedBalances.length; i++) {
+                    if (daysToHandle === 0) break;
+
+                    const availableSpace = limitPerRecord - updatedBalances[i].amount;
+                    if (availableSpace <= 0) continue;
+
+                    const restore = Math.min(availableSpace, daysToHandle);
+                    updatedBalances[i].amount += restore;
+                    daysToHandle -= restore;
+                }
+
+                if (daysToHandle > 0) {
+                    throw new Error("Unable to fully restore leave balance — record limits exceeded.");
+                }
+            }
+        }
+
+        const balanceUpdates = updatedBalances.map((balance) =>
+            prisma.tb_balance.update({
+                where: { id_balance: balance.id_balance },
+                data: { amount: balance.amount }
+            })
+        );
+
+        const result = await prisma.$transaction([
+            prisma.tb_leave.update({
+                where: { id_leave: id },
+                data: { status: status }
+            }),
+            ...balanceUpdates,
+            prisma.tb_leave_log.create({
+                data: {
+                    old_status: originalStatus,
+                    new_status: status,
+                    reason: reason,
+                    changed_by_nik: nik,
+                    id_leave: data.id_leave,
+                    changed_at: new Date()
+                }
+            })
+        ]);
+
+        return result[0];
+    } catch (error) {
+        throw error;
+    }
+};
+

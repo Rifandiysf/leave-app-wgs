@@ -263,10 +263,10 @@ export const getUserByNIK = async (nik) => {
         error.statusCode = 404;
         throw error;
     }
-
+    
     const { tb_balance, NIK, fullname, gender, status_active } = user;
     const currentBalance = tb_balance[0] ? tb_balance[0].amount : 0;
-    const lastYearBalance = tb_balance[1] ? tb_balance[1].amount : 0;
+    const lastYearBalance = tb_balance.slice(1).reduce((sum, bal) => sum + bal.amount, 0);
     let maxReceiveAmount = user.role === "karyawan_kontrak" ? 1 : 12;
 
     const pending_request = await prisma.tb_leave.aggregate({
