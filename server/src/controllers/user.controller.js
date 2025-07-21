@@ -1,4 +1,5 @@
-import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK } from "../services/user.service.js"
+import { success } from "zod/v4";
+import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK, adjustModifyAmount } from "../services/user.service.js"
 import { decodeToken } from "../utils/jwt.js";
 
 
@@ -25,7 +26,6 @@ export const createLeaveRequest = async (req, res) => {
         })
     }
 }
-
 
 export const getLeaveRequests = async (req, res) => {
     try {
@@ -77,7 +77,6 @@ export const getLeavesByFilter = async (req, res) => {
     }
 };
 
-
 export const getLeaveRequestsById = async (req, res) => {
     try {
 
@@ -97,7 +96,6 @@ export const getLeaveRequestsById = async (req, res) => {
         })
     }
 }
-
 
 export const allUsers = async (req, res) => {
     try {
@@ -127,9 +125,7 @@ export const allUsers = async (req, res) => {
     }
 };
 
-
-
-export const getUser = async (req, res) => {
+export const getUser = async (req, res, next) => {
     try {
         const decode = await decodeToken(req.get("authorization").split(' ')[1]);
         const { role, NIK } = decode;
@@ -139,7 +135,7 @@ export const getUser = async (req, res) => {
         if (!isAdmin) {
             if (NIK !== nik) {
                 const err = new Error("User requested has no permission");
-                err.statusCode = 400;
+                err.statusCode = 401;
                 throw err;
             }
         }
@@ -147,7 +143,7 @@ export const getUser = async (req, res) => {
         const user = await getUserByNIK(nik);
 
         res.status(200).json({
-            status: "successful",
+            success: true,
             message: `Data retrieve successfully`,
             requested_by: {
                 role: role,
@@ -156,10 +152,7 @@ export const getUser = async (req, res) => {
             data: user
         });
     } catch (error) {
-        res.status(error.statusCode).json({
-            status: "failed",
-            message: error.message,
-        })
+        next(error);
     }
 }
 
@@ -198,5 +191,22 @@ export const deleteUser = async (req, res) => {
             message: "failed to delete user data",
             reason: error.message
         });
+    }
+}
+
+export const modifyAmount = async (req, res) => {
+    const { nik } = req.params
+    const {adjustment_value, notes} = req.body
+
+    const actor = req.session.user.role
+    if (!actor) {
+        return res.status(401).json({ message: 'Unauthorized: actor (role) not found in session' });
+    }
+
+    try {
+        const result = await adjustModifyAmount(nik, adjustment_value, notes, actor)
+        res.status(200).json({message: 'Balance adjusted successfully', data: result})
+    } catch (error) {
+        res.status(400).json({message: error.message})
     }
 }

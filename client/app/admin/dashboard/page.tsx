@@ -21,7 +21,7 @@ type dataLeaveType = {
     name: string,
     gender: string,
     role: string,
-    status_active: string,
+    status: string,
     last_year_leave?: number,
     this_year_leave?: number,
     leave_total?: number
@@ -177,7 +177,7 @@ const DashboardPage = () => {
                                         <td className="p-3">{data.last_year_leave || 0}</td>
                                         <td className="p-3">{data.leave_total || 0}</td>
                                         <td className="p-3">{(data.role || '').replace(/_/g, ' ')}</td>
-                                        <td className="p-3">{renderStatus(data.status_active)}</td>
+                                        <td className="p-3">{renderStatus(data.status)}</td>
                                     </tr>
                                 ))
                             )}
