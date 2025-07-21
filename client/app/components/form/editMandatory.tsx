@@ -37,6 +37,7 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
     const [titleError, setTitleError] = useState("")
     const [descriptionError, setDescriptionError] = useState("")
     const [generalError, setGeneralError] = useState('')
+    const [durationError, setDurationError] = useState("")
     const [generalSuccess, setGeneralSuccess] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -49,6 +50,7 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
             setDescription(initialData.description)
             setTitleError("")
             setDescriptionError("")
+            setDurationError("")
             setGeneralError("")
             setGeneralSuccess("")
         } else {
@@ -66,6 +68,7 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
         setGeneralSuccess("")
         setTitleError("")
         setDescriptionError("")
+        setDurationError("")
 
         let hasError = false
         if (!title.trim()) {
@@ -77,8 +80,8 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
             hasError = true
         }
         if (duration <= 0) {
-            // setDurationError("Duration must be a positive number")
-            // hasError = true;
+            setDurationError("Duration must be a positive number")
+            hasError = true;
         }
 
         if (hasError) {
@@ -163,7 +166,7 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
                                     if (titleError) setTitleError("")
                                 }}
                                 placeholder="Edit title"
-                                required
+                                className={titleError ? 'border-red-400' : ''}
                             />
                             {titleError && (
                                 <p className="text-sm text-red-600 mt-1">{titleError}</p>
@@ -178,8 +181,11 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
                                 value={duration}
                                 onChange={(e) => setDuration(Number(e.target.value))}
                                 placeholder="Edit duration"
-                                required
+                                className={durationError ? 'border-red-400' : ''}
                             />
+                            {durationError && (
+                                <p className="text-sm text-red-600 mt-1">{durationError}</p>
+                            )}
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="description">Description</Label>
@@ -191,7 +197,7 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
                                     if (descriptionError) setDescriptionError("")
                                 }}
                                 placeholder="Edit description"
-                                className="border-[1.5px] border-[#0000001f] rounded-sm p-1 focus:border-2 focus:border-black"
+                                className={`border-[1.5px] border-[#0000001f] ${descriptionError ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
                             />
                             {descriptionError && (
                                 <p className="text-sm text-red-600 mt-1">{descriptionError}</p>

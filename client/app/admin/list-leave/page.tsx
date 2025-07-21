@@ -16,7 +16,7 @@ type ApiLeaveType = {
     leave_type: string;
     start_date: string;
     end_date: string;
-    leave_used: number;
+    total_days: number;
     reason: string;
     status: string;
 };
@@ -184,7 +184,7 @@ const ListOfLeavePage = () => {
                                                 <td className="p-3 align-middle">{formatLeaveType(data.leave_type)}</td>
                                                 <td className="p-3 align-middle">{formatDate(data.start_date)}</td>
                                                 <td className="p-3 align-middle">{formatDate(data.end_date)}</td>
-                                                <td className="p-3 align-middle">{data.leave_used}</td>
+                                                <td className="p-3 align-middle">{data.total_days}</td>
                                                 <td className="p-3 align-middle">{getStatusChip(data.status)}</td>
                                                 {viewMode === 'requests' && (
                                                     <td className="p-2 text-[14px] text-center font-medium border-b-[1.5px] border-[#0000001f]">
