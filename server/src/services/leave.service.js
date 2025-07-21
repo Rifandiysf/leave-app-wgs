@@ -245,3 +245,69 @@ export const getHistoryLeave = async () => {
 
     return history
 }
+
+export const updateLeaveBalance = async (user) => {
+    const today = new Date()
+    const joinDate = new Date(user.join_date)
+
+    if (user.role === 'karyawan_tetap' || user.role === 'admin' || user.role === 'super_admin') {
+        const currentYear = today.getFullYear()
+
+        const alreadyGiven = await prisma.tb_balance.findFirst({
+            where : {
+                NIK: user.NIK,
+                receive_date: {
+                    gte: new Date(`${currentYear}-01-01`),
+                    lte: new Date(`${currentYear}-12-31`)
+                }
+            }
+        })
+
+        if (!alreadyGiven) {
+            const receiveDate = new Date()
+            const expiredDate = new Date(receiveDate)
+            expiredDate.setFullYear(receiveDate.getFullYear()+2)
+
+            await prisma.tb_balance.create({
+                data: {
+                    NIK: user.NIK,
+                    amount: 12,
+                    receive_date: receiveDate,
+                    expired_date: expiredDate
+                }
+            })
+        }
+    } else if (user.role === 'karyawan_kontrak') {
+        let months = (today.getFullYear() - joinDate.getFullYear()) * 12 +
+                     (today.getMonth() - joinDate.getMonth())
+        
+        if (today.getDate() >= joinDate.getDate()) months += 1
+
+        const eligibleMonths = months - 3
+
+        if(eligibleMonths >= 1) {
+            const totalBalance = await prisma.tb_balance.aggregate({
+                where: {NIK: user.nik},
+                _sum: {amount: true}
+            })
+
+            const current = totalBalance._sum.amount || 0
+            const toAdd = eligibleMonths - current
+
+            if (toAdd > 0) {
+                const receiveDate = new Date()
+                const expiredDate = new Date(receiveDate)
+                expiredDate.setFullYear(receiveDate.getFullYear() + 2)
+
+                await prisma.tb_balance.create({
+                    data: {
+                        NIK: user.NIK,
+                        amount: toAdd,
+                        receive_date: receiveDate,
+                        expired_date: expiredDate
+                    }
+                })
+            }
+        }
+    }
+}
