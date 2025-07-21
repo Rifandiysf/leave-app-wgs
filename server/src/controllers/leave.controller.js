@@ -14,6 +14,7 @@ import {
   getSearchSpecialLeaveService,
   getSearchMandatoryLeaveService,
 } from "../services/leave.service.js"
+import { responsePagination } from "../utils/responsePagination.utils.js";
 import { decodeToken } from "../utils/jwt.js";
 
 export const updateLeaveById = async (req, res) => {
@@ -294,28 +295,19 @@ export const getMandatoryLeaves = async (req, res) => {
   }
 };
 
-export const getSearchMandatoryLeave = async (req, res) => {
+export const getSearchMandatoryLeave = async (req, res, next) => {
   try {
     const { value = '', page = 1, limit = 10 } = req.query;
 
     const result = await getSearchMandatoryLeaveService(value, parseInt(page), parseInt(limit));
 
+    const paginationResponse = responsePagination("Search mandatory leave data retrived succesfully", result, limit);
+
     res.status(200).json({
-      message: 'Search mandatory leave data retrieved successfully',
-      pagination: {
-        current_page: result.page,
-        last_visible_page: result.totalPages,
-        has_next_page: result.page < result.totalPages,
-        item: {
-          count: result.data.length,
-          total: result.total,
-          per_page: parseInt(limit)
-        }
-      },
-      data: result.data,
+      paginationResponse
     });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    next(error);
   }
 };
 
