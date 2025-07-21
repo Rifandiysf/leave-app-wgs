@@ -22,11 +22,11 @@
     "express": "^5.1.0",
     "express-session": "^1.18.1",
     "morgan": "^1.10.0",
-    "nodemon": "^3.1.10",
     "response-time": "^2.3.3",
     "zod": "^3.25.74"
   },
   "devDependencies": {
+    "nodemon": "^3.1.10",
     "prisma": "^6.11.1"
   }
 }

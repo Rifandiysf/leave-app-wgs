@@ -1,5 +1,5 @@
 import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK, adjustModifyAmount } from "../services/user.service.js"
-
+import prisma from '../utils/client.js'
 
 export const createLeaveRequest = async (req, res) => {
     try {
@@ -189,7 +189,18 @@ export const modifyAmount = async (req, res) => {
     }
 
     try {
-        const result = await adjustModifyAmount(nik, adjustment_value, notes, actor)
+        const targetUser = await prisma.tb_users.findUnique({
+            where : {NIK: nik},
+            select : {role: true}
+        })
+
+        if (!targetUser) {
+            return res.status(404).json({ message: 'Target user not found' })
+        }
+
+        const targetRole = targetUser.role;
+
+        const result = await adjustModifyAmount(nik, adjustment_value, notes, actor, targetRole)
         res.status(200).json({message: 'Balance adjusted successfully', data: result})
     } catch (error) {
         res.status(400).json({message: error.message})
