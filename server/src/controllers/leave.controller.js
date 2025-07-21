@@ -253,18 +253,17 @@ export const updateSpecialLeave = async (req, res) => {
   }
 }
 
-export const createMandatoryLeave = async (req, res) => {
+export const createMandatoryLeave = async (req, res, next) => {
   const data = req.body
   try {
     const mandatoryLeaves = await createMandatoryLeaveService(data);
     res.status(201).json({
+      success: true,
       message: "Mandatory leave created successfully",
       data: mandatoryLeaves
     });
   } catch (error) {
-    res.status.json({
-      message: error.message
-    })
+    next(error)
   }
 };
 

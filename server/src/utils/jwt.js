@@ -35,6 +35,7 @@ export const generateToken = async (payload, deviceData, expiresIn = '24h') => {
             }
         }
 
+        return token;
 
     } catch (error) {
         throw error;
