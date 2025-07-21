@@ -39,9 +39,10 @@ model tb_leave {
 model tb_mandatory_leave {
   id_mandatory String     @id @default(uuid()) @db.VarChar(50)
   title        String     @db.VarChar(255)
-  duration     Int        @db.SmallInt
   is_active    Boolean    @default(true)
   description  String
+  start_date   DateTime   @default(dbgenerated("(CURRENT_DATE + '14 days'::interval)")) @db.Date
+  end_date     DateTime   @default(dbgenerated("(CURRENT_DATE + '16 days'::interval)")) @db.Date
   tb_leave     tb_leave[]
 }
 
@@ -66,8 +67,8 @@ model tb_users {
   join_date             DateTime                @db.Date
   tb_balance            tb_balance[]
   tb_balance_adjustment tb_balance_adjustment[]
-  tb_leave              tb_leave[]
   tb_jwt_token          tb_jwt_token[]
+  tb_leave              tb_leave[]
 }
 
 model tb_balance_adjustment {
@@ -92,13 +93,13 @@ model tb_leave_log {
 }
 
 model tb_jwt_token {
-  device_info   String  @db.VarChar(255)
-  device_id     String  @unique @db.VarChar(255) 
-  NIK          String   @db.VarChar(16)
   access_token String   @id @db.VarChar(500)
+  NIK          String   @db.VarChar(16)
+  device_id    String   @unique @db.VarChar(255)
+  device_info  String   @db.VarChar(255)
   tb_users     tb_users @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
 }
-  
+
 enum applicable_gender {
   m
   f

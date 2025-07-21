@@ -1,3 +1,4 @@
+import { date } from "zod/v4";
 import prisma from "../utils/client.js"
 import { calculateWorkingDays } from '../utils/leaves.utils.js';
 
@@ -32,7 +33,6 @@ export const createLeave = async (data) => {
         const duration = specialLeave.duration;
         const startDate = new Date(start_date);
 
-        // ⏱ Hitung end_date = start_date + (duration - 1) hari kerja
         let count = 0;
         let tempDate = new Date(startDate);
         while (count < duration - 1) {
@@ -366,4 +366,45 @@ export const deleteUserByNIK = async (nik) => {
     //     }
     // })
 
+}
+
+export const adjustModifyAmount = async (nik, adjustment_value, notes, actor) => {
+    const thisYear = new Date().getFullYear()
+
+    const balance = await prisma.tb_balance.findFirst({
+        where : {
+            NIK: nik, 
+            receive_date: {
+                gte: new Date(`${thisYear}-01-01`),
+                lte: new Date(`${thisYear}-12-31`)
+            }
+        }
+    })
+
+    if(!balance) {
+        throw new Error('Balance for current year not found')
+    }
+
+    const updatedAmount = await prisma.$transaction([
+        prisma.tb_balance.update({
+            where: {id_balance: balance.id_balance},
+            data : {
+                amount: {
+                    increment: adjustment_value
+                }
+            }
+        }),
+
+        prisma.tb_balance_adjustment.create({
+            data: {
+                adjustment_value,
+                notes,
+                actor,
+                NIK: nik,
+                created_at: new Date()
+            }
+        })
+    ]) 
+
+    return updatedAmount
 }
