@@ -157,11 +157,6 @@ const LoginPage = () => {
                                     </>
                                 ) : 'Login'}
                             </Button>
-
-                            <Button variant="outline" className="w-full bg-white flex justify-center items-center gap-2">
-                                <Image src="/images/google.svg" alt="google" width={20} height={20} />
-                                Login with Google
-                            </Button>
                         </CardFooter>
                     </form>
                 </CardContent>

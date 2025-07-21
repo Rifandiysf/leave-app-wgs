@@ -10,6 +10,11 @@ type sideBarProps = {
     role?: "admin" | "user" | "super_admin"
 }
 
+const broadcastResetView = () => {
+  window.dispatchEvent(new CustomEvent('resetLeaveView'));
+};
+
+
 export default function Sidebar({ role = "user" }: sideBarProps) {
     const pathname = usePathname()
     const [welcomeText, setWelcomeText] = useState("Welcome...")
@@ -33,7 +38,6 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
         <>
             {role === "admin" ? (
                 <>
-                    {/* Sidebar Desktop untuk Admin */}
                     <aside className="w-64 flex-col hidden lg:flex bg-white h-full fixed lg:relative z-50">
                         <div className="bg-white p-7 pb-3">
                             <div className="flex items-center justify-between">
@@ -62,7 +66,14 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
                                     <span className="ml-3">Dashboard</span>
                                 </Link>
                                 <Link
+                                    href="/admin/employee-list"
+                                    className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/employee-list')}`}>
+                                    <i className="bi bi-person-circle text-xl w-6 text-center" />
+                                    <span className="ml-3">Employee List</span>
+                                </Link>
+                                <Link
                                     href="/admin/list-leave"
+                                    onClick={broadcastResetView}
                                     className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/list-leave')}`}
                                 >
                                     <i className="bi bi-clock-history text-xl w-6 text-center" />
@@ -84,13 +95,16 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
                         </nav>
                     </aside>
 
-                    {/* Navigasi Bawah untuk Admin (Hanya tampil di mobile) */}
                     <nav className="fixed bottom-0 left-0 w-full bg-white border-t z-50 flex justify-around items-center py-2 lg:hidden">
                         <Link href="/admin/dashboard" className="flex flex-col items-center text-xs">
                             <i className={`bi bi-person-workspace text-xl ${isBottomActive('/admin/dashboard')}`} />
                             <span>Dashboard</span>
                         </Link>
-                        <Link href="/admin/list-leave" className="flex flex-col items-center text-xs">
+                        <Link
+                            href="/admin/list-leave"
+                            onClick={broadcastResetView}
+                            className="flex flex-col items-center text-xs"
+                        >
                             <i className={`bi bi-clock-history text-xl ${isBottomActive('/admin/list-leave')}`} />
                             <span>List Of Leave</span>
                         </Link>
@@ -113,7 +127,6 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
                 </>
             ) : (
                 <>
-                    {/* Sidebar Desktop untuk User  */}
                     <aside className="w-64 flex-col hidden lg:flex bg-white h-full fixed lg:relative z-50">
                         <div className="bg-white p-7 pb-3">
                             <div className="flex items-center justify-between">
@@ -148,7 +161,6 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
                         </nav>
                     </aside>
 
-                    {/* Navigasi Bawah untuk User (Hanya tampil di mobile) */}
                     <nav className="fixed bottom-0 left-0 w-full bg-white border-t z-50 flex justify-around items-center py-2 lg:hidden">
                         <Link href="/" className="flex flex-col items-center text-xs">
                             <i className={`bi bi-person-workspace text-xl ${isBottomActive('/')}`} />
