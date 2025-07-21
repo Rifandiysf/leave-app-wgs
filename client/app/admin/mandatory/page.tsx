@@ -162,7 +162,7 @@ const MandatoryLeavePage = () => {
                         {isLoading ? (
                             Array.from({ length: paginationInfo.item.per_page }).map((_, rowIdx) => (
                                 <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
-                                    {Array.from({ length: 5 }).map((_, colIdx) => (
+                                    {Array.from({ length: 6 }).map((_, colIdx) => (
                                         <th key={colIdx} className="p-3">
                                             <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
                                         </th>
@@ -171,7 +171,7 @@ const MandatoryLeavePage = () => {
                             ))
                         ) : dataMandatoryLeave.length === 0 ? (
                             <tr>
-                                <td colSpan={5} className="p-4 text-center text-gray-500">
+                                <td colSpan={6} className="p-4 text-center text-gray-500">
                                     No mandatory leaves found.
                                 </td>
                             </tr>
@@ -214,6 +214,7 @@ const MandatoryLeavePage = () => {
                                     <PaginationLink
                                         isActive={currentPage === i + 1}
                                         onClick={() => handlePageChange(i + 1)}
+                                        className='cursor-pointer'
                                     >
                                         {i + 1}
                                     </PaginationLink>

@@ -159,6 +159,7 @@ const HistoryPage = () => {
                                     <PaginationLink
                                         isActive={currentPage === i + 1}
                                         onClick={() => handlePageChange(i + 1)}
+                                        className='cursor-pointer'
                                     >
                                         {i + 1}
                                     </PaginationLink>
