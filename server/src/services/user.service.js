@@ -14,7 +14,7 @@ export const createLeave = async (data) => {
     let end_date = data.end_date;
     let total_days = data.total_days;
     let id_special = null;
-    let id_mandatory = null;
+    
 
     if (leave_type === "special_leave") {
         id_special = data.id_special;
@@ -46,21 +46,8 @@ export const createLeave = async (data) => {
         end_date = tempDate;
         total_days = duration;
 
-    } else if (leave_type === "mandatory_leave") {
-        id_mandatory = data.id_mandatory;
-        if (!id_mandatory) {
-            throw new Error("id_mandatory is required for mandatory leave");
-        }
-
-        const mandatoryLeaveExists = await prisma.tb_mandatory_leave.findUnique({
-            where: { id_mandatory }
-        });
-        if (!mandatoryLeaveExists) {
-            throw new Error("Invalid id_mandatory provided");
-        }
     }
 
-    // Untuk personal atau mandatory (bukan special), total_days dihitung dari working days
     if (!total_days) {
         total_days = calculateWorkingDays(new Date(start_date), new Date(end_date));
     }
@@ -73,18 +60,13 @@ export const createLeave = async (data) => {
         reason,
         NIK,
         total_days,
-        id_special,
-        id_mandatory
+        id_special
     };
 
     return await prisma.tb_leave.create({
         data: leaveData,
     });
 };
-
-
-
-
 
 export const getLeavesByNIK = async (NIK) => {
     return await prisma.tb_leave.findMany({

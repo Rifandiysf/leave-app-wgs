@@ -5,6 +5,7 @@ import { validateRole } from '../middlewares/validateRole.middleware.js';
 import updateLeaveRequestSchema from "../validators/updateLeave.validator.js";
 import { specialLeaveForm, specialLeaveFormUpdate } from "../validators/specialLeaveForm.validator.js";
 import { mandatoryLeaveForm, mandatoryLeaveFormUpdate } from "../validators/mandatoryLeaveForm.validator.js";
+import { checkStartDateTwoWeeksAhead } from "../middlewares/checkStartDateTwoWeeksAhead.middleware.js";
 
 const leaveRoutes = express.Router();
 
@@ -21,7 +22,7 @@ leaveRoutes.patch('/special/:id', validate(specialLeaveFormUpdate), updateSpecia
 
 leaveRoutes.get('/mandatory', getMandatoryLeaves)
 leaveRoutes.get('/mandatory/search', getSearchMandatoryLeave)
-leaveRoutes.post('/mandatory', validate(mandatoryLeaveForm), createMandatoryLeave)
+leaveRoutes.post('/mandatory', checkStartDateTwoWeeksAhead, validate(mandatoryLeaveForm), createMandatoryLeave)
 leaveRoutes.patch('/mandatory/:id', validate(mandatoryLeaveFormUpdate), updateMandatoryLeave)
 
 leaveRoutes.patch('/:id', validate(updateLeaveRequestSchema), updateLeaveById)
