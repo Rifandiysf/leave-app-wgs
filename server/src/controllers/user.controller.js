@@ -49,27 +49,29 @@ export const getLeaveRequests = async (req, res, next) => {
     }
 }
 
-export const getLeavesByFilter = async (req, res, next) => {
+export const getLeavesByFilter = async (req, res) => {
     try {
         const { value, type, status, page = 1, limit = 10 } = req.query;
+
         const user = await decodeToken(req.get('authorization').split(' ')[1]);
 
-        const result = await getLeavesByFilterService(user.NIK, type, status, value, parseInt(page), parseInt(limit));
+        const leaves = await getLeavesByFilterService(user.NIK, type, status, value, page, limit);
 
-        if (!result || result.data.length === 0) {
-            return res.status(201).json({
+        if (!leaves || leaves.length === 0) {
+            res.status(201).json({
                 message: "The data doesn't exist",
-                data: result?.data || [],
-            });
+                data: leaves,
+            })
         }
 
-
-        const result =  responsePagination('Filtered leave data retrieved successfully', leaves)
+        const result = responsePagination('Filtered leave data retrieved successfully', leaves, limit)
         res.status(200).json(result);
     } catch (error) {
-        next(error);
-    };
-}
+        res.status(400).json({
+            message: error.message
+        });
+    }
+};
 
 
 export const getLeaveRequestsById = async (req, res) => {
