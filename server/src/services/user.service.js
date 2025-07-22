@@ -245,95 +245,100 @@ export const getAllUsers = async (page, limit, search = '') => {
 
 
 export const getUserByNIK = async (nik) => {
-    const currentDate = new Date();
-    const currentDateFirstMonth = new Date(new Date().getFullYear(), 0, 1);
+    try {
+        const currentDate = new Date();
+        const currentDateFirstMonth = new Date(new Date().getFullYear(), 0, 1);
 
-    const user = await prisma.tb_users.findUnique({
-        omit: {
-            password: true,
-            email: true,
-        },
-        where: {
-            NIK: nik,
-            NOT: {
-                role: "magang"
-            }
-        },
-        include: {
-            tb_balance: {
-                where: {
-                    expired_date: {
-                        gte: new Date()
-                    }
-                },
-                orderBy: {
-                    expired_date: "desc"
+        const user = await prisma.tb_users.findUnique({
+            omit: {
+                password: true,
+                email: true,
+            },
+            where: {
+                NIK: nik,
+                NOT: {
+                    role: "magang"
                 }
             },
-        }
-    });
+            include: {
+                tb_balance: {
+                    where: {
+                        expired_date: {
+                            gte: new Date()
+                        }
+                    },
+                    orderBy: {
+                        expired_date: "desc"
+                    }
+                },
+            }
+        });
 
-    if (!user) {
-        const error = new Error("user not found");
-        error.statusCode = 404;
+        if (!user) {
+            const error = new Error("user not found");
+            error.statusCode = 404;
+            throw error;
+        }
+
+        const { tb_balance, NIK, fullname, gender, status_active } = user;
+        const currentBalance = tb_balance[0] ? tb_balance[0].amount : 0;
+        const lastYearBalance = tb_balance.slice(1).reduce((sum, bal) => sum + bal.amount, 0);
+        let maxReceiveAmount = user.role === "karyawan_kontrak" ? 1 : 12;
+
+        const pending_request = await prisma.tb_leave.aggregate({
+            _sum: {
+                total_days: true
+            },
+            where: {
+                created_at: {
+                    gte: currentDateFirstMonth,
+                    lte: currentDate
+                },
+                NIK: nik,
+                status: "pending",
+                leave_type: {
+                    in: ["personal_leave", "mandatory_leave"]
+                }
+            },
+        });
+
+        const approved_request = await prisma.tb_leave.aggregate({
+            _sum: {
+                total_days: true
+            },
+            where: {
+                end_date: {
+                    gte: currentDateFirstMonth,
+                    lte: currentDate,
+                },
+                NIK: nik,
+                status: "approved",
+                leave_type: {
+                    in: ["personal_leave", "mandatory_leave"]
+                }
+            },
+        });
+
+        const userCopy = {
+            NIK: NIK,
+            fullname: fullname,
+            gender: gender,
+            status_active: status_active,
+            role: user.role,
+            balance: {
+                total_amount: currentBalance + lastYearBalance || 0,
+                current_amount: currentBalance,
+                carried_amount: lastYearBalance,
+                days_used: approved_request._sum.total_days || 0,
+                pending_request: pending_request._sum.total_days || 0,
+            }
+        }
+
+        return userCopy;
+    } catch (error) {
         throw error;
     }
 
-    const { tb_balance, NIK, fullname, gender, status_active } = user;
-    const currentBalance = tb_balance[0] ? tb_balance[0].amount : 0;
-    const lastYearBalance = tb_balance[1] ? tb_balance[1].amount : 0;
-    let maxReceiveAmount = user.role === "karyawan_kontrak" ? 1 : 12;
-
-    const pending_request = await prisma.tb_leave.aggregate({
-        _sum: {
-            total_days: true
-        },
-        where: {
-            created_at: {
-                gte: currentDateFirstMonth,
-                lte: currentDate
-            },
-            NIK: nik,
-            status: "pending",
-            leave_type: {
-                in: ["personal_leave", "mandatory_leave"]
-            }
-        },
-    });
-
-    const approved_request = await prisma.tb_leave.aggregate({
-        _sum: {
-            total_days: true
-        },
-        where: {
-            end_date: {
-                gte: currentDateFirstMonth,
-                lte: currentDate,
-            },
-            NIK: nik,
-            status: "approved",
-            leave_type: {
-                in: ["personal_leave", "mandatory_leave"]
-            }
-        },
-    });
-
-    const userCopy = {
-        NIK: NIK,
-        fullname: fullname,
-        gender: gender,
-        status_active: status_active,
-        role: user.role,
-        balance: {
-            total_amount: currentBalance + lastYearBalance || 0,
-            current_amount: currentBalance,
-            carried_amount: lastYearBalance,
-            days_used: approved_request._sum.total_days || 0,
-            pending_request: pending_request._sum.total_days || 0,
-        }
-    }
-
-    return userCopy;
 }
 
 export const updateUserByNIK = async (nik, data) => {
