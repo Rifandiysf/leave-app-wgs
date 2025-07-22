@@ -1,6 +1,6 @@
 import { date } from "zod/v4";
 import prisma from "../utils/client.js"
-import { calculateWorkingDays } from '../utils/leaves.utils.js';
+import { calculateHolidaysDays } from '../utils/leaves.utils.js';
 
 export const createLeave = async (data) => {
     const {
@@ -49,7 +49,7 @@ export const createLeave = async (data) => {
     }
 
     if (!total_days) {
-        total_days = calculateWorkingDays(new Date(start_date), new Date(end_date));
+        total_days = calculateHolidaysDays(new Date(start_date), new Date(end_date));
     }
 
     const leaveData = {
