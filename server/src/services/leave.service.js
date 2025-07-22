@@ -19,8 +19,8 @@ export const getAllLeavesService = async (page, limit) => {
     });
 
     const data = leaves.map(leave => ({
-        ...leave, // Salin semua field asli dari leave
-        name: leave.tb_users.fullname // Buat field 'name' baru dari data yang bersarang
+        ...leave,
+        name: leave.tb_users.fullname
     }))
 
     const total = await prisma.tb_leave.count();
@@ -47,24 +47,35 @@ export const getLeavesByFilterService = async (type, value, page, limit) => {
 
     if (value) {
         where.OR = [
-            { title: { contains: value, mode: 'insensitive' } }
+            { tb_users: { is: { fullname: { contains: value, mode: 'insensitive' } } } }
         ];
     }
 
     const skip = (page - 1) * limit;
 
-    const data = await prisma.tb_leave.findMany({
+    const leaves = await prisma.tb_leave.findMany({
         orderBy: { created_at: 'desc' },
         where,
         skip,
-        take: limit
+        take: limit,
+        include: {
+            tb_users: {
+                select: { fullname: true }
+            }
+        }
     });
+
+    const data = leaves.map(leave => ({
+        ...leave,
+        name: leave.tb_users.fullname
+    }));
 
     const total = await prisma.tb_leave.count({ where });
     const totalPages = Math.ceil(total / limit);
 
     return { data, total, page, totalPages };
 };
+
 
 export const updateLeave = async (id, status, reason, nik) => {
     try {
@@ -108,7 +119,6 @@ export const updateLeave = async (id, status, reason, nik) => {
             maxAmountReceive = 1;
         }
 
-        // kondisi berdasarkan status leave saat ini dan status mendatang
         if (data.leave_type !== "special_leave") {
             if (data.status === "approved" && status === "rejected") {
                 currentBalance += data.total_days;
@@ -121,14 +131,12 @@ export const updateLeave = async (id, status, reason, nik) => {
             }
         }
 
-        // jika carried balance seteleah dikurangi hasilnya minus
         if (carriedBalance < 0) {
             tempBalance = -1 * (carriedBalance)
             currentBalance -= tempBalance;
             carriedBalance = 0;
         }
 
-        // jika current balance setelah ditambah ternyata hasilnya lebih dari 12
         if (currentBalance > maxAmountReceive) {
             tempBalance = currentBalance - maxAmountReceive
             carriedBalance += tempBalance;
