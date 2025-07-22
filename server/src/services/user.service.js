@@ -404,7 +404,7 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor) =>
                 created_at: new Date()
             }
         })
-    ]) 
+    ])
 
     return updatedAmount
 }

@@ -1,3 +1,4 @@
+import { leave_type } from "../../generated/prisma/index.js";
 import prisma from "../utils/client.js";
 
 
@@ -389,9 +390,17 @@ export const updateLeave = async (id, status, reason, nik) => {
             throw err;
         }
 
+        // if (data.start_date >= new Date()) {
+        //     throw new Error("The start date of the leave has passed the current date");
+        // }
+
         if (data.status === status) {
             throw new Error("New status and old status can't be the same");
         }
+
+        // if (data.NIK === nik) {
+        //     throw new Error("Users are not allowed to approve or reject their own leave requests")
+        // }
 
         const userBalance = await prisma.tb_balance.findMany({
             where: {
@@ -402,6 +411,10 @@ export const updateLeave = async (id, status, reason, nik) => {
                 expired_date: "asc"
             }
         });
+
+        if (userBalance.length === 0) {
+            throw new Error("Balance not found");
+        }
 
         const originalStatus = data.status;
         const totalDays = data.total_days;
@@ -416,24 +429,33 @@ export const updateLeave = async (id, status, reason, nik) => {
                 (originalStatus === "pending" || originalStatus === "rejected") &&
                 status === "approved"
             ) {
+                // mengurangi amount balance dari record paling lama (deduct)
                 for (let i = 0; i < updatedBalances.length; i++) {
                     if (daysToHandle === 0) break;
+                    let deduct; 
 
-                    const deduct = Math.min(updatedBalances[i].amount, daysToHandle);
+                    if (i === updatedBalances.length - 1) {
+                        deduct = daysToHandle
+                    } else {
+                        deduct = Math.min(updatedBalances[i].amount, daysToHandle);
+                    }
+                    
                     updatedBalances[i].amount -= deduct;
                     daysToHandle -= deduct;
                 }
 
-                if (daysToHandle > 0) {
+                if (daysToHandle > 0 && data.leave_type === "personal_leave") {
                     throw new Error("Insufficient balance to approve leave");
                 }
             }
 
+            // menambahkan amount balance dari record paling lama (restore)
             else if (originalStatus === "approved" && status === "rejected") {
                 for (let i = 0; i < updatedBalances.length; i++) {
                     if (daysToHandle === 0) break;
 
                     const availableSpace = limitPerRecord - updatedBalances[i].amount;
+                    console.log(availableSpace);
                     if (availableSpace <= 0) continue;
 
                     const restore = Math.min(availableSpace, daysToHandle);
@@ -474,7 +496,160 @@ export const updateLeave = async (id, status, reason, nik) => {
 
         return result[0];
     } catch (error) {
+        error.statusCode = 400
+        error.cause = error.message;
+        error.message = "Something went wrong when modify leave status"
         throw error;
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const updateLeavesk = async (id, status, reason, nik) => {
+    try {
+        const data = await prisma.tb_leave.findUnique({
+            where: {
+                id_leave: id,
+            },
+            include: {
+                tb_users: true
+            }
+        });
+
+        if (!data) {
+            const err = new Error("Leave not found");
+            err.statusCode = 404;
+            throw err;
+        }
+
+        const userBalance = await prisma.tb_balance.findMany({
+            where: {
+                NIK: data.NIK,
+                expired_date: {
+                    gte: new Date()
+                }
+            },
+            orderBy: {
+                expired_date: "asc" // [-1] = currentYearBalance && [0..n] = lastYearBalance
+            }
+        });
+
+        console.log(userBalance);
+
+        let updatedBalances = [...userBalance];
+        let currentBalance = userBalance.at(-1);
+        let carriedBalance = userBalance.slice(-1).reduce((sum, balAmount) => sum += balAmount);
+        let totalDaysUsed = data.total_days;
+        let tempDaysUsed;
+        const maxAmountPerRecord = data.tb_users.role === "karyawan_kontrak" ? 1 : 12;
+
+        if (data.leave_type !== "special_leave") {
+            // reduce
+            // array di loop ini disort dari paling lama/ [-1] = currentBalance
+            if ((data.status === "pending" || data.status === "rejected") && status === "approved") {
+                tempDaysUsed = totalDaysUsed
+                for (let i = 0; i < updatedBalances.length; i++) {
+                    
+                    console.log(updatedBalances[i].amount)
+                    console.log(tempDaysUsed)
+                    updatedBalances[i].amount -= tempDaysUsed;
+
+                    if (updatedBalances[i].amount < 0 && i !== updatedBalances.length - 1) {
+                        tempDaysUsed = -1 * updatedBalances[i].amount
+                        updatedBalances[i].amount = 0;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            
+            // restore
+            // array di loop ini disort dari paling baru/ [0] = currentBalance
+            if (data.status === "approved" && status === "rejected") {
+                const restoredBalance = updatedBalances.reverse();
+                tempDaysUsed = totalDaysUsed
+                for (let i = 0; i < restoredBalance.length; i++) {
+
+                    restoredBalance[i].amount += tempDaysUsed;
+
+                    console.log(restoredBalance[i].amount);
+
+                    if (restoredBalance[i].amount > maxAmountPerRecord) {
+                        tempDaysUsed = restoredBalance[i].amount - maxAmountPerRecord
+                        restoredBalance[i].amount = maxAmountPerRecord;
+                    } else {
+                        break;
+                    }
+                }
+                
+                updatedBalances = restoredBalance.reverse();
+            }
+        }
+ 
+        console.log(updatedBalances);
+        // const resultLeave = await prisma.tb_leave.update({
+        //     where: {
+        //         id_leave: id
+        //     },
+        //     data: {
+        //         status: status
+        //     }
+        // })
+
+        // // update tabel leave
+        // // update 2 record balance menggunakan variable carriedBalance dan currentBalance
+        // // update tabel tb_leave_logs
+        // const result = await prisma.$transaction([
+        //     prisma.tb_leave.update({ where: { id_leave: id }, data: { status: status } }),
+        //     prisma.tb_balance.update({ where: { id_balance: userBalance[0].id_balance }, data: { amount: currentBalance } }),
+        //     prisma.tb_balance.update({ where: { id_balance: userBalance[1].id_balance }, data: { amount: carriedBalance } }),
+        //     prisma.tb_leave_log.create({
+        //         data: {
+        //             old_status: data.status,
+        //             new_status: status,
+        //             reason: reason,
+        //             changed_by_nik: nik,
+        //             id_leave: data.id_leave,
+        //             changed_at: new Date()
+        //         }
+        //     })
+        // ])
+
+        // return result[0]
+        // // console.log(result[0])
+        // // console.log(result[1], result[2])
+        // // console.log(`currentBalance: ${result[1].amount}\ncarriedBalance: ${result[2].amount}\ncurrentStatus: ${status} \npreviousStatus: ${data.status}`)
+    } catch (error) {
+        throw error;
+    }
+}
+
+updateLeavesk("1792d4c1-2668-4f64-aeb6-1535737d751e", "approved");
+
 
