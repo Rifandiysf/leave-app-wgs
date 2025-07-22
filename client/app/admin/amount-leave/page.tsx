@@ -1,12 +1,26 @@
 'use client'
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import withAuth from "@/lib/auth/withAuth"
+
 
 const AmountLeavePage = () => {
   const [showModal, setShowModal] = useState(true)
   const router = useRouter()
+   const [search, setSearch] = useState("")
+      const [debouncedSearch, setDebouncedSearch] = useState("")
+    
+      // Debounce search
+      useEffect(() => {
+          const handler = setTimeout(() => {
+              setDebouncedSearch(search)
+          }, 500)
+  
+          return () => {
+              clearTimeout(handler)
+          }
+      }, [search])
 
   return (
     <div>

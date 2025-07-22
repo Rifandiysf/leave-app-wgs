@@ -16,7 +16,7 @@ type ApiLeaveType = {
     leave_type: string;
     start_date: string;
     end_date: string;
-    leave_used: number;
+    total_days: number;
     reason: string;
     status: string;
 };
@@ -33,15 +33,18 @@ const ListOfLeavePage = () => {
 
     // Debounce search
     useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedSearch(search)
-            setCurrentPage(1)
-        }, 500)
+        const handleReset = () => {
+            console.log("Sinyal 'resetLeaveView' diterima oleh halaman!");
+            setViewMode(null);
+            setChoiceModalOpen(true);
+        };
+        window.addEventListener('resetLeaveView', handleReset);
 
         return () => {
-            clearTimeout(handler)
-        }
-    }, [search])
+            console.log("Halaman ListOfLeave: Berhenti mendengarkan sinyal.");
+            window.removeEventListener('resetLeaveView', handleReset);
+        };
+    }, []);
 
     const fetchData = async (mode: 'requests' | 'history', seaechTerm: string) => {
         setIsLoading(true);
@@ -77,6 +80,10 @@ const ListOfLeavePage = () => {
     const handleModeSelect = (mode: 'requests' | 'history') => {
         setViewMode(mode);
         setChoiceModalOpen(false);
+    };
+
+    const handleChangeView = () => {
+        setChoiceModalOpen(true);
     };
 
     const formatDate = (dateString: string) => {
@@ -129,13 +136,20 @@ const ListOfLeavePage = () => {
         <>
             <LeaveChoiceModal isOpen={isChoiceModalOpen} onSelectMode={handleModeSelect} />
 
-            {!isChoiceModalOpen && viewMode && (
+           {!isChoiceModalOpen && viewMode && (
                 <>
                     <section className="flex justify-between items-center p-5 border-b-[1.5px] border-[#0000001f]">
                         <h1 className="text-2xl font-bold text-gray-800">
                             {viewMode === 'requests' ? 'Leave Requests' : 'Leave History'}
                         </h1>
-                        <div className="flex justify-end items-center gap-3 mb-4">
+                        <div className="flex justify-end items-center gap-3">
+                            {/* <button
+                                onClick={handleChangeView}
+                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            >
+                                <i className="bi bi-arrow-repeat"></i>
+                                Ubah Tampilan
+                            </button> */}
                             <div className="flex max-sm:w-full">
                                 <input
                                     type="text"
@@ -153,7 +167,6 @@ const ListOfLeavePage = () => {
                             </SelectDemo>
                         </div>
                     </section>
-
                     <section className="relative p-3 min-h-[calc(100dvh-137px)]">
                         <div className='max-sm:overflow-x-scroll'>
                             <table className="w-full text-base text-center">
@@ -184,7 +197,7 @@ const ListOfLeavePage = () => {
                                                 <td className="p-3 align-middle">{formatLeaveType(data.leave_type)}</td>
                                                 <td className="p-3 align-middle">{formatDate(data.start_date)}</td>
                                                 <td className="p-3 align-middle">{formatDate(data.end_date)}</td>
-                                                <td className="p-3 align-middle">{data.leave_used}</td>
+                                                <td className="p-3 align-middle">{data.total_days}</td>
                                                 <td className="p-3 align-middle">{getStatusChip(data.status)}</td>
                                                 {viewMode === 'requests' && (
                                                     <td className="p-2 text-[14px] text-center font-medium border-b-[1.5px] border-[#0000001f]">
@@ -228,6 +241,7 @@ const ListOfLeavePage = () => {
                                             <PaginationLink
                                                 isActive={currentPage === i + 1}
                                                 onClick={() => handlePageChange(i + 1)}
+                                                className='cursor-pointer'
                                             >
                                                 {i + 1}
                                             </PaginationLink>

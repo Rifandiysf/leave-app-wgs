@@ -1,3 +1,4 @@
+
 'use client'
 
 import Image from 'next/image'
@@ -5,6 +6,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import 'bootstrap-icons/font/bootstrap-icons.css'
+import Modal from '@/app/components/Modal/Modal';
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -54,6 +56,9 @@ export default function Header() {
         }
     }
 
+    const isUserDashboard = pathname === '/' 
+    const isAdminPage = pathname.startsWith('/admin')
+
     return (
         <header className="flex items-center justify-between bg-white lg:bg-transparent lg:p-0">
             <div className="lg:hidden">
@@ -80,43 +85,74 @@ export default function Header() {
                         </div>
                         <div className="h-px bg-gray-500 mb-4" />
                         <nav className="flex flex-col">
-                            {isAdmin && (
-                                <Link href="/admin/dashboard" className="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                                    <i className="bi bi-person-workspace text-2xl" />
-                                    <span className="font-medium text-gray-700">Admin site</span>
+                            {isAdmin && isAdminPage && (
+                                <Link href="/" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                                    <i className="bi bi-box-arrow-in-left text-[26px] ml-[2px]" />
+                                    <span className="font-medium text-gray-700">Employee Side</span>
                                 </Link>
                             )}
+                            {isAdmin && isUserDashboard && (
+                                <Link href="/admin/dashboard" className="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                                    <i className="bi bi-person-workspace text-2xl" />
+                                    <span className="font-medium text-gray-700">Admin Side</span>
+                                </Link>
+                            )}
+                            
                             <Link href="#" className="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-100 transition-colors">
                                 <i className="bi bi-gear text-2xl" />
                                 <span className="font-medium text-gray-700">Setting</span>
                             </Link>
-
-                            <button onClick={handleLogout} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                                <i className="bi bi-box-arrow-right text-2xl ml-[3px]" />
-                                <span className="font-medium text-gray-700">Logout</span>
-                            </button>
+                            
+                            <Modal
+                                mode="confirm"
+                                title="Are you sure you want to log out of your account?"
+                                onConfirm={handleLogout}
+                                variant="ghost"
+                                triggerClassName="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors w-full justify-start"
+                                triggerLabel={
+                                    <>
+                                        <i className="bi bi-box-arrow-right text-2xl ml-[3px]" />
+                                        <span className="font-medium text-gray-700">Logout</span>
+                                    </>
+                                }
+                            />
                         </nav>
                     </div>
                 </div>
             )}
 
             <div className="hidden lg:flex items-center space-x-6">
-                {isAdmin && (
+                {isAdmin && isUserDashboard && (
                     <Link href="/admin/dashboard" className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
                         <i className="bi bi-person-workspace text-xl w-6 text-center" />
-                        <span className="text-sm font-medium">Admin site</span>
+                        <span className="text-sm font-medium">Admin Side</span>
                     </Link>
                 )}
-
+                {isAdmin && isAdminPage      && (
+                    <Link href="/" className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
+                        <i className="bi bi-box-arrow-in-left  w-6 text-center text-2xl" />
+                        <span className="text-sm font-medium">Employee Side</span>
+                    </Link>
+                )}
                 <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
                     <i className="bi bi-gear-fill text-xl" />
                     <span className="text-sm font-medium">Settings</span>
-                </div>
+                </div>  
 
-                <div onClick={handleLogout} className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
-                    <i className="bi bi-box-arrow-right text-xl" />
-                    <span className="text-sm font-medium">Logout</span>
-                </div>
+ 
+                <Modal
+                    mode="confirm"
+                    title="Are you sure you want to log out of your account?"
+                    onConfirm={handleLogout}
+                    variant="ghost" 
+                    triggerClassName="hover:text-blue-900 text-gray-700 p-0"
+                    triggerLabel={
+                        <div className="flex items-center space-x-2">
+                             <i className="bi bi-box-arrow-right text-xl" />
+                             <span className="font-medium">Logout</span>
+                        </div>
+                    }
+                />
             </div>
         </header>
     )
