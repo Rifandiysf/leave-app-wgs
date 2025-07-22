@@ -89,7 +89,6 @@ export const getLeavesByNIK = async (NIK, page, limit) => {
         totalPages: Math.ceil(total / limit),
     };
 };
-;
 
 
 export const getLeavesById = async (NIK, id_leave) => {
@@ -102,8 +101,10 @@ export const getLeavesById = async (NIK, id_leave) => {
 }
 
 export const getLeavesByFilterService = async (NIK, type, status, value, page, limit) => {
-    const skip = (page - 1) * limit;
-
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+    
     const whereClause = {
         NIK,
     };
@@ -148,7 +149,7 @@ export const getLeavesByFilterService = async (NIK, type, status, value, page, l
     const [data, total] = await Promise.all([
         prisma.tb_leave.findMany({
             skip,
-            take: limit,
+            take: limitNum,
             where: whereClause,
             orderBy: { created_at: 'desc' },
         }),
