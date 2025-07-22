@@ -3,7 +3,7 @@ import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, upda
 import { decodeToken } from "../utils/jwt.js";
 
 
-export const createLeaveRequest = async (req, res) => {
+export const createLeaveRequest = async (req, res, next) => {
     try {
         const user = await decodeToken(req.get('authorization').split(' ')[1])
 
@@ -21,9 +21,7 @@ export const createLeaveRequest = async (req, res) => {
             data: leave,
         })
     } catch (error) {
-        res.status(400).json({
-            message: error.message,
-        })
+       next(error)
     }
 }
 
