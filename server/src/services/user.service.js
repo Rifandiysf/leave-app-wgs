@@ -78,6 +78,20 @@ export const getLeavesByNIK = async (NIK, page, limit) => {
             skip,
             take: limit,
             where: { NIK },
+            include: {
+                tb_leave_log: {
+                    orderBy: { changed_at: 'desc' },
+                    take: 1,
+                    select: {
+                        reason: true,
+                        tb_users: {
+                            select: {
+                                fullname: true
+                            }
+                        }
+                    }
+                }
+            }
         }),
         prisma.tb_leave.count({ where: { NIK } }),
     ]);
@@ -104,7 +118,7 @@ export const getLeavesByFilterService = async (NIK, type, status, value, page, l
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
-    
+
     const whereClause = {
         NIK,
     };

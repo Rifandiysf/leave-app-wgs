@@ -69,6 +69,7 @@ model tb_users {
   tb_balance_adjustment tb_balance_adjustment[]
   tb_jwt_token          tb_jwt_token[]
   tb_leave              tb_leave[]
+  tb_leave_log          tb_leave_log[]
 }
 
 model tb_balance_adjustment {
@@ -90,6 +91,7 @@ model tb_leave_log {
   changed_by_nik String   @db.VarChar(16)
   id_leave       String   @db.VarChar(50)
   tb_leave       tb_leave @relation(fields: [id_leave], references: [id_leave], onDelete: NoAction, onUpdate: NoAction, map: "id_leave")
+  tb_users       tb_users @relation(fields: [changed_by_nik], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
 }
 
 model tb_jwt_token {
