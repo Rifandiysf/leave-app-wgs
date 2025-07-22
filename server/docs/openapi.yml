@@ -386,579 +386,381 @@
                 },
             },
         },
-      "/users/leave":
-        {
-          "post":
-            {
-              "summary": "Buat permintaan cuti",
-              "tags": ["Dashboard user"],
-              "description": "User yang sudah login dapat mengajukan permintaan cuti. Jika jenis cuti adalah `special_leave` atau `mandatory_leave`, maka id terkait wajib diisi. Untuk `special_leave`, `end_date` akan dihitung otomatis.",
-              "requestBody":
-                {
-                  "required": true,
-                  "content":
-                    {
-                      "application/json":
-                        {
-                          "schema":
-                            {
-                              "type": "object",
-                              "required":
-                                ["title", "leave_type", "start_date", "reason"],
-                              "properties":
-                                {
-                                  "title":
-                                    {
-                                      "type": "string",
-                                      "minLength": 3,
-                                      "example": "Izin ke dokter",
-                                    },
-                                  "leave_type":
-                                    {
-                                      "type": "string",
-                                      "enum":
-                                        [
-                                          "personal_leave",
-                                          "mandatory_leave",
-                                          "special_leave",
-                                        ],
-                                      "example": "special_leave",
-                                    },
-                                  "start_date":
-                                    {
-                                      "type": "string",
-                                      "format": "date",
-                                      "example": "2025-08-20",
-                                    },
-                                  "end_date":
-                                    {
-                                      "type": "string",
-                                      "format": "date",
-                                      "example": "2025-08-21",
-                                    },
-                                  "reason":
-                                    {
-                                      "type": "string",
-                                      "minLength": 5,
-                                      "example": "Pemeriksaan kesehatan rutin",
-                                    },
-                                  "id_special":
-                                    {
-                                      "type": "string",
-                                      "nullable": true,
-                                      "example": "spcl123",
-                                    },
-                                },
-                            },
-                        },
-                    },
+      "/users/leave": {
+    "post": {
+      "summary": "Buat permintaan cuti",
+      "tags": ["Dashboard user"],
+      "description": "User yang sudah login dapat mengajukan permintaan cuti. Jika jenis cuti adalah `special_leave` atau `mandatory_leave`, maka id terkait wajib diisi. Untuk `special_leave`, `end_date` akan dihitung otomatis.",
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["title", "leave_type", "start_date", "reason"],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 3,
+                  "example": "Izin ke dokter"
                 },
-              "responses":
-                {
-                  "201":
-                    {
-                      "description": "Cuti berhasil diajukan",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Leave request created successfully",
-                                        },
-                                      "data":
-                                        {
-                                          "type": "object",
-                                          "properties":
-                                            {
-                                              "title":
-                                                {
-                                                  "type": "string",
-                                                  "example": "Izin ke dokter",
-                                                },
-                                              "leave_type":
-                                                {
-                                                  "type": "string",
-                                                  "example": "special_leave",
-                                                },
-                                              "start_date":
-                                                {
-                                                  "type": "string",
-                                                  "format": "date",
-                                                  "example": "2025-08-20",
-                                                },
-                                              "end_date":
-                                                {
-                                                  "type": "string",
-                                                  "format": "date",
-                                                  "example": "2025-08-21",
-                                                },
-                                              "reason":
-                                                {
-                                                  "type": "string",
-                                                  "example": "Pemeriksaan kesehatan rutin",
-                                                },
-                                              "NIK":
-                                                {
-                                                  "type": "string",
-                                                  "example": "102938",
-                                                },
-                                              "total_days":
-                                                {
-                                                  "type": "integer",
-                                                  "example": 2,
-                                                },
-                                              "id_special":
-                                                {
-                                                  "type": "string",
-                                                  "nullable": true,
-                                                  "example": "spcl123",
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "400":
-                    {
-                      "description": "Validasi gagal atau ID tidak valid",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "oneOf":
-                                [
-                                  {
-                                    "description": "ID special atau mandatory tidak valid",
-                                    "schema":
-                                      {
-                                        "type": "object",
-                                        "properties":
-                                          {
-                                            "message":
-                                              {
-                                                "type": "string",
-                                                "example": "id_special is required for special leave",
-                                              },
-                                          },
-                                      },
-                                  },
-                                  {
-                                    "description": "Jumlah hari cuti melebihi jatah yang tersedia",
-                                    "schema":
-                                      {
-                                        "type": "object",
-                                        "properties":
-                                          {
-                                            "message":
-                                              {
-                                                "type": "string",
-                                                "example": "Insufficient leave balance. Available: 10 days, Requested: 12 working days",
-                                              },
-                                            "data":
-                                              {
-                                                "type": "object",
-                                                "properties":
-                                                  {
-                                                    "total_balance":
-                                                      {
-                                                        "type": "integer",
-                                                        "example": 12,
-                                                      },
-                                                    "pending_days":
-                                                      {
-                                                        "type": "integer",
-                                                        "example": 2,
-                                                      },
-                                                    "available_balance":
-                                                      {
-                                                        "type": "integer",
-                                                        "example": 10,
-                                                      },
-                                                    "requested_working_days":
-                                                      {
-                                                        "type": "integer",
-                                                        "example": 12,
-                                                      },
-                                                  },
-                                              },
-                                          },
-                                      },
-                                  },
-                                ],
-                            },
-                        },
-                    },
-                  "401":
-                    {
-                      "description": "Belum login (tidak ada session)",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Unauthorized. Please login to access this resource.",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "422":
-                    {
-                      "description": "Validasi Zod gagal",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "errors":
-                                        {
-                                          "type": "array",
-                                          "items":
-                                            {
-                                              "type": "object",
-                                              "properties":
-                                                {
-                                                  "field":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "title",
-                                                    },
-                                                  "message":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "Title must be at least 3 characters",
-                                                    },
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
+                "leave_type": {
+                  "type": "string",
+                  "enum": ["personal_leave", "mandatory_leave", "special_leave"],
+                  "example": "special_leave"
                 },
-            },
-          "get":
-            {
-              "summary": "Ambil seluruh riwayat cuti user",
-              "tags": ["Dashboard user"],
-              "description": "Menampilkan seluruh data cuti berdasarkan NIK user yang sedang login. Digunakan di halaman history pengajuan cuti.",
-              "responses":
-                {
-                  "201":
-                    {
-                      "description": "Data ditemukan (termasuk kemungkinan kosong)",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Leave requests retrieved successfully",
-                                        },
-                                      "data":
-                                        {
-                                          "type": "array",
-                                          "items":
-                                            {
-                                              "type": "object",
-                                              "properties":
-                                                {
-                                                  "id_leave":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "lv7890",
-                                                    },
-                                                  "title":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "Libur keluarga",
-                                                    },
-                                                  "leave_type":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "personal_leave",
-                                                    },
-                                                  "start_date":
-                                                    {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "example": "2025-07-01",
-                                                    },
-                                                  "end_date":
-                                                    {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "example": "2025-07-03",
-                                                    },
-                                                  "reason":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "Menemani orang tua ke luar kota",
-                                                    },
-                                                  "status":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "approved",
-                                                    },
-                                                  "total_days":
-                                                    {
-                                                      "type": "integer",
-                                                      "example": 3,
-                                                    },
-                                                  "id_special":
-                                                    {
-                                                      "type": "string",
-                                                      "nullable": true,
-                                                      "example": null,
-                                                    },
-                                                  "id_mandatory":
-                                                    {
-                                                      "type": "string",
-                                                      "nullable": true,
-                                                      "example": null,
-                                                    },
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "401":
-                    {
-                      "description": "Unauthorized - belum login",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Unauthorized. Please login to access this resource.",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
+                "start_date": {
+                  "type": "string",
+                  "format": "date",
+                  "example": "2025-08-20"
                 },
-            },
+                "end_date": {
+                  "type": "string",
+                  "format": "date",
+                  "example": "2025-08-21"
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 5,
+                  "example": "Pemeriksaan kesehatan rutin"
+                },
+                "id_special": {
+                  "type": "string",
+                  "nullable": true,
+                  "example": "spcl123"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Cuti berhasil diajukan",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "Leave request created successfully"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "title": { "type": "string", "example": "Izin ke dokter" },
+                      "leave_type": { "type": "string", "example": "special_leave" },
+                      "start_date": { "type": "string", "format": "date", "example": "2025-08-20" },
+                      "end_date": { "type": "string", "format": "date", "example": "2025-08-21" },
+                      "reason": { "type": "string", "example": "Pemeriksaan kesehatan rutin" },
+                      "NIK": { "type": "string", "example": "102938" },
+                      "total_days": { "type": "integer", "example": 2 },
+                      "id_special": { "type": "string", "nullable": true, "example": "spcl123" }
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
-      "/users/leave/search":
-        {
-          "get":
-            {
-              "summary": "Cari cuti berdasarkan filter",
-              "tags": ["Dashboard user"],
-              "description": "Cari data cuti berdasarkan tipe cuti (`personal`, `mandatory`, `special`), status (`pending`, `approved`, `reject`), atau pencarian berdasarkan judul (`value`). Kombinasi ketiganya juga didukung.",
-              "parameters":
-                [
-                  {
-                    "name": "type",
-                    "in": "query",
-                    "required": false,
-                    "schema":
-                      {
-                        "type": "string",
-                        "enum": ["personal", "mandatory", "special"],
-                      },
-                    "description": "Tipe cuti",
-                  },
-                  {
-                    "name": "status",
-                    "in": "query",
-                    "required": false,
-                    "schema":
-                      {
-                        "type": "string",
-                        "enum": ["pending", "approved", "reject"],
-                      },
-                    "description": "Status cuti",
-                  },
-                  {
-                    "name": "value",
-                    "in": "query",
-                    "required": false,
-                    "schema": { "type": "string" },
-                    "description": "Kata kunci pencarian berdasarkan judul cuti",
-                  },
-                ],
-              "responses":
+        "400": {
+          "description": "Validasi gagal atau ID tidak valid",
+          "content": {
+            "application/json": {
+              "oneOf": [
                 {
-                  "200":
-                    {
-                      "description": "Data cuti ditemukan",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Filtered leave data retrieved successfully",
-                                        },
-                                      "data":
-                                        {
-                                          "type": "array",
-                                          "items":
-                                            {
-                                              "type": "object",
-                                              "properties":
-                                                {
-                                                  "title":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "Izin menghadiri pernikahan",
-                                                    },
-                                                  "leave_type":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "mandatory_leave",
-                                                    },
-                                                  "start_date":
-                                                    {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "example": "2025-09-10",
-                                                    },
-                                                  "end_date":
-                                                    {
-                                                      "type": "string",
-                                                      "format": "date",
-                                                      "example": "2025-09-12",
-                                                    },
-                                                  "reason":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "Acara keluarga",
-                                                    },
-                                                  "status":
-                                                    {
-                                                      "type": "string",
-                                                      "example": "approved",
-                                                    },
-                                                  "total_days":
-                                                    {
-                                                      "type": "integer",
-                                                      "example": 3,
-                                                    },
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "201":
-                    {
-                      "description": "Data tidak ditemukan",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "The data doesn't exist",
-                                        },
-                                      "data": { "type": "array", "items": {} },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "400":
-                    {
-                      "description": "Filter tidak valid",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Invalid leave type. Allowed: personal, mandatory, special",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                  "401":
-                    {
-                      "description": "Belum login",
-                      "content":
-                        {
-                          "application/json":
-                            {
-                              "schema":
-                                {
-                                  "type": "object",
-                                  "properties":
-                                    {
-                                      "message":
-                                        {
-                                          "type": "string",
-                                          "example": "Unauthorized. Please login to access this resource.",
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
+                  "description": "ID special atau mandatory tidak valid",
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string",
+                        "example": "id_special is required for special leave"
+                      }
+                    }
+                  }
                 },
-            },
+                {
+                  "description": "Jumlah hari cuti melebihi jatah yang tersedia",
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string",
+                        "example": "Insufficient leave balance. Available: 10 days, Requested: 12 Holidays days"
+                      },
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "total_balance": { "type": "integer", "example": 12 },
+                          "pending_days": { "type": "integer", "example": 2 },
+                          "available_balance": { "type": "integer", "example": 10 },
+                          "requested_Holidays_days": { "type": "integer", "example": 12 }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "description": "Cuti tumpang tindih dengan tanggal yang sama",
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string",
+                        "example": "You already have a leave request during this period."
+                      }
+                    }
+                  }
+                },
+                {
+                  "description": "Tanggal tidak valid",
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string",
+                        "example": "Invalid date format. Please use YYYY-MM-DD"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
         },
+        "401": {
+          "description": "Belum login (tidak ada session)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "Unauthorized. Please login to access this resource."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "422": {
+          "description": "Validasi Zod gagal",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "errors": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "field": { "type": "string", "example": "title" },
+                        "message": { "type": "string", "example": "Title must be at least 3 characters" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "get": {
+      "summary": "Ambil seluruh riwayat cuti user",
+      "tags": ["Dashboard user"],
+      "description": "Menampilkan seluruh data cuti berdasarkan NIK user yang sedang login. Digunakan di halaman history pengajuan cuti.",
+      "parameters": [
+        {
+          "name": "page",
+          "in": "query",
+          "required": false,
+          "schema": { "type": "integer" },
+          "description": "Halaman yang ingin diakses"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": { "type": "integer" },
+          "description": "Jumlah item per halaman"
+        }
+      ],
+      "responses": {
+        "201": {
+          "description": "Data ditemukan (termasuk kemungkinan kosong)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": { "type": "string", "example": "Leave requests retrieved successfully" },
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id_leave": { "type": "string", "example": "lv7890" },
+                        "title": { "type": "string", "example": "Libur keluarga" },
+                        "leave_type": { "type": "string", "example": "personal_leave" },
+                        "start_date": { "type": "string", "format": "date", "example": "2025-07-01" },
+                        "end_date": { "type": "string", "format": "date", "example": "2025-07-03" },
+                        "reason": { "type": "string", "example": "Menemani orang tua ke luar kota" },
+                        "status": { "type": "string", "example": "approved" },
+                        "total_days": { "type": "integer", "example": 3 },
+                        "id_special": { "type": "string", "nullable": true, "example": null },
+                        "id_mandatory": { "type": "string", "nullable": true, "example": null }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Unauthorized - belum login",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": { "type": "string", "example": "Unauthorized. Please login to access this resource." }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/users/leave/search": {
+    "get": {
+      "summary": "Cari cuti berdasarkan filter",
+      "tags": ["Dashboard user"],
+      "description": "Cari data cuti berdasarkan tipe cuti (`personal`, `mandatory`, `special`), status (`pending`, `approved`, `reject`), atau pencarian berdasarkan judul (`value`). Kombinasi ketiganya juga didukung.",
+      "parameters": [
+        {
+          "name": "type",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": ["personal", "mandatory", "special"]
+          },
+          "description": "Tipe cuti"
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": ["pending", "approved", "reject"]
+          },
+          "description": "Status cuti"
+        },
+        {
+          "name": "value",
+          "in": "query",
+          "required": false,
+          "schema": { "type": "string" },
+          "description": "Kata kunci pencarian berdasarkan judul cuti"
+        },
+        {
+          "name": "page",
+          "in": "query",
+          "required": false,
+          "schema": { "type": "integer" },
+          "description": "Halaman saat ini"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": { "type": "integer" },
+          "description": "Jumlah data per halaman"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Data cuti ditemukan",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": { "type": "string", "example": "Filtered leave data retrieved successfully" },
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "title": { "type": "string", "example": "Izin menghadiri pernikahan" },
+                        "leave_type": { "type": "string", "example": "mandatory_leave" },
+                        "start_date": { "type": "string", "format": "date", "example": "2025-09-10" },
+                        "end_date": { "type": "string", "format": "date", "example": "2025-09-12" },
+                        "reason": { "type": "string", "example": "Acara keluarga" },
+                        "status": { "type": "string", "example": "approved" },
+                        "total_days": { "type": "integer", "example": 3 }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "201": {
+          "description": "Data tidak ditemukan",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": { "type": "string", "example": "The data doesn't exist" },
+                  "data": { "type": "array", "items": {} }
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Filter tidak valid",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "example": "Invalid leave type. Allowed: personal, mandatory, special"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Belum login",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": { "type": "string", "example": "Unauthorized. Please login to access this resource." }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
       "/users/leave/{id}":
         {
           "get":
