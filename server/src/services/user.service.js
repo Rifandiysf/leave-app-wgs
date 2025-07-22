@@ -70,13 +70,27 @@ export const createLeave = async (data) => {
     });
 };
 
-export const getLeavesByNIK = async (NIK) => {
-    return await prisma.tb_leave.findMany({
-        where: {
-            NIK: NIK,
-        },
-    })
-}
+export const getLeavesByNIK = async (NIK, page, limit) => {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+        prisma.tb_leave.findMany({
+            skip,
+            take: limit,
+            where: { NIK },
+        }),
+        prisma.tb_leave.count({ where: { NIK } }),
+    ]);
+
+    return {
+        data,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+    };
+};
+;
+
 
 export const getLeavesById = async (NIK, id_leave) => {
     return await prisma.tb_leave.findMany({
@@ -87,7 +101,9 @@ export const getLeavesById = async (NIK, id_leave) => {
     })
 }
 
-export const getLeavesByFilterService = async (NIK, type, status, value) => {
+export const getLeavesByFilterService = async (NIK, type, status, value, page, limit) => {
+    const skip = (page - 1) * limit;
+
     const whereClause = {
         NIK,
     };
@@ -112,8 +128,9 @@ export const getLeavesByFilterService = async (NIK, type, status, value) => {
         const lowerStatus = status.toLowerCase();
 
         if (!allowedStatus.includes(lowerStatus)) {
-            throw new Error('Invalid leave status. Allowed: waiting, approved, reject');
+            throw new Error('Invalid leave status. Allowed: pending, approved, reject');
         }
+
         whereClause.status = lowerStatus;
     }
 
@@ -121,15 +138,29 @@ export const getLeavesByFilterService = async (NIK, type, status, value) => {
         whereClause.OR = [
             {
                 title: {
-                    contains: value, mode: 'insensitive'
-                }
-            }
-        ]
+                    contains: value,
+                    mode: 'insensitive',
+                },
+            },
+        ];
     }
 
-    return await prisma.tb_leave.findMany({
-        where: whereClause
-    });
+    const [data, total] = await Promise.all([
+        prisma.tb_leave.findMany({
+            skip,
+            take: limit,
+            where: whereClause,
+            orderBy: { created_at: 'desc' },
+        }),
+        prisma.tb_leave.count({ where: whereClause }),
+    ]);
+
+    return {
+        data,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+    };
 };
 
 
