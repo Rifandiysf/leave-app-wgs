@@ -1,9 +1,9 @@
 import { date } from "zod/v4";
 import prisma from "../utils/client.js"
-import { calculateWorkingDays } from '../utils/leaves.utils.js';
+import { calculateHolidaysDays } from '../utils/leaves.utils.js';
 
 export const createLeave = async (data) => {
-    const {
+    let {
         title,
         leave_type,
         start_date,
@@ -14,7 +14,7 @@ export const createLeave = async (data) => {
     let end_date = data.end_date;
     let total_days = data.total_days;
     let id_special = null;
-    let id_mandatory = null;
+
 
     if (leave_type === "special_leave") {
         id_special = data.id_special;
@@ -46,23 +46,12 @@ export const createLeave = async (data) => {
         end_date = tempDate;
         total_days = duration;
 
-    } else if (leave_type === "mandatory_leave") {
-        id_mandatory = data.id_mandatory;
-        if (!id_mandatory) {
-            throw new Error("id_mandatory is required for mandatory leave");
-        }
-
-        const mandatoryLeaveExists = await prisma.tb_mandatory_leave.findUnique({
-            where: { id_mandatory }
-        });
-        if (!mandatoryLeaveExists) {
-            throw new Error("Invalid id_mandatory provided");
-        }
+        title = specialLeave.title
+        reason = specialLeave.title
     }
 
-    // Untuk personal atau mandatory (bukan special), total_days dihitung dari working days
     if (!total_days) {
-        total_days = calculateWorkingDays(new Date(start_date), new Date(end_date));
+        total_days = calculateHolidaysDays(new Date(start_date), new Date(end_date));
     }
 
     const leaveData = {
@@ -73,8 +62,7 @@ export const createLeave = async (data) => {
         reason,
         NIK,
         total_days,
-        id_special,
-        id_mandatory
+        id_special
     };
 
     return await prisma.tb_leave.create({
@@ -82,17 +70,27 @@ export const createLeave = async (data) => {
     });
 };
 
+export const getLeavesByNIK = async (NIK, page, limit) => {
+    const skip = (page - 1) * limit;
 
+    const [data, total] = await Promise.all([
+        prisma.tb_leave.findMany({
+            skip,
+            take: limit,
+            where: { NIK },
+        }),
+        prisma.tb_leave.count({ where: { NIK } }),
+    ]);
 
+    return {
+        data,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+    };
+};
+;
 
-
-export const getLeavesByNIK = async (NIK) => {
-    return await prisma.tb_leave.findMany({
-        where: {
-            NIK: NIK,
-        },
-    })
-}
 
 export const getLeavesById = async (NIK, id_leave) => {
     return await prisma.tb_leave.findMany({
@@ -103,7 +101,9 @@ export const getLeavesById = async (NIK, id_leave) => {
     })
 }
 
-export const getLeavesByFilterService = async (NIK, type, status, value) => {
+export const getLeavesByFilterService = async (NIK, type, status, value, page, limit) => {
+    const skip = (page - 1) * limit;
+
     const whereClause = {
         NIK,
     };
@@ -128,8 +128,9 @@ export const getLeavesByFilterService = async (NIK, type, status, value) => {
         const lowerStatus = status.toLowerCase();
 
         if (!allowedStatus.includes(lowerStatus)) {
-            throw new Error('Invalid leave status. Allowed: waiting, approved, reject');
+            throw new Error('Invalid leave status. Allowed: pending, approved, reject');
         }
+
         whereClause.status = lowerStatus;
     }
 
@@ -137,15 +138,29 @@ export const getLeavesByFilterService = async (NIK, type, status, value) => {
         whereClause.OR = [
             {
                 title: {
-                    contains: value, mode: 'insensitive'
-                }
-            }
-        ]
+                    contains: value,
+                    mode: 'insensitive',
+                },
+            },
+        ];
     }
 
-    return await prisma.tb_leave.findMany({
-        where: whereClause
-    });
+    const [data, total] = await Promise.all([
+        prisma.tb_leave.findMany({
+            skip,
+            take: limit,
+            where: whereClause,
+            orderBy: { created_at: 'desc' },
+        }),
+        prisma.tb_leave.count({ where: whereClause }),
+    ]);
+
+    return {
+        data,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+    };
 };
 
 
@@ -372,8 +387,8 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor) =>
     const thisYear = new Date().getFullYear()
 
     const balance = await prisma.tb_balance.findFirst({
-        where : {
-            NIK: nik, 
+        where: {
+            NIK: nik,
             receive_date: {
                 gte: new Date(`${thisYear}-01-01`),
                 lte: new Date(`${thisYear}-12-31`)
@@ -381,14 +396,14 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor) =>
         }
     })
 
-    if(!balance) {
+    if (!balance) {
         throw new Error('Balance for current year not found')
     }
 
     const updatedAmount = await prisma.$transaction([
         prisma.tb_balance.update({
-            where: {id_balance: balance.id_balance},
-            data : {
+            where: { id_balance: balance.id_balance },
+            data: {
                 amount: {
                     increment: adjustment_value
                 }
@@ -404,7 +419,7 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor) =>
                 created_at: new Date()
             }
         })
-    ]) 
+    ])
 
     return updatedAmount
 }

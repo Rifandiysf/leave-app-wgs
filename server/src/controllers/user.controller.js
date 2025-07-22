@@ -4,7 +4,7 @@ import { decodeToken } from "../utils/jwt.js";
 import { responsePagination } from "../utils/responsePagination.utils.js";
 
 
-export const createLeaveRequest = async (req, res) => {
+export const createLeaveRequest = async (req, res, next) => {
     try {
         const user = await decodeToken(req.get('authorization').split(' ')[1])
 
@@ -22,16 +22,17 @@ export const createLeaveRequest = async (req, res) => {
             data: leave,
         })
     } catch (error) {
-        res.status(400).json({
-            message: error.message,
-        })
+        next(error)
     }
 }
 
-export const getLeaveRequests = async (req, res) => {
+export const getLeaveRequests = async (req, res, next) => {
     try {
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
+
         const user = await decodeToken(req.get('authorization').split(' ')[1])
-        const leaves = await getLeavesByNIK(user.NIK)
+        const leaves = await getLeavesByNIK(user.NIK, page, limit)
 
         if (!leaves || leaves.length === 0) {
             res.status(201).json({
@@ -40,41 +41,36 @@ export const getLeaveRequests = async (req, res) => {
             })
         }
 
-        res.status(201).json({
-            message: "Leave requests retrieved successfully",
-            data: leaves,
-        })
-    } catch (error) {
-        res.status(400).json({
-            message: error.message,
-        })
-    }
+        const pagination = responsePagination("Leave requests retrieved successfully", leaves, limit)
 
+        res.status(201).json(pagination)
+    } catch (error) {
+        next(error)
+    }
 }
 
-export const getLeavesByFilter = async (req, res) => {
+export const getLeavesByFilter = async (req, res, next) => {
     try {
-        const { value, type, status } = req.query;
+        const { value, type, status, page = 1, limit = 10 } = req.query;
         const user = await decodeToken(req.get('authorization').split(' ')[1]);
 
-        const leaves = await getLeavesByFilterService(user.NIK, type, status, value);
+        const result = await getLeavesByFilterService(user.NIK, type, status, value, parseInt(page), parseInt(limit));
 
-        if (!leaves || leaves.length === 0) {
-            res.status(201).json({
+        if (!result || result.data.length === 0) {
+            return res.status(201).json({
                 message: "The data doesn't exist",
-                data: leaves,
-            })
+                data: result?.data || [],
+            });
         }
+
 
         const result =  responsePagination('Filtered leave data retrieved successfully', leaves)
         res.status(200).json(result);
-
     } catch (error) {
-        res.status(400).json({
-            message: error.message
-        });
-    }
-};
+        next(error);
+    };
+}
+
 
 export const getLeaveRequestsById = async (req, res) => {
     try {
@@ -195,7 +191,7 @@ export const deleteUser = async (req, res) => {
 
 export const modifyAmount = async (req, res) => {
     const { nik } = req.params
-    const {adjustment_value, notes} = req.body
+    const { adjustment_value, notes } = req.body
 
     const actor = req.session.user.role
     if (!actor) {
@@ -204,8 +200,8 @@ export const modifyAmount = async (req, res) => {
 
     try {
         const result = await adjustModifyAmount(nik, adjustment_value, notes, actor)
-        res.status(200).json({message: 'Balance adjusted successfully', data: result})
+        res.status(200).json({ message: 'Balance adjusted successfully', data: result })
     } catch (error) {
-        res.status(400).json({message: error.message})
+        res.status(400).json({ message: error.message })
     }
 }
