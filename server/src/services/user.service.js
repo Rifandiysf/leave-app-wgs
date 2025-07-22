@@ -166,6 +166,20 @@ export const getLeavesByFilterService = async (NIK, type, status, value, page, l
             take: limitNum,
             where: whereClause,
             orderBy: { created_at: 'desc' },
+            include: {
+                tb_leave_log: {
+                    orderBy: { changed_at: 'desc' },
+                    take: 1,
+                    select: {
+                        reason: true,
+                        tb_users: {
+                            select: {
+                                fullname: true
+                            }
+                        }
+                    }
+                }
+            }
         }),
         prisma.tb_leave.count({ where: whereClause }),
     ]);
