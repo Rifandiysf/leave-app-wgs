@@ -3,7 +3,7 @@ import prisma from "../utils/client.js"
 import { calculateHolidaysDays } from '../utils/leaves.utils.js';
 
 export const createLeave = async (data) => {
-    const {
+    let {
         title,
         leave_type,
         start_date,
@@ -14,7 +14,7 @@ export const createLeave = async (data) => {
     let end_date = data.end_date;
     let total_days = data.total_days;
     let id_special = null;
-    
+
 
     if (leave_type === "special_leave") {
         id_special = data.id_special;
@@ -46,6 +46,8 @@ export const createLeave = async (data) => {
         end_date = tempDate;
         total_days = duration;
 
+        title = specialLeave.title
+        reason = specialLeave.title
     }
 
     if (!total_days) {
