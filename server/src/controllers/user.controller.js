@@ -1,6 +1,7 @@
 import { success } from "zod/v4";
 import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK, adjustModifyAmount } from "../services/user.service.js"
 import { decodeToken } from "../utils/jwt.js";
+import { responsePagination } from "../utils/responsePagination.utils.js";
 
 
 export const createLeaveRequest = async (req, res) => {
@@ -65,10 +66,8 @@ export const getLeavesByFilter = async (req, res) => {
             })
         }
 
-        res.status(200).json({
-            message: 'Filtered leave data retrieved successfully',
-            data: leaves
-        });
+        const result =  responsePagination('Filtered leave data retrieved successfully', leaves)
+        res.status(200).json(result);
 
     } catch (error) {
         res.status(400).json({
