@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from "react"
+import { ReactNode, useState } from "react"
 import { Button } from "@/app/components/ui/button"
 import {
     Dialog,
@@ -31,7 +31,7 @@ type ModalTypeProps = {
     triggerClassName?: string
     title: string
     triggerLabel: React.ReactNode
-    description?: string // Make description optional
+    description?: ReactNode // Make description optional
     showFooter?: boolean
     mode?: "form" | "info" | "confirm" | "reject" | "approve"
     variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"

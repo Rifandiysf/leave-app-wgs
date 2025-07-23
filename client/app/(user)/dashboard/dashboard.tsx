@@ -35,17 +35,17 @@ const UserDashboard = () => {
         {[{ count: 12, label: "Remaining Leave", subtitle: "This Year" }, { count: 4, label: "Remaining Leave", subtitle: "From Last Year" }].map((item, idx) => (
           <Card
             key={idx}
-            className="group hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 border-0 overflow-hidden relative rounded-lg sm:rounded-2xl p-5 sm:p-8"
-          >
+            className="group hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 border-0 overflow-hidden relative rounded-lg sm:rounded-2xl p-2 sm:p-3">
             <div className="absolute top-0 right-0 w-14 h-14 sm:w-20 sm:h-20 bg-blue-200 rounded-full -mr-6 -mt-6 opacity-50"></div>
             <div className="absolute bottom-0 left-0 w-12 h-12 sm:w-16 sm:h-16 bg-blue-300 rounded-full -ml-4 -mb-4 opacity-30"></div>
-            <div className="relative p-2 sm:p-6">
+            <div className="relative p-1 sm:p-2">
+
               <div className="flex items-center justify-between mb-2 sm:mb-4">
                 <div className="w-8 h-8 sm:w-12 sm:h-12 bg-blue-600 rounded-xl flex items-center justify-center">
                   <i className="bi bi-calendar-check text-white text-base sm:text-xl" />
                 </div>
                 <div className="text-right">
-                  <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-blue-800 mb-0.5 sm:mb-1">
+                  <div className="text-4xl sm:text-5xl md:text-9xl font-bold text-blue-800 mb-0.5 sm:mb-1">
                     {item.count}
                   </div>
                   <div className="w-6 h-1 bg-blue-600 rounded-full ml-auto"></div>
