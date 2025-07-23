@@ -1,5 +1,6 @@
 import { success } from "zod/v4";
 import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK, adjustModifyAmount } from "../services/user.service.js"
+import prisma from '../utils/client.js'
 import { decodeToken } from "../utils/jwt.js";
 
 
@@ -195,14 +196,27 @@ export const deleteUser = async (req, res) => {
 export const modifyAmount = async (req, res) => {
     const { nik } = req.params
     const {adjustment_value, notes} = req.body
+    const token = req.get("authorization").split(' ')[1]
 
-    const actor = req.session.user.role
+    const decodedToken = await decodeToken(token);
+    const actor = decodedToken.role
     if (!actor) {
         return res.status(401).json({ message: 'Unauthorized: actor (role) not found in session' });
     }
 
     try {
-        const result = await adjustModifyAmount(nik, adjustment_value, notes, actor)
+        const targetUser = await prisma.tb_users.findUnique({
+            where : {NIK: nik},
+            select : {role: true}
+        })
+
+        if (!targetUser) {
+            return res.status(404).json({ message: 'Target user not found' })
+        }
+
+        const targetRole = targetUser.role;
+
+        const result = await adjustModifyAmount(nik, adjustment_value, notes, actor, targetRole)
         res.status(200).json({message: 'Balance adjusted successfully', data: result})
     } catch (error) {
         res.status(400).json({message: error.message})
