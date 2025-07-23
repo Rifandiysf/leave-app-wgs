@@ -11,7 +11,7 @@ type sideBarProps = {
 }
 
 const broadcastResetView = () => {
-  window.dispatchEvent(new CustomEvent('resetLeaveView'));
+    window.dispatchEvent(new CustomEvent('resetLeaveView'));
 };
 
 
@@ -58,7 +58,7 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
                                     <span className="ml-3">Dashboard</span>
                                 </Link>
                                 <div className="mt-2 h-px bg-gray-500 mb-2  " />
-                             
+
                                 <Link
                                     href="/admin/employee-list"
                                     className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/employee-list')}`}>
@@ -74,7 +74,7 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
                                     <span className="ml-3">List Of Leave</span>
                                 </Link>
                                 <Link href="/admin/special-leave" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/special-leave')}`}>
-                                    <i className="bi bi-card-checklist text-xl w-6 text-center" />
+                                    <i className="bi bi-asterisk text-xl w-6 text-center" />
                                     <span className="ml-3">Special Leave</span>
                                 </Link>
                                 <Link href="/admin/mandatory" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/mandatory')}`}>
@@ -104,17 +104,16 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
                         </Link>
                         <Link href="/admin/amount-leave" className="-mt-8">
                             <div className="w-20 h-20 bg-blue-600 rounded-full flex flex-col justify-center items-center shadow-lg transform hover:scale-105 transition-transform">
-                                <i className="bi bi-calendar-plus text-2xl text-white"></i>
-                                <span className="text-white text-[10px] font-bold mt-1">Amount Leave</span>
+                                <i className="bi bi-calendar-plus text-3xl text-white"></i>
                             </div>
                         </Link>
-                        <Link href="/admin/mandatory" className="flex flex-col items-center text-xs">
-                            <i className={`bi bi-asterisk text-xl ${isBottomActive('/admin/mandatory')}`} />
-                            <span>Mandatory</span>
-                        </Link>
                         <Link href="/admin/special-leave" className="flex flex-col items-center text-xs">
-                            <i className={`bi bi-archive-fill text-xl ${isBottomActive('/admin/special-leave')}`} />
+                            <i className={`bi bi-asterisk text-xl ${isBottomActive('/admin/special-leave')}`} />
                             <span>Special Leave</span>
+                        </Link>
+                        <Link href="/admin/mandatory" className="flex flex-col items-center text-xs">
+                            <i className={`bi bi-archive-fill text-xl ${isBottomActive('/admin/mandatory')}`} />
+                            <span>Mandatory</span>
                         </Link>
 
                     </nav>
@@ -142,10 +141,6 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
                                     <i className="bi bi-clock-history text-xl w-6 text-center" />
                                     <span className="ml-3">History</span>
                                 </Link>
-                                <Link href="/special" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/special')}`}>
-                                    <i className="bi bi-asterisk text-xl w-6 text-center" />
-                                    <span className="ml-3">Special</span>
-                                </Link>
                                 <Link href="/mandatory" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/mandatory')}`}>
                                     <i className="bi bi-archive-fill text-xl w-6 text-center" />
                                     <span className="ml-3">Mandatory</span>
@@ -163,10 +158,6 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
                         <Link href="/history" className="flex flex-col items-center text-xs">
                             <i className={`bi bi-clock-history text-xl ${isBottomActive('/history')}`} />
                             <span>History</span>
-                        </Link>
-                        <Link href="/special" className="flex flex-col items-center text-xs">
-                            <i className={`bi bi-asterisk text-xl ${isBottomActive('/special')}`} />
-                            <span>Special</span>
                         </Link>
                         <Link href="/mandatory" className="flex flex-col items-center text-xs">
                             <i className={`bi bi-archive-fill text-xl ${isBottomActive('/mandatory')}`} />

@@ -105,9 +105,8 @@ export function Modal({
                                     <SelectItem value="mandatory">test</SelectItem>
                                 </SelectContent>
                             </Select>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 gap-2">
                                 <DatePickerField label="Start Leave" value={startLeave} onChange={setStartLeave} />
-                                <DatePickerField label="End Leave" value={endLeave} onChange={setEndLeave} />
                             </div>
                         </>
                     ) : (

@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/app/components/ui/pagination";
-import { SelectDemo } from "@/app/components/select/page";
-import { SelectItem, SelectLabel } from "@/app/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/app/components/ui/select";
 import Modal from '@/app/components/Modal/Modal';
 import axiosInstance from '@/app/api/axiosInstance';
 import { LeaveChoiceModal } from '@/app/components/LeaveChoiceModal/page';
@@ -32,6 +31,16 @@ const ListOfLeavePage = () => {
     const ITEMS_PER_PAGE = 7;
 
     // Debounce search
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(search)
+        }, 500)
+
+        return () => {
+            clearTimeout(handler)
+        }
+    },[search])
+
     useEffect(() => {
         const handleReset = () => {
             console.log("Sinyal 'resetLeaveView' diterima oleh halaman!");
@@ -73,9 +82,9 @@ const ListOfLeavePage = () => {
 
     useEffect(() => {
         if (viewMode) {
-            fetchData(viewMode, search);
+            fetchData(viewMode, debouncedSearch);
         }
-    }, [viewMode, currentPage, search]);
+    }, [viewMode, currentPage, debouncedSearch]);
 
     const handleModeSelect = (mode: 'requests' | 'history') => {
         setViewMode(mode);
@@ -136,7 +145,7 @@ const ListOfLeavePage = () => {
         <>
             <LeaveChoiceModal isOpen={isChoiceModalOpen} onSelectMode={handleModeSelect} />
 
-           {!isChoiceModalOpen && viewMode && (
+            {!isChoiceModalOpen && viewMode && (
                 <>
                     <section className="flex justify-between items-center p-5 border-b-[1.5px] border-[#0000001f]">
                         <h1 className="text-2xl font-bold text-gray-800">
@@ -159,12 +168,19 @@ const ListOfLeavePage = () => {
                                     className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 />
                             </div>
-                            <SelectDemo placeholder="Type">
-                                <SelectLabel>Type</SelectLabel>
-                                <SelectItem value="personal">Personal</SelectItem>
-                                <SelectItem value="mandatory">Mandatory</SelectItem>
-                                <SelectItem value="spesial">Special</SelectItem>
-                            </SelectDemo>
+                            <Select>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Type leave" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>Type Leave</SelectLabel>
+                                        <SelectItem value="personal_leave">Personal</SelectItem>
+                                        <SelectItem value="mandatory_leave">Mandatory</SelectItem>
+                                        <SelectItem value="special_leave">Special</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </section>
                     <section className="relative p-3 min-h-[calc(100dvh-137px)]">

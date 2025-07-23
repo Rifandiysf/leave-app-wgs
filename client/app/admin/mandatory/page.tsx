@@ -14,7 +14,7 @@ import { Switch } from "@/app/components/ui/switch"
 import { AddMandatory } from '@/app/components/form/addMandatory'
 import { EditMandatory } from '@/app/components/form/editMandatory'
 import withAuth from '@/lib/auth/withAuth'
-import { formatDate } from '@/lib/formatDate'
+import { formatDate } from '@/lib/format'
 
 type dataMandatoryLeaveType = {
     id_mandatory: string,
