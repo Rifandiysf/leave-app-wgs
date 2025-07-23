@@ -96,8 +96,23 @@ export const getLeavesByNIK = async (NIK, page, limit) => {
         prisma.tb_leave.count({ where: { NIK } }),
     ]);
 
+    const transformedData = data.map(item => {
+        const log = item.tb_leave_log[0];
+        return {
+            ...item,
+            tb_leave_log: log
+                ? log
+                : {
+                    reason: "-",
+                    tb_users: {
+                        fullname: "-"
+                    }
+                }
+        };
+    });
+
     return {
-        data,
+        data: transformedData,
         total,
         page,
         totalPages: Math.ceil(total / limit),
@@ -184,8 +199,23 @@ export const getLeavesByFilterService = async (NIK, type, status, value, page, l
         prisma.tb_leave.count({ where: whereClause }),
     ]);
 
+    const transformedData = data.map(item => {
+        const log = item.tb_leave_log[0];
+        return {
+            ...item,
+            tb_leave_log: log
+                ? log
+                : {
+                    reason: "-",
+                    tb_users: {
+                        fullname: "-"
+                    }
+                }
+        };
+    });
+
     return {
-        data,
+        data: transformedData,
         total,
         page,
         totalPages: Math.ceil(total / limit),
