@@ -1,6 +1,7 @@
 import { date } from "zod/v4";
 import prisma from "../utils/client.js"
 import { calculateHolidaysDays } from '../utils/leaves.utils.js';
+import { status_active } from "../../generated/prisma/index.js";
 
 export const createLeave = async (data) => {
     let {
@@ -241,17 +242,26 @@ export const getLeaveBalanceByYear = async (nik, year) => {
     })
 }
 
-export const getAllUsers = async (page, limit, search = '') => {
+export const getAllUsers = async (page, limit, search = '', gender = '', status = '', role = '') => {
     const currentYear = new Date().getFullYear();
     const lastYear = currentYear - 1;
 
+    const filterCondition = {
+        AND: [
+            {
+                OR: [
+                    {fullname: {contains: search, mode: 'insensitive'}},
+                    {NIK: {contains: search, mode: 'insensitive'}},
+                ]
+            },
+            ...(gender ? [{ gender: gender }] : []),
+            ...(status ? [{status_active: status}] : []),
+            ...(role ? [{role: role}] : [])
+        ]
+    }
+
     const users = await prisma.tb_users.findMany({
-        where: {
-            OR: [
-                { fullname: { contains: search, mode: 'insensitive' } },
-                { NIK: { contains: search, mode: 'insensitive' } },
-            ]
-        },
+        where: filterCondition,
         orderBy: {
             fullname: 'asc'
         }
