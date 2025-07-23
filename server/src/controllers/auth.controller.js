@@ -1,47 +1,75 @@
-import { status } from "../../generated/prisma/index.js";
-import { fetchUserData } from "../services/auth.service.js";
+import { deleteToken, fetchUserData } from "../services/auth.service.js";
+import { decodeToken, generateToken } from "../utils/jwt.js";
+import { getDeviceInfo } from "../utils/UAParser.js";
+import { v4 as uuidv4 } from "uuid"
 
 export const login = async (req, res, next) => {
-    const { email, password } = req.body
+    const { email } = req.body;
+    let deviceId = req.get("device-id");
+    if (!deviceId) {
+        deviceId = uuidv4();
+    }
+
     try {
-        const user = req.user;
+        const user = await fetchUserData("email", email.toLowerCase());
+        const deviceInfo = await getDeviceInfo(req.get("user-agent"));
 
-        req.session.user = {
-            NIK: user.NIK, loginDate: (new Date()).toISOString(),
-            role: user.role
-        };
+        if (!user) {
+            const error = new Error('user not found');
+            error.statusCode = 404;
+            throw error;
+        }
 
-        return res.status(200).json({
+        const deviceInfoData = `${deviceInfo.browser.version}-${deviceInfo.browser.name}-${deviceInfo.os.name}`;
+
+        const userData = {
+            NIK: user.NIK,
+            email: user.email,
+            fullname: user.fullname,
+            role: user.role,
+        }
+
+        const deviceData = {
+            deviceInfo: deviceInfoData,
+            deviceId: deviceId
+        }
+        
+
+        const newToken = await generateToken(userData, deviceData);
+
+        res.setHeader('Authorization', `Bearer ${newToken}`);
+        res.setHeader('device-id', deviceId);
+        res.status(200).json({
+            success: true,
             message: `Welcome ${user.fullname}`,
-            loginDate: req.session.user.loginDate,
-            data: user
-        })
-    } catch (error) {
-        return res.status(400).json({
-            message: error.message
+            data: {
+                nik: user.NIK,
+                name: user.fullname,
+                role: user.role
+            }
         });
+    } catch (error) {
+       next(error);
     }
 }
 
-export const logout = (req, res, next) => {
+export const logout = async (req, res, next) => {
     try {
-        if (!req.session.user) {
-            throw new Error('invalid action');
-        }
+        const deviceId = req.get("device-id");
+        const header = req.get("authorization");
+        const token = header?.split(' ')[1];
 
-        req.session.destroy((err) => {
-            if (err) throw new Error(err.message);
+        // check expired token.
+        const decode = decodeToken(token)
 
-            res.clearCookie('connect.sid');
-            res.status(200).json({
-                message: "you have been logged out"
-            })
-        })
+        // check if token are exist in database.
+        await deleteToken(decode.NIK, deviceId);
+
+        res.status(200).json({
+            success: true,
+            message: "You have been successfully logged out.",
+        });
     } catch (error) {
-        res.status(400).json({
-            status: "failed",
-            message: error.message,
-            status_code: 400
-        })
+        next(error);
     }
 }

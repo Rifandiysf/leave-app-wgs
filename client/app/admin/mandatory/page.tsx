@@ -1,141 +1,238 @@
 'use client'
 
 import 'bootstrap-icons/font/bootstrap-icons.css'
+import { useEffect, useState, useCallback } from "react"
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious
+} from '@/app/components/ui/pagination'
 import { Switch } from "@/app/components/ui/switch"
-import { ReactNode, useState } from "react"
-import { SearchButton } from '@/app/components/search/page'
-import { SelectDemo } from '@/app/components/select/page'
-import { SelectItem, SelectLabel } from '@/app/components/ui/select'
-import { Button } from '@/app/components/ui/button'
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/app/components/ui/pagination'
+import { AddMandatory } from '@/app/components/form/addMandatory'
+import { EditMandatory } from '@/app/components/form/editMandatory'
+import withAuth from '@/lib/auth/withAuth'
+import { formatDate } from '@/lib/formatDate'
 
 type dataMandatoryLeaveType = {
-    id: number,
+    id_mandatory: string,
     title: string,
-    gender: string,
-    amount: number,
-    information: string,
-    action: ReactNode
+    is_active: boolean,
+    description: string,
+    start_date: string,
+    end_date: string,
 }
+
+type PaginationInfo = {
+    current_page: number,
+    last_visible_page: number,
+    has_next_page: boolean,
+    item: {
+        count: number,
+        total: number,
+        per_page: number
+    }
+}
+
+const itemPerPage = 7
 
 const MandatoryLeavePage = () => {
     const [currentPage, setCurrentPage] = useState(1)
     const [isLoading, setIsLoading] = useState(false)
-    const ITEMS_PER_PAGE = 7
+    const [dataMandatoryLeave, setDataMandatoryLeave] = useState<dataMandatoryLeaveType[]>([])
+    const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
+        current_page: 1,
+        last_visible_page: 1,
+        has_next_page: false,
+        item: {
+            count: 0,
+            total: 0,
+            per_page: 10
+        }
+    })
+    const [search, setSearch] = useState("")
+    const [debouncedSearch, setDebouncedSearch] = useState("")
 
-    const dataMandatoryLeave: dataMandatoryLeaveType[] = [{
-        id: 1,
-        title: "Cuti Wajib Akhir Tahun",
-        gender: "MF",
-        amount: 5,
-        information: "Berlaku untuk seluruh karyawan laki-laki dalam rangka libur akhir tahun.",
-        action: <div className="flex justify-center items-center gap-2">
-            <button className='p-1 px-1.5 cursor-pointer rounded-lg hover:bg-gray-300 transition'><i className="bi bi-pencil-square text-xl"></i></button>
-            <Switch />
-        </div>
-    },]
+    // Debounce search
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(search)
+        }, 500)
 
-    const totalPages = Math.ceil(dataMandatoryLeave.length / ITEMS_PER_PAGE)
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-    const currentData = dataMandatoryLeave.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+        return () => {
+            clearTimeout(handler)
+        }
+    }, [search])
+
+    const fetchMandatoryLeaves = useCallback(async (page: number, searchTerm: string) => {
+        setIsLoading(true)
+        try {
+            let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/mandatory`
+
+            if (searchTerm) {
+                url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/mandatory/search?value=${searchTerm}`
+            }
+
+            url += `${searchTerm ? '&' : '?'}page=${page}&limit=${itemPerPage}`
+
+            const token = localStorage.getItem('token');
+            const deviceId = localStorage.getItem('device-id');
+
+            const res = await fetch(url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token && { Authorization: `${token}` }),
+                    ...(deviceId && { 'device-id': deviceId }),
+                }
+            })
+
+            if (!res.ok) {
+                const errorData = await res.json()
+                throw new Error(errorData.message || 'Failed to fetch mandatory leaves')
+            }
+
+            const result = await res.json()
+
+            setDataMandatoryLeave(result.data)
+            setPaginationInfo(result.pagination)
+
+            if (page > result.pagination.last_visible_page && result.pagination.last_visible_page > 0) {
+                setCurrentPage(result.pagination.last_visible_page)
+            } else if (result.pagination.last_visible_page === 0 && page !== 1) {
+                setCurrentPage(1)
+            }
+
+        } catch (err: any) {
+            console.error('Error fetching mandatory leaves:', err)
+        } finally {
+            setIsLoading(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [debouncedSearch])
+
+    useEffect(() => {
+        fetchMandatoryLeaves(currentPage, debouncedSearch)
+    }, [currentPage, fetchMandatoryLeaves, debouncedSearch])
+
+    const handleFormSubmitSuccess = () => {
+        fetchMandatoryLeaves(currentPage, debouncedSearch)
+    }
 
     const handlePageChange = (page: number) => {
-        if (page >= 1 && page <= totalPages) {
-            setIsLoading(true)
-            setTimeout(() => {
-                setCurrentPage(page)
-                setIsLoading(false)
-            }, 600)
+        if (page >= 1 && page <= paginationInfo.last_visible_page) {
+            setCurrentPage(page)
         }
     }
+
     return (
-        <>
-            <section className="flex justify-end items-center p-5 border-b-[1.5px] border-[#0000001f]">
-                <SearchButton placeholder="Search Mandatory" />
+        <section className="relative p-3 min-h-[calc(100dvh-137px)]">
+            <div className='flex justify-end items-center gap-3 mb-4'>
+                <div className="flex max-sm:w-full">
+                    <input
+                        type="text"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search..."
+                        className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                </div>
                 <div className="flex gap-3">
-                    <SelectDemo placeholder="Gender">
-                        <SelectLabel>Gender</SelectLabel>
-                        <SelectItem value="M">Male</SelectItem>
-                        <SelectItem value="F">Female</SelectItem>
-                    </SelectDemo>
-                    <Button><i className="bi bi-plus-circle-fill text-lg"></i>Add Mandatory Leave</Button>
+                    <AddMandatory onFormSubmit={handleFormSubmitSuccess} />
                 </div>
-            </section>
+            </div>
 
-            <section className="relative p-3 min-h-[calc(100dvh-137px)]">
-                <div className='max-sm:overflow-x-scroll'>
-                    <table className="w-full table-auto rounded-t-2xl">
-                        <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] rounded-2xl shadow-2xl">
+            <div className="max-sm:overflow-x-scroll">
+                <table className="w-full table-auto rounded-t-2xl">
+                    <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] rounded-2xl shadow-lg">
+                        <tr>
+                            <th className="p-3 text-[18px] font-semibold tracking-wide">No</th>
+                            <th className="p-3 text-[18px] font-semibold tracking-wide">Leave Title</th>
+                            <th className="p-3 text-[18px] font-semibold tracking-wide">Information</th>
+                            <th className="p-3 text-[18px] font-semibold tracking-wide">Start Date</th>
+                            <th className="p-3 text-[18px] font-semibold tracking-wide">End Date</th>
+                            <th className="p-3 text-[18px] font-semibold tracking-wide">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody className="cursor-pointer">
+                        {isLoading ? (
+                            Array.from({ length: paginationInfo.item.per_page }).map((_, rowIdx) => (
+                                <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
+                                    {Array.from({ length: 6 }).map((_, colIdx) => (
+                                        <th key={colIdx} className="p-3">
+                                            <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
+                                        </th>
+                                    ))}
+                                </tr>
+                            ))
+                        ) : dataMandatoryLeave.length === 0 ? (
                             <tr>
-                                <th className="p-3 text-[18px] font-semibold tracking-wide">No</th>
-                                <th className="p-3 text-[18px] font-semibold tracking-wide">Leave Title</th>
-                                <th className="p-3 text-[18px] font-semibold tracking-wide">Gender</th>
-                                <th className="p-3 text-[18px] font-semibold tracking-wide">Amount</th>
-                                <th className="p-3 text-[18px] font-semibold tracking-wide">Information</th>
-                                <th className="p-3 text-[18px] font-semibold tracking-wide">Action</th>
+                                <td colSpan={6} className="p-4 text-center text-gray-500">
+                                    No mandatory leaves found.
+                                </td>
                             </tr>
-                        </thead>
+                        ) : (
+                            dataMandatoryLeave.map((data, idx) => (
+                                <tr key={data.id_mandatory} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
+                                        {(paginationInfo.current_page - 1) * itemPerPage + idx + 1}
+                                    </th>
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.title}</th>
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.description}</th>
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{formatDate(data.start_date)}</th>
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{formatDate(data.end_date)}</th>
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
+                                        <div className="flex justify-center items-center gap-2">
+                                            <EditMandatory initialData={data} onFormSubmit={handleFormSubmitSuccess} />
+                                            <Switch checked={data.is_active} />
+                                        </div>
+                                    </th>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
-                        <tbody className="cursor-pointer">
-                            {isLoading ? (
-                                Array.from({ length: ITEMS_PER_PAGE }).map((_, rowIdx) => (
-                                    <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
-                                        {Array.from({ length: 6 }).map((_, colIdx) => (
-                                            <th key={colIdx} className="p-3">
-                                                <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
-                                            </th>
-                                        ))}
-                                    </tr>
-                                ))
-                            ) : (
-                                currentData.map((data, idx) => (
-                                    <tr key={idx} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
-                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.id}</th>
-                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.title}</th>
-                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.gender}</th>
-                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.amount} Days</th>
-                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.information}</th>
-                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.action}</th>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+            <div className="flex justify-center items-center bg-white py-5">
+                <Pagination>
+                    <PaginationContent>
+                        <PaginationItem>
+                            <PaginationPrevious
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                className={`${currentPage === 1 || paginationInfo.last_visible_page <= 1 ? "pointer-events-none opacity-50 cursor-default" : "cursor-pointer"}`}
+                            />
+                        </PaginationItem>
 
-                <div className="flex justify-center items-center bg-white py-5">
-                    <Pagination>
-                        <PaginationContent>
-                            <PaginationItem>
-                                <PaginationPrevious
-                                    onClick={() => handlePageChange(currentPage - 1)}
-                                    className={`${currentPage === 1 ? "pointer-events-none opacity-50 cursor-default" : "cursor-pointer"}`}
-                                />
-                            </PaginationItem>
-
-                            {Array.from({ length: totalPages }, (_, i) => (
+                        {paginationInfo.last_visible_page > 1 &&
+                            Array.from({ length: paginationInfo.last_visible_page }, (_, i) => (
                                 <PaginationItem key={i}>
                                     <PaginationLink
                                         isActive={currentPage === i + 1}
                                         onClick={() => handlePageChange(i + 1)}
+                                        className='cursor-pointer'
                                     >
                                         {i + 1}
                                     </PaginationLink>
                                 </PaginationItem>
-                            ))}
+                            ))
+                        }
 
-                            <PaginationItem>
-                                <PaginationNext
-                                    onClick={() => handlePageChange(currentPage + 1)}
-                                    className={`${currentPage === totalPages ? "pointer-events-none opacity-50 cursor-default" : "cursor-pointer"}`}
-                                />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
-                </div>
-            </section>
-        </>
+                        <PaginationItem>
+                            <PaginationNext
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                className={`${currentPage === paginationInfo.last_visible_page || paginationInfo.last_visible_page <= 1 ? "pointer-events-none opacity-50 cursor-default" : "cursor-pointer"}`}
+                            />
+                        </PaginationItem>
+                    </PaginationContent>
+                </Pagination>
+            </div>
+        </section>
     )
 }
 
-export default MandatoryLeavePage
+export default withAuth(MandatoryLeavePage, { requireAdmin: true })

@@ -31,7 +31,6 @@ const LoginPage = () => {
         setEmailError('')
         setPasswordError('')
         setGeneralError('')
-
         let hasError = false
 
         if (!email) {
@@ -49,20 +48,29 @@ const LoginPage = () => {
         setIsLoading(true)
 
         try {
+            const storedDeviceId = localStorage.getItem('device-id') ?? '';
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include', 
+                headers: {
+                    'Content-Type': 'application/json',
+                    'device-id': storedDeviceId ?? ''
+                },
+                credentials: 'include',
                 body: JSON.stringify({ email, password })
             })
 
+            const data = await res.json();
+            const token = res.headers.get("Authorization");
+            const deviceId = res.headers.get("device-id");
+
             if (!res.ok) {
-                setGeneralError('Email atau password salah')
+                setGeneralError(data.message)
                 setIsLoading(false)
                 return
             }
 
-            // const data = await res.json()
+            localStorage.setItem('token', token ?? '');
+            localStorage.setItem('device-id', deviceId ?? '');
 
             router.push('/')
         } catch (err) {
@@ -148,11 +156,6 @@ const LoginPage = () => {
                                         Processing…
                                     </>
                                 ) : 'Login'}
-                            </Button>
-
-                            <Button variant="outline" className="w-full bg-white flex justify-center items-center gap-2">
-                                <Image src="/images/google.svg" alt="google" width={20} height={20} />
-                                Login with Google
                             </Button>
                         </CardFooter>
                     </form>

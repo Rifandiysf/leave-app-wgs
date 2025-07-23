@@ -11,6 +11,7 @@ import {
     PaginationPrevious
 } from "../../components/ui/pagination"
 import Modal from "@/app/components/Modal/Modal"
+import withAuth from "@/lib/auth/withAuth"
 
 type LeaveHistoryType = {
     status: ReactNode
@@ -158,6 +159,7 @@ const HistoryPage = () => {
                                     <PaginationLink
                                         isActive={currentPage === i + 1}
                                         onClick={() => handlePageChange(i + 1)}
+                                        className='cursor-pointer'
                                     >
                                         {i + 1}
                                     </PaginationLink>
@@ -178,4 +180,4 @@ const HistoryPage = () => {
     )
 }
 
-export default HistoryPage
+export default withAuth(HistoryPage)

@@ -7,10 +7,11 @@ import { validateRole } from "../middlewares/validateRole.middleware.js";
 import { getAllUsers } from "../services/user.service.js";
 import { validateLeaveBalance } from "../middlewares/validateLeaveBalance.middleware.js";
 import { validateSpecialLeaveNotWeekend } from "../middlewares/validateSpecialLeaveNotWeekend.js";
+import { checkDuplicateLeave } from "../middlewares/checkDuplicateLeave .middleware.js";
 
 const userRoutes = express.Router();
 
-userRoutes.post('/leave', validate(leaveRequestSchema), validateLeaveBalance, validateSpecialLeaveNotWeekend, createLeaveRequest);
+userRoutes.post('/leave', validate(leaveRequestSchema), checkDuplicateLeave, validateLeaveBalance, validateSpecialLeaveNotWeekend, createLeaveRequest);
 userRoutes.get('/leave', getLeaveRequests);
 userRoutes.get('/leave/search', getLeavesByFilter);
 userRoutes.get('/leave/:id', getLeaveRequestsById);
@@ -19,7 +20,7 @@ userRoutes.get('/:nik', getUser);
 userRoutes.patch('/:nik', updateUser);
 userRoutes.delete('/:nik', validateRole("admin", "super_admin"), deleteUser);
 
-userRoutes.get('/', allUsers);
-userRoutes.patch('/:nik/balance', validateRole("admin", "super_admin"), modifyAmount);
+userRoutes.patch('/:nik/balance', modifyAmount);
+userRoutes.get('/', validateRole("admin", "super_admin") ,allUsers);
 
 export default userRoutes;

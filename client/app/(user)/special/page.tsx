@@ -11,6 +11,7 @@ import {
 } from "../../components/ui/pagination"
 
 import classNames from 'classnames'
+import withAuth from '@/lib/auth/withAuth'
 
 
 const dummyData = [
@@ -34,7 +35,7 @@ const statusColor = {
   REJECT: 'text-[#ca0000] bg-[#ff5f5f77] p-2 px-3 rounded-full text-xs',
 }
 
-export default function SpecialPage() {
+const SpecialPage = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const ITEMS_PER_PAGE = 7
@@ -136,6 +137,7 @@ export default function SpecialPage() {
                   <PaginationLink
                     isActive={currentPage === i + 1}
                     onClick={() => handlePageChange(i + 1)}
+                    className='cursor-pointer'
                   >
                     {i + 1}
                   </PaginationLink>
@@ -155,3 +157,5 @@ export default function SpecialPage() {
     </section>
   )
 }
+
+export default withAuth(SpecialPage)

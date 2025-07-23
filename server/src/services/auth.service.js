@@ -1,35 +1,47 @@
-import { email } from "zod/v4";
 import prisma from "../utils/client.js";
-import bcrypt from 'bcrypt';
-import { role } from "../../generated/prisma/index.js";
-
 
 export const fetchUserData = async (params, uniqueId) => {
     try {
         const user = await prisma.tb_users.findUnique({
-        where: {
-            [params]: uniqueId,
-        }
-    })
+            where: {
+                [params]: uniqueId,
+            }
+        })
 
-        let password = await bcrypt.hash(user.password, 10);
-
-        const userCopy = {
-            NIK: user.NIK,
-            fullname: user.fullname,
-            email: user.email,
-            role: user.role,
-            status: user.status_active,
-            password: password
-        }
-        
-        return userCopy;
+        return user;
     } catch (error) {
-        // for development only
-        if (process.env.NODE_ENV = "development") {
-            const err = new Error("User not found");
-            err.statusCode = 404;
-            throw err;
-        }
+        throw error;
     }
+}
+
+export const addToken = async (token, nik, deviceInfo, deviceId) => {
+    try {
+        const addedToken = await prisma.tb_jwt_token.create({
+            data: {
+                access_token: token,
+                NIK: nik,
+                device_info: deviceInfo,
+                device_id: deviceId
+            }
+        })
+
+        return addedToken;
+    } catch (error) {
+        return null;
+    }
+}
+
+export const deleteToken = async (nik, deviceId) => {
+    try {
+        const deletedToken = await prisma.tb_jwt_token.deleteMany({
+            where: {
+                NIK: nik,
+                device_id: deviceId
+            }
+        })
+        return deletedToken;
+    } catch (error) {
+        return null;
+    }
+        
 }

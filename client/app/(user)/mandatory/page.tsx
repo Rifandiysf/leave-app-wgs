@@ -1,5 +1,6 @@
 "use client"
 
+import withAuth from "@/lib/auth/withAuth"
 import {
     Accordion,
     AccordionContent,
@@ -55,4 +56,4 @@ const MandatoryPage = () => {
     )
 }
 
-export default MandatoryPage
+export default withAuth(MandatoryPage)

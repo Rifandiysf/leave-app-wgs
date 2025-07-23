@@ -17,17 +17,20 @@
     "@prisma/client": "^6.11.1",
     "bcrypt": "^6.0.0",
     "compression": "^1.8.0",
+    "connect-timeout": "^1.9.0",
     "cors": "^2.8.5",
     "dotenv": "^17.0.1",
     "express": "^5.1.0",
-    "express-session": "^1.18.1",
+    "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "node-cron": "^4.2.1",
     "response-time": "^2.3.3",
-    "zod": "^3.25.74"
+    "ua-parser-js": "^2.0.4",
+    "uuid": "^11.1.0",
+    "zod": "^3.25.74",
+    "nodemon": "^3.1.10"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10",
     "prisma": "^6.11.1"
   }
 }
