@@ -100,8 +100,11 @@ export const allUsers = async (req, res, next) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const search = req.query.search || ''
+        const gender = req.query.gender || ''
+        const status = req.query.status || ''
+        const role = req.query.role || ''
 
-        const dataUsers = await getAllUsers(page, limit, search);
+        const dataUsers = await getAllUsers(page, limit, search, gender, status, role);
 
         res.status(200).json({
             message: "Successfully retrieved leave data",
