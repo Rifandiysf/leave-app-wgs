@@ -22,7 +22,7 @@ export const createLeaveRequest = async (req, res, next) => {
             data: leave,
         })
     } catch (error) {
-       next(error)
+        next(error)
     }
 }
 
@@ -96,7 +96,7 @@ export const getLeaveRequestsById = async (req, res) => {
     }
 }
 
-export const allUsers = async (req, res) => {
+export const allUsers = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -119,8 +119,8 @@ export const allUsers = async (req, res) => {
             data: dataUsers.data,
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Failed to retrieve user data and leave quota.' });
+        error.message = 'Failed to retrieve user data and leave quota.'
+        next(error);
     }
 };
 
@@ -155,7 +155,7 @@ export const getUser = async (req, res, next) => {
     }
 }
 
-export const updateUser = async (req, res) => {
+export const updateUser = async (req, res, next) => {
     const { nik } = req.params
     try {
         const updatedUser = await updateUserByNIK(nik)
@@ -166,15 +166,13 @@ export const updateUser = async (req, res) => {
             data: updatedUser
         })
     } catch (error) {
-        res.status(400).json({
-            status: "failed",
-            message: "failed to update user data",
-            reason: error.message
-        });
+        error.cause = error.message;
+        error.message = "failed to update user data";
+        next(error)
     }
 }
 
-export const deleteUser = async (req, res) => {
+export const deleteUser = async (req, res, next) => {
     const { nik } = req.params
     try {
         const deletedUser = await deleteUserByNIK(nik);
@@ -185,40 +183,42 @@ export const deleteUser = async (req, res) => {
             data: deletedUser
         })
     } catch (error) {
-        res.status(400).json({
-            status: "failed",
-            message: "failed to delete user data",
-            reason: error.message
-        });
+        error.cause = error.message;
+        error.message = "failed to delete user data";
+        next(error)
     }
 }
 
-export const modifyAmount = async (req, res) => {
+export const modifyAmount = async (req, res, next) => {
     const { nik } = req.params
-    const {adjustment_value, notes} = req.body
+    const { adjustment_value, notes } = req.body
     const token = req.get("authorization").split(' ')[1]
 
-    const decodedToken = await decodeToken(token);
-    const actor = decodedToken.role
-    if (!actor) {
-        return res.status(401).json({ message: 'Unauthorized: actor (role) not found in session' });
-    }
-
     try {
+        const decodedToken = await decodeToken(token);
+        const actor = decodedToken.role
+        if (!actor) {
+            const error = new Error("'Unauthorized: actor (role) not found in session'");
+            error.statusCode(401);
+            throw error;
+        }
+        
         const targetUser = await prisma.tb_users.findUnique({
-            where : {NIK: nik},
-            select : {role: true}
+            where: { NIK: nik },
+            select: { role: true }
         })
 
         if (!targetUser) {
-            return res.status(404).json({ message: 'Target user not found' })
+            const error = new Error("Target user not found");
+            error.statusCode(404);
+            throw error;
         }
 
         const targetRole = targetUser.role;
 
         const result = await adjustModifyAmount(nik, adjustment_value, notes, actor, targetRole)
-        res.status(200).json({message: 'Balance adjusted successfully', data: result})
+        res.status(200).json({ message: 'Balance adjusted successfully', data: result })
     } catch (error) {
-        res.status(400).json({message: error.message})
+        next(error)
     }
 }
