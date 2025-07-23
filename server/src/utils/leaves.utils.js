@@ -1,6 +1,6 @@
 import prisma from "./client.js";
 
-export const calculateWorkingDays = (startDate, endDate) => {
+export const calculateHolidaysDays = (startDate, endDate) => {
     let workingDays = 0;
     const currentDate = new Date(startDate);
     const finalDate = new Date(endDate);

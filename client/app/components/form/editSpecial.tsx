@@ -188,7 +188,7 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
                         <div className="grid gap-3">
                             <Label htmlFor="gender">Gender</Label>
                             <Select value={gender} onValueChange={(value) => setGender(value)} >
-                                <SelectTrigger className={`w-full ${titleError ? 'border-red-400' : ''}`}>
+                                <SelectTrigger className={`w-full ${genderError ? 'border-red-400' : ''}`}>
                                     <SelectValue placeholder="Select the gender" />
                                 </SelectTrigger>
                                 <SelectContent>

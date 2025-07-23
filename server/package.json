@@ -23,11 +23,12 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
-    "nodemon": "^3.1.10",
+    "node-cron": "^4.2.1",
     "response-time": "^2.3.3",
     "ua-parser-js": "^2.0.4",
     "uuid": "^11.1.0",
-    "zod": "^3.25.74"
+    "zod": "^3.25.74",
+    "nodemon": "^3.1.10"
   },
   "devDependencies": {
     "prisma": "^6.11.1"
