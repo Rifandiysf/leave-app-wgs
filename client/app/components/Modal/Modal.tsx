@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -22,6 +23,7 @@ import {
     SelectValue,
     SelectContent,
 } from "../ui/select"
+import 'bootstrap-icons/font/bootstrap-icons.css'; 
 
 type ModalTypeProps = {
     children?: React.ReactNode
@@ -29,7 +31,7 @@ type ModalTypeProps = {
     triggerClassName?: string
     title: string
     triggerLabel: React.ReactNode
-    description: string
+    description?: string // Make description optional
     showFooter?: boolean
     mode?: "form" | "info" | "confirm" | "reject" | "approve"
     variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
@@ -48,7 +50,6 @@ export function Modal({
     mode = "form",
     variant = "default",
     size = "default",
-    // TAMBAHKAN PROPERTI INI
     onConfirm,
 }: ModalTypeProps) {
     const [startLeave, setStartLeave] = useState<Date | undefined>()
@@ -204,6 +205,32 @@ export function Modal({
         </>
     )
 
+
+    const ConfirmContent = () => (
+    <>
+        {TriggerButton()}
+        <DialogContent className="sm:max-w-md p-6 [&>button]:hidden">
+            <DialogTitle className="sr-only">{title}</DialogTitle>
+            <p className="text-center text-lg font-medium text-gray-800 mb-8">
+                {title}
+            </p>
+
+            <div className="flex w-full items-center justify-between">
+                <DialogClose asChild>
+                    <Button variant="ghost" className="text-gray-700 hover:bg-gray-100 px-3">
+                       <i className="bi bi-box-arrow-left text-2xl"></i>
+                        Cancel
+                    </Button>
+                </DialogClose>
+
+                <Button onClick={() => onConfirm?.()} className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-10 py-1">
+                    Yes
+                </Button>
+            </div>
+        </DialogContent>
+    </>
+)
+
     const ContentByMode = () => {
         switch (mode) {
             case "form":
@@ -214,8 +241,8 @@ export function Modal({
                 return ApproveContent()
             case "reject":
                 return RejectContent()
-            // case "confirm": 
-            //     return ConfirmContent()
+            case "confirm": 
+                return ConfirmContent()
             default:
                 return TriggerButton()
         }

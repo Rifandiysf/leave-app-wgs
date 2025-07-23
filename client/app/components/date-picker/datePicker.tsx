@@ -10,14 +10,16 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/app/components/ui/popover"
+import { cn } from "@/lib/utils"
 
 type DatePickerFieldProps = {
     label: string
     value: Date | undefined
     onChange: (date: Date | undefined) => void
+    className?: string
 }
 
-export function DatePickerField({ label, value, onChange }: DatePickerFieldProps) {
+export function DatePickerField({ label, value, onChange, className }: DatePickerFieldProps) {
     const [open, setOpen] = React.useState(false)
 
     return (
@@ -30,7 +32,10 @@ export function DatePickerField({ label, value, onChange }: DatePickerFieldProps
                     <Button
                         variant="outline"
                         id={label.toLowerCase()}
-                        className="w-full justify-between font-normal"
+                        className={cn(
+                            'w-full justify-between font-normal',
+                            className
+                        )}
                     >
                         {value ? value.toLocaleDateString() : "Select date"}
                         <ChevronDownIcon />

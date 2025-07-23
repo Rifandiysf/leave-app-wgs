@@ -1,9 +1,9 @@
 import { decodeToken } from '../utils/jwt.js';
 import {
-    calculateWorkingDays,
     getUserLeaveBalance,
     getPendingLeaveDays,
-    isValidDateRange
+    isValidDateRange,
+    calculateHolidaysDays,
 } from '../utils/leaves.utils.js';
 
 export const validateLeaveBalance = async (req, res, next) => {
@@ -24,27 +24,27 @@ export const validateLeaveBalance = async (req, res, next) => {
             return next(error);
         }
 
-        const requestedWorkingDays = calculateWorkingDays(startDate, endDate);
+        const requestedHolidaysDays = calculateHolidaysDays(startDate, endDate);
 
         const totalLeaveBalance = await getUserLeaveBalance(NIK);
         const pendingDays = await getPendingLeaveDays(NIK);
         const availableLeaveBalance = totalLeaveBalance - pendingDays;
 
-        if (requestedWorkingDays > availableLeaveBalance) {
+        if (requestedHolidaysDays > availableLeaveBalance) {
             const error = new Error(
-                `Insufficient leave balance. Available: ${availableLeaveBalance} days, Requested: ${requestedWorkingDays} working days`
+                `Insufficient leave balance. Available: ${availableLeaveBalance} days, Requested: ${requestedHolidaysDays} Holidays days`
             );
             error.statusCode = 400;
             error.data = {
                 total_balance: totalLeaveBalance,
                 pending_days: pendingDays,
                 available_balance: availableLeaveBalance,
-                requested_working_days: requestedWorkingDays
+                requested_Holidays_days: requestedHolidaysDays
             };
             return next(error);
         }
 
-        req.workingDays = requestedWorkingDays;
+        req.HolidaysDays = requestedHolidaysDays;
 
         next();
     } catch (error) {

@@ -53,9 +53,7 @@ export const getAllLeaves = async (req, res, next) => {
 
     const paginationResponse = responsePagination("Leave data retrieved successfully", leaves, limit);
 
-    res.status(200).json({
-      paginationResponse
-    });
+    res.status(200).json(paginationResponse);
 
   } catch (error) {
     next(error)
@@ -70,9 +68,7 @@ export const getLeavesByFilter = async (req, res, next) => {
 
     const paginationResponse = responsePagination("Filtered leave data retrieved successfully", leaves, limit);
 
-    res.status(200).json({
-      paginationResponse
-    });
+    res.status(200).json(paginationResponse);
 
   } catch (error) {
     next(error)
@@ -84,20 +80,8 @@ export const historyLeave = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
     const result = await getHistoryLeave(page, limit)
-    res.status(200).json({
-      success: true,
-      pagination: {
-        current_page: result.page,
-        last_visible_page: result.totalPages,
-        has_next_page: result.page < result.totalPages,
-        item: {
-          count: result.data.length,
-          total: result.total,
-          per_page: limit
-        }
-      },
-      data: result.data,
-    })
+    const paginationResponse = responsePagination("Leave data log retrieved successfully", result, limit);
+    res.status(200).json(paginationResponse)
 
   } catch (error) {
     next(error)
@@ -116,20 +100,8 @@ export const historyLeaveSearch = async (req, res, next) => {
       limit: parseInt(limit)
     });
 
-    res.status(200).json({
-      success: true,
-      pagination: {
-        current_page: result.page,
-        last_visible_page: result.totalPages,
-        has_next_page: result.page < result.totalPages,
-        item: {
-          count: result.data.length,
-          total: result.total,
-          per_page: parseInt(limit)
-        }
-      },
-      data: result.data,
-    });
+    const paginationResponse = responsePagination("Filtered leave data log retrieved successfully", result, limit);
+    res.status(200).json(paginationResponse)
   } catch (error) {
     next(error)
   }
@@ -144,9 +116,7 @@ export const getSpecialLeave = async (req, res, next) => {
 
     const paginationResponse = responsePagination("All special leave was successfully taken", result, limit);
 
-    res.status(200).json({
-      paginationResponse
-    });
+    res.status(200).json(paginationResponse);
   } catch (error) {
     next(error)
   }
@@ -160,9 +130,7 @@ export const getSearchSpecialLeave = async (req, res, next) => {
 
     const paginationResponse = responsePagination("Search special leave data retrieved successfully", result, limit);
 
-    res.status(200).json({
-      paginationResponse
-    });
+    res.status(200).json(paginationResponse);
   } catch (error) {
     next(error)
   }
@@ -229,9 +197,7 @@ export const getMandatoryLeaves = async (req, res, next) => {
 
     const paginationResponse = responsePagination("All mandatory leave was successfully taken", result, limit);
 
-    res.status(200).json({
-      paginationResponse
-    });
+    res.status(200).json(paginationResponse);
   } catch (error) {
     next(error)
   }
@@ -245,9 +211,7 @@ export const getSearchMandatoryLeave = async (req, res, next) => {
 
     const paginationResponse = responsePagination("Search mandatory leave data retrived succesfully", result, limit);
 
-    res.status(200).json({
-      paginationResponse
-    });
+    res.status(200).json(paginationResponse);
   } catch (error) {
     next(error);
   }

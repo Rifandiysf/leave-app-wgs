@@ -45,7 +45,7 @@ const UserDashboard = () => {
                   <i className="bi bi-calendar-check text-white text-base sm:text-xl" />
                 </div>
                 <div className="text-right">
-                  <div className="text-lg sm:text-3xl md:text-4xl font-bold text-blue-800 mb-0.5 sm:mb-1">
+                  <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-blue-800 mb-0.5 sm:mb-1">
                     {item.count}
                   </div>
                   <div className="w-6 h-1 bg-blue-600 rounded-full ml-auto"></div>
@@ -106,7 +106,7 @@ const UserDashboard = () => {
                   <i className={`bi ${stat.icon} text-white text-sm`} />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-xl sm:text-2xl font-bold text-blue-800">{stat.count}</div>
+                  <div className="text-3xl sm:text-3xl font-bold text-blue-800">{stat.count}</div>
                   <p className="text-xs sm:text-sm text-gray-600">{stat.label}</p>
                 </div>
               </div>
