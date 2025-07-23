@@ -404,154 +404,114 @@ export const updateMandatoryLeaveService = async (id, data) => {
     });
 };
 
-// export const updateLeave = async (id, status, reason, nik) => {
-//     try {
-//         const data = await prisma.tb_leave.findUnique({
-//             where: { id_leave: id },
-//             include: { tb_users: true }
-//         });
+export const updateLeaveBalance = async (user) => {
+    const today = new Date();
+    const joinDate = new Date(user.join_date);
+    const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-//         if (!data) {
-//             const err = new Error("Leave not found");
-//             err.statusCode = 404;
-//             throw err;
-//         }
+    if (user.status_active === 'resign') {
+        console.log(`[SKIP] NIK: ${user.NIK} status: RESIGN`);
+        return;
+    }
 
-//         if (data.start_date >= new Date()) {
-//             throw new Error("The start date of the leave has passed the current date");
-//         }
+    if (user.role === 'karyawan_tetap' || user.role === 'admin' || user.role === 'super_admin') {
+        const currentYear = today.getFullYear();
 
-//         if (data.status === status) {
-//             throw new Error("New status and old status can't be the same");
-//         }
+        const alreadyGiven = await prisma.tb_balance.findFirst({
+            where: {
+                NIK: user.NIK,
+                receive_date: {
+                    gte: new Date(`${currentYear}-01-01`),
+                    lte: new Date(`${currentYear}-12-31`)
+                }
+            }
+        });
 
-//         if (data.NIK === nik) {
-//             throw new Error("Users are not allowed to approve or reject their own leave requests")
-//         }
+        if (!alreadyGiven) {
+            const receiveDate = new Date();
+            const expiredDate = new Date(receiveDate);
+            expiredDate.setFullYear(receiveDate.getFullYear() + 2);
 
-//         const userBalance = await prisma.tb_balance.findMany({
-//             where: {
-//                 NIK: data.NIK,
-//                 expired_date: { gte: new Date() }
-//             },
-//             orderBy: {
-//                 expired_date: "asc"
-//             }
-//         });
+            await prisma.$transaction([
+                prisma.tb_balance.create({
+                    data: {
+                        NIK: user.NIK,
+                        amount: 12,
+                        receive_date: receiveDate,
+                        expired_date: expiredDate
+                    }
+                }),
+                prisma.tb_balance_adjustment.create({
+                    data: {
+                        NIK: user.NIK,
+                        adjustment_value: 12,
+                        notes: 'get 12 days of leave',
+                        created_at: new Date(),
+                        actor: 'system'
+                    }
+                })
+            ]);
+            
+            console.log(`[Balance Added] NIK: ${user.NIK}, amount: 12 (karyawan tetap)`);
+        }
 
-//         if (userBalance.length === 0) {
-//             throw new Error("Balance not found");
-//         }
+    } else if (user.role === 'karyawan_kontrak') {
+        const joinEffective = new Date(joinDate)
 
-//         const originalStatus = data.status;
-//         const totalDays = data.total_days;
-//         let daysToHandle = totalDays;
+        if (joinDate.getDate() > 20) {
+            joinEffective.setMonth(joinEffective.getMonth() + 1)
+            joinEffective.setDate(1)
+        } else {
+            joinEffective.setDate(1)
+        }
 
-//         const updatedBalances = [...userBalance];
-//         const isContract = data.tb_users.role === "karyawan_kontrak";
-//         const limitPerRecord = isContract ? 1 : 12;
+        let months = (firstOfMonth.getFullYear() - joinEffective.getFullYear()) * 12 +
+                     (firstOfMonth.getMonth() - joinEffective.getMonth()) + 1;
 
-//         if (data.leave_type !== "special_leave") {
-//             if (
-//                 (originalStatus === "pending" || originalStatus === "rejected") &&
-//                 status === "approved"
-//             ) {
-//                 // mengurangi amount balance dari record paling lama (deduct)
-//                 for (let i = 0; i < updatedBalances.length; i++) {
-//                     if (daysToHandle === 0) break;
-//                     let deduct; 
+        const eligibleMonths = months - 3;
 
-//                     if (i === updatedBalances.length - 1) {
-//                         deduct = daysToHandle
-//                     } else {
-//                         deduct = Math.min(updatedBalances[i].amount, daysToHandle);
-//                     }
-                    
-//                     updatedBalances[i].amount -= deduct;
-//                     daysToHandle -= deduct;
-//                 }
+        if (eligibleMonths >= 1) {
+            const autoAddAmount = await prisma.tb_balance_adjustment.aggregate({
+                where: {
+                    NIK: user.NIK,
+                    actor: 'system'
+                },
+                _sum: {
+                    adjustment_value: true
+                }
+            });
 
-//                 if (daysToHandle > 0 && data.leave_type === "personal_leave") {
-//                     throw new Error("Insufficient balance to approve leave");
-//                 }
-//             }
+            const current = autoAddAmount._sum.adjustment_value || 0;
+            const toAdd = eligibleMonths - current;
 
-//             // menambahkan amount balance dari record paling lama (restore)
-//             else if (originalStatus === "approved" && status === "rejected") {
-//                 for (let i = 0; i < updatedBalances.length; i++) {
-//                     if (daysToHandle === 0) break;
+            if (toAdd > 0) {
+                const receiveDate = new Date();
+                const expiredDate = new Date(receiveDate);
+                expiredDate.setFullYear(receiveDate.getFullYear() + 2);
 
-//                     const availableSpace = limitPerRecord - updatedBalances[i].amount;
-//                     console.log(availableSpace);
-//                     if (availableSpace <= 0) continue;
-
-//                     const restore = Math.min(availableSpace, daysToHandle);
-//                     updatedBalances[i].amount += restore;
-//                     daysToHandle -= restore;
-//                 }
-
-//                 if (daysToHandle > 0) {
-//                     throw new Error("Unable to fully restore leave balance — record limits exceeded.");
-//                 }
-//             }
-//         }
-
-//         const balanceUpdates = updatedBalances.map((balance) =>
-//             prisma.tb_balance.update({
-//                 where: { id_balance: balance.id_balance },
-//                 data: { amount: balance.amount }
-//             })
-//         );
-
-//         const result = await prisma.$transaction([
-//             prisma.tb_leave.update({
-//                 where: { id_leave: id },
-//                 data: { status: status }
-//             }),
-//             ...balanceUpdates,
-//             prisma.tb_leave_log.create({
-//                 data: {
-//                     old_status: originalStatus,
-//                     new_status: status,
-//                     reason: reason,
-//                     changed_by_nik: nik,
-//                     id_leave: data.id_leave,
-//                     changed_at: new Date()
-//                 }
-//             })
-//         ]);
-
-//         return result[0];
-//     } catch (error) {
-//         error.statusCode = 400
-//         error.cause = error.message;
-//         error.message = "Something went wrong when modify leave status"
-//         throw error;
-//     }
-// };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                await prisma.$transaction([
+                    prisma.tb_balance.create({
+                        data: {
+                            NIK: user.NIK,
+                            amount: toAdd,
+                            receive_date: receiveDate,
+                            expired_date: expiredDate
+                        }
+                    }),
+                    prisma.tb_balance_adjustment.create({
+                        data: {
+                            NIK: user.NIK,
+                            adjustment_value: toAdd,
+                            notes: `get ${toAdd} days of leave`,
+                            created_at: new Date(),
+                            actor: 'system'
+                        }
+                    })
+                ])
+                console.log(`[Balance Added] NIK: ${user.NIK}, amount: ${toAdd}`);
+            }
+        }
+    } else {
+        console.log(`[SKIP] NIK: ${user.NIK} role: magang`);
+    }
+};
