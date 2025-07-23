@@ -20,6 +20,6 @@ userRoutes.patch('/:nik', updateUser);
 userRoutes.delete('/:nik', validateRole("admin", "super_admin"), deleteUser);
 
 userRoutes.get('/', allUsers);
-userRoutes.patch('/:nik/balance', modifyAmount);
+userRoutes.patch('/:nik/balance', validateRole("admin", "super_admin"), modifyAmount);
 
 export default userRoutes;
