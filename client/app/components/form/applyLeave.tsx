@@ -8,7 +8,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { SuccessNotification } from '../notification/Notification';
+import { Notification } from '../notification/Notification';
 
 export function ApplyLeave() {
     const [title, setTitle] = useState("")
@@ -387,7 +387,7 @@ export function ApplyLeave() {
                     </DialogContent>
                 </Dialog>
             </Dialog>
-            <SuccessNotification
+            <Notification
                 mode='success'
                 show={showSuccessNotification}
                 message={() => `${leaveType === 'special_leave' ? 'Special' : 'Personal'} Leave schedule successfully added!`}

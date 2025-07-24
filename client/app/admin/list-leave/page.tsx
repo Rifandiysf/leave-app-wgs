@@ -8,6 +8,7 @@ import Modal from '@/app/components/Modal/Modal';
 import axiosInstance from '@/lib/api/axiosInstance';
 import { LeaveChoiceModal } from '@/app/components/LeaveChoiceModal/page';
 import withAuth from '@/lib/auth/withAuth';
+import { Notification } from '@/app/components/notification/Notification';
 
 type ApiLeaveType = {
     id_leave: string;
@@ -28,6 +29,8 @@ const ListOfLeavePage = () => {
     const [debouncedSearch, setDebouncedSearch] = useState("")
     const [viewMode, setViewMode] = useState<'requests' | 'history' | null>(null);
     const [isChoiceModalOpen, setChoiceModalOpen] = useState(true);
+    const [showErrorNotification, setShowErrorNotification] = useState(false)
+    const [errorMessage, setErrorMessage] = useState("")
     const ITEMS_PER_PAGE = 7;
 
     // Debounce search
@@ -39,7 +42,7 @@ const ListOfLeavePage = () => {
         return () => {
             clearTimeout(handler)
         }
-    },[search])
+    }, [search])
 
     useEffect(() => {
         const handleReset = () => {
@@ -67,6 +70,9 @@ const ListOfLeavePage = () => {
             const response = await axiosInstance.get(endpoint);
             if (response.data && Array.isArray(response.data.data)) {
                 setLeaveData(response.data.data);
+            }
+            if (response.data.message) {
+                setErrorMessage(response.data.message)
             }
         } catch (error) {
             console.error("Failed to fetch data:", error);
@@ -126,8 +132,19 @@ const ListOfLeavePage = () => {
                 reason: reason || "Processed by Admin"
             });
             if (viewMode) fetchData(viewMode, search);
-        } catch (error) {
+        } catch (error: any) {
             console.error(`Failed to ${newStatus} request:`, error);
+            
+            // Extract error message from API response
+            let apiErrorMessage = `Failed to ${newStatus} leave request`;
+            if (error.response?.data?.message) {
+                apiErrorMessage = error.response.data.message;
+            } else if (error.message) {
+                apiErrorMessage = error.message;
+            }
+            
+            setErrorMessage(apiErrorMessage);
+            setShowErrorNotification(true);
         }
     };
 
@@ -275,6 +292,13 @@ const ListOfLeavePage = () => {
                     </section>
                 </>
             )}
+            <Notification
+                mode='failed'
+                show={showErrorNotification}
+                message={() => errorMessage}
+                onClose={() => setShowErrorNotification(false)}
+                duration={4000}
+            />
         </>
     );
 }
