@@ -4,7 +4,7 @@
     import 'bootstrap-icons/font/bootstrap-icons.css';
     import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
     import withAuth from "@/lib/auth/withAuth";
-import axiosInstance from "@/lib/api/axiosInstance";
+    import axiosInstance from "@/lib/api/axiosInstance";
 
     type dataLeaveType = {
         nik: string,
@@ -435,7 +435,7 @@ import axiosInstance from "@/lib/api/axiosInstance";
                         </div>
                     </div>
                 </div>
-
+            
                 {/* Top and Bottom Remaining Leave Users */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">

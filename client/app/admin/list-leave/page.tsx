@@ -71,7 +71,6 @@ const ListOfLeavePage = () => {
             if (mode === 'history') {
                 data = data.filter((leave: ApiLeaveType) => leave.status.toLowerCase() !== 'pending');
             }
-
             if (Array.isArray(data)) {
                 setLeaveData(data);
             }
