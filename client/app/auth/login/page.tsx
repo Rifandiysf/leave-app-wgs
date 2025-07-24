@@ -25,61 +25,67 @@ const LoginPage = () => {
     const [passwordError, setPasswordError] = useState('')
     const [generalError, setGeneralError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setEmailError('')
+    setPasswordError('')
+    setGeneralError('')
+    let hasError = false
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setEmailError('')
-        setPasswordError('')
-        setGeneralError('')
-        let hasError = false
-
-        if (!email) {
-            setEmailError('Email wajib diisi')
-            hasError = true
-        }
-
-        if (!password) {
-            setPasswordError('Password wajib diisi')
-            hasError = true
-        }
-
-        if (hasError) return
-
-        setIsLoading(true)
-
-        try {
-            const storedDeviceId = localStorage.getItem('device-id') ?? '';
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'device-id': storedDeviceId ?? ''
-                },
-                credentials: 'include',
-                body: JSON.stringify({ email, password })
-            })
-
-            const data = await res.json();
-            const token = res.headers.get("Authorization");
-            const deviceId = res.headers.get("device-id");
-
-            if (!res.ok) {
-                setGeneralError(data.message)
-                setIsLoading(false)
-                return
-            }
-
-            localStorage.setItem('token', token ?? '');
-            localStorage.setItem('device-id', deviceId ?? '');
-
-            router.push('/')
-        } catch (err) {
-            console.error("Login error:", err)
-            setGeneralError("Terjadi kesalahan, coba beberapa saat lagi")
-        } finally {
-            setIsLoading(false)
-        }
+    if (!email) {
+        setEmailError('Email wajib diisi')
+        hasError = true
     }
+
+    if (!password) {
+        setPasswordError('Password wajib diisi')
+        hasError = true
+    }
+
+    if (hasError) return
+
+    setIsLoading(true)
+
+    try {
+        const storedDeviceId = localStorage.getItem('device-id') ?? '';
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'device-id': storedDeviceId ?? ''
+            },
+            credentials: 'include',
+            body: JSON.stringify({ email, password })
+        })
+
+        const data = await res.json();
+        const token = res.headers.get("Authorization");
+        const deviceId = res.headers.get("device-id");
+
+        if (!res.ok) {
+            setGeneralError(data.message)
+            setIsLoading(false)
+            return
+        }
+
+        localStorage.setItem('token', token ?? '');
+        localStorage.setItem('device-id', deviceId ?? '');
+        localStorage.setItem('user', JSON.stringify(data.data)); 
+
+    
+        if (data.data.role === 'admin' || data.data.role === 'super_admin') {
+            router.push('/');
+        } else {
+            router.push('/');
+        }
+        
+    } catch (err) {
+        console.error("Login error:", err)
+        setGeneralError("Terjadi kesalahan, coba beberapa saat lagi")
+    } finally {
+        setIsLoading(false)
+    }
+}
 
     return (
         <div className="w-full h-full flex flex-col justify-center items-center gap-4 px-4">
