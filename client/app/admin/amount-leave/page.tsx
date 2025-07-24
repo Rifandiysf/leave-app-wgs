@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import withAuth from "@/lib/auth/withAuth"
-import axiosInstance from "@/app/api/axiosInstance" 
+import axiosInstance from "@/app/api/axiosInstance"
+import  Modal  from '@/app/components/Modal/Modal'; 
 
 type UserSearchResult = {
   nik: string;
@@ -16,7 +17,7 @@ const AmountLeavePage = () => {
 
   const [nik, setNik] = useState("")
   const [currentBalance, setCurrentBalance] = useState(0)
-  const [amountToAdd, setAmountToAdd] = useState(0)
+  const [amountToAdd, setAmountToAdd] = useState<number>(0)
   const [total, setTotal] = useState(0)
   const [information, setInformation] = useState("")
   
@@ -27,20 +28,15 @@ const AmountLeavePage = () => {
   const [userWasSelected, setUserWasSelected] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false); 
 
-
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(nik)
     }, 500)
-    return () => {
-      clearTimeout(handler)
-    }
+    return () => clearTimeout(handler)
   }, [nik])
 
   useEffect(() => {
-    if (userWasSelected) {
-        return;
-    }
+    if (userWasSelected) return
 
     if (debouncedSearch.trim() === "") {
       setSearchResults([])
@@ -71,62 +67,50 @@ const AmountLeavePage = () => {
   }, [currentBalance, amountToAdd])
 
   const handleUserSelect = (user: UserSearchResult) => {
-    setUserWasSelected(true);
-    setNik(user.nik);
-    setSelectedUserName(user.name);
-    setCurrentBalance(user.leave_total || 0);
-    setSearchResults([]); 
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    setUserWasSelected(true)
+    setNik(user.nik)
+    setSelectedUserName(user.name)
+    setCurrentBalance(user.leave_total || 0)
+    setSearchResults([])
+  }
+  
+  const handleConfirmSubmit = async () => {
+    if (isSubmitting) return; 
+    setIsSubmitting(true)
     
-    if (!nik || !selectedUserName) {
-        alert("Silakan cari dan pilih karyawan terlebih dahulu.");
-        return;
-    }
-    if (amountToAdd <= 0) {
-        alert("Jumlah hari yang ditambahkan harus lebih dari nol.");
-        return;
-    }
-    if (!information.trim()) {
-        alert("Informasi atau alasan tidak boleh kosong.");
-        return;
-    }
-
-    setIsSubmitting(true); 
-
     const payload = {
-      nik: nik,
-      amount: amountToAdd,
-      information: information,
+      adjustment_value: Number(amountToAdd),
+      notes: information.trim()
     };
 
     try {
-      await axiosInstance.post('/leaves/add-amount', payload);
-
-      alert("Sisa cuti berhasil ditambahkan!");
-
+      await axiosInstance.patch(`/users/${nik}/balance`, payload)
+      // Alih-alih menampilkan alert, langsung redirect dengan query parameter
+      router.push('/admin/employee-list?success=true');
+      
     } catch (error: any) {
-      console.error("Gagal menambahkan cuti:", error);
+      console.error("Gagal memperbarui sisa cuti:", error)
       const errorMessage = error.response?.data?.message || "Terjadi kesalahan. Silakan coba lagi.";
-      alert(`Gagal: ${errorMessage}`);
+      alert(`Gagal: ${errorMessage}`)
     } finally {
-      setIsSubmitting(false); 
+      setIsSubmitting(false)
     }
-  };
+  }
+  
+  const isFormValid = nik && selectedUserName && amountToAdd > 0 && information.trim() !== '';
 
   return (
     <div>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
         <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-2xl relative">
           <div className="text-center mb-6">
-            <h2 className="text-xl font-bold inline-block px-4 py-1 rounded -300">
+            <h2 className="text-xl font-bold inline-block px-4 py-1 rounded">
               Add Amount Leave
             </h2>
           </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          <div className="space-y-5">
+            {/* ... semua input field Anda ... */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Search NIK</label>
               <div className="relative">
@@ -141,27 +125,22 @@ const AmountLeavePage = () => {
                   placeholder="Ketik NIK untuk mencari..."
                   value={nik}
                   onChange={(e) => {
-                    setUserWasSelected(false);
-                    setNik(e.target.value);
+                    setUserWasSelected(false)
+                    setNik(e.target.value)
                     if (e.target.value !== nik) {
-                        setSelectedUserName("");
-                        setCurrentBalance(0);
+                      setSelectedUserName("")
+                      setCurrentBalance(0)
                     }
                   }}
                   autoComplete="off"
                 />
-                
                 {debouncedSearch && !userWasSelected && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                     {isSearching ? (
                       <div className="p-3 text-center text-gray-500">Mencari...</div>
                     ) : searchResults.length > 0 ? (
                       searchResults.map((user) => (
-                        <div
-                          key={user.nik}
-                          className="p-3 hover:bg-gray-100 cursor-pointer"
-                          onClick={() => handleUserSelect(user)}
-                        >
+                        <div key={user.nik} className="p-3 hover:bg-gray-100 cursor-pointer" onClick={() => handleUserSelect(user)}>
                           {user.nik} - {user.name}
                         </div>
                       ))
@@ -173,7 +152,7 @@ const AmountLeavePage = () => {
               </div>
               {selectedUserName && (
                 <p className="text-sm text-gray-600 mt-2">
-                    Nama: <span className="font-semibold">{selectedUserName}</span>
+                  Nama: <span className="font-semibold">{selectedUserName}</span>
                 </p>
               )}
             </div>
@@ -186,7 +165,11 @@ const AmountLeavePage = () => {
                   min="0"
                   className="w-full border border-gray-300 px-3 py-2 rounded-lg"
                   value={amountToAdd}
-                  onChange={(e) => setAmountToAdd(Number(e.target.value))}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const numVal = Number(val);
+                    setAmountToAdd(!isNaN(numVal) && numVal >= 0 ? numVal : 0);
+                  }}
                 />
               </div>
               <div className="w-full md:w-1/2">
@@ -230,15 +213,27 @@ const AmountLeavePage = () => {
                 <i className="bi bi-box-arrow-in-left text-xl"></i>
                 Back
               </button>
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-semibold shadow-md disabled:bg-blue-300 disabled:cursor-not-allowed"
-                disabled={isSubmitting} 
-              >
-                {isSubmitting ? 'Submitting...' : 'Confirm'}
-              </button>
+              
+              {isFormValid ? (
+                <Modal
+                  mode="confirm"
+                  title={`Are you sure you want to add ${amountToAdd} leaves for ${nik} - ${selectedUserName}?`}
+                  triggerLabel={isSubmitting ? 'Submitting...' : 'Confirm'}
+                  onConfirm={handleConfirmSubmit}
+                  variant="default" 
+                  triggerClassName="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-semibold shadow-md"
+                />
+              ) : (
+                <button
+                  type="button"
+                  className="bg-blue-300 text-white px-6 py-2 rounded-lg font-semibold shadow-md cursor-not-allowed"
+                  disabled
+                >
+                  Confirm
+                </button>
+              )}
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

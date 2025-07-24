@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { debounce } from 'lodash';
 
@@ -15,6 +16,8 @@ import {
 import { SelectDemo } from "@/app/components/select/page";
 import { SelectItem, SelectLabel } from "@/app/components/ui/select";
 import withAuth from "@/lib/auth/withAuth";
+// Impor komponen notifikasi sukses
+import SuccessAlert from "@/app/components/SuccesAlert/SuccesAlert";
 
 type dataLeaveType = {
     nik: string,
@@ -28,8 +31,12 @@ type dataLeaveType = {
 };
 
 
+// Komponen ini berisi semua logika dan tampilan halaman.
+// Dibuat terpisah agar bisa menggunakan hook useSearchParams.
+const EmployeeListContent = () => {
+    const router = useRouter();
+    const searchParams = useSearchParams();
 
-const EmployeeListPage = () => {
     const [dataLeave, setDataLeave] = useState<dataLeaveType[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -41,6 +48,16 @@ const EmployeeListPage = () => {
     const [statusFilter, setStatusFilter] = useState('');
     const [roleFilter, setRoleFilter] = useState('');
 
+    // State untuk mengontrol notifikasi sukses
+    const [showSuccess, setShowSuccess] = useState(false);
+
+    // useEffect ini akan memeriksa parameter URL saat komponen dimuat.
+    // Jika ada `?success=true`, maka notifikasi akan ditampilkan.
+    useEffect(() => {
+        if (searchParams.get('success') === 'true') {
+            setShowSuccess(true);
+        }
+    }, [searchParams]);
 
     const fetchData = useCallback(async () => {
         setIsLoading(true);
@@ -93,6 +110,14 @@ const EmployeeListPage = () => {
         };
     }, [searchTerm, genderFilter, statusFilter, roleFilter, currentPage, debouncedFetchData]);
 
+    // Fungsi untuk menutup notifikasi dan membersihkan URL
+    const handleCloseSuccessAlert = () => {
+        setShowSuccess(false);
+        // Ganti URL untuk menghapus `?success=true` agar notifikasi tidak muncul lagi saat refresh
+        const currentPath = window.location.pathname;
+        router.replace(currentPath, { scroll: false });
+    };
+
     const renderStatus = (status: string) => {
         const safeStatus = status || '';
         const isActive = safeStatus.toLowerCase() === 'active';
@@ -110,10 +135,16 @@ const EmployeeListPage = () => {
 
     return (
         <>
-          
+            {/* Notifikasi sukses akan dirender di sini */}
+            <SuccessAlert
+                isOpen={showSuccess}
+                onClose={handleCloseSuccessAlert}
+                title="Leave data added successfully"
+            />
+            
             <section className="flex justify-end items-center p-5 border-b-[1.5px] border-[#0000001f]">
                 <div className="flex justify-end items-center gap-3 mb-4 max-sm:flex-col">
-                  
+                    
                     <div className="flex max-sm:w-full">
                         <input
                             type="text"
@@ -225,5 +256,13 @@ const EmployeeListPage = () => {
         </>
     );
 }
+
+// Ini adalah komponen wrapper yang diperlukan oleh Next.js
+// agar `useSearchParams` dapat bekerja dengan benar.
+const EmployeeListPage = () => (
+    <Suspense fallback={<div>Loading page...</div>}>
+        <EmployeeListContent />
+    </Suspense>
+);
 
 export default withAuth(EmployeeListPage, { requireAdmin: true });

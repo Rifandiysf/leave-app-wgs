@@ -2,7 +2,7 @@
 
 import { Card } from "../../components/ui/card"
 import 'bootstrap-icons/font/bootstrap-icons.css'
-import { Modal } from "@/app/components/Modal/Modal"
+import Modal  from "@/app/components/Modal/Modal"
 import withAuth from "@/lib/auth/withAuth"
 
 const UserDashboard = () => {
