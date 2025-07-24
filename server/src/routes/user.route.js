@@ -1,5 +1,5 @@
 import express from "express";
-import { createLeaveRequest, getLeaveRequestsById, getLeavesByFilter, allUsers, getUser, updateUser, deleteUser, getLeaveRequests, modifyAmount} from "../controllers/user.controller.js";
+import { createLeaveRequest, getLeaveRequestsById, getLeavesByFilter, allUsers, getUser, updateUser, deleteUser, getLeaveRequests, modifyAmount, getUserMe} from "../controllers/user.controller.js";
 import { validate } from "../middlewares/validate.js";
 import leaveRequestSchema from "../validators/leave.validator.js";
 import { isAuthenticated } from "../middlewares/isAuthenticated.middleware.js";
@@ -16,6 +16,7 @@ userRoutes.get('/leave', getLeaveRequests);
 userRoutes.get('/leave/search', getLeavesByFilter);
 userRoutes.get('/leave/:id', getLeaveRequestsById);
 
+userRoutes.get('/me', getUserMe);
 userRoutes.get('/:nik', getUser);
 userRoutes.patch('/:nik', updateUser);
 userRoutes.delete('/:nik', validateRole("admin", "super_admin"), deleteUser);

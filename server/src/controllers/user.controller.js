@@ -141,6 +141,23 @@ export const getUser = async (req, res, next) => {
     }
 }
 
+export const getUserMe = async (req, res, next) => {
+    try {
+        const decode = await decodeToken(req.get("authorization").split(' ')[1]);
+        const { NIK } = decode;
+
+        const user = await getUserByNIK(NIK);
+
+        res.status(200).json({
+            success: true,
+            message: `Data retrieve successfully`,
+            user_data: user
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const updateUser = async (req, res, next) => {
     const { nik } = req.params
     try {
