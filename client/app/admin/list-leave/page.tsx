@@ -5,9 +5,10 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/app/components/ui/pagination";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/app/components/ui/select";
 import Modal from '@/app/components/Modal/Modal';
-import axiosInstance from '@/app/api/axiosInstance';
+import axiosInstance from '@/lib/api/axiosInstance';
 import { LeaveChoiceModal } from '@/app/components/LeaveChoiceModal/page';
 import withAuth from '@/lib/auth/withAuth';
+import { Notification } from '@/app/components/notification/Notification';
 
 type ApiLeaveType = {
     id_leave: string;
@@ -28,6 +29,8 @@ const ListOfLeavePage = () => {
     const [debouncedSearch, setDebouncedSearch] = useState("")
     const [viewMode, setViewMode] = useState<'requests' | 'history' | null>(null);
     const [isChoiceModalOpen, setChoiceModalOpen] = useState(true);
+    const [showErrorNotification, setShowErrorNotification] = useState(false)
+    const [errorMessage, setErrorMessage] = useState("")
     const ITEMS_PER_PAGE = 7;
 
     useEffect(() => {
@@ -38,7 +41,7 @@ const ListOfLeavePage = () => {
         return () => {
             clearTimeout(handler)
         }
-    },[search])
+    }, [search])
 
     useEffect(() => {
         const handleReset = () => {
@@ -72,7 +75,9 @@ const ListOfLeavePage = () => {
             if (Array.isArray(data)) {
                 setLeaveData(data);
             }
-
+            if (response.data.message) {
+                setErrorMessage(response.data.message)
+            }
         } catch (error) {
             console.error("Failed to fetch data:", error);
             setLeaveData([]);
@@ -131,10 +136,20 @@ const ListOfLeavePage = () => {
                 status: newStatus,
                 reason: reason || "Processed by Admin"
             });
-            if (viewMode) fetchData(viewMode, debouncedSearch);
-        } catch (error) {
+            if (viewMode) fetchData(viewMode, search);
+        } catch (error: any) {
             console.error(`Failed to ${newStatus} request:`, error);
-            alert(`Error: Failed to update status. Please check the console.`);
+            
+            // Extract error message from API response
+            let apiErrorMessage = `Failed to ${newStatus} leave request`;
+            if (error.response?.data?.message) {
+                apiErrorMessage = error.response.data.message;
+            } else if (error.message) {
+                apiErrorMessage = error.message;
+            }
+            
+            setErrorMessage(apiErrorMessage);
+            setShowErrorNotification(true);
         }
     };
 
@@ -311,6 +326,13 @@ const ListOfLeavePage = () => {
                     </section>
                 </>
             )}
+            <Notification
+                mode='failed'
+                show={showErrorNotification}
+                message={() => errorMessage}
+                onClose={() => setShowErrorNotification(false)}
+                duration={4000}
+            />
         </>
     );
 }

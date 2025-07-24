@@ -1,5 +1,5 @@
 import express from "express";
-import { createLeaveRequest, getLeaveRequestsById, getLeavesByFilter, allUsers, getUser, updateUser, deleteUser, getLeaveRequests, modifyAmount} from "../controllers/user.controller.js";
+import { createLeaveRequest, getLeaveRequestsById, getLeavesByFilter, allUsers, getUser, updateUser, deleteUser, getLeaveRequests, modifyAmount, getUserMe} from "../controllers/user.controller.js";
 import { validate } from "../middlewares/validate.js";
 import leaveRequestSchema from "../validators/leave.validator.js";
 import { isAuthenticated } from "../middlewares/isAuthenticated.middleware.js";
@@ -8,14 +8,16 @@ import { getAllUsers } from "../services/user.service.js";
 import { validateLeaveBalance } from "../middlewares/validateLeaveBalance.middleware.js";
 import { validateSpecialLeaveNotWeekend } from "../middlewares/validateSpecialLeaveNotWeekend.js";
 import { checkDuplicateLeave } from "../middlewares/checkDuplicateLeave .middleware.js";
+import { validateStartDate } from "../middlewares/validateStartDate.middleware.js";
 
 const userRoutes = express.Router();
 
-userRoutes.post('/leave', validate(leaveRequestSchema), checkDuplicateLeave, validateLeaveBalance, validateSpecialLeaveNotWeekend, createLeaveRequest);
+userRoutes.post('/leave', validate(leaveRequestSchema), validateStartDate, checkDuplicateLeave, validateLeaveBalance, validateSpecialLeaveNotWeekend, createLeaveRequest);
 userRoutes.get('/leave', getLeaveRequests);
 userRoutes.get('/leave/search', getLeavesByFilter);
 userRoutes.get('/leave/:id', getLeaveRequestsById);
 
+userRoutes.get('/me', getUserMe);
 userRoutes.get('/:nik', getUser);
 userRoutes.patch('/:nik', updateUser);
 userRoutes.delete('/:nik', validateRole("admin", "super_admin"), deleteUser);
