@@ -59,19 +59,18 @@ const ListOfLeavePage = () => {
         setIsLoading(true);
         setLeaveData([]);
         try {
-            const endpoint = mode === 'requests' 
-                ? `/leaves/search?value=${searchTerm}&status=pending` 
+            const endpoint = mode === 'requests'
+                ? `/leaves/search?value=${searchTerm}&status=pending`
                 : `/leaves/logs/search?value=${searchTerm}`;
-            
+
             const response = await axiosInstance.get(endpoint);
-            
+
             let data = response.data?.data?.data || response.data?.data || [];
-            
+
             // PERUBAHAN DI SINI: Jika mode adalah 'history', saring semua data yang statusnya 'pending'
             if (mode === 'history') {
                 data = data.filter((leave: ApiLeaveType) => leave.status.toLowerCase() !== 'pending');
             }
-
             if (Array.isArray(data)) {
                 setLeaveData(data);
             }
@@ -124,7 +123,7 @@ const ListOfLeavePage = () => {
             case 'rejected':
                 return <span className="text-red-600 bg-red-100 p-2 px-3 rounded-full text-xs font-semibold">REJECTED</span>;
             case 'taken':
-                 return <span className="text-blue-600 bg-blue-100 p-2 px-3 rounded-full text-xs font-semibold">TAKEN</span>;
+                return <span className="text-blue-600 bg-blue-100 p-2 px-3 rounded-full text-xs font-semibold">TAKEN</span>;
             default:
                 return <span className="text-gray-600 bg-gray-100 p-2 px-3 rounded-full text-xs font-semibold">{status?.toUpperCase() || 'N/A'}</span>;
         }
@@ -139,7 +138,7 @@ const ListOfLeavePage = () => {
             if (viewMode) fetchData(viewMode, search);
         } catch (error: any) {
             console.error(`Failed to ${newStatus} request:`, error);
-            
+
             // Extract error message from API response
             let apiErrorMessage = `Failed to ${newStatus} leave request`;
             if (error.response?.data?.message) {
@@ -147,7 +146,7 @@ const ListOfLeavePage = () => {
             } else if (error.message) {
                 apiErrorMessage = error.message;
             }
-            
+
             setErrorMessage(apiErrorMessage);
             setShowErrorNotification(true);
         }
@@ -247,10 +246,8 @@ const ListOfLeavePage = () => {
                                                                     onConfirm={(rejectionReason) => handleAction(data.id_leave, 'rejected', rejectionReason)}
                                                                 />
                                                             </>
-                                                        ) : ( 
+                                                        ) : (
                                                             <>
-                        
-                                                                
                                                                 {data.status === 'approved' && (
                                                                     <Modal
                                                                         mode='reject' size='icon' variant='ghost' title='Reject Leave Request'
@@ -279,7 +276,7 @@ const ListOfLeavePage = () => {
                                                                         onConfirm={() => handleAction(data.id_leave, 'approved')}
                                                                     />
                                                                 )}
-                                                                 <Modal
+                                                                <Modal
                                                                     mode='info' size='icon' variant='ghost' title='Leave Information'
                                                                     description={`Status for ${data.name} is ${data.status}. Reason: ${data.reason || "No reason provided."}`}
                                                                     triggerLabel={<i className="bi bi-exclamation-circle text-xl "></i>}

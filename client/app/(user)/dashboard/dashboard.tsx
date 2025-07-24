@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { Card } from "../../components/ui/card";
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import Modal from "@/app/components/Modal/Modal";
 import withAuth from "@/lib/auth/withAuth";
+import { ApplyLeave } from "@/app/components/form/applyLeave";
 
 type UserDashboardData = {
   NIK: string;
@@ -14,7 +14,7 @@ type UserDashboardData = {
     current_amount: number;
     carried_amount: number;
     days_used: number;
-    pending_request: number; 
+    pending_request: number;
   };
 };
 
@@ -29,12 +29,12 @@ const DashboardSkeleton = () => (
       <div className="h-36 bg-gray-200 rounded-lg sm:rounded-2xl animate-pulse"></div>
     </div>
     <div className="space-y-6 pb-24">
-       <div className="h-48 bg-gray-200 rounded-lg sm:rounded-2xl animate-pulse"></div>
-       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-         <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
-         <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
-         <div className="h-20 bg-gray-200 rounded-lg animate-pulse sm:col-span-2 md:col-span-1"></div>
-       </div>
+     <div className="h-48 bg-gray-200 rounded-lg sm:rounded-2xl animate-pulse"></div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
+        <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
+        <div className="h-20 bg-gray-200 rounded-lg animate-pulse sm:col-span-2 md:col-span-1"></div>
+      </div>
     </div>
   </>
 );
@@ -46,7 +46,7 @@ const UserDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-useEffect(() => {
+  useEffect(() => {
     const fetchUserDashboardData = async () => {
       setIsLoading(true);
       setError(null);
@@ -54,27 +54,27 @@ useEffect(() => {
       try {
         const token = localStorage.getItem('token');
         const deviceId = localStorage.getItem('device-id');
-        const userString = localStorage.getItem('user'); 
-        
+        const userString = localStorage.getItem('user');
+
         if (!userString || !token) {
-            throw new Error("User data or token not found. Please log in again.");
+          throw new Error("User data or token not found. Please log in again.");
         }
-        
+
         const user = JSON.parse(userString);
         const nik = user.NIK || user.nik;
         if (!nik) {
-            throw new Error("User NIK not found in local storage.");
+          throw new Error("User NIK not found in local storage.");
         }
 
         const [dashboardResponse, allLeavesResponse] = await Promise.all([
-            fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${nik}`, {
-                method: 'GET',
-                headers: { 'Authorization': `${token}`, 'device-id': deviceId || '' },
-            }),
-            fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/leave?limit=1000`, {
-                method: 'GET',
-                headers: { 'Authorization': `${token}`, 'device-id': deviceId || '' },
-            })
+          fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${nik}`, {
+            method: 'GET',
+            headers: { 'Authorization': `${token}`, 'device-id': deviceId || '' },
+          }),
+          fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/leave?limit=1000`, {
+            method: 'GET',
+            headers: { 'Authorization': `${token}`, 'device-id': deviceId || '' },
+          })
         ]);
 
         if (!dashboardResponse.ok || !allLeavesResponse.ok) {
@@ -85,13 +85,12 @@ useEffect(() => {
         const allLeavesJson = await allLeavesResponse.json();
 
         setUserData(dashboardJson.data);
-        
-       const allUserLeaves = allLeavesJson?.data || [];
+
+        const allUserLeaves = allLeavesJson?.data || [];
 
         const pendingForUser = allUserLeaves.filter(
-            (leave: { status: string }) => leave.status?.toLowerCase() === 'pending'
+          (leave: { status: string }) => leave.status?.toLowerCase() === 'pending'
         );
-        
         setPendingCount(pendingForUser.length);
 
       } catch (err: any) {
@@ -103,7 +102,7 @@ useEffect(() => {
     };
 
     fetchUserDashboardData();
-}, []);
+  }, []);
 
 
 
@@ -114,35 +113,35 @@ useEffect(() => {
   if (error) {
     return <div className="text-center text-red-500 p-8">Error: {error}</div>;
   }
-  
+
   const summaryCards = [
-    { 
-        count: userData?.balance.current_amount || 0, 
-        label: "Remaining Leave", 
-        subtitle: "This Year" 
+    {
+      count: userData?.balance.current_amount || 0,
+      label: "Remaining Leave",
+      subtitle: "This Year"
     },
-    { 
-        count: userData?.balance.carried_amount || 0, 
-        label: "Remaining Leave", 
-        subtitle: "From Last Year" 
+    {
+      count: userData?.balance.carried_amount || 0,
+      label: "Remaining Leave",
+      subtitle: "From Last Year"
     },
   ];
 
   const quickStats = [
-    { 
-        icon: "bi-calendar-week", 
-        count: userData?.balance.total_amount || 0, 
-        label: "Total Available" 
+    {
+      icon: "bi-calendar-week",
+      count: userData?.balance.total_amount || 0,
+      label: "Total Available"
     },
-    { 
-        icon: "bi-clock-history",
-        count: pendingCount, 
-        label: "Pending Requests" 
+    {
+      icon: "bi-clock-history",
+      count: pendingCount,
+      label: "Pending Requests"
     },
-    { 
-        icon: "bi-check-circle-fill", 
-        count: userData?.balance.days_used || 0, 
-        label: "Days Used" 
+    {
+      icon: "bi-check-circle-fill",
+      count: userData?.balance.days_used || 0,
+      label: "Days Used"
     }
   ];
 
@@ -226,9 +225,8 @@ useEffect(() => {
           {quickStats.map((stat, idx) => (
             <Card
               key={idx}
-              className={`p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-white border border-blue-100 hover:shadow-md transition-shadow ${
-                idx === 2 ? 'sm:col-span-2 md:col-span-1' : ''
-              }`}
+              className={`p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-white border border-blue-100 hover:shadow-md transition-shadow ${idx === 2 ? 'sm:col-span-2 md:col-span-1' : ''
+                }`}
             >
               <div className="flex items-center space-x-3 sm:space-x-4">
                 <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
