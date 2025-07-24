@@ -1,16 +1,29 @@
 import prisma from "./client.js";
 
+export const createDateFromString = (dateString) => {
+    if (dateString instanceof Date) {
+        dateString = dateString.toISOString().split('T')[0];
+    }
+    
+    const parts = dateString.split('-');
+    const year = parseInt(parts[0]);
+    const month = parseInt(parts[1]) - 1;
+    const day = parseInt(parts[2]);
+    
+    return new Date(Date.UTC(year, month, day));
+};
+
 export const calculateHolidaysDays = (startDate, endDate) => {
     let workingDays = 0;
     const currentDate = new Date(startDate);
     const finalDate = new Date(endDate);
 
     while (currentDate <= finalDate) {
-        const dayOfWeek = currentDate.getDay();
+        const dayOfWeek = currentDate.getUTCDay();
         if (dayOfWeek !== 0 && dayOfWeek !== 6) {
             workingDays++;
         }
-        currentDate.setDate(currentDate.getDate() + 1);
+        currentDate.setUTCDate(currentDate.getUTCDate() + 1);
     }
 
     return workingDays;

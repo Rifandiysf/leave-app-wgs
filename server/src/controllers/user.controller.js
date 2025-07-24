@@ -87,9 +87,7 @@ export const getLeaveRequestsById = async (req, res) => {
         })
 
     } catch (error) {
-        res.status(400).json({
-            message: error.message
-        })
+        next(error)
     }
 }
 
@@ -98,26 +96,17 @@ export const allUsers = async (req, res, next) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const search = req.query.search || ''
+        const gender = req.query.gender || ''
+        const status = req.query.status || ''
+        const role = req.query.role || ''
 
-        const dataUsers = await getAllUsers(page, limit, search);
+        const dataUsers = await getAllUsers(page, limit, search, gender, status, role);
 
-        res.status(200).json({
-            message: "Successfully retrieved leave data",
-            pagination: {
-                current_page: dataUsers.page,
-                last_visible_page: dataUsers.totalPages,
-                has_next_page: dataUsers.page < dataUsers.totalPages,
-                item: {
-                    count: dataUsers.data.length,
-                    total: dataUsers.total,
-                    per_page: limit
-                }
-            },
-            data: dataUsers.data,
-        });
+        const response = responsePagination("Successfully retrieved user data", dataUsers, limit);
+        res.status(200).json(response);
+
     } catch (error) {
-        error.message = 'Failed to retrieve user data and leave quota.'
-        next(error);
+        next(error)
     }
 };
 
@@ -199,7 +188,7 @@ export const modifyAmount = async (req, res, next) => {
             error.statusCode(401);
             throw error;
         }
-        
+
         const targetUser = await prisma.tb_users.findUnique({
             where: { NIK: nik },
             select: { role: true }

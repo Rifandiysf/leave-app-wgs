@@ -13,7 +13,6 @@ import {
 } from "@/app/components/ui/dialog"
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
-import { Switch } from "@/app/components/ui/switch"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select"
 
 export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
@@ -21,7 +20,6 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
     const [gender, setGender] = useState("")
     const [duration, setDuration] = useState(0)
     const [description, setDescription] = useState("")
-    const [isActive, setIsActive] = useState(false)
 
     const [titleError, setTitleError] = useState("")
     const [descriptionError, setDescriptionError] = useState("")
@@ -38,7 +36,6 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
             setGender("");
             setDuration(0);
             setDescription("");
-            setIsActive(false);
             setTitleError("");
             setDescriptionError("");
             setGenderError("");
@@ -85,7 +82,6 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
             title,
             applicable_gender: gender,
             duration,
-            is_active: isActive,
             description,
         }
 
@@ -211,14 +207,6 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
                             {descriptionError && (
                                 <p className="text-sm text-red-600 mt-1">{descriptionError}</p>
                             )}
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="active-switch">Active</Label>
-                            <Switch
-                                id="active-switch"
-                                checked={isActive}
-                                onCheckedChange={(val) => setIsActive(val)}
-                            />
                         </div>
                     </div>
 

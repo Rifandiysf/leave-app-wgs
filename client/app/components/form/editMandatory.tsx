@@ -13,14 +13,12 @@ import {
 } from "@/app/components/ui/dialog"
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
-import { Switch } from "@/app/components/ui/switch"
 import { DatePickerField } from "../date-picker/datePicker"
 import { parseISO } from "date-fns"
 
 type dataMandatoryType = {
     id_mandatory: string
     title: string
-    is_active: boolean
     description: string
     start_date: string
     end_date: string
@@ -33,7 +31,6 @@ type Props = {
 
 export function EditMandatory({ initialData, onFormSubmit }: Props) {
     const [title, setTitle] = useState(initialData.title)
-    const [isActive, setIsActive] = useState(initialData.is_active)
     const [description, setDescription] = useState(initialData.description)
     const [startDate, setStartDate] = useState<Date>()
     const [endDate, setEndDate] = useState<Date>()
@@ -49,7 +46,6 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
     useEffect(() => {
         if (isDialogOpen) {
             setTitle(initialData.title)
-            setIsActive(initialData.is_active)
             setDescription(initialData.description)
             setStartDate(initialData.start_date ? parseISO(initialData.start_date) : undefined)
             setEndDate(initialData.end_date ? parseISO(initialData.end_date) : undefined)
@@ -60,7 +56,6 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
             setGeneralSuccess("")
         } else {
             setTitle(initialData.title)
-            setIsActive(initialData.is_active)
             setDescription(initialData.description)
             setStartDate(initialData.start_date ? parseISO(initialData.start_date) : undefined)
             setEndDate(initialData.end_date ? parseISO(initialData.end_date) : undefined)
@@ -100,7 +95,6 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
         setIsLoading(true)
         const payload = {
             title,
-            is_active: isActive,
             description,
             start_date: startDate?.toISOString(),
             end_date: endDate?.toISOString()
@@ -207,14 +201,6 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
                             {descriptionError && (
                                 <p className="text-sm text-red-600 mt-1">{descriptionError}</p>
                             )}
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="active-switch">Active</Label>
-                            <Switch
-                                id="active-switch"
-                                checked={isActive}
-                                onCheckedChange={(val) => setIsActive(val)}
-                            />
                         </div>
                     </div>
 

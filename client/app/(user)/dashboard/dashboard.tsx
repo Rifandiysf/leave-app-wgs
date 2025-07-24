@@ -2,8 +2,12 @@
 
 import { Card } from "../../components/ui/card"
 import 'bootstrap-icons/font/bootstrap-icons.css'
+<<<<<<< HEAD
 import Modal  from "@/app/components/Modal/Modal"
+=======
+>>>>>>> eca0dd875c307177c0a8d3716cdd8b3cc7058601
 import withAuth from "@/lib/auth/withAuth"
+import { ApplyLeave } from "@/app/components/form/applyLeave"
 
 const UserDashboard = () => {
   return (
@@ -77,13 +81,7 @@ const UserDashboard = () => {
               <p className="text-gray-600 mb-4 sm:mb-8 text-xs sm:text-base">
                 Submit your leave request and we’ll process it for you
               </p>
-              <Modal
-                mode="form"
-                title="Leave Application"
-                triggerLabel="Apply For Leave"
-                description="Fill in the details for your leave request"
-                triggerClassName="w-full px-4 sm:px-8 py-2 sm:py-4 bg-white text-blue-900 font-semibold hover:bg-blue-50 hover:shadow-lg transition-all duration-300 rounded-xl border-0 text-sm sm:text-lg"
-              />
+              <ApplyLeave/>
             </div>
           </div>
         </Card>

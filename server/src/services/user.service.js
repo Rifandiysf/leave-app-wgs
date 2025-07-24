@@ -1,6 +1,8 @@
 import { date } from "zod/v4";
 import prisma from "../utils/client.js"
-import { calculateHolidaysDays } from '../utils/leaves.utils.js';
+import { calculateHolidaysDays, createDateFromString } from '../utils/leaves.utils.js';
+import { status_active } from "../../generated/prisma/index.js";
+
 
 export const createLeave = async (data) => {
     let {
@@ -14,7 +16,6 @@ export const createLeave = async (data) => {
     let end_date = data.end_date;
     let total_days = data.total_days;
     let id_special = null;
-
 
     if (leave_type === "special_leave") {
         id_special = data.id_special;
@@ -31,13 +32,13 @@ export const createLeave = async (data) => {
         }
 
         const duration = specialLeave.duration;
-        const startDate = new Date(start_date);
+        const startDate = createDateFromString(start_date);
 
         let count = 0;
         let tempDate = new Date(startDate);
         while (count < duration - 1) {
-            tempDate.setDate(tempDate.getDate() + 1);
-            const day = tempDate.getDay();
+            tempDate.setUTCDate(tempDate.getUTCDate() + 1);
+            const day = tempDate.getUTCDay();
             if (day !== 0 && day !== 6) {
                 count++;
             }
@@ -46,19 +47,22 @@ export const createLeave = async (data) => {
         end_date = tempDate;
         total_days = duration;
 
-        title = specialLeave.title
-        reason = specialLeave.title
+        title = specialLeave.title;
+        reason = specialLeave.title;
     }
 
     if (!total_days) {
-        total_days = calculateHolidaysDays(new Date(start_date), new Date(end_date));
+        total_days = calculateHolidaysDays(
+            createDateFromString(start_date), 
+            createDateFromString(end_date)
+        );
     }
 
     const leaveData = {
         title,
         leave_type,
-        start_date: new Date(start_date),
-        end_date: new Date(end_date),
+        start_date: createDateFromString(start_date),
+        end_date: createDateFromString(end_date || start_date),
         reason,
         NIK,
         total_days,
@@ -241,17 +245,26 @@ export const getLeaveBalanceByYear = async (nik, year) => {
     })
 }
 
-export const getAllUsers = async (page, limit, search = '') => {
+export const getAllUsers = async (page, limit, search = '', gender = '', status = '', role = '') => {
     const currentYear = new Date().getFullYear();
     const lastYear = currentYear - 1;
 
+    const filterCondition = {
+        AND: [
+            {
+                OR: [
+                    {fullname: {contains: search, mode: 'insensitive'}},
+                    {NIK: {contains: search, mode: 'insensitive'}},
+                ]
+            },
+            ...(gender ? [{ gender: gender }] : []),
+            ...(status ? [{status_active: status}] : []),
+            ...(role ? [{role: role}] : [])
+        ]
+    }
+
     const users = await prisma.tb_users.findMany({
-        where: {
-            OR: [
-                { fullname: { contains: search, mode: 'insensitive' } },
-                { NIK: { contains: search, mode: 'insensitive' } },
-            ]
-        },
+        where: filterCondition,
         orderBy: {
             fullname: 'asc'
         }

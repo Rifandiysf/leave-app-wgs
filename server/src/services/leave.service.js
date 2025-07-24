@@ -95,7 +95,7 @@ export const updateLeave = async (id, status, reason, nik) => {
             throw err;
         }
 
-        if (data.start_date >= new Date()) {
+        if (data.start_date <= new Date()) {
             throw new Error("The start date of the leave has passed the current date");
         }
 
