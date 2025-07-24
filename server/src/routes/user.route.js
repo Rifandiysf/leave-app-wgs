@@ -8,10 +8,11 @@ import { getAllUsers } from "../services/user.service.js";
 import { validateLeaveBalance } from "../middlewares/validateLeaveBalance.middleware.js";
 import { validateSpecialLeaveNotWeekend } from "../middlewares/validateSpecialLeaveNotWeekend.js";
 import { checkDuplicateLeave } from "../middlewares/checkDuplicateLeave .middleware.js";
+import { validateStartDate } from "../middlewares/validateStartDate.middleware.js";
 
 const userRoutes = express.Router();
 
-userRoutes.post('/leave', validate(leaveRequestSchema), checkDuplicateLeave, validateLeaveBalance, validateSpecialLeaveNotWeekend, createLeaveRequest);
+userRoutes.post('/leave', validate(leaveRequestSchema), validateStartDate, checkDuplicateLeave, validateLeaveBalance, validateSpecialLeaveNotWeekend, createLeaveRequest);
 userRoutes.get('/leave', getLeaveRequests);
 userRoutes.get('/leave/search', getLeavesByFilter);
 userRoutes.get('/leave/:id', getLeaveRequestsById);
