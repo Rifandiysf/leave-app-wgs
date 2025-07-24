@@ -217,7 +217,7 @@ export function Modal({
             <div className="flex w-full items-center justify-between">
                 <DialogClose asChild>
                     <Button variant="ghost" className="text-gray-700 hover:bg-gray-100 px-3">
-                       <i className="bi bi-box-arrow-left text-2xl"></i>
+                        <i className="bi bi-box-arrow-left text-2xl"></i>
                         Cancel
                     </Button>
                 </DialogClose>

@@ -17,15 +17,14 @@ const broadcastResetView = () => {
 
 export default function Sidebar({ role = "user" }: sideBarProps) {
     const pathname = usePathname()
-    const [welcomeText, setWelcomeText] = useState("Welcome...")
+    const [welcomeText, setWelcomeText] = useState("")
 
     useEffect(() => {
 
-        const userSession = sessionStorage.getItem('user');
-        if (userSession) {
-            const userData = JSON.parse(userSession);
-
-            const name = userData.fullname || (role === 'admin' ? 'Admin' : 'User');
+        const token = localStorage.getItem('token');
+        if (token && token.includes('.')) {
+            const payload = JSON.parse(atob(token.split('.')[1]))
+            const name = payload?.fullname || (role === 'admin' ? 'Admin' : 'User');
             setWelcomeText(`Welcome, ${name}`);
         } else {
             setWelcomeText("Welcome, Guest");
@@ -43,7 +42,7 @@ export default function Sidebar({ role = "user" }: sideBarProps) {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <Image src="/images/logo-wgs.svg" alt="Logo WGS" width={120} height={40} priority />
-                                    <h2 className="text-2xl font-medium text-black mt-2 truncate">Welcome Admin</h2>
+                                    <h2 className="text-2xl font-medium text-black mt-2 truncate">wellcome admin</h2>
                                 </div>
                             </div>
                         </div>

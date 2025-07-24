@@ -13,7 +13,6 @@ import {
 } from "@/app/components/ui/dialog"
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
-import { Switch } from "@/app/components/ui/switch"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select"
 
 type dataSpecialType = {
@@ -21,7 +20,6 @@ type dataSpecialType = {
     title: string
     applicable_gender: string
     duration: number
-    is_active: boolean
     description: string
 }
 
@@ -34,7 +32,6 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
     const [title, setTitle] = useState(initialData.title)
     const [gender, setGender] = useState(initialData.applicable_gender)
     const [duration, setDuration] = useState(initialData.duration)
-    const [isActive, setIsActive] = useState(initialData.is_active)
     const [description, setDescription] = useState(initialData.description)
 
     const [titleError, setTitleError] = useState("")
@@ -51,7 +48,6 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
             setTitle(initialData.title)
             setGender(initialData.applicable_gender)
             setDuration(initialData.duration)
-            setIsActive(initialData.is_active)
             setDescription(initialData.description)
             setTitleError("")
             setDescriptionError("")
@@ -63,7 +59,6 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
             setTitle(initialData.title)
             setGender(initialData.applicable_gender)
             setDuration(initialData.duration)
-            setIsActive(initialData.is_active)
             setDescription(initialData.description)
         }
     }, [isDialogOpen, initialData])
@@ -105,7 +100,6 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
             title,
             applicable_gender: gender,
             duration,
-            is_active: isActive,
             description,
         }
 
@@ -234,14 +228,6 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
                             {descriptionError && (
                                 <p className="text-sm text-red-600 mt-1">{descriptionError}</p>
                             )}
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="active-switch">Active</Label>
-                            <Switch
-                                id="active-switch"
-                                checked={isActive}
-                                onCheckedChange={(val) => setIsActive(val)}
-                            />
                         </div>
                     </div>
 

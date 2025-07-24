@@ -13,7 +13,6 @@ import {
 } from "@/app/components/ui/dialog"
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
-import { Switch } from "@/app/components/ui/switch"
 import { DatePickerField } from "../date-picker/datePicker"
 
 export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
@@ -21,7 +20,6 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
     const [description, setDescription] = useState("")
     const [startDate, setStartDate] = useState<Date>()
     const [endDate, setEndDate] = useState<Date>()
-    const [isActive, setIsActive] = useState(false)
 
     const [titleError, setTitleError] = useState("")
     const [descriptionError, setDescriptionError] = useState("")
@@ -35,7 +33,6 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
         if (!isDialogOpen) {
             setTitle("");
             setDescription("");
-            setIsActive(false);
             setStartDate(undefined);
             setEndDate(undefined);
 
@@ -80,7 +77,6 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
         setIsLoading(true)
         const payload = {
             title,
-            is_active: isActive,
             description,
             start_date: startDate?.toISOString().split("T")[0],
             end_date: endDate?.toISOString().split("T")[0],
@@ -183,14 +179,6 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
                             {descriptionError && (
                                 <p className="text-sm text-red-600 mt-1">{descriptionError}</p>
                             )}
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="active-switch">Active</Label>
-                            <Switch
-                                id="active-switch"
-                                checked={isActive}
-                                onCheckedChange={(val) => setIsActive(val)}
-                            />
                         </div>
                     </div>
 
