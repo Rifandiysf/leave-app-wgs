@@ -1,275 +1,175 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from "react";
-import { Card } from "../../components/ui/card"
-import 'bootstrap-icons/font/bootstrap-icons.css'
-import Modal from "@/app/components/Modal/Modal"
-import withAuth from "@/lib/auth/withAuth"
+import React, { useState, useEffect } from "react";
+import { Card } from "../../components/ui/card";
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import Modal from "@/app/components/Modal/Modal";
+import withAuth from "@/lib/auth/withAuth";
 
-// Type untuk data user dashboard
 type UserDashboardData = {
-  nik: string,
-  name: string,
-  gender: string,
-  role: string,
-  status: string,
-  this_year_leave: number,
-  last_year_leave: number,
-  leave_total: number,
-  pending_requests: number,
-  days_used: number
+  NIK: string;
+  fullname: string;
+  balance: {
+    total_amount: number;
+    current_amount: number;
+    carried_amount: number;
+    days_used: number;
+    pending_request: number; 
+  };
 };
+
+const DashboardSkeleton = () => (
+  <>
+    <div className="flex flex-col mb-4">
+      <div className="h-8 bg-gray-200 rounded w-1/4 mb-2 animate-pulse"></div>
+      <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+    </div>
+    <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-8">
+      <div className="h-36 bg-gray-200 rounded-lg sm:rounded-2xl animate-pulse"></div>
+      <div className="h-36 bg-gray-200 rounded-lg sm:rounded-2xl animate-pulse"></div>
+    </div>
+    <div className="space-y-6 pb-24">
+       <div className="h-48 bg-gray-200 rounded-lg sm:rounded-2xl animate-pulse"></div>
+       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+         <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
+         <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
+         <div className="h-20 bg-gray-200 rounded-lg animate-pulse sm:col-span-2 md:col-span-1"></div>
+       </div>
+    </div>
+  </>
+);
+
 
 const UserDashboard = () => {
   const [userData, setUserData] = useState<UserDashboardData | null>(null);
+  const [pendingCount, setPendingCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fungsi untuk fetch data user dashboard
-  const fetchUserDashboardData = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const token = localStorage.getItem('token');
-      const deviceId = localStorage.getItem('device-id');
-      
-      if (!token) {
-        throw new Error('No token found');
-      }
+useEffect(() => {
+    const fetchUserDashboardData = async () => {
+      setIsLoading(true);
+      setError(null);
 
-      // Decode token untuk mendapatkan informasi user (jika token berupa JWT)
-      // Atau langsung fetch semua users dan filter berdasarkan user yang login
-      let currentUserData = null;
-      
-      // Method 1: Coba decode JWT token untuk mendapatkan user info
       try {
-        const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-        const userNik = tokenPayload.nik || tokenPayload.sub || tokenPayload.user_id;
+        const token = localStorage.getItem('token');
+        const deviceId = localStorage.getItem('device-id');
+        const userString = localStorage.getItem('user'); 
         
-        if (userNik) {
-          // Fetch user data berdasarkan NIK dari token
-          const userResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users?search=${userNik}&limit=1`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `${token}`,
-              ...(deviceId && { 'device-id': deviceId }),
-            },
-          });
-
-          if (userResponse.ok) {
-            const userResult = await userResponse.json();
-            const userData = userResult?.data?.data || userResult?.data || userResult || [];
-            currentUserData = Array.isArray(userData) ? userData[0] : userData;
-          }
+        if (!userString || !token) {
+            throw new Error("User data or token not found. Please log in again.");
         }
-      } catch (tokenError) {
-        console.warn('Failed to decode token:', tokenError);
-      }
-
-      // Method 2: Jika decode token gagal, coba fetch endpoint auth/me atau user/me
-      if (!currentUserData) {
-        try {
-          const authResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/me`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `${token}`,
-              ...(deviceId && { 'device-id': deviceId }),
-            },
-          });
-
-          if (authResponse.ok) {
-            const authResult = await authResponse.json();
-            currentUserData = authResult?.data || authResult;
-          }
-        } catch (authError) {
-          console.warn('Failed to fetch from auth/me:', authError);
+        
+        const user = JSON.parse(userString);
+        const nik = user.NIK || user.nik;
+        if (!nik) {
+            throw new Error("User NIK not found in local storage.");
         }
-      }
 
-      // Method 3: Jika masih gagal, coba endpoint user/me
-      if (!currentUserData) {
-        try {
-          const meResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/user/me`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `${token}`,
-              ...(deviceId && { 'device-id': deviceId }),
-            },
-          });
+        const [dashboardResponse, allLeavesResponse] = await Promise.all([
+            fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${nik}`, {
+                method: 'GET',
+                headers: { 'Authorization': `${token}`, 'device-id': deviceId || '' },
+            }),
+            fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/leave?limit=1000`, {
+                method: 'GET',
+                headers: { 'Authorization': `${token}`, 'device-id': deviceId || '' },
+            })
+        ]);
 
-          if (meResponse.ok) {
-            const meResult = await meResponse.json();
-            currentUserData = meResult?.data || meResult;
-          }
-        } catch (meError) {
-          console.warn('Failed to fetch from user/me:', meError);
+        if (!dashboardResponse.ok || !allLeavesResponse.ok) {
+          throw new Error("Failed to fetch all required dashboard data");
         }
+
+        const dashboardJson = await dashboardResponse.json();
+        const allLeavesJson = await allLeavesResponse.json();
+
+        setUserData(dashboardJson.data);
+        
+       const allUserLeaves = allLeavesJson?.data || [];
+
+        const pendingForUser = allUserLeaves.filter(
+            (leave: { status: string }) => leave.status?.toLowerCase() === 'pending'
+        );
+        
+        setPendingCount(pendingForUser.length);
+
+      } catch (err: any) {
+        setError(err.message);
+        console.error("Error fetching dashboard data:", err);
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      // Method 4: Jika semua gagal, ambil data dari localStorage jika tersedia
-      if (!currentUserData) {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          try {
-            currentUserData = JSON.parse(storedUser);
-          } catch (parseError) {
-            console.warn('Failed to parse stored user:', parseError);
-          }
-        }
-      }
-
-      // Jika masih tidak ada data user, throw error
-      if (!currentUserData || !currentUserData.nik) {
-        throw new Error('Unable to identify current user. Please login again.');
-      }
-
-      const userNik = currentUserData.nik;
-
-      // Fetch pending requests count
-      let pendingCount = 0;
-      try {
-        const pendingResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves?status=pending&nik=${userNik}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `${token}`,
-            ...(deviceId && { 'device-id': deviceId }),
-          },
-        });
-
-        if (pendingResponse.ok) {
-          const pendingResult = await pendingResponse.json();
-          const pendingData = pendingResult?.data?.data || pendingResult?.data || [];
-          pendingCount = Array.isArray(pendingData) ? pendingData.length : 0;
-        }
-      } catch (pendingError) {
-        console.warn('Failed to fetch pending requests:', pendingError);
-      }
-
-      // Fetch days used (approved leaves untuk tahun ini)
-      let daysUsed = 0;
-      try {
-        const currentYear = new Date().getFullYear();
-        const usedResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves?status=approved&nik=${userNik}&year=${currentYear}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `${token}`,
-            ...(deviceId && { 'device-id': deviceId }),
-          },
-        });
-
-        if (usedResponse.ok) {
-          const usedResult = await usedResponse.json();
-          const usedData = usedResult?.data?.data || usedResult?.data || [];
-          if (Array.isArray(usedData)) {
-            daysUsed = usedData.reduce((total, leave) => total + (leave.duration || leave.days || 0), 0);
-          }
-        }
-      } catch (usedError) {
-        console.warn('Failed to fetch used days:', usedError);
-      }
-
-      // Set user data dengan default values jika data tidak ada
-      const finalUserData: UserDashboardData = {
-        nik: currentUserData.nik,
-        name: currentUserData.name || 'Unknown',
-        gender: currentUserData.gender || 'unknown',
-        role: currentUserData.role || 'unknown',
-        status: currentUserData.status || 'unknown',
-        this_year_leave: currentUserData.this_year_leave || 0,
-        last_year_leave: currentUserData.last_year_leave || 0,
-        leave_total: currentUserData.leave_total || ((currentUserData.this_year_leave || 0) + (currentUserData.last_year_leave || 0)),
-        pending_requests: pendingCount,
-        days_used: daysUsed
-      };
-
-      setUserData(finalUserData);
-    } catch (error) {
-      console.error("Failed to fetch user dashboard data:", error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch data');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Effect untuk fetch data saat component mount
-  useEffect(() => {
     fetchUserDashboardData();
-  }, [fetchUserDashboardData]);
+}, []);
 
-  // Loading state
+
+
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <p className="mt-4 text-gray-600">Loading dashboard...</p>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
-  // Error state
   if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <div className="text-red-500 text-center">
-          <i className="bi bi-exclamation-triangle text-4xl mb-4"></i>
-          <p className="text-lg font-semibold mb-2">Failed to load dashboard</p>
-          <p className="text-sm text-gray-600 mb-4">{error}</p>
-          <button 
-            onClick={fetchUserDashboardData}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
+    return <div className="text-center text-red-500 p-8">Error: {error}</div>;
   }
+  
+  const summaryCards = [
+    { 
+        count: userData?.balance.current_amount || 0, 
+        label: "Remaining Leave", 
+        subtitle: "This Year" 
+    },
+    { 
+        count: userData?.balance.carried_amount || 0, 
+        label: "Remaining Leave", 
+        subtitle: "From Last Year" 
+    },
+  ];
 
-  // Jika tidak ada data user
-  if (!userData) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <p className="text-gray-600">No user data available</p>
-      </div>
-    );
-  }
+  const quickStats = [
+    { 
+        icon: "bi-calendar-week", 
+        count: userData?.balance.total_amount || 0, 
+        label: "Total Available" 
+    },
+    { 
+        icon: "bi-clock-history",
+        count: pendingCount, 
+        label: "Pending Requests" 
+    },
+    { 
+        icon: "bi-check-circle-fill", 
+        count: userData?.balance.days_used || 0, 
+        label: "Days Used" 
+    }
+  ];
 
   return (
     <>
       <div className="flex flex-col mb-4">
-        {/* Mobile Header */}
         <div className="sm:hidden w-full bg-white pb-4 sticky top-[-1rem] z-10">
           <h1 className="text-2xl font-bold text-gray-800 mt-5">Dashboard</h1>
           <p className="text-gray-600 text-sm mt-2">
-            Welcome back, {userData.name}! Manage your leave requests and track your remaining days
+            Manage your leave requests and track your remaining days
           </p>
         </div>
 
-        {/* Desktop Header */}
         <div className="hidden sm:flex items-center space-x-4 flex-1">
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2 truncate">
               Dashboard
             </h1>
             <p className="text-gray-600 text-sm sm:text-base">
-              Welcome back, {userData.name}! Manage your leave requests and track your remaining days
+              Manage your leave requests and track your remaining days
             </p>
           </div>
         </div>
       </div>
 
-      {/* Stats Card */}
       <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-8">
-        {[
-          { count: userData.this_year_leave, label: "Remaining Leave", subtitle: "This Year" }, 
-          { count: userData.last_year_leave, label: "Remaining Leave", subtitle: "From Last Year" }
-        ].map((item, idx) => (
+        {summaryCards.map((item, idx) => (
           <Card
             key={idx}
             className="group hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 border-0 overflow-hidden relative rounded-lg sm:rounded-2xl p-2 sm:p-3">
@@ -298,20 +198,18 @@ const UserDashboard = () => {
         ))}
       </div>
 
-      {/* Action Section */}
       <div className="space-y-6 pb-24">
         <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-0 overflow-hidden relative rounded-lg sm:rounded-2xl p-5 sm:p-12">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-100/20 to-blue-200/20"></div>
           <div className="absolute top-0 left-1/4 w-20 h-20 sm:w-32 sm:h-32 bg-blue-200 rounded-full -mt-10 sm:-mt-16 opacity-30"></div>
           <div className="absolute bottom-0 right-1/4 w-16 h-16 sm:w-24 sm:h-24 bg-blue-300 rounded-full -mb-8 sm:-mb-12 opacity-20"></div>
-
           <div className="relative p-2 sm:p-12 text-center">
             <div className="max-w-md mx-auto">
               <h2 className="text-base sm:text-2xl md:text-3xl font-bold text-blue-900 mb-2 sm:mb-3">
                 Ready to take a break?
               </h2>
               <p className="text-gray-600 mb-4 sm:mb-8 text-xs sm:text-base">
-                Submit your leave request and we'll process it for you
+                Submit your leave request and we’ll process it for you
               </p>
               <Modal
                 mode="form"
@@ -324,13 +222,8 @@ const UserDashboard = () => {
           </div>
         </Card>
 
-        {/* Quick Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {[
-            { icon: "bi-calendar-week", count: userData.leave_total, label: "Total Available" },
-            { icon: "bi-clock-history", count: userData.pending_requests, label: "Pending Requests" },
-            { icon: "bi-check-circle-fill", count: userData.days_used, label: "Days Used" }
-          ].map((stat, idx) => (
+          {quickStats.map((stat, idx) => (
             <Card
               key={idx}
               className={`p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-white border border-blue-100 hover:shadow-md transition-shadow ${
@@ -348,18 +241,6 @@ const UserDashboard = () => {
               </div>
             </Card>
           ))}
-        </div>
-
-        {/* Refresh Button */}
-        <div className="flex justify-center mt-6">
-          <button 
-            onClick={fetchUserDashboardData}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-            disabled={isLoading}
-          >
-            <i className="bi bi-arrow-clockwise"></i>
-            <span>Refresh Data</span>
-          </button>
         </div>
       </div>
     </>
