@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import prisma from "../utils/client.js";
-import { updateLeaveBalance } from '../services/leave.service.js';
+import { updateLeaveBalance, expiredLeave } from '../services/leave.service.js';
 
 // Menjalankan setiap tanggal 1 pukul 01:00 pagi
 cron.schedule('0 1 1 * *', async () => {
@@ -19,3 +19,13 @@ cron.schedule('0 1 1 * *', async () => {
     console.error('[Cron] Gagal memperbarui cuti:', error);
   }
 });
+
+
+// Cron: jalan setiap hari jam 00:00
+cron.schedule('0 0 * * *', async () => {
+  console.log(`[CRON] Mengecek cuti yang expired...`);
+  await expiredLeave();
+}, {
+  timezone: 'Asia/Jakarta'
+});
+

@@ -1,3 +1,4 @@
+import { promise } from "zod/v4";
 import { leave_type } from "../../generated/prisma/index.js";
 import prisma from "../utils/client.js";
 
@@ -515,3 +516,37 @@ export const updateLeaveBalance = async (user) => {
         console.log(`[SKIP] NIK: ${user.NIK} role: magang`);
     }
 };
+
+export const expiredLeave = async () => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    try {
+        const pendingLeaves = await prisma.tb_balance.findMany({
+            where: {
+                status: 'pending',
+                start_date : {
+                    lte: today
+                }
+            }
+        })
+
+        if (pendingLeaves.length === 0) {
+            console.log('[CRON] There is no pending leave that has passed its start date')
+            return
+        }
+
+        const updateStatus = pendingLeaves.map((leave) => 
+            prisma.tb_balance.update({
+                where : {id_balance: leave.id_balance},
+                data: {status: 'expired'}
+            })
+        )
+        await Promise.all(updateStatus)
+        console.log(`[CRON] ${updateStatus.length} leave data successfully changed to expired status`)    
+
+    } catch (error) {
+        console.error('[CRON] Failed to update leave status to expired : ', error)
+        throw error
+    }
+} 
