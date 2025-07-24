@@ -522,7 +522,7 @@ export const expiredLeave = async () => {
     today.setHours(0, 0, 0, 0)
 
     try {
-        const pendingLeaves = await prisma.tb_balance.findMany({
+        const pendingLeaves = await prisma.tb_leave.findMany({
             where: {
                 status: 'pending',
                 start_date : {
@@ -537,8 +537,8 @@ export const expiredLeave = async () => {
         }
 
         const updateStatus = pendingLeaves.map((leave) => 
-            prisma.tb_balance.update({
-                where : {id_balance: leave.id_balance},
+            prisma.tb_leave.update({
+                where : {id_leave: leave.id_leave},
                 data: {status: 'expired'}
             })
         )
