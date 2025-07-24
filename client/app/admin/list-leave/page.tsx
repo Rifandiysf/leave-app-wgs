@@ -5,7 +5,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/app/components/ui/pagination";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/app/components/ui/select";
 import Modal from '@/app/components/Modal/Modal';
-import axiosInstance from '@/app/api/axiosInstance';
+import axiosInstance from '@/lib/api/axiosInstance';
 import { LeaveChoiceModal } from '@/app/components/LeaveChoiceModal/page';
 import withAuth from '@/lib/auth/withAuth';
 
