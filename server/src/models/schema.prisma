@@ -92,7 +92,6 @@ model tb_leave_log {
   id_leave       String   @db.VarChar(50)
   tb_users       tb_users @relation(fields: [changed_by_nik], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
   tb_leave       tb_leave @relation(fields: [id_leave], references: [id_leave], onDelete: NoAction, onUpdate: NoAction, map: "id_leave")
-  tb_users       tb_users @relation(fields: [changed_by_nik], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
 }
 
 model tb_jwt_token {

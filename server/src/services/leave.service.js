@@ -120,6 +120,7 @@ export const updateLeave = async (id, status, reason, nik) => {
             }
         });
 
+        // simpan balance tahun depan dan tahun sebelumnya di array yang berbeda
         console.log(userBalance);
 
         let updatedBalances = [...userBalance];
@@ -136,15 +137,30 @@ export const updateLeave = async (id, status, reason, nik) => {
             // array di loop ini disort dari paling lama/ [-1] = currentBalance
             if ((data.status === "pending" || data.status === "rejected") && status === "approved") {
                 tempDaysUsed = totalDaysUsed
-                for (let i = 0; i < updatedBalances.length; i++) {
-                    
-                    console.log(updatedBalances[i].amount)
-                    console.log(tempDaysUsed)
-                    updatedBalances[i].amount -= tempDaysUsed;
+                let tempBalances = [...updatedBalances];
 
-                    if (updatedBalances[i].amount < 0 && i !== updatedBalances.length - 1) {
-                        tempDaysUsed = -1 * updatedBalances[i].amount
-                        updatedBalances[i].amount = 0;
+                // kalau misalkan tanggalnya ada ditahun depan maka kurangi ke tahun ini saja, tidak dikurangi ke tahun lalu.
+                if (new Date().getFullYear() > data.start_date.getFullYear()) {
+                    tempBalances = updatedBalances.reverse();
+                    tempBalances = tempBalances.filter((bal) => bal.receive_date.getFullYear() === new Date().getFullYear());
+                }
+
+                // kalau misalkan tanggal mulai dan tanggal akhir berbeda tahun
+                // maka : 
+                // 1. hitung hari yang terpakai di tahun ini dan kurangi ke tahun lalu jika ada, dan jika tidak maka kurangi ke tahun ini.
+                // 2. hitung hari yang terpakai di tahun depan dan kurangi ke tahun ini.
+                if (data.start_date.getFullYear() !== data.end_date.getFullYear()) {
+                    
+                }
+                
+                for (let i = 0; i < tempBalances.length; i++) {
+                    console.log(tempBalances[i].amount)
+                    console.log(tempDaysUsed)
+                    tempBalances[i].amount -= tempDaysUsed;
+
+                    if (tempBalances[i].amount < 0 && i !== tempBalances.length - 1) {
+                        tempDaysUsed = -1 * tempBalances[i].amount
+                        tempBalances[i].amount = 0;
                     } else {
                         break;
                     }
@@ -154,6 +170,12 @@ export const updateLeave = async (id, status, reason, nik) => {
             // restore
             // array di loop ini disort dari paling baru/ [0] = currentBalance
             if (data.status === "approved" && status === "rejected") {
+                // kalau misalkan tanggalnya ada ditahun depan maka kurangi ke tahun ini saja, tidak dikurangi ke tahun lalu.
+                
+                // kalau misalkan tanggal mulai dan tanggal akhir berbeda tahun
+                // maka : 
+                // 1. hitung hari yang terpakai di tahun ini dan Tambahkan ke tahun ini terlebih, dan jika melebihi batas maka tambahkan ke tahun depan.
+                // 2. hitung hari yang terpakai di tahun depan dan kurangi ke tahun ini.
                 const restoredBalance = updatedBalances.reverse();
                 tempDaysUsed = totalDaysUsed
                 for (let i = 0; i < restoredBalance.length; i++) {
