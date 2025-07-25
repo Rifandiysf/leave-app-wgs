@@ -215,6 +215,11 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
     },
     orderBy: { created_at: 'desc' },
     include: {
+        tb_users: {
+            select: {
+                fullname: true
+            }
+        },
       tb_leave_log: {
         select: {
           reason: true,
@@ -251,6 +256,7 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
         status: leave.status,
         created_at: leave.created_at,
         NIK: leave.NIK,
+        fullname: leave.tb_users?.fullname || "Unknown",
         id_special: leave.id_special,
         id_mandatory: leave.id_mandatory,
         tb_leave_log: leave.tb_leave_log || {
@@ -296,6 +302,11 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
         skip: offset,
         take: limit,
         include: {
+            tb_users: {
+                select: {
+                    fullname: true
+                }
+            },
             tb_leave_log: {
                 select: {
                     reason: true,
@@ -320,6 +331,7 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
         status: leave.status,
         created_at: leave.created_at,
         NIK: leave.NIK,
+        fullname: leave.tb_users?.fullname || "Unknown",
         id_special: leave.id_special,
         id_mandatory: leave.id_mandatory,
         tb_leave_log: leave.tb_leave_log || {
