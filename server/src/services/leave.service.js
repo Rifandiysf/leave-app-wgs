@@ -211,11 +211,19 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
   const leaves = await prisma.tb_leave.findMany({
     where: {
       ...(type && { leave_type: changeFormat(type) }),
-      ...(status && { status: status })
+      ...(status && { status: status }),
+      NOT: { status: 'pending' }
     },
     orderBy: { created_at: 'desc' },
     include: {
+      tb_users: {
+        select: {
+          fullname: true
+        }
+      },
       tb_leave_log: {
+        orderBy: { changed_at: 'desc' },
+        take: 1, 
         select: {
           reason: true,
           tb_users: {
@@ -240,6 +248,11 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
         return null;
       }
 
+      const latestLog = leave.tb_leave_log?.[0] || {
+        reason: "-",
+        tb_users: { fullname: "-" }
+      };
+
       return {
         id_leave: leave.id_leave,
         title: leave.title,
@@ -251,14 +264,10 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
         status: leave.status,
         created_at: leave.created_at,
         NIK: leave.NIK,
+        fullname: leave.tb_users?.fullname || "Unknown",
         id_special: leave.id_special,
         id_mandatory: leave.id_mandatory,
-        tb_leave_log: leave.tb_leave_log || {
-          reason: "-",
-          tb_users: {
-            fullname: "-"
-          }
-        }
+        tb_leave_log: latestLog
       };
     })
   );
@@ -296,39 +305,54 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
         skip: offset,
         take: limit,
         include: {
+            tb_users: {
+                select: { fullname: true }
+            },
             tb_leave_log: {
+                orderBy: { changed_at: 'desc' },
+                take: 1,
                 select: {
                     reason: true,
                     tb_users: {
-                        select: {
-                            fullname: true
-                        }
+                        select: { fullname: true }
                     }
                 }
             }
         }
     });
 
-    const formattedLeaves = leaves.map(leave => ({
-        id_leave: leave.id_leave,
-        title: leave.title,
-        leave_type: leave.leave_type,
-        start_date: leave.start_date,
-        end_date: leave.end_date,
-        total_days: leave.total_days,
-        reason: leave.reason,
-        status: leave.status,
-        created_at: leave.created_at,
-        NIK: leave.NIK,
-        id_special: leave.id_special,
-        id_mandatory: leave.id_mandatory,
-        tb_leave_log: leave.tb_leave_log || {
-            reason: "-",
-            tb_users: {
-                fullname: "-"
-            }
-        }
-    }));
+    const formattedLeaves = leaves.map(leave => {
+        const latestLog = leave.tb_leave_log[0] || null;
+
+        return {
+            id_leave: leave.id_leave,
+            title: leave.title,
+            leave_type: leave.leave_type,
+            start_date: leave.start_date,
+            end_date: leave.end_date,
+            total_days: leave.total_days,
+            reason: leave.reason,
+            status: leave.status,
+            created_at: leave.created_at,
+            NIK: leave.NIK,
+            fullname: leave.tb_users?.fullname || "Unknown",
+            id_special: leave.id_special,
+            id_mandatory: leave.id_mandatory,
+            tb_leave_log: latestLog
+                ? {
+                    reason: latestLog.reason,
+                    tb_users: {
+                        fullname: latestLog.tb_users?.fullname || "-"
+                    }
+                }
+                : {
+                    reason: "-",
+                    tb_users: {
+                        fullname: "-"
+                    }
+                }
+        };
+    });
 
     return {
         success: true,
@@ -346,6 +370,7 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
         data: formattedLeaves
     };
 };
+
 
 
 
