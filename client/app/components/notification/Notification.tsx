@@ -2,7 +2,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import React, { useEffect } from 'react';
 
 interface SuccessNotificationProps {
-    mode: 'success' | 'failed' | "warning"
+    mode: 'success' | 'failed' | 'warning' | (() => 'success' | 'failed' | 'warning')
     show: boolean;
     message: string | (() => string);
     onClose: () => void;

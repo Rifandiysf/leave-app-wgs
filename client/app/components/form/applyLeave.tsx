@@ -30,6 +30,7 @@ export function ApplyLeave() {
     const [isLoading, setIsLoading] = useState(false)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [showConfirmModal, setShowConfirmModal] = useState(false)
+    const [showDiscardModal, setShowDiscardModal] = useState(false);
     const [showSuccessNotification, setShowSuccessNotification] = useState(false);
 
 
@@ -317,9 +318,15 @@ export function ApplyLeave() {
                         </div>
 
                         <DialogFooter>
-                            <DialogClose asChild>
-                                <Button variant="ghost" className='cursor-pointer' disabled={isLoading}>Cancel</Button>
-                            </DialogClose>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                className="cursor-pointer"
+                                disabled={isLoading}
+                                onClick={() => setShowDiscardModal(true)}
+                            >
+                                Cancel
+                            </Button>
                             <Button type="submit" className='bg-blue-600 hover:bg-blue-400 cursor-pointer' disabled={isLoading}>
                                 {isLoading ? (
                                     <>
@@ -386,6 +393,40 @@ export function ApplyLeave() {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+
+                {/* discard Modal */}
+                <Dialog open={showDiscardModal} onOpenChange={setShowDiscardModal}>
+                    <DialogContent className="sm:max-w-[450px]">
+                        <DialogHeader className="text-center">
+                            <DialogTitle className="text-lg font-semibold">
+                                Discard Form?
+                            </DialogTitle>
+                            <DialogDescription className="text-center mt-2">
+                                Are you sure you want to discard this leave application? <br />
+                                All changes will be lost.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter className="flex justify-center gap-3 mt-6">
+                            <Button
+                                variant="outline"
+                                onClick={() => setShowDiscardModal(false)}
+                                className="px-8 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-full"
+                            >
+                                No
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    setIsDialogOpen(false);
+                                    setShowDiscardModal(false);
+                                }}
+                                className="px-8 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full"
+                            >
+                                Yes, Discard
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
             </Dialog>
             <Notification
                 mode='success'

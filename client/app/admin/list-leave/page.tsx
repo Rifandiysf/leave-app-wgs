@@ -30,7 +30,8 @@ const ListOfLeavePage = () => {
     const [viewMode, setViewMode] = useState<'requests' | 'history' | null>(null);
     const [isChoiceModalOpen, setChoiceModalOpen] = useState(true);
     const [showErrorNotification, setShowErrorNotification] = useState(false)
-    const [errorMessage, setErrorMessage] = useState("")
+    const [showSuccessNotification, setShowSuccessNotification] = useState(false)
+    const [notifMessage, setNotifMessage] = useState("")
     const ITEMS_PER_PAGE = 7;
 
     useEffect(() => {
@@ -67,7 +68,6 @@ const ListOfLeavePage = () => {
 
             let data = response.data?.data?.data || response.data?.data || [];
 
-            // PERUBAHAN DI SINI: Jika mode adalah 'history', saring semua data yang statusnya 'pending'
             if (mode === 'history') {
                 data = data.filter((leave: ApiLeaveType) => leave.status.toLowerCase() !== 'pending');
             }
@@ -75,7 +75,7 @@ const ListOfLeavePage = () => {
                 setLeaveData(data);
             }
             if (response.data.message) {
-                setErrorMessage(response.data.message)
+                setNotifMessage(response.data.message)
             }
         } catch (error) {
             console.error("Failed to fetch data:", error);
@@ -131,15 +131,19 @@ const ListOfLeavePage = () => {
 
     const handleAction = async (id: string, newStatus: 'approved' | 'rejected', reason?: string) => {
         try {
-            await axiosInstance.patch(`/leaves/${id}`, {
+            const response = await axiosInstance.patch(`/leaves/${id}`, {
                 status: newStatus,
                 reason: reason || "Processed by Admin"
             });
             if (viewMode) fetchData(viewMode, search);
+            console.log(response.data.message)
+            if (response.data.message) {
+                setNotifMessage(response.data.message)
+            }
+            setShowSuccessNotification(true)
         } catch (error: any) {
             console.error(`Failed to ${newStatus} request:`, error);
 
-            // Extract error message from API response
             let apiErrorMessage = `Failed to ${newStatus} leave request`;
             if (error.response?.data?.message) {
                 apiErrorMessage = error.response.data.message;
@@ -147,7 +151,7 @@ const ListOfLeavePage = () => {
                 apiErrorMessage = error.message;
             }
 
-            setErrorMessage(apiErrorMessage);
+            setNotifMessage(apiErrorMessage);
             setShowErrorNotification(true);
         }
     };
@@ -264,7 +268,8 @@ const ListOfLeavePage = () => {
                                                                                 </div>
                                                                             </div>
                                                                         }
-                                                                        triggerLabel={<i className="bi bi-file-check text-xl "></i>}
+                                                                        triggerLabel={<i className="bi bi-x-circle text-xl "></i>}
+                                                                        triggerClassName='hover:text-red-600 hover:bg-red-50'
                                                                         onConfirm={(rejectionReason) => handleAction(data.id_leave, 'rejected', rejectionReason)}
                                                                     />
                                                                 )}
@@ -326,9 +331,16 @@ const ListOfLeavePage = () => {
             <Notification
                 mode='failed'
                 show={showErrorNotification}
-                message={() => errorMessage}
+                message={() => notifMessage}
                 onClose={() => setShowErrorNotification(false)}
-                duration={4000}
+                duration={5000}
+            />
+            <Notification
+                mode='success'
+                show={showSuccessNotification}
+                message={() => notifMessage}
+                onClose={() => setShowSuccessNotification(false)}
+                duration={5000}
             />
         </>
     );
