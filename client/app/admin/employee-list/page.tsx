@@ -48,11 +48,8 @@ const EmployeeListContent = () => {
     const [statusFilter, setStatusFilter] = useState('');
     const [roleFilter, setRoleFilter] = useState('');
 
-    // State untuk mengontrol notifikasi sukses
     const [showSuccess, setShowSuccess] = useState(false);
 
-    // useEffect ini akan memeriksa parameter URL saat komponen dimuat.
-    // Jika ada `?success=true`, maka notifikasi akan ditampilkan.
     useEffect(() => {
         if (searchParams.get('success') === 'true') {
             setShowSuccess(true);
@@ -170,8 +167,6 @@ const EmployeeListContent = () => {
                             <SelectItem value="karyawan_kontrak">Karyawan Kontrak</SelectItem>
                             <SelectItem value="karyawan_tetap">Karyawan Tetap</SelectItem>
                             <SelectItem value="magang">Magang</SelectItem>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="super_admin">Super Admin</SelectItem>
                         </SelectDemo>
                     </div>
                 </div>
