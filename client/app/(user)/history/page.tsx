@@ -206,7 +206,7 @@ const HistoryPage = () => {
                                                 size="icon"
                                                 variant="ghost"
                                                 title="Information"
-                                                triggerLabel={<i className="bi bi-exclamation-circle-fill text-2xl cursor-pointer"></i>}
+                                                triggerLabel={<i className="bi bi-exclamation-circle text-2xl cursor-pointer"></i>}
                                                 description=""
                                                 showFooter={false}
                                             >
