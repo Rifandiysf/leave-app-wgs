@@ -32,6 +32,7 @@ const ListOfLeavePage = () => {
     const [showErrorNotification, setShowErrorNotification] = useState(false)
     const [showSuccessNotification, setShowSuccessNotification] = useState(false)
     const [notifMessage, setNotifMessage] = useState("")
+    const [actionMessage, setActionMessage] = useState("")
     const ITEMS_PER_PAGE = 7;
 
     useEffect(() => {
@@ -137,9 +138,7 @@ const ListOfLeavePage = () => {
             });
             if (viewMode) fetchData(viewMode, search);
             console.log(response.data.message)
-            if (response.data.message) {
-                setNotifMessage(response.data.message)
-            }
+            setActionMessage(response.data.message)
             setShowSuccessNotification(true)
         } catch (error: any) {
             console.error(`Failed to ${newStatus} request:`, error);
@@ -151,7 +150,7 @@ const ListOfLeavePage = () => {
                 apiErrorMessage = error.message;
             }
 
-            setNotifMessage(apiErrorMessage);
+            setActionMessage(apiErrorMessage);
             setShowErrorNotification(true);
         }
     };
@@ -338,7 +337,7 @@ const ListOfLeavePage = () => {
             <Notification
                 mode='success'
                 show={showSuccessNotification}
-                message={() => notifMessage}
+                message={() => actionMessage}
                 onClose={() => setShowSuccessNotification(false)}
                 duration={5000}
             />

@@ -4,7 +4,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import React, { useEffect, useState } from "react";
 import { DatePickerField } from "../date-picker/datePicker";
 import { Button } from "../ui/button";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -139,18 +139,18 @@ export function ApplyLeave() {
 
         const payload: any = {
             leave_type: leaveType,
-            start_date: startDate?.toISOString().split("T")[0],
+            start_date: startDate?.toLocaleDateString('en-CA'),
         }
 
         if (leaveType === "special_leave") {
             const selectedSpecialLeave = specialLeaves.find(leave => leave.id_special === selectedSpecialLeaveId);
             payload.title = selectedSpecialLeave?.title || "";
-            payload.end_date = startDate?.toISOString().split("T")[0];
+            payload.end_date = startDate?.toLocaleDateString('en-CA');
             payload.id_special = selectedSpecialLeaveId;
             payload.reason = "Special Leave";
         } else {
             payload.title = title;
-            payload.end_date = endDate?.toISOString().split("T")[0];
+            payload.end_date = endDate?.toLocaleDateString('en-CA');
             payload.reason = reason;
         }
 
