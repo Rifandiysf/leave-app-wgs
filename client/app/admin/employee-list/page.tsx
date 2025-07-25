@@ -172,7 +172,7 @@ const EmployeeListContent = () => {
                 </div>
             </section>
 
-            <section className="relative p-3 min-h-[calc(100dvh-137px)]">
+            <section className="relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
                 <div className="max-sm:overflow-x-scroll">
                     <table className="w-full text-base text-center">
                         <thead className="text-black bg-[#F0f4f9] backdrop-blur-sm">

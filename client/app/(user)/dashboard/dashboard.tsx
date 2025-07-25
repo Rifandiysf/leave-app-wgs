@@ -29,7 +29,7 @@ const DashboardSkeleton = () => (
       <div className="h-36 bg-gray-200 rounded-lg sm:rounded-2xl animate-pulse"></div>
     </div>
     <div className="space-y-6 pb-24">
-     <div className="h-48 bg-gray-200 rounded-lg sm:rounded-2xl animate-pulse"></div>
+      <div className="h-48 bg-gray-200 rounded-lg sm:rounded-2xl animate-pulse"></div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
         <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
@@ -210,7 +210,7 @@ const UserDashboard = () => {
               <p className="text-gray-600 mb-4 sm:mb-8 text-xs sm:text-base">
                 Submit your leave request and we’ll process it for you
               </p>
-              <ApplyLeave/>
+              <ApplyLeave />
             </div>
           </div>
         </Card>

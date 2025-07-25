@@ -200,7 +200,7 @@ const ListOfLeavePage = () => {
                             </Select>
                         </div>
                     </section>
-                    <section className="relative p-3 min-h-[calc(100dvh-137px)]">
+                    <section className="relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
                         <div className='max-sm:overflow-x-scroll'>
                             <table className="w-full text-base text-center">
                                 <thead className="text-black bg-[#F0f4f9] backdrop-blur-sm">
@@ -276,7 +276,8 @@ const ListOfLeavePage = () => {
                                                                     <Modal
                                                                         mode='confirm' size='icon' variant='ghost' title='Change to Approved'
                                                                         description={`Employee Name : ${data.name} from Rejected to Approved?`}
-                                                                        triggerLabel={<i className="bi bi-file-check text-xl "></i>}
+                                                                        triggerLabel={<i className="bi bi-check-circle text-xl "></i>}
+                                                                        triggerClassName='hover:text-green-600 hover:bg-green-50'
                                                                         onConfirm={() => handleAction(data.id_leave, 'approved')}
                                                                     />
                                                                 )}
