@@ -4,11 +4,11 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import React, { useEffect, useState } from "react";
 import { DatePickerField } from "../date-picker/datePicker";
 import { Button } from "../ui/button";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { SuccessNotification } from '../notification/Notification';
+import { Notification } from '../notification/Notification';
 
 export function ApplyLeave() {
     const [title, setTitle] = useState("")
@@ -30,6 +30,7 @@ export function ApplyLeave() {
     const [isLoading, setIsLoading] = useState(false)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [showConfirmModal, setShowConfirmModal] = useState(false)
+    const [showDiscardModal, setShowDiscardModal] = useState(false);
     const [showSuccessNotification, setShowSuccessNotification] = useState(false);
 
 
@@ -138,18 +139,18 @@ export function ApplyLeave() {
 
         const payload: any = {
             leave_type: leaveType,
-            start_date: startDate?.toISOString().split("T")[0],
+            start_date: startDate?.toLocaleDateString('en-CA'),
         }
 
         if (leaveType === "special_leave") {
             const selectedSpecialLeave = specialLeaves.find(leave => leave.id_special === selectedSpecialLeaveId);
             payload.title = selectedSpecialLeave?.title || "";
-            payload.end_date = startDate?.toISOString().split("T")[0];
+            payload.end_date = startDate?.toLocaleDateString('en-CA');
             payload.id_special = selectedSpecialLeaveId;
             payload.reason = "Special Leave";
         } else {
             payload.title = title;
-            payload.end_date = endDate?.toISOString().split("T")[0];
+            payload.end_date = endDate?.toLocaleDateString('en-CA');
             payload.reason = reason;
         }
 
@@ -317,9 +318,15 @@ export function ApplyLeave() {
                         </div>
 
                         <DialogFooter>
-                            <DialogClose asChild>
-                                <Button variant="ghost" className='cursor-pointer' disabled={isLoading}>Cancel</Button>
-                            </DialogClose>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                className="cursor-pointer"
+                                disabled={isLoading}
+                                onClick={() => setShowDiscardModal(true)}
+                            >
+                                Cancel
+                            </Button>
                             <Button type="submit" className='bg-blue-600 hover:bg-blue-400 cursor-pointer' disabled={isLoading}>
                                 {isLoading ? (
                                     <>
@@ -386,8 +393,42 @@ export function ApplyLeave() {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+
+                {/* discard Modal */}
+                <Dialog open={showDiscardModal} onOpenChange={setShowDiscardModal}>
+                    <DialogContent className="sm:max-w-[450px]">
+                        <DialogHeader className="text-center">
+                            <DialogTitle className="text-lg font-semibold">
+                                Discard Form?
+                            </DialogTitle>
+                            <DialogDescription className="text-center mt-2">
+                                Are you sure you want to discard this leave application? <br />
+                                All changes will be lost.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter className="flex justify-center gap-3 mt-6">
+                            <Button
+                                variant="outline"
+                                onClick={() => setShowDiscardModal(false)}
+                                className="px-8 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-full"
+                            >
+                                No
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    setIsDialogOpen(false);
+                                    setShowDiscardModal(false);
+                                }}
+                                className="px-8 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full"
+                            >
+                                Yes, Discard
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
             </Dialog>
-            <SuccessNotification
+            <Notification
                 mode='success'
                 show={showSuccessNotification}
                 message={() => `${leaveType === 'special_leave' ? 'Special' : 'Personal'} Leave schedule successfully added!`}

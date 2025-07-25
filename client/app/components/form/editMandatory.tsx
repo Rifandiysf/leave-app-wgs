@@ -96,8 +96,8 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
         const payload = {
             title,
             description,
-            start_date: startDate?.toISOString(),
-            end_date: endDate?.toISOString()
+            start_date: startDate?.toLocaleDateString('en-CA'),
+            end_date: endDate?.toLocaleDateString('en-CA')
         }
 
         try {
