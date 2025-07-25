@@ -80,7 +80,7 @@ export const historyLeave = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
     const result = await getHistoryLeave(page, limit)
-    const paginationResponse = responsePagination("Leave data log retrieved successfully", result, limit);
+    const paginationResponse = responsePagination("Leave history data retrieved successfully", result, limit);
     res.status(200).json(paginationResponse)
 
   } catch (error) {
@@ -90,7 +90,9 @@ export const historyLeave = async (req, res, next) => {
 
 export const historyLeaveSearch = async (req, res, next) => {
   try {
-    const { value = '', type = '', status = '', page = 1, limit = 10 } = req.query;
+    const { value = '', type = '', status = ''} = req.query;
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 10
 
     const result = await getHistoryLeaveSearch({
       value,
@@ -100,7 +102,7 @@ export const historyLeaveSearch = async (req, res, next) => {
       limit: parseInt(limit)
     });
 
-    const paginationResponse = responsePagination("Filtered leave data log retrieved successfully", result, limit);
+    const paginationResponse = responsePagination("Filtered leave history data retrieved successfully", result, limit);
     res.status(200).json(paginationResponse)
   } catch (error) {
     next(error)
