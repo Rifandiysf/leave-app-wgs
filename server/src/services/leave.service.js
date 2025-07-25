@@ -1,6 +1,7 @@
 import { promise } from "zod/v4";
 import { leave_type } from "../../generated/prisma/index.js";
 import prisma from "../utils/client.js";
+import { calculateHolidaysDays } from "../utils/leaves.utils.js";
 
 
 export const getAllLeavesService = async (page, limit) => {
@@ -140,19 +141,21 @@ export const updateLeave = async (id, status, reason, nik) => {
                 let tempBalances = [...updatedBalances];
 
                 // kalau misalkan tanggalnya ada ditahun depan maka kurangi ke tahun ini saja, tidak dikurangi ke tahun lalu.
-                if (new Date().getFullYear() > data.start_date.getFullYear()) {
+                if (new Date().getFullYear() < data.start_date.getFullYear()) {
                     tempBalances = updatedBalances.reverse();
                     tempBalances = tempBalances.filter((bal) => bal.receive_date.getFullYear() === new Date().getFullYear());
                 }
 
                 // kalau misalkan tanggal mulai dan tanggal akhir berbeda tahun
-                // maka : 
-                // 1. hitung hari yang terpakai di tahun ini dan kurangi ke tahun lalu jika ada, dan jika tidak maka kurangi ke tahun ini.
-                // 2. hitung hari yang terpakai di tahun depan dan kurangi ke tahun ini.
                 if (data.start_date.getFullYear() !== data.end_date.getFullYear()) {
-                    
+                    //1. hitung hari yang terpakai di tahun ini dan kurangi ke tahun lalu jika ada, dan jika tidak maka kurangi ke tahun ini.
+                    const daysUsedThisYear = calculateHolidaysDays(data.start_date, `${data.start_date.getFullYear()}-12-31`);
+                    tempDaysUsed = daysUsedThisYear;
+                    // 2. hitung hari yang terpakai di tahun depan dan kurangi ke tahun ini.      
+                    const daysUsedNextYear = calculateHolidaysDays(`${data.end_date.getFullYear()}-01-01`, data.end_date);
+                    tempDaysUsed = daysUsedNextYear;
                 }
-                
+
                 for (let i = 0; i < tempBalances.length; i++) {
                     console.log(tempBalances[i].amount)
                     console.log(tempDaysUsed)
@@ -165,13 +168,14 @@ export const updateLeave = async (id, status, reason, nik) => {
                         break;
                     }
                 }
+                updatedBalances = tempBalances;
             }
-            
+
             // restore
             // array di loop ini disort dari paling baru/ [0] = currentBalance
             if (data.status === "approved" && status === "rejected") {
                 // kalau misalkan tanggalnya ada ditahun depan maka kurangi ke tahun ini saja, tidak dikurangi ke tahun lalu.
-                
+
                 // kalau misalkan tanggal mulai dan tanggal akhir berbeda tahun
                 // maka : 
                 // 1. hitung hari yang terpakai di tahun ini dan Tambahkan ke tahun ini terlebih, dan jika melebihi batas maka tambahkan ke tahun depan.
@@ -191,11 +195,11 @@ export const updateLeave = async (id, status, reason, nik) => {
                         break;
                     }
                 }
-                
+
                 updatedBalances = restoredBalance.reverse();
             }
         }
- 
+
         const balanceUpdates = updatedBalances.map((balance) =>
             prisma.tb_balance.update({
                 where: { id_balance: balance.id_balance },
@@ -225,77 +229,77 @@ export const updateLeave = async (id, status, reason, nik) => {
 }
 
 export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, limit = 10 }) => {
-  const changeFormat = (text) =>
-    text?.trim().toLowerCase().replace(/\s+/g, '_');
+    const changeFormat = (text) =>
+        text?.trim().toLowerCase().replace(/\s+/g, '_');
 
-  const offset = (page - 1) * limit;
+    const offset = (page - 1) * limit;
 
-  const leaves = await prisma.tb_leave.findMany({
-    where: {
-      ...(type && { leave_type: changeFormat(type) }),
-      ...(status && { status: status })
-    },
-    orderBy: { created_at: 'desc' },
-    include: {
-      tb_leave_log: {
-        select: {
-          reason: true,
-          tb_users: {
-            select: {
-              fullname: true
+    const leaves = await prisma.tb_leave.findMany({
+        where: {
+            ...(type && { leave_type: changeFormat(type) }),
+            ...(status && { status: status })
+        },
+        orderBy: { created_at: 'desc' },
+        include: {
+            tb_leave_log: {
+                select: {
+                    reason: true,
+                    tb_users: {
+                        select: {
+                            fullname: true
+                        }
+                    }
+                }
             }
-          }
         }
-      }
-    }
-  });
+    });
 
-  // Filter by fullname if value is given
-  const filtered = await Promise.all(
-    leaves.map(async (leave) => {
-      const user = await prisma.tb_users.findUnique({
-        where: { NIK: leave.NIK },
-        select: { fullname: true }
-      });
+    // Filter by fullname if value is given
+    const filtered = await Promise.all(
+        leaves.map(async (leave) => {
+            const user = await prisma.tb_users.findUnique({
+                where: { NIK: leave.NIK },
+                select: { fullname: true }
+            });
 
-      if (value && !user?.fullname.toLowerCase().includes(value.toLowerCase())) {
-        return null;
-      }
+            if (value && !user?.fullname.toLowerCase().includes(value.toLowerCase())) {
+                return null;
+            }
 
-      return {
-        id_leave: leave.id_leave,
-        title: leave.title,
-        leave_type: leave.leave_type,
-        start_date: leave.start_date,
-        end_date: leave.end_date,
-        total_days: leave.total_days,
-        reason: leave.reason,
-        status: leave.status,
-        created_at: leave.created_at,
-        NIK: leave.NIK,
-        id_special: leave.id_special,
-        id_mandatory: leave.id_mandatory,
-        tb_leave_log: leave.tb_leave_log || {
-          reason: "-",
-          tb_users: {
-            fullname: "-"
-          }
-        }
-      };
-    })
-  );
+            return {
+                id_leave: leave.id_leave,
+                title: leave.title,
+                leave_type: leave.leave_type,
+                start_date: leave.start_date,
+                end_date: leave.end_date,
+                total_days: leave.total_days,
+                reason: leave.reason,
+                status: leave.status,
+                created_at: leave.created_at,
+                NIK: leave.NIK,
+                id_special: leave.id_special,
+                id_mandatory: leave.id_mandatory,
+                tb_leave_log: leave.tb_leave_log || {
+                    reason: "-",
+                    tb_users: {
+                        fullname: "-"
+                    }
+                }
+            };
+        })
+    );
 
-  const cleaned = filtered.filter(Boolean);
-  const total = cleaned.length;
-  const totalPages = Math.ceil(total / limit);
-  const paginated = cleaned.slice(offset, offset + limit);
+    const cleaned = filtered.filter(Boolean);
+    const total = cleaned.length;
+    const totalPages = Math.ceil(total / limit);
+    const paginated = cleaned.slice(offset, offset + limit);
 
-  return {
-    data: paginated,
-    total,
-    page,
-    totalPages
-  };
+    return {
+        data: paginated,
+        total,
+        page,
+        totalPages
+    };
 };
 
 
@@ -532,7 +536,7 @@ export const updateLeaveBalance = async (user) => {
                     }
                 })
             ]);
-            
+
             console.log(`[Balance Added] NIK: ${user.NIK}, amount: 12 (karyawan tetap)`);
         }
 
@@ -547,7 +551,7 @@ export const updateLeaveBalance = async (user) => {
         }
 
         let months = (firstOfMonth.getFullYear() - joinEffective.getFullYear()) * 12 +
-                     (firstOfMonth.getMonth() - joinEffective.getMonth()) + 1;
+            (firstOfMonth.getMonth() - joinEffective.getMonth()) + 1;
 
         const eligibleMonths = months - 3;
 
@@ -605,7 +609,7 @@ export const expiredLeave = async () => {
         const pendingLeaves = await prisma.tb_leave.findMany({
             where: {
                 status: 'pending',
-                start_date : {
+                start_date: {
                     lte: today
                 }
             }
@@ -616,14 +620,14 @@ export const expiredLeave = async () => {
             return
         }
 
-        const updateStatus = pendingLeaves.map((leave) => 
+        const updateStatus = pendingLeaves.map((leave) =>
             prisma.tb_leave.update({
-                where : {id_leave: leave.id_leave},
-                data: {status: 'expired'}
+                where: { id_leave: leave.id_leave },
+                data: { status: 'expired' }
             })
         )
         await Promise.all(updateStatus)
-        console.log(`[CRON] ${updateStatus.length} leave data successfully changed to expired status`)    
+        console.log(`[CRON] ${updateStatus.length} leave data successfully changed to expired status`)
 
     } catch (error) {
         console.error('[CRON] Failed to update leave status to expired : ', error)
