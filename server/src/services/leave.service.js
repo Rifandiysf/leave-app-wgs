@@ -225,92 +225,150 @@ export const updateLeave = async (id, status, reason, nik) => {
 }
 
 export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, limit = 10 }) => {
-    const changeFormat = (text) =>
-        text?.trim().toLowerCase().replace(/\s+/g, '_');
+  const changeFormat = (text) =>
+    text?.trim().toLowerCase().replace(/\s+/g, '_');
 
-    const leaves = await prisma.tb_leave.findMany({
-        where: {
-            ...(type && { leave_type: changeFormat(type) }),
-            ...(status && { status: status })
-        },
-        orderBy: { created_at: 'desc' },
-    });
+  const offset = (page - 1) * limit;
 
-    const history = await Promise.all(
-        leaves.map(async (leave) => {
-            const user = await prisma.tb_users.findUnique({
-                where: { NIK: leave.NIK },
-                select: { fullname: true }
-            });
-
-            if (value && !user?.fullname.toLowerCase().includes(value.toLowerCase())) {
-                return null;
+  const leaves = await prisma.tb_leave.findMany({
+    where: {
+      ...(type && { leave_type: changeFormat(type) }),
+      ...(status && { status: status })
+    },
+    orderBy: { created_at: 'desc' },
+    include: {
+      tb_leave_log: {
+        select: {
+          reason: true,
+          tb_users: {
+            select: {
+              fullname: true
             }
+          }
+        }
+      }
+    }
+  });
 
-            return {
-                name: user?.fullname || 'Unknown',
-                leave_type: leave.leave_type,
-                start_date: leave.start_date,
-                end_date: leave.end_date,
-                total_days: leave.total_days,
-                status: leave.status
-            };
-        })
-    );
+  // Filter by fullname if value is given
+  const filtered = await Promise.all(
+    leaves.map(async (leave) => {
+      const user = await prisma.tb_users.findUnique({
+        where: { NIK: leave.NIK },
+        select: { fullname: true }
+      });
 
-    const filtered = history.filter(Boolean);
-    const total = filtered.length;
-    const totalPages = Math.ceil(total / limit);
-    const start = (page - 1) * limit;
-    const paginated = filtered.slice(start, start + limit);
+      if (value && !user?.fullname.toLowerCase().includes(value.toLowerCase())) {
+        return null;
+      }
 
-    return {
-        data: paginated,
-        total,
-        page,
-        totalPages
-    };
+      return {
+        id_leave: leave.id_leave,
+        title: leave.title,
+        leave_type: leave.leave_type,
+        start_date: leave.start_date,
+        end_date: leave.end_date,
+        total_days: leave.total_days,
+        reason: leave.reason,
+        status: leave.status,
+        created_at: leave.created_at,
+        NIK: leave.NIK,
+        id_special: leave.id_special,
+        id_mandatory: leave.id_mandatory,
+        tb_leave_log: leave.tb_leave_log || {
+          reason: "-",
+          tb_users: {
+            fullname: "-"
+          }
+        }
+      };
+    })
+  );
+
+  const cleaned = filtered.filter(Boolean);
+  const total = cleaned.length;
+  const totalPages = Math.ceil(total / limit);
+  const paginated = cleaned.slice(offset, offset + limit);
+
+  return {
+    data: paginated,
+    total,
+    page,
+    totalPages
+  };
 };
 
 
-export const getHistoryLeave = async (page, limit) => {
+export const getHistoryLeave = async (page = 1, limit = 10) => {
+    const offset = (page - 1) * limit;
+
+    const total = await prisma.tb_leave.count({
+        where: {
+            NOT: { status: 'pending' }
+        }
+    });
+
+    const totalPages = Math.ceil(total / limit);
+
     const leaves = await prisma.tb_leave.findMany({
         where: {
             NOT: { status: 'pending' }
         },
         orderBy: { created_at: 'desc' },
-    })
+        skip: offset,
+        take: limit,
+        include: {
+            tb_leave_log: {
+                select: {
+                    reason: true,
+                    tb_users: {
+                        select: {
+                            fullname: true
+                        }
+                    }
+                }
+            }
+        }
+    });
 
-    const history = await Promise.all(
-        leaves.map(async (leave) => {
-            const user = await prisma.tb_users.findUnique({
-                where: { NIK: leave.NIK },
-                select: { fullname: true }
-            });
-
-            return {
-                name: user?.fullname || 'Unknown',
-                leave_type: leave.leave_type,
-                start_date: leave.start_date,
-                end_date: leave.end_date,
-                total_days: leave.total_days,
-                status: leave.status
-            };
-        })
-    );
-
-    const total = history.length;
-    const totalPages = Math.ceil(total / limit);
-    const start = (page - 1) * limit;
-    const paginated = history.slice(start, start + limit);
+    const formattedLeaves = leaves.map(leave => ({
+        id_leave: leave.id_leave,
+        title: leave.title,
+        leave_type: leave.leave_type,
+        start_date: leave.start_date,
+        end_date: leave.end_date,
+        total_days: leave.total_days,
+        reason: leave.reason,
+        status: leave.status,
+        created_at: leave.created_at,
+        NIK: leave.NIK,
+        id_special: leave.id_special,
+        id_mandatory: leave.id_mandatory,
+        tb_leave_log: leave.tb_leave_log || {
+            reason: "-",
+            tb_users: {
+                fullname: "-"
+            }
+        }
+    }));
 
     return {
-        data: paginated,
-        total,
-        page,
-        totalPages
+        success: true,
+        message: "Leave requests retrieved successfully",
+        pagination: {
+            current_page: page,
+            last_visible_page: totalPages,
+            has_next_page: page < totalPages,
+            item: {
+                count: formattedLeaves.length,
+                total,
+                per_page: limit
+            }
+        },
+        data: formattedLeaves
     };
 };
+
 
 
 export const getSpecialLeaveService = async (page = 1, limit = 10) => {
