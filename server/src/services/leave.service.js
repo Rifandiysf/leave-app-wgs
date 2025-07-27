@@ -121,65 +121,63 @@ export const updateLeave = async (id, status, reason, nik) => {
             }
         });
 
-        // simpan balance tahun depan dan tahun sebelumnya di array yang berbeda
-        console.log(userBalance);
+        console.log('before: ', userBalance);
 
         let updatedBalances = [...userBalance];
-        // let currentBalance = userBalance.at(-1).amount;
-        // let carriedBalance = userBalance.length > 1 ? userBalance.slice(0, -1).reduce((sum, balAmount) => sum + balAmount.amount, 0) : 0;
-        // console.log('this is carriedbalance', carriedBalance);
-        // console.log('this is currentbalance', currentBalance);
+        let CurrentBalancesOnly = [];
+
         let totalDaysUsed = data.total_days;
-        let tempDaysUsed;
-        const maxAmountPerRecord = data.tb_users.role === "karyawan_kontrak" ? 1 : 12;
+
+        const isStartDateNextYear = new Date().getFullYear() < data.start_date.getFullYear();
+        const isDateAccrossYear = data.start_date.getFullYear() !== data.end_date.getFullYear();
+        const isContract = data.tb_users.role === "karyawan_kontrak";
+
+        const maxAmountPerRecord =  isContract ? 1 : 12;
 
         if (data.leave_type !== "special_leave") {
             // reduce
             // array di loop ini disort dari paling lama/ [-1] = currentBalance
             if ((data.status === "pending" || data.status === "rejected") && status === "approved") {
-                tempDaysUsed = totalDaysUsed
-                let tempBalances = [...updatedBalances];
 
-                // kalau misalkan tanggalnya ada ditahun depan maka kurangi ke tahun ini saja, tidak dikurangi ke tahun lalu.
-                if (new Date().getFullYear() < data.start_date.getFullYear()) {
-                    tempBalances = updatedBalances.reverse();
-                    tempBalances = tempBalances.filter((bal) => bal.receive_date.getFullYear() === new Date().getFullYear());
-                }
+                function reduceAmount(balances, daysUsed) {
+                    for (let i = 0; i < balances.length; i++) {
+                        balances[i].amount -= daysUsed;
 
-                // kalau misalkan tanggal mulai dan tanggal akhir berbeda tahun
-                if (data.start_date.getFullYear() !== data.end_date.getFullYear()) {
-                    //1. hitung hari yang terpakai di tahun ini dan kurangi ke tahun lalu jika ada, dan jika tidak maka kurangi ke tahun ini.
-                    const daysUsedThisYear = calculateHolidaysDays(data.start_date, `${data.start_date.getFullYear()}-12-31`);
-                    tempDaysUsed = daysUsedThisYear;
-                    // 2. hitung hari yang terpakai di tahun depan dan kurangi ke tahun ini.      
-                    const daysUsedNextYear = calculateHolidaysDays(`${data.end_date.getFullYear()}-01-01`, data.end_date);
-                    tempDaysUsed = daysUsedNextYear;
-                }
-
-                for (let i = 0; i < tempBalances.length; i++) {
-                    console.log(tempBalances[i].amount)
-                    console.log(tempDaysUsed)
-                    tempBalances[i].amount -= tempDaysUsed;
-
-                    if (tempBalances[i].amount < 0 && i !== tempBalances.length - 1) {
-                        tempDaysUsed = -1 * tempBalances[i].amount
-                        tempBalances[i].amount = 0;
-                    } else {
-                        break;
+                        if (balances[i].amount < 0 && i !== balances.length - 1) {
+                            daysUsed = -1 * balances[i].amount
+                            balances[i].amount = 0;
+                        } else {
+                            break;
+                        }
                     }
-                }
-                updatedBalances = tempBalances;
-            }
 
+                    return balances
+                }
+
+                if (isStartDateNextYear) { // pass
+                    CurrentBalancesOnly = updatedBalances.reverse().filter((bal) => bal.receive_date.getFullYear() === new Date().getFullYear());
+                    updatedBalances = reduceAmount(CurrentBalancesOnly, totalDaysUsed); 
+                } else if (isDateAccrossYear) { // pass
+                    
+                    const daysUsedThisYear = calculateHolidaysDays(data.start_date, `${data.start_date.getFullYear()}-12-31`);
+                    updatedBalances = reduceAmount(updatedBalances, daysUsedThisYear);
+
+                    const daysUsedNextYear = calculateHolidaysDays(`${data.end_date.getFullYear()}-01-01`, data.end_date);
+                    CurrentBalancesOnly = updatedBalances.reverse().filter((bal) => bal.receive_date.getFullYear() === new Date().getFullYear());
+                    updatedBalances = reduceAmount(CurrentBalancesOnly, daysUsedNextYear); 
+
+                } else { // pass 
+                    updatedBalances = reduceAmount(updatedBalances, totalDaysUsed); 
+                }
+
+
+                console.log('after: ', userBalance);
+                console.log('Days Used: ', totalDaysUsed);
+            }
+            
             // restore
             // array di loop ini disort dari paling baru/ [0] = currentBalance
             if (data.status === "approved" && status === "rejected") {
-                // kalau misalkan tanggalnya ada ditahun depan maka kurangi ke tahun ini saja, tidak dikurangi ke tahun lalu.
-
-                // kalau misalkan tanggal mulai dan tanggal akhir berbeda tahun
-                // maka : 
-                // 1. hitung hari yang terpakai di tahun ini dan Tambahkan ke tahun ini terlebih, dan jika melebihi batas maka tambahkan ke tahun depan.
-                // 2. hitung hari yang terpakai di tahun depan dan kurangi ke tahun ini.
                 const restoredBalance = updatedBalances.reverse();
                 tempDaysUsed = totalDaysUsed
                 for (let i = 0; i < restoredBalance.length; i++) {
@@ -200,7 +198,9 @@ export const updateLeave = async (id, status, reason, nik) => {
             }
         }
 
-        const balanceUpdates = updatedBalances.map((balance) =>
+        return;
+
+        const balanceUpdates = userBalance.map((balance) =>
             prisma.tb_balance.update({
                 where: { id_balance: balance.id_balance },
                 data: { amount: balance.amount }
