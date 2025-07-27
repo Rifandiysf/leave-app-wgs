@@ -124,15 +124,15 @@ export const updateLeave = async (id, status, reason, nik) => {
         console.log('before: ', userBalance);
 
         let updatedBalances = [...userBalance];
-        let CurrentBalancesOnly = [];
-
+        let currentBalancesOnly = [];
+        let previousBalancesOnly = [];
         let totalDaysUsed = data.total_days;
 
         const isStartDateNextYear = new Date().getFullYear() < data.start_date.getFullYear();
         const isDateAccrossYear = data.start_date.getFullYear() !== data.end_date.getFullYear();
         const isContract = data.tb_users.role === "karyawan_kontrak";
 
-        const maxAmountPerRecord =  isContract ? 1 : 12;
+        const maxAmountPerRecord = isContract ? 1 : 12;
 
         if (data.leave_type !== "special_leave") {
             // reduce
@@ -155,50 +155,83 @@ export const updateLeave = async (id, status, reason, nik) => {
                 }
 
                 if (isStartDateNextYear) { // pass
-                    CurrentBalancesOnly = updatedBalances.reverse().filter((bal) => bal.receive_date.getFullYear() === new Date().getFullYear());
-                    updatedBalances = reduceAmount(CurrentBalancesOnly, totalDaysUsed); 
+                    currentBalancesOnly = updatedBalances.reverse().filter((bal) => bal.receive_date.getFullYear() === new Date().getFullYear());
+                    updatedBalances = reduceAmount(currentBalancesOnly, totalDaysUsed);
                 } else if (isDateAccrossYear) { // pass
-                    
                     const daysUsedThisYear = calculateHolidaysDays(data.start_date, `${data.start_date.getFullYear()}-12-31`);
                     updatedBalances = reduceAmount(updatedBalances, daysUsedThisYear);
 
                     const daysUsedNextYear = calculateHolidaysDays(`${data.end_date.getFullYear()}-01-01`, data.end_date);
-                    CurrentBalancesOnly = updatedBalances.reverse().filter((bal) => bal.receive_date.getFullYear() === new Date().getFullYear());
-                    updatedBalances = reduceAmount(CurrentBalancesOnly, daysUsedNextYear); 
+                    currentBalancesOnly = updatedBalances.reverse().filter((bal) => bal.receive_date.getFullYear() === new Date().getFullYear());
+                    updatedBalances = reduceAmount(currentBalancesOnly, daysUsedNextYear);
 
                 } else { // pass 
-                    updatedBalances = reduceAmount(updatedBalances, totalDaysUsed); 
+                    updatedBalances = reduceAmount(updatedBalances, totalDaysUsed);
                 }
 
 
                 console.log('after: ', userBalance);
                 console.log('Days Used: ', totalDaysUsed);
             }
-            
+
             // restore
             // array di loop ini disort dari paling baru/ [0] = currentBalance
             if (data.status === "approved" && status === "rejected") {
                 const restoredBalance = updatedBalances.reverse();
-                tempDaysUsed = totalDaysUsed
-                for (let i = 0; i < restoredBalance.length; i++) {
 
-                    restoredBalance[i].amount += tempDaysUsed;
+                function restoreAmount(balances, days, option = {}) {
+                    let { daysUsedNextYear = 0 } = option;
 
-                    console.log(restoredBalance[i].amount);
+                    for (let i = 0; i < balances.length; i++) {
 
-                    if (restoredBalance[i].amount > maxAmountPerRecord) {
-                        tempDaysUsed = restoredBalance[i].amount - maxAmountPerRecord
-                        restoredBalance[i].amount = maxAmountPerRecord;
-                    } else {
-                        break;
+                        if ((balances[i].amount + daysUsedNextYear) >= maxAmountPerRecord) {
+                            daysUsedNextYear -= maxAmountPerRecord;
+                            continue;
+                        }
+
+                        balances[i].amount += days;
+
+                        if (balances[i].amount > maxAmountPerRecord) {
+                            days = balances[i].amount - maxAmountPerRecord
+                            balances[i].amount = maxAmountPerRecord;
+                        } else {
+                            break;
+                        }
                     }
+
+                    return balances
                 }
 
-                updatedBalances = restoredBalance.reverse();
+                if (isStartDateNextYear) {
+                    updatedBalances = restoreAmount(restoredBalance, totalDaysUsed);
+                } else if (isDateAccrossYear) {
+                    const daysUsedNextYear = calculateHolidaysDays(`${data.end_date.getFullYear()}-01-01`, data.end_date);
+                    updatedBalances = restoreAmount(updatedBalances, daysUsedNextYear);
+
+                    const daysUsedThisYear = calculateHolidaysDays(data.start_date, `${data.start_date.getFullYear()}-12-31`);
+                    previousBalancesOnly = restoredBalance.filter((bal) => bal.receive_date.getFullYear() < new Date().getFullYear());
+                    updatedBalances = previousBalancesOnly.length !== 0 ? restoreAmount(previousBalancesOnly, daysUsedThisYear) : updatedBalances;
+                } else {
+                    const leaveNextYear = await prisma.tb_leave.aggregate({
+                        _sum: {
+                            total_days: true
+                        },
+                        where: {
+                            NIK: data.NIK,
+                            start_date: {
+                                gte: new Date(`${new Date().getFullYear() + 1}-01-01`)
+                            },
+                            status: "approved"
+                        }
+                    });
+                    const daysUsedNextYear = leaveNextYear._sum.total_days;
+                    console.log(daysUsedNextYear);
+
+                    updatedBalances = restoreAmount(restoredBalance, totalDaysUsed, {daysUsedNextYear: daysUsedNextYear});
+                }
             }
         }
 
-        return;
 
         const balanceUpdates = userBalance.map((balance) =>
             prisma.tb_balance.update({
