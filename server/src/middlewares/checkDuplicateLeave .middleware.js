@@ -30,6 +30,9 @@ export const checkDuplicateLeave = async (req, res, next) => {
                         end_date: { gte: start },
                     },
                 ],
+                status : {
+                    in : ["approved", "pending", "expired"]
+                },
             },
         });
 
