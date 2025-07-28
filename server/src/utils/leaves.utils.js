@@ -1,19 +1,19 @@
 import prisma from "./client.js";
 
-export const createDateFromString = (dateString) => {
-    let date;
-
-    if (dateString instanceof Date) {
-        date = new Date(dateString.getFullYear(), dateString.getMonth(), dateString.getDate());
-    } else {
-        const parts = dateString.split('-');
-        const year = parseInt(parts[0]);
-        const month = parseInt(parts[1]) - 1;
-        const day = parseInt(parts[2]);
-        date = new Date(year, month, day);
+export const createDateFromString = (dateInput) => {
+    if (dateInput instanceof Date) {
+        const year = dateInput.getFullYear();
+        const month = dateInput.getMonth();
+        const day = dateInput.getDate();
+        return new Date(Date.UTC(year, month, day));
     }
 
-    return date.toLocaleDateString('en-CA');
+    const parts = dateInput.split('-');
+    const year = parseInt(parts[0]);
+    const month = parseInt(parts[1]) - 1; 
+    const day = parseInt(parts[2]);
+
+    return new Date(Date.UTC(year, month, day));
 };
 
 
