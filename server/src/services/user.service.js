@@ -253,15 +253,15 @@ export const getAllUsers = async (page, limit, search = '', gender = '', status 
         AND: [
             {
                 OR: [
-                    {fullname: {contains: search, mode: 'insensitive'}},
-                    {NIK: {contains: search, mode: 'insensitive'}},
+                    { fullname: { contains: search, mode: 'insensitive' } },
+                    { NIK: { contains: search, mode: 'insensitive' } },
                 ]
             },
             ...(gender ? [{ gender: gender }] : []),
-            ...(status ? [{status_active: status}] : []),
-            ...(role ? [{role: role}] : [])
+            ...(status ? [{ status_active: status }] : []),
+            ...(role ? [{ role: role }] : [])
         ]
-    }
+    };
 
     const users = await prisma.tb_users.findMany({
         where: filterCondition,
@@ -282,11 +282,26 @@ export const getAllUsers = async (page, limit, search = '', gender = '', status 
     const result = users.map(user => {
         const userLeaveAmount = leaveAmount.filter(b => b.NIK === user.NIK);
 
-        const currentYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === currentYear);
-        const lastYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === lastYear);
+        let current = 0;
+        let last = 0;
 
-        const current = currentYearAmount?.amount || 0;
-        const last = lastYearAmount?.amount || 0;
+        if (user.role === 'karyawan_kontrak') {
+            // Karyawan kontrak: jumlahkan seluruh amount berdasarkan tahun
+            current = userLeaveAmount
+                .filter(b => b.receive_date.getFullYear() === currentYear)
+                .reduce((sum, item) => sum + item.amount, 0);
+
+            last = userLeaveAmount
+                .filter(b => b.receive_date.getFullYear() === lastYear)
+                .reduce((sum, item) => sum + item.amount, 0);
+        } else {
+            // Karyawan tetap: ambil satu record per tahun
+            const currentYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === currentYear);
+            const lastYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === lastYear);
+
+            current = currentYearAmount?.amount || 0;
+            last = lastYearAmount?.amount || 0;
+        }
 
         return {
             nik: user.NIK,
