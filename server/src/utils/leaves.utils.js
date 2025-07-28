@@ -2,7 +2,10 @@ import prisma from "./client.js";
 
 export const createDateFromString = (dateString) => {
     if (dateString instanceof Date) {
-        dateString = dateString.toISOString().split('T')[0];
+        const year = dateString.getFullYear();
+        const month = dateString.getMonth();
+        const day = dateString.getDate();
+        return new Date(year, month, day);
     }
     
     const parts = dateString.split('-');
@@ -10,7 +13,7 @@ export const createDateFromString = (dateString) => {
     const month = parseInt(parts[1]) - 1;
     const day = parseInt(parts[2]);
     
-    return new Date(Date.UTC(year, month, day));
+    return new Date(year, month, day);
 };
 
 export const calculateHolidaysDays = (startDate, endDate) => {
