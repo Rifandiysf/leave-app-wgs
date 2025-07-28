@@ -233,7 +233,7 @@ const ListOfLeavePage = () => {
                                     ) : (
                                         currentData.map((data, index) => (
                                             <tr key={`${data.id_leave}-${index}`} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
-                                                <td className="p-3 align-middle">{data.tb_leave_log?.tb_users?.fullname}</td>
+                                                <td className="p-3 align-middle">{data.tb_leave_log?.tb_users?.fullname || data.name}</td>
                                                 <td className="p-3 align-middle">{formatLeaveType(data.leave_type)}</td>
                                                 <td className="p-3 align-middle">{formatDate(data.start_date)}</td>
                                                 <td className="p-3 align-middle">{formatDate(data.end_date)}</td>
