@@ -199,11 +199,20 @@ export const modifyAmount = async (req, res, next) => {
 
     try {
         const decodedToken = await decodeToken(token);
-        const actor = decodedToken.role
-        if (!actor) {
-            const error = new Error("'Unauthorized: actor (role) not found in session'");
-            error.statusCode(401);
+        const actor = {
+            nik: decodedToken.NIK, 
+            role : decodedToken.role
+        }
+        if (!actor.nik || !actor.role) {
+            const error = new Error("'Unauthorized: incomplete token data'");
+            error.statusCode = 401;
             throw error;
+        }
+
+        if(actor.nik === nik) {
+            const error = new Error("'You are not allowed to add your own leave balance'")
+            error.statusCode = 401
+            throw error
         }
 
         const targetUser = await prisma.tb_users.findUnique({
