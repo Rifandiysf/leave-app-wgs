@@ -1,20 +1,21 @@
 import prisma from "./client.js";
 
 export const createDateFromString = (dateString) => {
+    let date;
+
     if (dateString instanceof Date) {
-        const year = dateString.getFullYear();
-        const month = dateString.getMonth();
-        const day = dateString.getDate();
-        return new Date(year, month, day);
+        date = new Date(dateString.getFullYear(), dateString.getMonth(), dateString.getDate());
+    } else {
+        const parts = dateString.split('-');
+        const year = parseInt(parts[0]);
+        const month = parseInt(parts[1]) - 1;
+        const day = parseInt(parts[2]);
+        date = new Date(year, month, day);
     }
-    
-    const parts = dateString.split('-');
-    const year = parseInt(parts[0]);
-    const month = parseInt(parts[1]) - 1;
-    const day = parseInt(parts[2]);
-    
-    return new Date(year, month, day);
+
+    return date.toLocaleDateString('en-CA');
 };
+
 
 export const calculateHolidaysDays = (startDate, endDate) => {
     let workingDays = 0;
