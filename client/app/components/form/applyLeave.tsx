@@ -57,7 +57,7 @@ export function ApplyLeave() {
         if (leaveType === 'special_leave') {
             const token = localStorage.getItem('token');
             const deviceId = localStorage.getItem('device-id');
-            fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/special`, {
+            fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/special`, {
                 headers: {
                     'Content-Type': 'application/json',
                     ...(token && { Authorization: `${token}` }),
