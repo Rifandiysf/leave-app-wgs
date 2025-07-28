@@ -201,6 +201,7 @@ export function ApplyLeave() {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                     <Button className="w-full px-4 sm:px-8 py-2 sm:py-4 bg-white text-blue-900 font-semibold hover:bg-blue-50 hover:shadow-lg transition-all duration-300 rounded-xl border-0 text-sm sm:text-lg">
+                       <i className="bi bi-calendar-event-fill" />
                         Apply For Leave
                     </Button>
                 </DialogTrigger>

@@ -207,7 +207,9 @@ const UserDashboard = () => {
               <h2 className="text-base sm:text-2xl md:text-3xl font-bold text-blue-900 mb-2 sm:mb-3">
                 Ready to take a break?
               </h2>
+               
               <p className="text-gray-600 mb-4 sm:mb-8 text-xs sm:text-base">
+                
                 Submit your leave request and we’ll process it for you
               </p>
               <ApplyLeave />

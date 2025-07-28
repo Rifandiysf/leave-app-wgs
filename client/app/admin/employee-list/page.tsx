@@ -198,7 +198,14 @@ const EmployeeListContent = () => {
                                         ))}
                                     </tr>
                                 ))
-                            ) : (
+                            ) :
+                             dataLeave.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="p-4 text-center text-gray-500">
+                                        No Data User Found.
+                                    </td>
+                                </tr>
+                            ) :  (
                                 dataLeave.map((data) => (
                                     <tr key={data.nik} className="odd:bg-[#e8efff] even:bg-[#f8faff]">
                                         <td className="p-3">{data.nik}</td>

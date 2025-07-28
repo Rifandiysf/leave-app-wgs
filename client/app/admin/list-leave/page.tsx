@@ -13,6 +13,7 @@ import { Label } from '@/app/components/ui/label';
 import { formatUppercase } from '@/lib/format';
 
 type ApiLeaveType = {
+    fullname: string;
     id_leave: string;
     title: string;
     leave_type: string;
@@ -27,6 +28,7 @@ type ApiLeaveType = {
             fullname: string
         }
     }
+    name : string;
 };
 
 const ListOfLeavePage = () => {
@@ -230,10 +232,17 @@ const ListOfLeavePage = () => {
                                                 ))}
                                             </tr>
                                         ))
-                                    ) : (
+                                    ) :
+                             leaveData.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="p-4 text-center text-gray-500">
+                                        No Data leaves found.
+                                    </td>
+                                </tr>
+                            ) :  (
                                         currentData.map((data, index) => (
                                             <tr key={`${data.id_leave}-${index}`} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
-                                                <td className="p-3 align-middle">{data.tb_leave_log?.tb_users?.fullname}</td>
+                                               <td className="p-3 align-middle">{data.name || data.fullname}</td>
                                                 <td className="p-3 align-middle">{formatLeaveType(data.leave_type)}</td>
                                                 <td className="p-3 align-middle">{formatDate(data.start_date)}</td>
                                                 <td className="p-3 align-middle">{formatDate(data.end_date)}</td>
@@ -254,6 +263,16 @@ const ListOfLeavePage = () => {
                                                                     description={`Reject leave from ${data.tb_leave_log?.tb_users?.fullname}?`}
                                                                     triggerLabel={<i className="bi bi-x-circle text-xl text-red-500 hover:text-red-700"></i>}
                                                                     onConfirm={(rejectionReason) => handleAction(data.id_leave, 'rejected', rejectionReason)}
+                                                                />
+                                                                  <Modal
+                                                                    mode='info'
+                                                                    size='icon'
+                                                                    variant='ghost'
+                                                                    title='Leave Reason'
+                                                                    description={data.reason || "No reason provided"}
+                                                                    triggerLabel={<i className="bi bi-info-circle text-xl text-blue-500 hover:text-blue-700"></i>}
+                                                                    triggerClassName='hover:bg-blue-50'
+                                                                    showFooter={false}
                                                                 />
                                                             </>
                                                         ) : (
@@ -384,7 +403,7 @@ const ListOfLeavePage = () => {
             <Notification
                 mode='failed'
                 show={showErrorNotification}
-                message={() => notifMessage}
+                message={() => actionMessage}
                 onClose={() => setShowErrorNotification(false)}
                 duration={5000}
             />
