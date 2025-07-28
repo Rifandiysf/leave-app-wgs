@@ -97,6 +97,24 @@ export const updateLeave = async (id, status, reason, nik) => {
             }
         });
 
+        const start = new Date(start_date);
+        const end = end_date ? new Date(end_date) : start;
+
+        const existing = await prisma.tb_leave.findFirst({
+            where: {
+                NIK: user.NIK,
+                OR: [
+                    {
+                        start_date: { lte: end },
+                        end_date: { gte: start },
+                    },
+                ],
+                status: {
+                    in: ["approved", "pending", "expired"]
+                }
+            },
+        });
+
         if (!data) {
             const err = new Error("Leave not found");
             err.statusCode = 404;
@@ -146,11 +164,17 @@ export const updateLeave = async (id, status, reason, nik) => {
             // array di loop ini disort dari paling lama/ [-1] = currentBalance
             if ((data.status === "pending" || data.status === "rejected") && status === "approved") {
 
+                if (existing) {
+                    const err = new Error("There's overlap leave");
+                    err.statusCode = 400;
+                    throw err;
+                }
+
                 function reduceAmount(balances, daysUsed) {
                     for (let i = 0; i < balances.length; i++) {
                         let tempDays = balances[i].amount
                         balances[i].amount -= daysUsed;
-                       
+
                         if (balances[i].amount < 0 && i !== balances.length - 1) {
                             daysUsed = -1 * balances[i].amount
                             balances[i].amount = 0;
@@ -184,7 +208,7 @@ export const updateLeave = async (id, status, reason, nik) => {
                 }
             }
         }
-        
+
         const balanceUpdates = userBalance.map((balance) =>
             prisma.tb_balance.update({
                 where: { id_balance: balance.id_balance },
