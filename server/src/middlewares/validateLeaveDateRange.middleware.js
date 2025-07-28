@@ -6,7 +6,7 @@ export const validateLeaveDateRange = (req, res, next) => {
     const startDate = createDateFromString(new Date(start_date))
     const endDate = createDateFromString(new Date(end_date))
 
-    if(endDate <= startDate){
+    if(endDate < startDate){
         const error = new Error("Your leave end date cannot be less than your start date. Please double-check.")
         next(error)
     }
