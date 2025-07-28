@@ -480,6 +480,14 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
         throw new Error('Adjustment value must not be negative');
     }
 
+    if (actor?.nik === nik) {
+        throw new Error('You are not allowed to add your own leave balance');
+    }
+
+    if (targetRole === 'magang') {
+        throw new Error('Cannot adjust leave balance for intern')
+    }
+
     let balance;
 
     if (targetRole === 'karyawan_kontrak') {
@@ -518,7 +526,7 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
             data: {
                 adjustment_value,
                 notes,
-                actor,
+                actor: actor.role,
                 NIK: nik,
                 created_at: new Date()
             }
