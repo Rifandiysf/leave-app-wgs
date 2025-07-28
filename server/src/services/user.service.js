@@ -475,7 +475,7 @@ export const deleteUserByNIK = async (nik) => {
 
 }
 
-export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, targetRole) => {
+export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, targetRole, targetYear = new Date().getFullYear()) => {
     if (adjustment_value < 0) {
         throw new Error('Adjustment value must not be negative');
     }
@@ -497,19 +497,22 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
         })
     } else {
         const thisYear = new Date().getFullYear()
+
+        const startOfYear = new Date(`${targetYear}-01-01`)
+        const endOfYear = new Date(`${targetYear}-12-31`)
         balance = await prisma.tb_balance.findFirst({
         where : {
             NIK: nik, 
             receive_date: {
-                gte: new Date(`${thisYear}-01-01`),
-                lte: new Date(`${thisYear}-12-31`)
+                gte: startOfYear,
+                lte: endOfYear
             }
         }
     })
     }
     
     if(!balance) {
-        throw new Error('Balance for current year not found')
+        throw new Error(`Balance for year ${targetYear} not found`)
     }
 
     const updatedAmount = await prisma.$transaction([

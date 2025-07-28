@@ -222,13 +222,14 @@ export const modifyAmount = async (req, res, next) => {
 
         if (!targetUser) {
             const error = new Error("Target user not found");
-            error.statusCode(404);
+            error.statusCode = 404;
             throw error;
         }
-
+        
+        const targetYear = req.query.year ? parseInt(req.query.year) : undefined
         const targetRole = targetUser.role;
 
-        const result = await adjustModifyAmount(nik, adjustment_value, notes, actor, targetRole)
+        const result = await adjustModifyAmount(nik, adjustment_value, notes, actor, targetRole, targetYear)
         res.status(200).json({ message: 'Balance adjusted successfully', data: result })
     } catch (error) {
         next(error)
