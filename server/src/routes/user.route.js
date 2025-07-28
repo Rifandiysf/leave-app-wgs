@@ -9,10 +9,11 @@ import { validateLeaveBalance } from "../middlewares/validateLeaveBalance.middle
 import { validateSpecialLeaveNotWeekend } from "../middlewares/validateSpecialLeaveNotWeekend.js";
 import { checkDuplicateLeave } from "../middlewares/checkDuplicateLeave .middleware.js";
 import { validateStartDate } from "../middlewares/validateStartDate.middleware.js";
+import { validateLeaveDateRange } from "../middlewares/validateLeaveDateRange.middleware.js";
 
 const userRoutes = express.Router();
 
-userRoutes.post('/leave', validate(leaveRequestSchema), validateStartDate, checkDuplicateLeave, validateLeaveBalance, validateSpecialLeaveNotWeekend, createLeaveRequest);
+userRoutes.post('/leave', validate(leaveRequestSchema), validateStartDate, checkDuplicateLeave, validateLeaveDateRange, validateLeaveBalance, validateSpecialLeaveNotWeekend, createLeaveRequest);
 userRoutes.get('/leave', getLeaveRequests);
 userRoutes.get('/leave/search', getLeavesByFilter);
 userRoutes.get('/leave/:id', getLeaveRequestsById);
