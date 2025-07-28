@@ -87,7 +87,13 @@ export const updateLeave = async (id, status, reason, nik) => {
                 id_leave: id,
             },
             include: {
-                tb_users: true
+                tb_users: true,
+                tb_leave_log: {
+                    take: 1,
+                    orderBy: {
+                        changed_at: "desc"
+                    }
+                }
             }
         });
 
@@ -124,15 +130,16 @@ export const updateLeave = async (id, status, reason, nik) => {
         console.log('before: ', userBalance);
 
         let updatedBalances = [...userBalance];
+        let balancesUsed = [];
         let currentBalancesOnly = [];
-        let previousBalancesOnly = [];
+        let historyBalancesUsed = [];
         let totalDaysUsed = data.total_days;
 
-        const isStartDateNextYear = new Date().getFullYear() < data.start_date.getFullYear();
-        const isDateAccrossYear = data.start_date.getFullYear() !== data.end_date.getFullYear();
-        const isContract = data.tb_users.role === "karyawan_kontrak";
+        if (data.tb_leave_log.length !== 0) {
+            historyBalancesUsed = data.tb_leave_log[0].balances_used
+        }
 
-        const maxAmountPerRecord = isContract ? 1 : 12;
+        const isStartDateNextYear = new Date().getFullYear() < data.start_date.getFullYear();
 
         if (data.leave_type !== "special_leave") {
             // reduce
@@ -141,37 +148,29 @@ export const updateLeave = async (id, status, reason, nik) => {
 
                 function reduceAmount(balances, daysUsed) {
                     for (let i = 0; i < balances.length; i++) {
+                        let tempDays = balances[i].amount
                         balances[i].amount -= daysUsed;
-
+                       
                         if (balances[i].amount < 0 && i !== balances.length - 1) {
                             daysUsed = -1 * balances[i].amount
                             balances[i].amount = 0;
                         } else {
-                            break;
+                            daysUsed = 0;
                         }
+
+                        balancesUsed.push([balances[i].id_balance, balances[i].receive_date.getFullYear(), tempDays - balances[i].amount]);
                     }
 
+                    balancesUsed.reverse();
                     return balances
                 }
 
-                if (isStartDateNextYear) { // pass
-                    currentBalancesOnly = updatedBalances.reverse().filter((bal) => bal.receive_date.getFullYear() === new Date().getFullYear());
+                if (isStartDateNextYear) {
+                    currentBalancesOnly = updatedBalances.reverse()
                     updatedBalances = reduceAmount(currentBalancesOnly, totalDaysUsed);
-                } else if (isDateAccrossYear) { // pass
-                    const daysUsedThisYear = calculateHolidaysDays(data.start_date, `${data.start_date.getFullYear()}-12-31`);
-                    updatedBalances = reduceAmount(updatedBalances, daysUsedThisYear);
-
-                    const daysUsedNextYear = calculateHolidaysDays(`${data.end_date.getFullYear()}-01-01`, data.end_date);
-                    currentBalancesOnly = updatedBalances.reverse().filter((bal) => bal.receive_date.getFullYear() === new Date().getFullYear());
-                    updatedBalances = reduceAmount(currentBalancesOnly, daysUsedNextYear);
-
-                } else { // pass 
+                } else {
                     updatedBalances = reduceAmount(updatedBalances, totalDaysUsed);
                 }
-
-
-                console.log('after: ', userBalance);
-                console.log('Days Used: ', totalDaysUsed);
             }
 
             // restore
@@ -179,60 +178,13 @@ export const updateLeave = async (id, status, reason, nik) => {
             if (data.status === "approved" && status === "rejected") {
                 const restoredBalance = updatedBalances.reverse();
 
-                function restoreAmount(balances, days, option = {}) {
-                    let { daysUsedNextYear = 0 } = option;
-
-                    for (let i = 0; i < balances.length; i++) {
-
-                        if ((balances[i].amount + daysUsedNextYear) >= maxAmountPerRecord) {
-                            daysUsedNextYear -= maxAmountPerRecord;
-                            continue;
-                        }
-
-                        balances[i].amount += days;
-
-                        if (balances[i].amount > maxAmountPerRecord) {
-                            days = balances[i].amount - maxAmountPerRecord
-                            balances[i].amount = maxAmountPerRecord;
-                        } else {
-                            break;
-                        }
-                    }
-
-                    return balances
-                }
-
-                if (isStartDateNextYear) {
-                    updatedBalances = restoreAmount(restoredBalance, totalDaysUsed);
-                } else if (isDateAccrossYear) {
-                    const daysUsedNextYear = calculateHolidaysDays(`${data.end_date.getFullYear()}-01-01`, data.end_date);
-                    updatedBalances = restoreAmount(updatedBalances, daysUsedNextYear);
-
-                    const daysUsedThisYear = calculateHolidaysDays(data.start_date, `${data.start_date.getFullYear()}-12-31`);
-                    previousBalancesOnly = restoredBalance.filter((bal) => bal.receive_date.getFullYear() < new Date().getFullYear());
-                    updatedBalances = previousBalancesOnly.length !== 0 ? restoreAmount(previousBalancesOnly, daysUsedThisYear) : updatedBalances;
-                } else {
-                    const leaveNextYear = await prisma.tb_leave.aggregate({
-                        _sum: {
-                            total_days: true
-                        },
-                        where: {
-                            NIK: data.NIK,
-                            start_date: {
-                                gte: new Date(`${new Date().getFullYear() + 1}-01-01`)
-                            },
-                            status: "approved"
-                        }
-                    });
-                    const daysUsedNextYear = leaveNextYear._sum.total_days;
-                    console.log(daysUsedNextYear);
-
-                    updatedBalances = restoreAmount(restoredBalance, totalDaysUsed, {daysUsedNextYear: daysUsedNextYear});
+                for (let i = 0; i < restoredBalance.length; i++) {
+                    const balance = restoredBalance[i];
+                    balance.amount += historyBalancesUsed.find((item) => item[0] === balance.id_balance)[2];
                 }
             }
         }
-
-
+        
         const balanceUpdates = userBalance.map((balance) =>
             prisma.tb_balance.update({
                 where: { id_balance: balance.id_balance },
@@ -250,7 +202,8 @@ export const updateLeave = async (id, status, reason, nik) => {
                     reason: reason,
                     changed_by_nik: nik,
                     id_leave: data.id_leave,
-                    changed_at: new Date()
+                    changed_at: new Date(),
+                    balances_used: balancesUsed.sort((a, b) => b[1] - a[1]) ?? []
                 }
             })
         ])
@@ -267,33 +220,33 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
 
     const offset = (page - 1) * limit;
 
-  const leaves = await prisma.tb_leave.findMany({
-    where: {
-      ...(type && { leave_type: changeFormat(type) }),
-      ...(status && { status: status }),
-      NOT: { status: 'pending' }
-    },
-    orderBy: { created_at: 'desc' },
-    include: {
-      tb_users: {
-        select: {
-          fullname: true
-        }
-      },
-      tb_leave_log: {
-        orderBy: { changed_at: 'desc' },
-        take: 1, 
-        select: {
-          reason: true,
-          tb_users: {
-            select: {
-              fullname: true
+    const leaves = await prisma.tb_leave.findMany({
+        where: {
+            ...(type && { leave_type: changeFormat(type) }),
+            ...(status && { status: status }),
+            NOT: { status: 'pending' }
+        },
+        orderBy: { created_at: 'desc' },
+        include: {
+            tb_users: {
+                select: {
+                    fullname: true
+                }
+            },
+            tb_leave_log: {
+                orderBy: { changed_at: 'desc' },
+                take: 1,
+                select: {
+                    reason: true,
+                    tb_users: {
+                        select: {
+                            fullname: true
+                        }
+                    }
+                }
             }
-          }
         }
-      }
-    }
-  });
+    });
 
     // Filter by fullname if value is given
     const filtered = await Promise.all(
@@ -303,33 +256,33 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
                 select: { fullname: true }
             });
 
-      if (value && !user?.fullname.toLowerCase().includes(value.toLowerCase())) {
-        return null;
-      }
+            if (value && !user?.fullname.toLowerCase().includes(value.toLowerCase())) {
+                return null;
+            }
 
-      const latestLog = leave.tb_leave_log?.[0] || {
-        reason: "-",
-        tb_users: { fullname: "-" }
-      };
+            const latestLog = leave.tb_leave_log?.[0] || {
+                reason: "-",
+                tb_users: { fullname: "-" }
+            };
 
-      return {
-        id_leave: leave.id_leave,
-        title: leave.title,
-        leave_type: leave.leave_type,
-        start_date: leave.start_date,
-        end_date: leave.end_date,
-        total_days: leave.total_days,
-        reason: leave.reason,
-        status: leave.status,
-        created_at: leave.created_at,
-        NIK: leave.NIK,
-        fullname: leave.tb_users?.fullname || "Unknown",
-        id_special: leave.id_special,
-        id_mandatory: leave.id_mandatory,
-        tb_leave_log: latestLog
-      };
-    })
-  );
+            return {
+                id_leave: leave.id_leave,
+                title: leave.title,
+                leave_type: leave.leave_type,
+                start_date: leave.start_date,
+                end_date: leave.end_date,
+                total_days: leave.total_days,
+                reason: leave.reason,
+                status: leave.status,
+                created_at: leave.created_at,
+                NIK: leave.NIK,
+                fullname: leave.tb_users?.fullname || "Unknown",
+                id_special: leave.id_special,
+                id_mandatory: leave.id_mandatory,
+                tb_leave_log: latestLog
+            };
+        })
+    );
 
     const cleaned = filtered.filter(Boolean);
     const total = cleaned.length;
