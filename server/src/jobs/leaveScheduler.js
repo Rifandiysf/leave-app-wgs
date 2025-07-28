@@ -23,9 +23,12 @@ cron.schedule('0 1 1 * *', async () => {
 
 // Cron: jalan setiap hari jam 00:00
 cron.schedule('0 0 * * *', async () => {
-  console.log(`[CRON] Mengecek cuti yang expired...`);
-  await expiredLeave();
-}, {
-  timezone: 'Asia/Jakarta'
+  try {
+    console.log(`[CRON] Mengecek cuti yang expired...`);
+    await expiredLeave();
+  } catch (error) {
+    console.error('[CRON] Gagal mengubah status cuti: ', error)
+  }
+  
 });
 
