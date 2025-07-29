@@ -97,8 +97,8 @@ export const updateLeave = async (id, status, reason, nik) => {
             }
         });
 
-        const start = new Date(start_date);
-        const end = end_date ? new Date(end_date) : start;
+        const start = new Date(data.start_date);
+        const end = end_date ? new Date(data.end_date) : start;
 
         const existing = await prisma.tb_leave.findFirst({
             where: {
