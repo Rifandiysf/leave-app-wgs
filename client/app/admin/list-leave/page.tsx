@@ -13,6 +13,7 @@ import { Label } from '@/app/components/ui/label';
 import { formatUppercase } from '@/lib/format';
 
 type ApiLeaveType = {
+    NIK: string
     fullname: string;
     id_leave: string;
     title: string;
@@ -24,6 +25,7 @@ type ApiLeaveType = {
     status: string;
     tb_leave_log: {
         reason: string
+        balances_used: [string, number, number][];
         tb_users: {
             fullname: string
         }
@@ -391,16 +393,24 @@ const ListOfLeavePage = () => {
                                                                                     <Label className="font-bold text-gray-500">End Leave</Label>
                                                                                     <h1>{formatDate(data.end_date)}</h1>
                                                                                 </div>
-                                                                            </div>
-                                                                            <div className="flex flex-col gap-5">
-                                                                                <div className="flex flex-col gap-0.5">
-                                                                                    <Label className="font-bold text-gray-500">Leave Used</Label>
-                                                                                    <h1>{data.total_days} Days</h1>
-                                                                                </div>
                                                                                 <div className="flex flex-col gap-0.5">
                                                                                     <Label className="font-bold text-gray-500">Reason Leave</Label>
                                                                                     <h1>{data.reason}</h1>
                                                                                 </div>
+                                                                            </div>
+                                                                            <div className="flex flex-col gap-5">
+                                                                                {data.status === 'rejected' ? "" : (
+                                                                                    <>
+                                                                                        <div className="flex flex-col gap-0.5">
+                                                                                            <Label className="font-bold text-gray-500">This Year</Label>
+                                                                                            <h1>{data.tb_leave_log?.balances_used[0][1]} - {data.tb_leave_log?.balances_used[0][2]} Day Used</h1>
+                                                                                        </div>
+                                                                                        <div className="flex flex-col gap-0.5">
+                                                                                            <Label className="font-bold text-gray-500">Last Year</Label>
+                                                                                            <h1>{data.tb_leave_log?.balances_used[1][1]} - {data.tb_leave_log?.balances_used[1][2]} Day Used</h1>
+                                                                                        </div>
+                                                                                    </>
+                                                                                )}
                                                                                 <div className="flex flex-col gap-0.5">
                                                                                     <Label className="font-bold text-gray-500">Status</Label>
                                                                                     <div className="flex items-center gap-1">

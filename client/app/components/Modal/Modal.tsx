@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useState } from "react"
+import { ReactNode, useEffect, useState } from "react"
 import { Button } from "@/app/components/ui/button"
 import {
     Dialog,
@@ -47,7 +47,18 @@ export function Modal({
     const [rejectionReasonError, setRejectionReasonErorr] = useState('')
     const [open, setOpen] = useState(false)
 
+    useEffect(() => {
+        if (!open) {
+            setRejectionReasonErorr("")
+        }
+    }, [open])
+
     const handleConfirm = (reason?: string) => {
+        if (mode === 'reject' && !reason?.trim()) {
+            setRejectionReasonErorr("Reason cannot be empty.");
+            return;
+        }
+
         onConfirm?.(reason);
         setOpen(false);
     }
@@ -121,12 +132,11 @@ export function Modal({
                         value={rejectionReason}
                         onChange={(e) => {
                             setRejectionReason(e.target.value)
-                            setRejectionReasonErorr("")
                         }}
                         className={rejectionReasonError && 'border-red-400'}
                     />
                     {rejectionReasonError && (
-                        <p className="text-sm text-red-600 mt-1">Reason cannot be empty</p>
+                        <p className="text-sm text-red-600 mt-1">{rejectionReasonError}</p>
                     )}
                 </div>
                 <DialogFooter>
