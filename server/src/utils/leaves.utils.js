@@ -60,10 +60,7 @@ export const getUserLeaveBalance = async (NIK) => {
 export const getUserCurrentYearLeaveBalance = async (NIK) => {
     const currentDate = new Date();
 
-    const currentYearBalance = await prisma.tb_balance.findMany({
-        _sum: {
-            amount: true
-        },
+    const latestBalance = await prisma.tb_balance.findFirst({
         where: {
             NIK: NIK,
             expired_date: {
@@ -75,7 +72,7 @@ export const getUserCurrentYearLeaveBalance = async (NIK) => {
         }
     });
 
-    return currentYearBalance?.[0].amount || 0;
+    return latestBalance?.amount || 0;
 };
 
 
