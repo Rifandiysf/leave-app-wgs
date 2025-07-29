@@ -39,6 +39,7 @@ const ListOfLeavePage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [search, setSearch] = useState("")
     const [leaveType, setLeaveType] = useState<string | null>(null);
+    const [status, setStatus] = useState<string | null>(null);
     const [debouncedSearch, setDebouncedSearch] = useState("")
     const [viewMode, setViewMode] = useState<'requests' | 'history' | null>(null);
     const [isChoiceModalOpen, setChoiceModalOpen] = useState(true);
@@ -73,7 +74,8 @@ const ListOfLeavePage = () => {
     const fetchData = async (
         mode: 'requests' | 'history',
         searchTerm: string,
-        selectedType?: string | null
+        selectedType?: string | null,
+        selectedStatus?: string | null
     ) => {
         setIsLoading(true);
         setLeaveData([]);
@@ -82,6 +84,7 @@ const ListOfLeavePage = () => {
             const params = new URLSearchParams();
             params.set("value", searchTerm !== undefined ? searchTerm : "");
             if (selectedType) params.append("type", selectedType);
+            if (selectedStatus) params.append("status", selectedStatus);
 
             const endpoint =
                 mode === "requests"
@@ -90,7 +93,6 @@ const ListOfLeavePage = () => {
 
             const response = await axiosInstance.get(endpoint);
             let data = response.data?.data?.data || response.data?.data || [];
-            console.log(data[0].tb_leave_log?.balances_used[0][1])
 
             if (mode === 'history') {
                 data = data.filter((leave: ApiLeaveType) => leave.status.toLowerCase() !== 'pending');
@@ -121,9 +123,9 @@ const ListOfLeavePage = () => {
 
     useEffect(() => {
         if (viewMode) {
-            fetchData(viewMode, debouncedSearch, leaveType);
+            fetchData(viewMode, debouncedSearch, leaveType, status);
         }
-    }, [viewMode, currentPage, debouncedSearch, leaveType]);
+    }, [viewMode, currentPage, debouncedSearch, leaveType, status]);
 
     const handleModeSelect = (mode: 'requests' | 'history') => {
         setViewMode(mode);
@@ -210,6 +212,18 @@ const ListOfLeavePage = () => {
                                     className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 />
                             </div>
+                            <Select onValueChange={(value) => setStatus(value)}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>Type Leave</SelectLabel>
+                                        <SelectItem value="approved">Approved</SelectItem>
+                                        <SelectItem value="rejected">Rejected</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
                             <Select onValueChange={(value) => setLeaveType(value)}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Type leave" />
