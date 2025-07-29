@@ -13,9 +13,11 @@ type UserDashboardData = {
     total_amount: number;
     current_amount: number;
     carried_amount: number;
-    days_used: number;
     pending_request: number;
   };
+  leave: {
+    total_days: number;
+  }
 };
 
 const DashboardSkeleton = () => (
@@ -43,6 +45,7 @@ const DashboardSkeleton = () => (
 const UserDashboard = () => {
   const [userData, setUserData] = useState<UserDashboardData | null>(null);
   const [pendingCount, setPendingCount] = useState(0);
+  const [usedDays, setUsedDays] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,32 +80,46 @@ const UserDashboard = () => {
           })
         ]);
 
-        if (!dashboardResponse.ok || !allLeavesResponse.ok) {
-          throw new Error("Failed to fetch all required dashboard data");
-        }
-
-        const dashboardJson = await dashboardResponse.json();
-        const allLeavesJson = await allLeavesResponse.json();
-
-        setUserData(dashboardJson.data);
-
-        const allUserLeaves = allLeavesJson?.data || [];
-
-        const pendingForUser = allUserLeaves.filter(
-          (leave: { status: string }) => leave.status?.toLowerCase() === 'pending'
-        );
-        setPendingCount(pendingForUser.length);
-
-      } catch (err: any) {
-        setError(err.message);
-        console.error("Error fetching dashboard data:", err);
-      } finally {
-        setIsLoading(false);
+         if (!dashboardResponse.ok || !allLeavesResponse.ok) {
+        throw new Error("Failed to fetch all required dashboard data");
       }
-    };
 
-    fetchUserDashboardData();
-  }, []);
+      const dashboardJson = await dashboardResponse.json();
+      const allLeavesJson = await allLeavesResponse.json();
+
+      setUserData(dashboardJson.data);
+
+      const allUserLeaves = allLeavesJson?.data || [];
+
+      // Calculate pending requests (existing logic)
+      const pendingForUser = allUserLeaves.filter(
+        (leave: { status: string }) => leave.status?.toLowerCase() === 'pending'
+      );
+      setPendingCount(pendingForUser.length);
+
+      // --- START: MODIFIED LOGIC ---
+      // Calculate total days used from approved leaves
+      const approvedLeaves = allUserLeaves.filter(
+        (leave: { status: string }) => leave.status?.toLowerCase() === 'approved'
+      );
+      
+      const totalUsedDays = approvedLeaves.reduce(
+        (sum: number, leave: { total_days: number }) => sum + (leave.total_days || 0),
+        0
+      );
+      setUsedDays(totalUsedDays);
+      // --- END: MODIFIED LOGIC ---
+
+    } catch (err: any) {
+      setError(err.message);
+      console.error("Error fetching dashboard data:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchUserDashboardData();
+}, []);
 
 
 
@@ -139,10 +156,10 @@ const UserDashboard = () => {
       label: "Pending Requests"
     },
     {
-      icon: "bi-check-circle-fill",
-      count: userData?.balance.days_used || 0,
-      label: "Days Used"
-    }
+    icon: "bi-check-circle-fill",
+    count: usedDays, 
+    label: "Days Used"
+  }
   ];
 
   return (
