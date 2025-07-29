@@ -215,7 +215,6 @@ const ListOfLeavePage = () => {
                                     <SelectGroup>
                                         <SelectLabel>Type Leave</SelectLabel>
                                         <SelectItem value="personal">Personal</SelectItem>
-                                        <SelectItem value="mandatory">Mandatory</SelectItem>
                                         <SelectItem value="special">Special</SelectItem>
                                     </SelectGroup>
                                 </SelectContent>
