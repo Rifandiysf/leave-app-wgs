@@ -119,9 +119,12 @@ export const updateLeave = async (id, status, reason, nik) => {
         const start = createDateFromString(new Date(data.start_date));
         const end = createDateFromString(new Date(data.end_date));
 
+        console.log(start)
+        console.log(end)
+
         const existing = await prisma.tb_leave.findFirst({
             where: {
-                NIK: user.NIK,
+                NIK: data.NIK,
                 OR: [
                     {
                         start_date: { lte: end },
@@ -130,9 +133,14 @@ export const updateLeave = async (id, status, reason, nik) => {
                 ],
                 status: {
                     in: ["approved", "pending", "expired"]
+                },
+                NOT: {
+                    id_leave: data.id_leave
                 }
             },
         });
+
+        console.log(existing)
 
         const userBalance = await prisma.tb_balance.findMany({
             where: {
@@ -169,7 +177,7 @@ export const updateLeave = async (id, status, reason, nik) => {
                     const err = new Error("There's overlap leave");
                     err.statusCode = 400;
                     throw err;
-                } 
+                }
 
                 function reduceAmount(balances, daysUsed) {
                     for (let i = 0; i < balances.length; i++) {
@@ -263,6 +271,7 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
                 take: 1,
                 select: {
                     reason: true,
+                    balances_used: true,
                     tb_users: {
                         select: {
                             fullname: true
@@ -350,6 +359,7 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
                 take: 1,
                 select: {
                     reason: true,
+                    balances_used: true,
                     tb_users: {
                         select: { fullname: true }
                     }
