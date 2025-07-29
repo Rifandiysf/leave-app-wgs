@@ -105,15 +105,21 @@ export const updateLeave = async (id, status, reason, nik) => {
 
 
         if (data.start_date <= new Date()) {
-            throw new Error("The start date of the leave has passed the current date");
+            const err = new Error("The start date of the leave has passed the current date");
+            err.statusCode = 400;
+            throw err;
         }
 
         if (data.status === status) {
-            throw new Error("New status and old status can't be the same");
+            const err = new Error("New status and old status can't be the same");
+            err.statusCode = 400;
+            throw err;
         }
 
         if (data.NIK === nik) {
-            throw new Error("you cannot approve or reject your own leave")
+            const err = new Error("you cannot approve or reject your own leave");
+            err.statusCode = 400;
+            throw err;
         }
 
         const start = createDateFromString(new Date(data.start_date));
