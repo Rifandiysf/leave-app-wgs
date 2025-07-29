@@ -4,6 +4,7 @@ import {
     getPendingLeaveDays,
     isValidDateRange,
     calculateHolidaysDays,
+    getUserCurrentYearLeaveBalance,
 } from '../utils/leaves.utils.js';
 
 export const validateLeaveBalance = async (req, res, next) => {
@@ -26,7 +27,18 @@ export const validateLeaveBalance = async (req, res, next) => {
 
         const requestedHolidaysDays = calculateHolidaysDays(startDate, endDate);
 
-        const totalLeaveBalance = await getUserLeaveBalance(NIK);
+        const now = new Date();
+        const currentYear = now.getFullYear()
+        const startYear = startDate.getFullYear()
+
+        let totalLeaveBalance
+
+        if (currentYear < startYear) {
+            totalLeaveBalance = await getUserCurrentYearLeaveBalance(NIK);
+        } else {
+            totalLeaveBalance = await getUserLeaveBalance(NIK);
+        }
+
         const pendingDays = await getPendingLeaveDays(NIK);
         const availableLeaveBalance = totalLeaveBalance - pendingDays;
 

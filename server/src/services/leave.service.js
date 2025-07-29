@@ -39,9 +39,9 @@ export const getLeavesByFilterService = async (type, value, page, limit) => {
 
     if (type) {
         const typeMapping = {
-            personal: 'personal_leave',
-            mandatory: 'mandatory_leave',
-            special: 'special_leave'
+            personal_leave: 'personal_leave',
+            mandatory_leave: 'mandatory_leave',
+            special_leave: 'special_leave'
         };
         const mapped = typeMapping[type.toLowerCase()];
         if (!mapped) throw new Error('Invalid leave type');
@@ -112,9 +112,9 @@ export const updateLeave = async (id, status, reason, nik) => {
             throw new Error("New status and old status can't be the same");
         }
 
-        // if (data.NIK === nik) {
-        //     throw new Error("you cannot approve or reject your own leave")
-        // }
+        if (data.NIK === nik) {
+            throw new Error("you cannot approve or reject your own leave")
+        }
 
         const start = createDateFromString(new Date(data.start_date));
         const end = createDateFromString(new Date(data.end_date));
@@ -388,12 +388,14 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
             tb_leave_log: latestLog
                 ? {
                     reason: latestLog.reason,
+                    balances_used: latestLog.balances_used,
                     tb_users: {
                         fullname: latestLog.tb_users?.fullname || "-"
                     }
                 }
                 : {
                     reason: "-",
+                    balances_used: "-"  ,
                     tb_users: {
                         fullname: "-"
                     }
