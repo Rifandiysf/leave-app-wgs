@@ -223,6 +223,12 @@ export const updateLeave = async (id, status, reason, nik) => {
                 }
             }
         }
+        
+        if (data.leave_type == "personal_leave" && userBalance.find((bal) => bal.receive_date.getFullYear() === new Date().getFullYear())?.amount < 0) {
+            const error = new Error('Insufficient leave balance');
+            error.statusCode = 400;
+            throw error;
+        }
 
         const balanceUpdates = userBalance.map((balance) =>
             prisma.tb_balance.update({
