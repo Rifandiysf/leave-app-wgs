@@ -192,45 +192,55 @@ export const deleteUser = async (req, res, next) => {
     }
 }
 
-export const modifyAmount = async (req, res, next) => {
-    const { nik } = req.params
-    const { adjustment_value, notes, targetYear } = req.body
-    const token = req.get("authorization").split(' ')[1]
 
+export const modifyAmount = async (req, res, next) => {
     try {
+        const { nik } = req.params;
+        const { adjustment_value, notes, leave_type } = req.body;
+        const token = req.get("authorization").split(' ')[1];
+
         const decodedToken = await decodeToken(token);
         const actor = {
-            nik: decodedToken.NIK, 
-            role : decodedToken.role
-        }
+            nik: decodedToken.NIK,
+            role: decodedToken.role
+        };
+
         if (!actor.nik || !actor.role) {
-            const error = new Error("'Unauthorized: incomplete token data'");
+            const error = new Error("Unauthorized: incomplete token data");
             error.statusCode = 401;
             throw error;
         }
 
-        if(actor.nik === nik) {
-            const error = new Error("'You are not allowed to add your own leave balance'")
-            error.statusCode = 401
-            throw error
+        if (actor.nik === nik) {
+            const error = new Error("You are not allowed to add your own leave balance");
+            error.statusCode = 403; 
+            throw error;
         }
 
         const targetUser = await prisma.tb_users.findUnique({
             where: { NIK: nik },
             select: { role: true }
-        })
+        });
 
         if (!targetUser) {
             const error = new Error("Target user not found");
             error.statusCode = 404;
             throw error;
         }
-        
+
         const targetRole = targetUser.role;
 
-        const result = await adjustModifyAmount(nik, adjustment_value, notes, actor, targetRole, targetYear)
-        res.status(200).json({ message: 'Balance adjusted successfully', data: result })
+        const result = await adjustModifyAmount(
+            nik,
+            adjustment_value,
+            notes,
+            actor,
+            targetRole,
+            leave_type 
+        );
+
+        res.status(200).json({ message: 'Balance adjusted successfully', data: result });
     } catch (error) {
-        next(error)
+        next(error);
     }
-}
+};
