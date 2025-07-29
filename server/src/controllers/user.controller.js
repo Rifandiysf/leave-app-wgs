@@ -194,7 +194,7 @@ export const deleteUser = async (req, res, next) => {
 
 export const modifyAmount = async (req, res, next) => {
     const { nik } = req.params
-    const { adjustment_value, notes } = req.body
+    const { adjustment_value, notes, targetYear } = req.body
     const token = req.get("authorization").split(' ')[1]
 
     try {
@@ -222,13 +222,13 @@ export const modifyAmount = async (req, res, next) => {
 
         if (!targetUser) {
             const error = new Error("Target user not found");
-            error.statusCode(404);
+            error.statusCode = 404;
             throw error;
         }
-
+        
         const targetRole = targetUser.role;
 
-        const result = await adjustModifyAmount(nik, adjustment_value, notes, actor, targetRole)
+        const result = await adjustModifyAmount(nik, adjustment_value, notes, actor, targetRole, targetYear)
         res.status(200).json({ message: 'Balance adjusted successfully', data: result })
     } catch (error) {
         next(error)

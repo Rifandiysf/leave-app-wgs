@@ -17,5 +17,13 @@ export const validateStartDate = (req, res, next) => {
         return next(error);
     }
 
+    const yearDiff = startDate.getFullYear() - today.getFullYear()
+
+    if(yearDiff > 1){
+        const error = new Error("you can't apply for leave two years or more in advance.")
+        error.status = 400
+        return next(error)
+    }
+
     next()
 }

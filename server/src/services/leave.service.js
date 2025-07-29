@@ -662,15 +662,15 @@ export const updateLeaveBalance = async (user) => {
 };
 
 export const expiredLeave = async () => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    const now = new Date()
+    const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
 
     try {
         const pendingLeaves = await prisma.tb_leave.findMany({
             where: {
                 status: 'pending',
-                start_date: {
-                    lte: today
+                start_date : {
+                    lte: todayDate
                 }
             }
         })
