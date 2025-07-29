@@ -44,11 +44,12 @@ export function Modal({
     onConfirm,
 }: ModalTypeProps) {
     const [rejectionReason, setRejectionReason] = useState('')
-    const [open, setOpen] = useState(false) // ✅ Tambahkan state kontrol open
+    const [rejectionReasonError, setRejectionReasonErorr] = useState('')
+    const [open, setOpen] = useState(false)
 
     const handleConfirm = (reason?: string) => {
-        onConfirm?.(reason)
-        setOpen(false)
+        onConfirm?.(reason);
+        setOpen(false);
     }
 
     const TriggerButton = () => (
@@ -118,8 +119,15 @@ export function Modal({
                         id="reason-reject"
                         placeholder="Brief reason for rejection"
                         value={rejectionReason}
-                        onChange={(e) => setRejectionReason(e.target.value)}
+                        onChange={(e) => {
+                            setRejectionReason(e.target.value)
+                            setRejectionReasonErorr("")
+                        }}
+                        className={rejectionReasonError && 'border-red-400'}
                     />
+                    {rejectionReasonError && (
+                        <p className="text-sm text-red-600 mt-1">Reason cannot be empty</p>
+                    )}
                 </div>
                 <DialogFooter>
                     <DialogClose asChild>

@@ -105,7 +105,7 @@ export const updateLeave = async (id, status, reason, nik) => {
         }
 
         if (data.NIK === nik) {
-            throw new Error("Users are not allowed to approve or reject their own leave requests")
+            throw new Error("you cannot approve or reject your own leave")
         }
 
         const userBalance = await prisma.tb_balance.findMany({
