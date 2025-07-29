@@ -1,16 +1,16 @@
-    'use client'
+'use client'
 
-    import { useState, useEffect } from 'react';
-    import 'bootstrap-icons/font/bootstrap-icons.css';
-    import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/app/components/ui/pagination";
-    import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/app/components/ui/select";
-    import Modal from '@/app/components/Modal/Modal';
-    import axiosInstance from '@/lib/api/axiosInstance';
-    import { LeaveChoiceModal } from '@/app/components/LeaveChoiceModal/page';
-    import withAuth from '@/lib/auth/withAuth';
-    import { Notification } from '@/app/components/notification/Notification';
-    import { Label } from '@/app/components/ui/label';
-    import { formatUppercase } from '@/lib/format';
+import { useState, useEffect } from 'react';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/app/components/ui/pagination";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/app/components/ui/select";
+import Modal from '@/app/components/Modal/Modal';
+import axiosInstance from '@/lib/api/axiosInstance';
+import { LeaveChoiceModal } from '@/app/components/LeaveChoiceModal/page';
+import withAuth from '@/lib/auth/withAuth';
+import { Notification } from '@/app/components/notification/Notification';
+import { Label } from '@/app/components/ui/label';
+import { formatUppercase } from '@/lib/format';
 
 type ApiLeaveType = {
     NIK: string
@@ -48,27 +48,27 @@ const ListOfLeavePage = () => {
     const [actionMessage, setActionMessage] = useState("")
     const ITEMS_PER_PAGE = 7;
 
-        useEffect(() => {
-            const handler = setTimeout(() => {
-                setDebouncedSearch(search)
-            }, 500)
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(search)
+        }, 500)
 
-            return () => {
-                clearTimeout(handler)
-            }
-        }, [search])
+        return () => {
+            clearTimeout(handler)
+        }
+    }, [search])
 
-        useEffect(() => {
-            const handleReset = () => {
-                setViewMode(null);
-                setChoiceModalOpen(true);
-            };
-            window.addEventListener('resetLeaveView', handleReset);
+    useEffect(() => {
+        const handleReset = () => {
+            setViewMode(null);
+            setChoiceModalOpen(true);
+        };
+        window.addEventListener('resetLeaveView', handleReset);
 
-            return () => {
-                window.removeEventListener('resetLeaveView', handleReset);
-            };
-        }, []);
+        return () => {
+            window.removeEventListener('resetLeaveView', handleReset);
+        };
+    }, []);
 
     const fetchData = async (
         mode: 'requests' | 'history',
@@ -88,8 +88,9 @@ const ListOfLeavePage = () => {
                     ? `/leaves/search?${params.toString()}`
                     : `/leaves/logs/search?${params.toString()}`;
 
-                const response = await axiosInstance.get(endpoint);
-                let data = response.data?.data?.data || response.data?.data || [];
+            const response = await axiosInstance.get(endpoint);
+            let data = response.data?.data?.data || response.data?.data || [];
+            console.log(data[0].tb_leave_log?.balances_used[0][1])
 
             if (mode === 'history') {
                 data = data.filter((leave: ApiLeaveType) => leave.status.toLowerCase() !== 'pending');
@@ -111,12 +112,12 @@ const ListOfLeavePage = () => {
     };
 
 
-        useEffect(() => {
-            const handler = setTimeout(() => {
-                setDebouncedSearch(search);
-            }, 500);
-            return () => clearTimeout(handler);
-        }, [search]);
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [search]);
 
     useEffect(() => {
         if (viewMode) {
@@ -124,36 +125,36 @@ const ListOfLeavePage = () => {
         }
     }, [viewMode, currentPage, debouncedSearch, leaveType]);
 
-        const handleModeSelect = (mode: 'requests' | 'history') => {
-            setViewMode(mode);
-            setChoiceModalOpen(false);
-        };
+    const handleModeSelect = (mode: 'requests' | 'history') => {
+        setViewMode(mode);
+        setChoiceModalOpen(false);
+    };
 
-        const formatDate = (dateString: string) => {
-            if (!dateString) return '-';
-            const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-            return new Date(dateString).toLocaleDateString('id-ID', options);
-        };
+    const formatDate = (dateString: string) => {
+        if (!dateString) return '-';
+        const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+        return new Date(dateString).toLocaleDateString('id-ID', options);
+    };
 
-        const formatLeaveType = (type: string) => {
-            if (!type) return '-';
-            return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        };
+    const formatLeaveType = (type: string) => {
+        if (!type) return '-';
+        return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    };
 
-        const getStatusChip = (status: string) => {
-            switch (status?.toLowerCase()) {
-                case 'pending':
-                    return <span className="text-yellow-600 bg-yellow-100 p-2 px-3 rounded-full text-xs font-semibold">PENDING</span>;
-                case 'approved':
-                    return <span className="text-green-600 bg-green-100 p-2 px-3 rounded-full text-xs font-semibold">APPROVED</span>;
-                case 'rejected':
-                    return <span className="text-red-600 bg-red-100 p-2 px-3 rounded-full text-xs font-semibold">REJECTED</span>;
-                case 'taken':
-                    return <span className="text-blue-600 bg-blue-100 p-2 px-3 rounded-full text-xs font-semibold">TAKEN</span>;
-                default:
-                    return <span className="text-gray-600 bg-gray-100 p-2 px-3 rounded-full text-xs font-semibold">{status?.toUpperCase() || 'N/A'}</span>;
-            }
-        };
+    const getStatusChip = (status: string) => {
+        switch (status?.toLowerCase()) {
+            case 'pending':
+                return <span className="text-yellow-600 bg-yellow-100 p-2 px-3 rounded-full text-xs font-semibold">PENDING</span>;
+            case 'approved':
+                return <span className="text-green-600 bg-green-100 p-2 px-3 rounded-full text-xs font-semibold">APPROVED</span>;
+            case 'rejected':
+                return <span className="text-red-600 bg-red-100 p-2 px-3 rounded-full text-xs font-semibold">REJECTED</span>;
+            case 'taken':
+                return <span className="text-blue-600 bg-blue-100 p-2 px-3 rounded-full text-xs font-semibold">TAKEN</span>;
+            default:
+                return <span className="text-gray-600 bg-gray-100 p-2 px-3 rounded-full text-xs font-semibold">{status?.toUpperCase() || 'N/A'}</span>;
+        }
+    };
 
     const handleAction = async (id: string, newStatus: 'approved' | 'rejected', reason?: string) => {
         try {
@@ -167,31 +168,31 @@ const ListOfLeavePage = () => {
         } catch (error: any) {
             console.error(`Failed to ${newStatus} request:`, error);
 
-                let apiErrorMessage = `Failed to ${newStatus} leave request`;
-                if (error.response?.data?.message) {
-                    apiErrorMessage = error.response.data.message;
-                } else if (error.message) {
-                    apiErrorMessage = error.message;
-                }
-
-                setActionMessage(apiErrorMessage);
-                setShowErrorNotification(true);
+            let apiErrorMessage = `Failed to ${newStatus} leave request`;
+            if (error.response?.data?.message) {
+                apiErrorMessage = error.response.data.message;
+            } else if (error.message) {
+                apiErrorMessage = error.message;
             }
-        };
 
-        const totalPages = Math.ceil(leaveData.length / ITEMS_PER_PAGE);
-        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        const currentData = leaveData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+            setActionMessage(apiErrorMessage);
+            setShowErrorNotification(true);
+        }
+    };
 
-        const handlePageChange = (page: number) => {
-            if (page >= 1 && page <= totalPages) {
-                setCurrentPage(page);
-            }
-        };
+    const totalPages = Math.ceil(leaveData.length / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const currentData = leaveData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-        return (
-            <>
-                <LeaveChoiceModal isOpen={isChoiceModalOpen} onSelectMode={handleModeSelect} />
+    const handlePageChange = (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
+
+    return (
+        <>
+            <LeaveChoiceModal isOpen={isChoiceModalOpen} onSelectMode={handleModeSelect} />
 
             {!isChoiceModalOpen && viewMode && (
                 <>
@@ -216,8 +217,8 @@ const ListOfLeavePage = () => {
                                 <SelectContent>
                                     <SelectGroup>
                                         <SelectLabel>Type Leave</SelectLabel>
-                                        <SelectItem value="personal">Personal</SelectItem>
-                                        <SelectItem value="special">Special</SelectItem>
+                                        <SelectItem value="personal_leave">Personal</SelectItem>
+                                        <SelectItem value="special_leave">Special</SelectItem>
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
@@ -399,15 +400,20 @@ const ListOfLeavePage = () => {
                                                                                 </div>
                                                                             </div>
                                                                             <div className="flex flex-col gap-5">
-                                                                                {data.status === 'rejected' ? "" : (
+                                                                                {data.status === 'rejected' ? (
+                                                                                    <div className="flex flex-col gap-0.5">
+                                                                                        <Label className="font-bold text-gray-500">Leave Used</Label>
+                                                                                        <h1>{data.total_days} Days</h1>
+                                                                                    </div>
+                                                                                ) : (
                                                                                     <>
                                                                                         <div className="flex flex-col gap-0.5">
                                                                                             <Label className="font-bold text-gray-500">This Year</Label>
-                                                                                            <h1>{data.tb_leave_log?.balances_used[0][1]} - {data.tb_leave_log?.balances_used[0][2]} Day Used</h1>
+                                                                                            <h1>{data.tb_leave_log?.balances_used[0]?.[1]} - {data.tb_leave_log?.balances_used[0]?.[2]} Day Used</h1>
                                                                                         </div>
                                                                                         <div className="flex flex-col gap-0.5">
                                                                                             <Label className="font-bold text-gray-500">Last Year</Label>
-                                                                                            <h1>{data.tb_leave_log?.balances_used[1][1]} - {data.tb_leave_log?.balances_used[1][2]} Day Used</h1>
+                                                                                            <h1>{data.tb_leave_log?.balances_used[1]?.[1]} - {data.tb_leave_log?.balances_used[1]?.[2]} Day Used</h1>
                                                                                         </div>
                                                                                     </>
                                                                                 )}
@@ -469,7 +475,8 @@ const ListOfLeavePage = () => {
                         </div>
                     </section>
                 </>
-            )}
+            )
+            }
             <Notification
                 mode='failed'
                 show={showErrorNotification}
@@ -488,4 +495,4 @@ const ListOfLeavePage = () => {
     );
 }
 
-    export default withAuth(ListOfLeavePage, { requireAdmin: true });
+export default withAuth(ListOfLeavePage, { requireAdmin: true });

@@ -39,9 +39,9 @@ export const getLeavesByFilterService = async (type, value, page, limit) => {
 
     if (type) {
         const typeMapping = {
-            personal: 'personal_leave',
-            mandatory: 'mandatory_leave',
-            special: 'special_leave'
+            personal_leave: 'personal_leave',
+            mandatory_leave: 'mandatory_leave',
+            special_leave: 'special_leave'
         };
         const mapped = typeMapping[type.toLowerCase()];
         if (!mapped) throw new Error('Invalid leave type');
