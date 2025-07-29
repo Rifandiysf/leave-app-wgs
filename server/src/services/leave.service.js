@@ -168,7 +168,7 @@ export const updateLeave = async (id, status, reason, nik) => {
                     const err = new Error("There's overlap leave");
                     err.statusCode = 400;
                     throw err;
-                }
+                } 
 
                 function reduceAmount(balances, daysUsed) {
                     for (let i = 0; i < balances.length; i++) {
@@ -204,7 +204,7 @@ export const updateLeave = async (id, status, reason, nik) => {
 
                 for (let i = 0; i < restoredBalance.length; i++) {
                     const balance = restoredBalance[i];
-                    balance.amount += historyBalancesUsed.find((item) => item[0] === balance.id_balance)[2];
+                    balance.amount += historyBalancesUsed.find((item) => item[0] === balance.id_balance)?.[2] ?? 0;
                 }
             }
         }
