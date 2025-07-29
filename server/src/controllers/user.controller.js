@@ -194,7 +194,7 @@ export const deleteUser = async (req, res, next) => {
 
 export const modifyAmount = async (req, res, next) => {
     const { nik } = req.params
-    const { adjustment_value, notes } = req.body
+    const { adjustment_value, notes, targetYear } = req.body
     const token = req.get("authorization").split(' ')[1]
 
     try {
@@ -226,7 +226,6 @@ export const modifyAmount = async (req, res, next) => {
             throw error;
         }
         
-        const targetYear = req.query.year ? parseInt(req.query.year) : undefined
         const targetRole = targetUser.role;
 
         const result = await adjustModifyAmount(nik, adjustment_value, notes, actor, targetRole, targetYear)
