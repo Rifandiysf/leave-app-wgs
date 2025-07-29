@@ -57,6 +57,24 @@ export const getUserLeaveBalance = async (NIK) => {
     return activeBalance._sum.amount || 0;
 };
 
+export const getUserCurrentYearLeaveBalance = async (NIK) => {
+    const currentDate = new Date();
+
+    const latestBalance = await prisma.tb_balance.findFirst({
+        where: {
+            NIK: NIK,
+            expired_date: {
+                gte: currentDate
+            }
+        },
+        orderBy: {
+            expired_date: "desc"
+        }
+    });
+
+    return latestBalance?.amount || 0;
+};
+
 
 export const getPendingLeaveDays = async (NIK) => {
     const currentDate = new Date();
