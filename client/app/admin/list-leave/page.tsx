@@ -212,30 +212,47 @@ const ListOfLeavePage = () => {
                                     className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 />
                             </div>
-                            <Select onValueChange={(value) => setStatus(value)}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectLabel>Type Leave</SelectLabel>
-                                        <SelectItem value="approved">Approved</SelectItem>
-                                        <SelectItem value="rejected">Rejected</SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                            <Select onValueChange={(value) => setLeaveType(value)}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Type leave" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectLabel>Type Leave</SelectLabel>
-                                        <SelectItem value="personal_leave">Personal</SelectItem>
-                                        <SelectItem value="special_leave">Special</SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
+                            {viewMode === 'requests' ? (
+                                <Select onValueChange={(value) => setLeaveType(value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Type leave" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectLabel>Type Leave</SelectLabel>
+                                            <SelectItem value="personal_leave">Personal</SelectItem>
+                                            <SelectItem value="special_leave">Special</SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            ) : (
+                                <>
+                                    <Select onValueChange={(value) => setStatus(value)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Status" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                <SelectLabel>Type Leave</SelectLabel>
+                                                <SelectItem value="approved">Approved</SelectItem>
+                                                <SelectItem value="rejected">Rejected</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                    <Select onValueChange={(value) => setLeaveType(value)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Type leave" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                <SelectLabel>Type Leave</SelectLabel>
+                                                <SelectItem value="personal_leave">Personal</SelectItem>
+                                                <SelectItem value="special_leave">Special</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                </>
+                            )}
                         </div>
                     </section>
                     <section className="relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
