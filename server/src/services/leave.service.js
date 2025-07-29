@@ -1,7 +1,7 @@
 import { promise } from "zod/v4";
 import { leave_type } from "../../generated/prisma/index.js";
 import prisma from "../utils/client.js";
-import { calculateHolidaysDays } from "../utils/leaves.utils.js";
+import { calculateHolidaysDays, createDateFromString } from "../utils/leaves.utils.js";
 
 
 export const getAllLeavesService = async (page, limit) => {
@@ -97,8 +97,27 @@ export const updateLeave = async (id, status, reason, nik) => {
             }
         });
 
-        const start = new Date(start_date);
-        const end = end_date ? new Date(end_date) : start;
+        if (!data) {
+            const err = new Error("Leave not found");
+            err.statusCode = 404;
+            throw err;
+        }
+
+
+        if (data.start_date <= new Date()) {
+            throw new Error("The start date of the leave has passed the current date");
+        }
+
+        if (data.status === status) {
+            throw new Error("New status and old status can't be the same");
+        }
+
+        if (data.NIK === nik) {
+            throw new Error("Users are not allowed to approve or reject their own leave requests")
+        }
+
+        const start = createDateFromString(new Date(data.start_date));
+        const end = createDateFromString(new Date(data.end_date));
 
         const existing = await prisma.tb_leave.findFirst({
             where: {
@@ -114,24 +133,6 @@ export const updateLeave = async (id, status, reason, nik) => {
                 }
             },
         });
-
-        if (!data) {
-            const err = new Error("Leave not found");
-            err.statusCode = 404;
-            throw err;
-        }
-
-        if (data.start_date <= new Date()) {
-            throw new Error("The start date of the leave has passed the current date");
-        }
-
-        if (data.status === status) {
-            throw new Error("New status and old status can't be the same");
-        }
-
-        if (data.NIK === nik) {
-            throw new Error("Users are not allowed to approve or reject their own leave requests")
-        }
 
         const userBalance = await prisma.tb_balance.findMany({
             where: {
@@ -168,7 +169,7 @@ export const updateLeave = async (id, status, reason, nik) => {
                     const err = new Error("There's overlap leave");
                     err.statusCode = 400;
                     throw err;
-                }
+                } 
 
                 function reduceAmount(balances, daysUsed) {
                     for (let i = 0; i < balances.length; i++) {
@@ -204,7 +205,7 @@ export const updateLeave = async (id, status, reason, nik) => {
 
                 for (let i = 0; i < restoredBalance.length; i++) {
                     const balance = restoredBalance[i];
-                    balance.amount += historyBalancesUsed.find((item) => item[0] === balance.id_balance)[2];
+                    balance.amount += historyBalancesUsed.find((item) => item[0] === balance.id_balance)?.[2] ?? 0;
                 }
             }
         }
