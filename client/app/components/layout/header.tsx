@@ -56,7 +56,7 @@ export default function Header() {
         }
     }
 
-    const isUserDashboard = pathname === '/' || '/history' || '/mandatory'
+    const isUserDashboard = pathname === '/' 
     const isAdminPage = pathname.startsWith('/admin')
 
     return (

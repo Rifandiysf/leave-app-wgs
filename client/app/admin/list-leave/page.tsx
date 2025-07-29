@@ -9,16 +9,26 @@ import axiosInstance from '@/lib/api/axiosInstance';
 import { LeaveChoiceModal } from '@/app/components/LeaveChoiceModal/page';
 import withAuth from '@/lib/auth/withAuth';
 import { Notification } from '@/app/components/notification/Notification';
+import { Label } from '@/app/components/ui/label';
+import { formatUppercase } from '@/lib/format';
 
 type ApiLeaveType = {
+    fullname: string;
     id_leave: string;
-    name: string;
+    title: string;
     leave_type: string;
     start_date: string;
     end_date: string;
     total_days: number;
     reason: string;
     status: string;
+    tb_leave_log: {
+        reason: string
+        tb_users: {
+            fullname: string
+        }
+    }
+    name : string;
 };
 
 const ListOfLeavePage = () => {
@@ -66,7 +76,6 @@ const ListOfLeavePage = () => {
                 : `/leaves/logs/search?value=${searchTerm}`;
 
             const response = await axiosInstance.get(endpoint);
-
             let data = response.data?.data?.data || response.data?.data || [];
 
             if (mode === 'history') {
@@ -200,7 +209,7 @@ const ListOfLeavePage = () => {
                             </Select>
                         </div>
                     </section>
-                    <section className="relative p-3 min-h-[calc(100dvh-137px)]">
+                    <section className="relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
                         <div className='max-sm:overflow-x-scroll'>
                             <table className="w-full text-base text-center">
                                 <thead className="text-black bg-[#F0f4f9] backdrop-blur-sm">
@@ -223,10 +232,17 @@ const ListOfLeavePage = () => {
                                                 ))}
                                             </tr>
                                         ))
-                                    ) : (
+                                    ) :
+                             leaveData.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="p-4 text-center text-gray-500">
+                                        No Data leaves found.
+                                    </td>
+                                </tr>
+                            ) :  (
                                         currentData.map((data, index) => (
                                             <tr key={`${data.id_leave}-${index}`} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
-                                                <td className="p-3 align-middle">{data.name}</td>
+                                               <td className="p-3 align-middle">{data.name || data.fullname}</td>
                                                 <td className="p-3 align-middle">{formatLeaveType(data.leave_type)}</td>
                                                 <td className="p-3 align-middle">{formatDate(data.start_date)}</td>
                                                 <td className="p-3 align-middle">{formatDate(data.end_date)}</td>
@@ -238,15 +254,25 @@ const ListOfLeavePage = () => {
                                                             <>
                                                                 <Modal
                                                                     mode='confirm' size='icon' variant='ghost' title='Accept Request'
-                                                                    description={`Accept leave from ${data.name}? Reason: ${data.reason}`}
+                                                                    description={`Accept leave from ${data.tb_leave_log?.tb_users?.fullname}? Reason: ${data.reason}`}
                                                                     triggerLabel={<i className="bi bi-check2-circle text-xl text-green-500 hover:text-green-700"></i>}
                                                                     onConfirm={() => handleAction(data.id_leave, 'approved')}
                                                                 />
                                                                 <Modal
                                                                     mode='reject' size='icon' variant='ghost' title='Reject Request'
-                                                                    description={`Reject leave from ${data.name}?`}
+                                                                    description={`Reject leave from ${data.tb_leave_log?.tb_users?.fullname}?`}
                                                                     triggerLabel={<i className="bi bi-x-circle text-xl text-red-500 hover:text-red-700"></i>}
                                                                     onConfirm={(rejectionReason) => handleAction(data.id_leave, 'rejected', rejectionReason)}
+                                                                />
+                                                                  <Modal
+                                                                    mode='info'
+                                                                    size='icon'
+                                                                    variant='ghost'
+                                                                    title='Leave Reason'
+                                                                    description={data.reason || "No reason provided"}
+                                                                    triggerLabel={<i className="bi bi-info-circle text-xl text-blue-500 hover:text-blue-700"></i>}
+                                                                    triggerClassName='hover:bg-blue-50'
+                                                                    showFooter={false}
                                                                 />
                                                             </>
                                                         ) : (
@@ -257,7 +283,7 @@ const ListOfLeavePage = () => {
                                                                         description={
                                                                             <div>
                                                                                 <p className="mb-4 text-left text-base text-gray-700">
-                                                                                    <span className="font-semibold">Employee Name :</span> {data.name}
+                                                                                    <span className="font-semibold">Employee Name :</span> {data.tb_leave_log?.tb_users?.fullname}
                                                                                 </p>
                                                                                 <div className="flex items-start gap-3   rounded-r-lg p-3 mb-4">
                                                                                     <i className="bi bi-exclamation-triangle-fill text-yellow-500 text-center"></i>
@@ -275,16 +301,63 @@ const ListOfLeavePage = () => {
                                                                 {data.status === 'rejected' && (
                                                                     <Modal
                                                                         mode='confirm' size='icon' variant='ghost' title='Change to Approved'
-                                                                        description={`Employee Name : ${data.name} from Rejected to Approved?`}
-                                                                        triggerLabel={<i className="bi bi-file-check text-xl "></i>}
+                                                                        description={`Employee Name : ${data.tb_leave_log?.tb_users?.fullname} from Rejected to Approved?`}
+                                                                        triggerLabel={<i className="bi bi-check-circle text-xl "></i>}
+                                                                        triggerClassName='hover:text-green-600 hover:bg-green-50'
                                                                         onConfirm={() => handleAction(data.id_leave, 'approved')}
                                                                     />
                                                                 )}
                                                                 <Modal
                                                                     mode='info' size='icon' variant='ghost' title='Leave Information'
-                                                                    description={`Status for ${data.name} is ${data.status}. Reason: ${data.reason || "No reason provided."}`}
+                                                                    description={`More Information Leave`}
                                                                     triggerLabel={<i className="bi bi-exclamation-circle text-xl "></i>}
-                                                                />
+                                                                    showFooter={false}
+                                                                >
+                                                                    <div className="grid grid-cols-2 grid-rows-1 gap-3">
+                                                                        <div className="flex flex-col gap-5">
+                                                                            <div className="flex flex-col gap-0.5">
+                                                                                <Label className="font-bold text-gray-500">Title</Label>
+                                                                                <h1>{data.title}</h1>
+                                                                            </div>
+                                                                            <div className="flex flex-col gap-0.5">
+                                                                                <Label className="font-bold text-gray-500">Type</Label>
+                                                                                <h1>{formatUppercase(data.leave_type)}</h1>
+                                                                            </div>
+                                                                            <div className="flex flex-col gap-0.5">
+                                                                                <Label className="font-bold text-gray-500">Start Leave</Label>
+                                                                                <h1>{formatDate(data.start_date)}</h1>
+                                                                            </div>
+                                                                            <div className="flex flex-col gap-0.5">
+                                                                                <Label className="font-bold text-gray-500">End Leave</Label>
+                                                                                <h1>{formatDate(data.end_date)}</h1>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="flex flex-col gap-5">
+                                                                            <div className="flex flex-col gap-0.5">
+                                                                                <Label className="font-bold text-gray-500">Leave Used</Label>
+                                                                                <h1>{data.total_days} Days</h1>
+                                                                            </div>
+                                                                            <div className="flex flex-col gap-0.5">
+                                                                                <Label className="font-bold text-gray-500">Reason Leave</Label>
+                                                                                <h1>{data.reason}</h1>
+                                                                            </div>
+                                                                            <div className="flex flex-col gap-0.5">
+                                                                                <Label className="font-bold text-gray-500">Status</Label>
+                                                                                <div className="flex items-center gap-1">
+                                                                                    <i className={`bi bi-circle-fill text-xs ${data.status === 'rejected' ? 'text-red-500' : data.status === 'approved' ? 'text-green-500' : 'text-gray-500'}`}></i>
+                                                                                    <div className="flex gap-1">
+                                                                                        <h1>{formatUppercase(data.status)}</h1>
+                                                                                        <h1>by {data.tb_leave_log?.tb_users?.fullname}</h1>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="flex flex-col gap-0.5">
+                                                                                <Label className="font-bold text-gray-500">Reason {data.status === 'rejected' ? 'Rejected' : data.status === 'approved' ? 'Approved' : ''}</Label>
+                                                                                <h1>{data.tb_leave_log?.reason}</h1>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </Modal>
                                                             </>
                                                         )}
                                                     </div>
@@ -330,7 +403,7 @@ const ListOfLeavePage = () => {
             <Notification
                 mode='failed'
                 show={showErrorNotification}
-                message={() => notifMessage}
+                message={() => actionMessage}
                 onClose={() => setShowErrorNotification(false)}
                 duration={5000}
             />

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import withAuth from "@/lib/auth/withAuth"
-import  Modal  from '@/app/components/Modal/Modal'; 
+import Modal from '@/app/components/Modal/Modal';
 import axiosInstance from "@/lib/api/axiosInstance";
 
 type UserSearchResult = {
@@ -20,13 +20,13 @@ const AmountLeavePage = () => {
   const [amountToAdd, setAmountToAdd] = useState<number>(0)
   const [total, setTotal] = useState(0)
   const [information, setInformation] = useState("")
-  
+
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [selectedUserName, setSelectedUserName] = useState("")
   const [userWasSelected, setUserWasSelected] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); 
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -73,11 +73,11 @@ const AmountLeavePage = () => {
     setCurrentBalance(user.leave_total || 0)
     setSearchResults([])
   }
-  
+
   const handleConfirmSubmit = async () => {
-    if (isSubmitting) return; 
+    if (isSubmitting) return;
     setIsSubmitting(true)
-    
+
     const payload = {
       adjustment_value: Number(amountToAdd),
       notes: information.trim()
@@ -85,9 +85,8 @@ const AmountLeavePage = () => {
 
     try {
       await axiosInstance.patch(`/users/${nik}/balance`, payload)
-      // Alih-alih menampilkan alert, langsung redirect dengan query parameter
       router.push('/admin/employee-list?success=true');
-      
+
     } catch (error: any) {
       console.error("Gagal memperbarui sisa cuti:", error)
       const errorMessage = error.response?.data?.message || "Terjadi kesalahan. Silakan coba lagi.";
@@ -96,8 +95,11 @@ const AmountLeavePage = () => {
       setIsSubmitting(false)
     }
   }
-  
+
   const isFormValid = nik && selectedUserName && amountToAdd > 0 && information.trim() !== '';
+  
+  // Flag untuk mendeteksi apakah form sudah diisi atau belum
+  const isDirty = nik.trim() !== '' || amountToAdd > 0 || information.trim() !== '';
 
   return (
     <div>
@@ -110,7 +112,7 @@ const AmountLeavePage = () => {
           </div>
 
           <div className="space-y-5">
-            {/* ... semua input field Anda ... */}
+            {/* Search NIK */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Search NIK</label>
               <div className="relative">
@@ -157,6 +159,7 @@ const AmountLeavePage = () => {
               )}
             </div>
 
+            {/* Add How Much & Current Balance */}
             <div className="flex flex-col md:flex-row gap-6">
               <div className="w-full md:w-1/2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Add How Much</label>
@@ -183,6 +186,7 @@ const AmountLeavePage = () => {
               </div>
             </div>
 
+            {/* Total */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Total</label>
               <input
@@ -193,6 +197,7 @@ const AmountLeavePage = () => {
               />
             </div>
 
+            {/* Information */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Information</label>
               <textarea
@@ -204,23 +209,38 @@ const AmountLeavePage = () => {
               ></textarea>
             </div>
 
+            {/* Action Buttons */}
             <div className="flex justify-between items-center mt-8">
-              <button
-                type="button"
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-800 font-semibold"
-                onClick={() => router.back()}
-              >
-                <i className="bi bi-box-arrow-in-left text-xl"></i>
-                Back
-              </button>
-              
+              {isDirty ? (
+                <Modal
+                  mode="confirm"
+                  title="Do you want to discard the changes?"
+                  onConfirm={() => router.back()}
+                  triggerLabel={
+                    <div className="flex items-center gap-2 text-gray-600 hover:text-gray-800 font-semibold cursor-pointer">
+                      <i className="bi bi-box-arrow-in-left text-xl"></i>
+                      Back
+                    </div>
+                  }
+                />
+              ) : (
+                <button
+                  type="button"
+                  className="flex items-center gap-2 text-gray-600 hover:text-gray-800 font-semibold"
+                  onClick={() => router.back()}
+                >
+                  <i className="bi bi-box-arrow-in-left text-xl"></i>
+                  Back
+                </button>
+              )}
+
               {isFormValid ? (
                 <Modal
                   mode="confirm"
                   title={`Are you sure you want to add ${amountToAdd} leaves for ${nik} - ${selectedUserName}?`}
                   triggerLabel={isSubmitting ? 'Submitting...' : 'Confirm'}
                   onConfirm={handleConfirmSubmit}
-                  variant="default" 
+                  variant="default"
                   triggerClassName="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-semibold shadow-md"
                 />
               ) : (

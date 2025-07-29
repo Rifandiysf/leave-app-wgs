@@ -115,8 +115,23 @@ export function DatePickerField({
                             setSelectedYear(newDate.getFullYear());
                         }}
                         onSelect={(date) => {
-                            onChange(date)
-                            setOpen(false)
+                            if (date) {
+                                const day = date.getDay()
+                                if (day !== 0 && day !== 6) {
+                                    onChange(date)
+                                    setOpen(false)
+                                }
+                            }
+                        }}
+                        disabled={(date) => {
+                            const day = date.getDay()
+                            return day === 0 || day === 6
+                        }}
+                        modifiers={{
+                            weekend: (date) => date.getDay() === 0 || date.getDay() === 6,
+                        }}
+                        modifiersClassNames={{
+                            weekend: "text-red-700",
                         }}
                     />
                 </PopoverContent>

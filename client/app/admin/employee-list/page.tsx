@@ -172,7 +172,7 @@ const EmployeeListContent = () => {
                 </div>
             </section>
 
-            <section className="relative p-3 min-h-[calc(100dvh-137px)]">
+            <section className="relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
                 <div className="max-sm:overflow-x-scroll">
                     <table className="w-full text-base text-center">
                         <thead className="text-black bg-[#F0f4f9] backdrop-blur-sm">
@@ -198,7 +198,14 @@ const EmployeeListContent = () => {
                                         ))}
                                     </tr>
                                 ))
-                            ) : (
+                            ) :
+                             dataLeave.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="p-4 text-center text-gray-500">
+                                        No Data User Found.
+                                    </td>
+                                </tr>
+                            ) :  (
                                 dataLeave.map((data) => (
                                     <tr key={data.nik} className="odd:bg-[#e8efff] even:bg-[#f8faff]">
                                         <td className="p-3">{data.nik}</td>

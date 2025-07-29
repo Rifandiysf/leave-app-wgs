@@ -28,7 +28,7 @@ export default function withAuth<P extends JSX.IntrinsicAttributes>(
                 const payload = JSON.parse(atob(token.split('.')[1])) // decode JWT
                 const role = payload?.role
 
-                if (options?.requireAdmin && role !== 'admin') {
+                if (options?.requireAdmin && role !== 'admin' && role !== 'super_admin') {
                     router.replace('/unauthorized')
                 }
             } catch (err) {

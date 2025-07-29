@@ -147,7 +147,7 @@ const HistoryPage = () => {
     }
 
     return (
-        <section className="flex flex-col relative p-3 min-h-[calc(100dvh-137px)]">
+        <section className="flex flex-col relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
             <div className='flex justify-end items-center gap-3 mb-4'>
                 <div className="flex max-sm:w-full">
                     <input
