@@ -183,7 +183,7 @@ const UserDashboard = () => {
                   <div className="text-4xl sm:text-5xl md:text-9xl font-bold text-blue-800 mb-0.5 sm:mb-1">
                     {item.count}
                   </div>
-                  <div className="w-6 h-1 bg-blue-600 rounded-full ml-auto"></div>
+                  <div className={`h-1 bg-blue-600 rounded-full ml-auto ${item.count >= 10 ? 'w-30' : 'w-20'}`}></div>
                 </div>
               </div>
               <div>
