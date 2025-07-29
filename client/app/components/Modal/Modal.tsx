@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useState } from "react"
+import { ReactNode, useEffect, useState } from "react"
 import { Button } from "@/app/components/ui/button"
 import {
     Dialog,
@@ -44,11 +44,23 @@ export function Modal({
     onConfirm,
 }: ModalTypeProps) {
     const [rejectionReason, setRejectionReason] = useState('')
-    const [open, setOpen] = useState(false) // ✅ Tambahkan state kontrol open
+    const [rejectionReasonError, setRejectionReasonErorr] = useState('')
+    const [open, setOpen] = useState(false)
+
+    useEffect(() => {
+        if (!open) {
+            setRejectionReasonErorr("")
+        }
+    }, [open])
 
     const handleConfirm = (reason?: string) => {
-        onConfirm?.(reason)
-        setOpen(false)
+        if (mode === 'reject' && !reason?.trim()) {
+            setRejectionReasonErorr("Reason cannot be empty.");
+            return;
+        }
+
+        onConfirm?.(reason);
+        setOpen(false);
     }
 
     const TriggerButton = () => (
@@ -118,8 +130,14 @@ export function Modal({
                         id="reason-reject"
                         placeholder="Brief reason for rejection"
                         value={rejectionReason}
-                        onChange={(e) => setRejectionReason(e.target.value)}
+                        onChange={(e) => {
+                            setRejectionReason(e.target.value)
+                        }}
+                        className={rejectionReasonError && 'border-red-400'}
                     />
+                    {rejectionReasonError && (
+                        <p className="text-sm text-red-600 mt-1">{rejectionReasonError}</p>
+                    )}
                 </div>
                 <DialogFooter>
                     <DialogClose asChild>
