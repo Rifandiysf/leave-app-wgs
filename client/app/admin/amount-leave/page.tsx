@@ -9,8 +9,8 @@ import axiosInstance from "@/lib/api/axiosInstance";
 type UserSearchResult = {
   nik: string;
   name: string;
-  leave_total?: number;
-  leave_total_last_year?: number;
+  this_year_leave: number;
+  last_year_leave: number;
 };
 
 const AmountLeavePage = () => {
@@ -84,8 +84,8 @@ const AmountLeavePage = () => {
     setNik(user.nik);
     setSelectedUserName(user.name);
 
-    const thisYearBal = user.leave_total || 0;
-    const lastYearBal = user.leave_total_last_year || 0;
+    const thisYearBal = user.this_year_leave || 0;
+    const lastYearBal = user.last_year_leave || 0;
     setThisYearBalance(thisYearBal);
     setLastYearBalance(lastYearBal);
 
@@ -97,11 +97,12 @@ const AmountLeavePage = () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
+    // FIX: Payload disederhanakan dengan menghapus 'year'
+    // Kita hanya mengandalkan 'leave_type' yang lebih eksplisit
     const payload = {
       adjustment_value: Number(amountToAdd),
       notes: information.trim(),
-      year: selectedYear,
-      leave_type: selectedYear === "2024" ? "last_year" : "this_year"
+      leave_type: selectedYear === "2024" ? "last_year_leave" : "this_year_leave"
     };
 
     try {
