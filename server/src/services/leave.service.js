@@ -388,12 +388,14 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
             tb_leave_log: latestLog
                 ? {
                     reason: latestLog.reason,
+                    balances_used: latestLog.balances_used,
                     tb_users: {
                         fullname: latestLog.tb_users?.fullname || "-"
                     }
                 }
                 : {
                     reason: "-",
+                    balances_used: "-"  ,
                     tb_users: {
                         fullname: "-"
                     }
