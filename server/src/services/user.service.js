@@ -260,7 +260,10 @@ export const getAllUsers = async (page, limit, search = '', gender = '', status 
             ...(gender ? [{ gender: gender }] : []),
             ...(status ? [{ status_active: status }] : []),
             ...(role ? [{ role: role }] : [])
-        ]
+        ],
+        NOT: {
+                    role: "magang"
+        }
     };
 
     const users = await prisma.tb_users.findMany({
