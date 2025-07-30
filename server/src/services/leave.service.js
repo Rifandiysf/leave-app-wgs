@@ -516,7 +516,7 @@ export const updateLeaveBalance = async (user) => {
             receiveDate.setHours(12, 0, 0, 0); 
             
             const expiredDate = new Date(receiveDate);
-            expiredDate.setFullYear(receiveDate.getFullYear() + 2);
+            expiredDate.setFullYear(receiveDate.getFullYear() + 2, 0, 1);
 
             await prisma.$transaction([
                 prisma.tb_balance.create({
@@ -586,7 +586,7 @@ export const updateLeaveBalance = async (user) => {
                 receiveDate.setHours(12, 0, 0, 0);
                 
                 const expiredDate = new Date(receiveDate);
-                expiredDate.setFullYear(receiveDate.getFullYear() + 2);
+                expiredDate.setFullYear(receiveDate.getFullYear() + 2, 0, 1);
 
                 if (!existingBalance) {
                     // Create new balance record
