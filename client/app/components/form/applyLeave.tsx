@@ -57,7 +57,7 @@ export function ApplyLeave() {
         if (leaveType === 'special_leave') {
             const token = localStorage.getItem('token');
             const deviceId = localStorage.getItem('device-id');
-            fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/special`, {
+            fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/special`, {
                 headers: {
                     'Content-Type': 'application/json',
                     ...(token && { Authorization: `${token}` }),
@@ -201,6 +201,7 @@ export function ApplyLeave() {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                     <Button className="w-full px-4 sm:px-8 py-2 sm:py-4 bg-white text-blue-900 font-semibold hover:bg-blue-50 hover:shadow-lg transition-all duration-300 rounded-xl border-0 text-sm sm:text-lg">
+                        <i className="bi bi-calendar-event-fill" />
                         Apply For Leave
                     </Button>
                 </DialogTrigger>
@@ -330,7 +331,7 @@ export function ApplyLeave() {
                             <Button type="submit" className='bg-blue-600 hover:bg-blue-400 cursor-pointer' disabled={isLoading}>
                                 {isLoading ? (
                                     <>
-                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <svg className="animate-spin ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.37 0 0 5.37 0 12h4zm2 5.29A7.96 7.96 0 014 12H0c0 3.04 1.14 5.82 3 7.94l3-2.65z" />
                                         </svg>

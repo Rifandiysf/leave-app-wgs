@@ -43,10 +43,10 @@ const EmployeeListContent = () => {
     const [isLoading, setIsLoading] = useState(true);
     const ITEMS_PER_PAGE = 7;
 
-    const [searchTerm, setSearchTerm] = useState('');
-    const [genderFilter, setGenderFilter] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
-    const [roleFilter, setRoleFilter] = useState('');
+    const [searchTerm, setSearchTerm] = useState<string>("");
+    const [genderFilter, setGenderFilter] = useState<string | null>(null);
+    const [statusFilter, setStatusFilter] = useState<string | null>(null);
+    const [roleFilter, setRoleFilter] = useState<string | null>(null);
 
     const [showSuccess, setShowSuccess] = useState(false);
 
@@ -152,18 +152,21 @@ const EmployeeListContent = () => {
                         />
                     </div>
                     <div className="flex gap-3">
-                        <SelectDemo placeholder="Gender" value={genderFilter} onValueChange={setGenderFilter}>
+                        <SelectDemo placeholder="Gender" onValueChange={(value) => setGenderFilter(value === 'all' ? null : value)}>
                             <SelectLabel>Gender</SelectLabel>
+                            <SelectItem value="all">All</SelectItem>
                             <SelectItem value="male">Male</SelectItem>
                             <SelectItem value="female">Female</SelectItem>
                         </SelectDemo>
-                        <SelectDemo placeholder="Status" value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectDemo placeholder="Status" onValueChange={(value) => setStatusFilter(value === 'all' ? null : value)}>
                             <SelectLabel>Status</SelectLabel>
+                            <SelectItem value="all">All</SelectItem>
                             <SelectItem value="active">Active</SelectItem>
                             <SelectItem value="resign">Resign</SelectItem>
                         </SelectDemo>
-                        <SelectDemo placeholder="Role" value={roleFilter} onValueChange={setRoleFilter}>
+                        <SelectDemo placeholder="Role"  onValueChange={(value) => setRoleFilter(value === 'all' ? null : value)}>
                             <SelectLabel>Role</SelectLabel>
+                            <SelectItem value="all">All</SelectItem>
                             <SelectItem value="karyawan_kontrak">Karyawan Kontrak</SelectItem>
                             <SelectItem value="karyawan_tetap">Karyawan Tetap</SelectItem>
                             <SelectItem value="magang">Magang</SelectItem>
@@ -172,7 +175,7 @@ const EmployeeListContent = () => {
                 </div>
             </section>
 
-            <section className="relative p-3 min-h-[calc(100dvh-137px)]">
+            <section className="relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
                 <div className="max-sm:overflow-x-scroll">
                     <table className="w-full text-base text-center">
                         <thead className="text-black bg-[#F0f4f9] backdrop-blur-sm">
@@ -198,7 +201,14 @@ const EmployeeListContent = () => {
                                         ))}
                                     </tr>
                                 ))
-                            ) : (
+                            ) :
+                             dataLeave.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="p-4 text-center text-gray-500">
+                                        No Data User Found.
+                                    </td>
+                                </tr>
+                            ) :  (
                                 dataLeave.map((data) => (
                                     <tr key={data.nik} className="odd:bg-[#e8efff] even:bg-[#f8faff]">
                                         <td className="p-3">{data.nik}</td>

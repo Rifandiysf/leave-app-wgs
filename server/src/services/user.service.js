@@ -158,11 +158,11 @@ export const getLeavesByFilterService = async (NIK, type, status, value, page, l
     }
 
     if (status) {
-        const allowedStatus = ['pending', 'approved', 'reject'];
+        const allowedStatus = ['pending', 'approved', 'rejected'];
         const lowerStatus = status.toLowerCase();
 
         if (!allowedStatus.includes(lowerStatus)) {
-            throw new Error('Invalid leave status. Allowed: pending, approved, reject');
+            throw new Error('Invalid leave status. Allowed: pending, approved, rejected');
         }
 
         whereClause.status = lowerStatus;
@@ -260,7 +260,10 @@ export const getAllUsers = async (page, limit, search = '', gender = '', status 
             ...(gender ? [{ gender: gender }] : []),
             ...(status ? [{ status_active: status }] : []),
             ...(role ? [{ role: role }] : [])
-        ]
+        ],
+        NOT: {
+                    role: "magang"
+        }
     };
 
     const users = await prisma.tb_users.findMany({
@@ -368,8 +371,8 @@ export const getUserByNIK = async (nik) => {
         }
 
         const { tb_balance, NIK, fullname, gender, status_active } = user;
-        const currentBalance = tb_balance[0] ? tb_balance[0].amount : 0;
-        const lastYearBalance = tb_balance.slice(1).reduce((sum, bal) => sum + bal.amount, 0);
+        const currentBalance = tb_balance.filter((bal) => new Date().getFullYear() === bal.receive_date.getFullYear()).reduce((sum, bal) => sum + bal.amount, 0) ?? 0;
+        const lastYearBalance = tb_balance.filter((bal) => new Date().getFullYear() !== bal.receive_date.getFullYear()).reduce((sum, bal) => sum + bal.amount, 0) ?? 0;
         let maxReceiveAmount = user.role === "karyawan_kontrak" ? 1 : 12;
 
         const pending_request = await prisma.tb_leave.aggregate({
@@ -398,13 +401,15 @@ export const getUserByNIK = async (nik) => {
                     gte: currentDateFirstMonth,
                     lte: currentDate,
                 },
-                NIK: nik,
+                NIK: NIK,
                 status: "approved",
                 leave_type: {
                     in: ["personal_leave", "mandatory_leave"]
                 }
             },
         });
+
+        console.log('adasd', pending_request._sum.total_days);
 
         const userCopy = {
             NIK: NIK,
@@ -475,44 +480,73 @@ export const deleteUserByNIK = async (nik) => {
 
 }
 
-export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, targetRole, targetYear = new Date().getFullYear()) => {
-    if (adjustment_value < 0) {
-        throw new Error('Adjustment value must not be negative');
+export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, targetRole, leave_type) => {
+    if (!leave_type || (leave_type !== 'this_year_leave' && leave_type !== 'last_year_leave')) {
+        throw new Error("Parameter 'leave_type' harus 'this_year_leave' atau 'last_year_leave'");
     }
-
+    if (adjustment_value <= 0) {
+        throw new Error('Adjustment value must be positive');
+    }
     if (actor?.nik === nik) {
         throw new Error('You are not allowed to add your own leave balance');
     }
-
     if (targetRole === 'magang') {
-        throw new Error('Cannot adjust leave balance for intern')
+        throw new Error('Cannot adjust leave balance for intern');
     }
+
+    const currentYear = new Date().getFullYear();
+    const targetYear = (leave_type === 'last_year_leave') 
+        ? currentYear - 1 
+        : currentYear;
 
     let balance;
 
     if (targetRole === 'karyawan_kontrak') {
         balance = await prisma.tb_balance.findFirst({
-            where : {NIK : nik},
-            orderBy : {receive_date : 'desc'}
-        })
+            where: {
+                NIK: nik,
+                receive_date: {
+                    gte: new Date(`${targetYear}-01-01`),
+                    lte: new Date(`${targetYear}-12-31`),
+                }
+            },
+            orderBy: { receive_date: 'desc' }
+        });
     } else {
-        const thisYear = new Date().getFullYear()
-
-        const startOfYear = new Date(`${targetYear}-01-01`)
-        const endOfYear = new Date(`${targetYear}-12-31`)
+        const startOfYear = new Date(`${targetYear}-01-01`);
+        const endOfYear = new Date(`${targetYear}-12-31`);
         balance = await prisma.tb_balance.findFirst({
-        where : {
-            NIK: nik, 
-            receive_date: {
-                gte: startOfYear,
-                lte: endOfYear
+            where: {
+                NIK: nik,
+                receive_date: {
+                    gte: startOfYear,
+                    lte: endOfYear
+                }
             }
-        }
-    })
+        });
     }
-    
-    if(!balance) {
-        throw new Error(`Balance for year ${targetYear} not found`)
+
+    if (!balance) {
+        const newBalanceData = {
+            NIK: nik,
+            amount: adjustment_value,
+            receive_date: new Date(`${targetYear}-01-01`), 
+            expired_date: new Date(`${targetYear + 1}-03-31`),
+        };
+
+        const [newBalance, adjustmentLog] = await prisma.$transaction([
+            prisma.tb_balance.create({ data: newBalanceData }),
+            prisma.tb_balance_adjustment.create({
+                data: {
+                    adjustment_value,
+                    notes,
+                    actor: actor.role,
+                    NIK: nik,
+                    created_at: new Date()
+                }
+            })
+        ]);
+        return [newBalance, adjustmentLog];
     }
 
     const updatedAmount = await prisma.$transaction([
@@ -524,7 +558,6 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
                 }
             }
         }),
-
         prisma.tb_balance_adjustment.create({
             data: {
                 adjustment_value,
@@ -534,7 +567,7 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
                 created_at: new Date()
             }
         })
-    ])
+    ]);
 
-    return updatedAmount
-}
+    return updatedAmount;
+};

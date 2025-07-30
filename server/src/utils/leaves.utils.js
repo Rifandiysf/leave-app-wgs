@@ -1,17 +1,21 @@
 import prisma from "./client.js";
 
-export const createDateFromString = (dateString) => {
-    if (dateString instanceof Date) {
-        dateString = dateString.toISOString().split('T')[0];
+export const createDateFromString = (dateInput) => {
+    if (dateInput instanceof Date) {
+        const year = dateInput.getFullYear();
+        const month = dateInput.getMonth();
+        const day = dateInput.getDate();
+        return new Date(Date.UTC(year, month, day));
     }
-    
-    const parts = dateString.split('-');
+
+    const parts = dateInput.split('-');
     const year = parseInt(parts[0]);
-    const month = parseInt(parts[1]) - 1;
+    const month = parseInt(parts[1]) - 1; 
     const day = parseInt(parts[2]);
-    
+
     return new Date(Date.UTC(year, month, day));
 };
+
 
 export const calculateHolidaysDays = (startDate, endDate) => {
     let workingDays = 0;
@@ -51,6 +55,24 @@ export const getUserLeaveBalance = async (NIK) => {
     });
 
     return activeBalance._sum.amount || 0;
+};
+
+export const getUserCurrentYearLeaveBalance = async (NIK) => {
+    const currentDate = new Date();
+
+    const latestBalance = await prisma.tb_balance.findFirst({
+        where: {
+            NIK: NIK,
+            expired_date: {
+                gte: currentDate
+            }
+        },
+        orderBy: {
+            expired_date: "desc"
+        }
+    });
+
+    return latestBalance?.amount || 0;
 };
 
 

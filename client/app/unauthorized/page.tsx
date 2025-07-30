@@ -7,7 +7,7 @@ export default function UnauthorizedPage() {
     return (
         <main>
             <div className="flex justify-center items-center flex-col gap-3 min-h-screen">
-                <h1 className="text-2xl font-bold">401 - Unauthorized</h1>
+                <h1 className="text-2xl font-bold">403 - Forbidden</h1>
                 <p className="text-lg font-medium">Access Denied</p>
                 <button 
                     onClick={() => router.back()}

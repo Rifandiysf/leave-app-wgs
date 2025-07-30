@@ -1,13 +1,28 @@
+import { createDateFromString } from "../utils/leaves.utils.js"
+
 export const validateStartDate = (req, res, next) => {
     const { start_date } = req.body
 
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    const startDate = createDateFromString(start_date)
+    const today = createDateFromString(new Date())
 
-    if (start_date <= today) {
-        const error = new Error("The start date must be later than today.");
+    if (startDate.getTime() === today.getTime()) {
+        const error = new Error("Leave cannot be requested for today. Please request leave at least one day in advance.")
+        error.status = 400;
+        return next(error)
+    }
+    if (startDate.getTime() < today.getTime()) {
+        const error = new Error("The leave start date cannot be in the past. Please select a future date.");
         error.status = 400;
         return next(error);
+    }
+
+    const yearDiff = startDate.getFullYear() - today.getFullYear()
+
+    if(yearDiff > 1){
+        const error = new Error("you can't apply for leave two years or more in advance.")
+        error.status = 400
+        return next(error)
     }
 
     next()

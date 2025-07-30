@@ -13,9 +13,11 @@ type UserDashboardData = {
     total_amount: number;
     current_amount: number;
     carried_amount: number;
-    days_used: number;
     pending_request: number;
   };
+  leave: {
+    total_days: number;
+  }
 };
 
 const DashboardSkeleton = () => (
@@ -29,7 +31,7 @@ const DashboardSkeleton = () => (
       <div className="h-36 bg-gray-200 rounded-lg sm:rounded-2xl animate-pulse"></div>
     </div>
     <div className="space-y-6 pb-24">
-     <div className="h-48 bg-gray-200 rounded-lg sm:rounded-2xl animate-pulse"></div>
+      <div className="h-48 bg-gray-200 rounded-lg sm:rounded-2xl animate-pulse"></div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
         <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
@@ -43,6 +45,7 @@ const DashboardSkeleton = () => (
 const UserDashboard = () => {
   const [userData, setUserData] = useState<UserDashboardData | null>(null);
   const [pendingCount, setPendingCount] = useState(0);
+  const [usedDays, setUsedDays] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,32 +80,46 @@ const UserDashboard = () => {
           })
         ]);
 
-        if (!dashboardResponse.ok || !allLeavesResponse.ok) {
-          throw new Error("Failed to fetch all required dashboard data");
-        }
-
-        const dashboardJson = await dashboardResponse.json();
-        const allLeavesJson = await allLeavesResponse.json();
-
-        setUserData(dashboardJson.data);
-
-        const allUserLeaves = allLeavesJson?.data || [];
-
-        const pendingForUser = allUserLeaves.filter(
-          (leave: { status: string }) => leave.status?.toLowerCase() === 'pending'
-        );
-        setPendingCount(pendingForUser.length);
-
-      } catch (err: any) {
-        setError(err.message);
-        console.error("Error fetching dashboard data:", err);
-      } finally {
-        setIsLoading(false);
+         if (!dashboardResponse.ok || !allLeavesResponse.ok) {
+        throw new Error("Failed to fetch all required dashboard data");
       }
-    };
 
-    fetchUserDashboardData();
-  }, []);
+      const dashboardJson = await dashboardResponse.json();
+      const allLeavesJson = await allLeavesResponse.json();
+
+      setUserData(dashboardJson.data);
+
+      const allUserLeaves = allLeavesJson?.data || [];
+
+      // Calculate pending requests (existing logic)
+      const pendingForUser = allUserLeaves.filter(
+        (leave: { status: string }) => leave.status?.toLowerCase() === 'pending'
+      );
+      setPendingCount(pendingForUser.length);
+
+      // --- START: MODIFIED LOGIC ---
+      // Calculate total days used from approved leaves
+      const approvedLeaves = allUserLeaves.filter(
+        (leave: { status: string }) => leave.status?.toLowerCase() === 'approved'
+      );
+      
+      const totalUsedDays = approvedLeaves.reduce(
+        (sum: number, leave: { total_days: number }) => sum + (leave.total_days || 0),
+        0
+      );
+      setUsedDays(totalUsedDays);
+      // --- END: MODIFIED LOGIC ---
+
+    } catch (err: any) {
+      setError(err.message);
+      console.error("Error fetching dashboard data:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchUserDashboardData();
+}, []);
 
 
 
@@ -139,10 +156,10 @@ const UserDashboard = () => {
       label: "Pending Requests"
     },
     {
-      icon: "bi-check-circle-fill",
-      count: userData?.balance.days_used || 0,
-      label: "Days Used"
-    }
+    icon: "bi-check-circle-fill",
+    count: usedDays, 
+    label: "Days Used"
+  }
   ];
 
   return (
@@ -183,7 +200,7 @@ const UserDashboard = () => {
                   <div className="text-4xl sm:text-5xl md:text-9xl font-bold text-blue-800 mb-0.5 sm:mb-1">
                     {item.count}
                   </div>
-                  <div className="w-6 h-1 bg-blue-600 rounded-full ml-auto"></div>
+                  <div className={`h-1 bg-blue-600 rounded-full ml-auto ${item.count >= 10 ? 'w-30' : 'w-20'}`}></div>
                 </div>
               </div>
               <div>
@@ -207,10 +224,12 @@ const UserDashboard = () => {
               <h2 className="text-base sm:text-2xl md:text-3xl font-bold text-blue-900 mb-2 sm:mb-3">
                 Ready to take a break?
               </h2>
+               
               <p className="text-gray-600 mb-4 sm:mb-8 text-xs sm:text-base">
+                
                 Submit your leave request and we’ll process it for you
               </p>
-              <ApplyLeave/>
+              <ApplyLeave />
             </div>
           </div>
         </Card>
