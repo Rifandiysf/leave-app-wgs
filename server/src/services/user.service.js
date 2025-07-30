@@ -158,11 +158,11 @@ export const getLeavesByFilterService = async (NIK, type, status, value, page, l
     }
 
     if (status) {
-        const allowedStatus = ['pending', 'approved', 'reject'];
+        const allowedStatus = ['pending', 'approved', 'rejected'];
         const lowerStatus = status.toLowerCase();
 
         if (!allowedStatus.includes(lowerStatus)) {
-            throw new Error('Invalid leave status. Allowed: pending, approved, reject');
+            throw new Error('Invalid leave status. Allowed: pending, approved, rejected');
         }
 
         whereClause.status = lowerStatus;

@@ -213,13 +213,14 @@ const ListOfLeavePage = () => {
                                 />
                             </div>
                             {viewMode === 'requests' ? (
-                                <Select onValueChange={(value) => setLeaveType(value)}>
+                                <Select onValueChange={(value) => setLeaveType(value === 'all' ? null : value)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Type leave" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectGroup>
                                             <SelectLabel>Type Leave</SelectLabel>
+                                            <SelectItem value="all">All</SelectItem>
                                             <SelectItem value="personal_leave">Personal</SelectItem>
                                             <SelectItem value="special_leave">Special</SelectItem>
                                         </SelectGroup>
@@ -227,25 +228,27 @@ const ListOfLeavePage = () => {
                                 </Select>
                             ) : (
                                 <>
-                                    <Select onValueChange={(value) => setStatus(value)}>
+                                    <Select onValueChange={(value) => setStatus(value === 'all' ? null : value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Status" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectGroup>
                                                 <SelectLabel>Type Leave</SelectLabel>
+                                                <SelectItem value="all">All</SelectItem>
                                                 <SelectItem value="approved">Approved</SelectItem>
                                                 <SelectItem value="rejected">Rejected</SelectItem>
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
-                                    <Select onValueChange={(value) => setLeaveType(value)}>
+                                    <Select onValueChange={(value) => setLeaveType(value === 'all' ? null : value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Type leave" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectGroup>
                                                 <SelectLabel>Type Leave</SelectLabel>
+                                                <SelectItem value="all">All</SelectItem>
                                                 <SelectItem value="personal_leave">Personal</SelectItem>
                                                 <SelectItem value="special_leave">Special</SelectItem>
                                             </SelectGroup>

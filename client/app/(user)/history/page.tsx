@@ -14,6 +14,7 @@ import Modal from "@/app/components/Modal/Modal"
 import { formatDate, formatUppercase } from "@/lib/format"
 import withAuth from "@/lib/auth/withAuth"
 import { Label } from "@/app/components/ui/label"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/app/components/ui/select"
 
 type LeaveHistoryType = {
     id_leave: string
@@ -59,6 +60,8 @@ const HistoryPage = () => {
             per_page: 10
         }
     })
+    const [status, setStatus] = useState<string | null>(null)
+    const [leaveType, setLeaveType] = useState<string | null>(null)
     const [search, setSearch] = useState("")
     const [debouncedSearch, setDebouncedSearch] = useState("")
 
@@ -73,16 +76,25 @@ const HistoryPage = () => {
         }
     }, [search])
 
-    const fetchHistoryLeaves = useCallback(async (page: number, searchTerm: string) => {
+    const fetchHistoryLeaves = useCallback(async (
+        page: number,
+        searchTerm: string,
+        selectedType?: string | null,
+        selectedStatus?: string | null
+    ) => {
         setIsLoading(true)
         try {
-            let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/leave`
+            const params = new URLSearchParams();
+            if (selectedType) params.append("type", selectedType);
+            if (selectedStatus) params.append("status", selectedStatus);
+
+            let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/leave/search?value=&${params.toString()}&`
 
             if (searchTerm) {
                 url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/leave/search?value=${searchTerm}`
             }
 
-            url += `${searchTerm ? '&' : '?'}page=${page}&limit=${itemPerPage}`
+            url += `${searchTerm && '&'}page=${page}&limit=${itemPerPage}`
 
             const token = localStorage.getItem('token');
             const deviceId = localStorage.getItem('device-id');
@@ -101,7 +113,6 @@ const HistoryPage = () => {
             }
 
             const result = await res.json()
-            console.log(result.data?.tb_leave_log?.tb_users?.fullname)
 
             setDataHitoryLeave(result.data)
             setPaginationInfo(result.pagination)
@@ -124,8 +135,8 @@ const HistoryPage = () => {
     }, [debouncedSearch])
 
     useEffect(() => {
-        fetchHistoryLeaves(currentPage, debouncedSearch)
-    }, [currentPage, fetchHistoryLeaves, debouncedSearch])
+        fetchHistoryLeaves(currentPage, debouncedSearch, leaveType, status)
+    }, [currentPage, fetchHistoryLeaves, debouncedSearch, leaveType, status])
 
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= paginationInfo.last_visible_page) {
@@ -158,6 +169,34 @@ const HistoryPage = () => {
                         className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                 </div>
+                <Select onValueChange={(value) => setStatus(value === 'all' ? null : value)}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectLabel>Status Leave</SelectLabel>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="approved">Approved</SelectItem>
+                            <SelectItem value="rejected">Rejected</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+                <Select onValueChange={(value) => setLeaveType(value === 'all' ? null : value)}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Type leave" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectLabel>Type Leave</SelectLabel>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="personal">Personal</SelectItem>
+                            <SelectItem value="mandatory">Mandatory</SelectItem>
+                            <SelectItem value="special">Special</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
             </div>
 
             <div className="w-full">
