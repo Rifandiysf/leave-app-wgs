@@ -531,7 +531,7 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
             NIK: nik,
             amount: adjustment_value,
             receive_date: new Date(`${targetYear}-01-01`), 
-            expired_date: new Date(`${targetYear + 1}-03-31`),
+            expired_date: new Date(`${targetYear + 2}-01-01`),
         };
 
         const [newBalance, adjustmentLog] = await prisma.$transaction([
