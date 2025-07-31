@@ -55,11 +55,9 @@ const UserDashboard = () => {
       setError(null);
 
       try {
-        const token = localStorage.getItem('token');
-        const deviceId = localStorage.getItem('device-id');
         const userString = localStorage.getItem('user');
 
-        if (!userString || !token) {
+        if (!userString) {
           throw new Error("User data or token not found. Please log in again.");
         }
 
@@ -72,12 +70,12 @@ const UserDashboard = () => {
         const [dashboardResponse, allLeavesResponse] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${nik}`, {
             method: 'GET',
-            headers: { 'Authorization': `${token}`, 'device-id': deviceId || '' },
+            // headers: { 'Authorization': `${token}`, 'device-id': deviceId || '' },
             credentials: "include"
           }),
           fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/leave?limit=1000`, {
             method: 'GET',
-            headers: { 'Authorization': `${token}`, 'device-id': deviceId || '' },
+            // headers: { 'Authorization': `${token}`, 'device-id': deviceId || '' },
             credentials: "include"
           })
         ]);

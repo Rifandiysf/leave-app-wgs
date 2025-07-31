@@ -37,7 +37,7 @@ export const login = async (req, res, next) => {
 
         const newToken = await generateToken(userData, deviceData);
 
-        res.cookie('Authorization', `Bearer ${newToken}`);
+        res.cookie('Authorization', newToken);
         res.cookie('device-id', deviceId);
         res.status(200).json({
             success: true,

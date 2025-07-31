@@ -1,7 +1,7 @@
 'use client'
 
 import 'bootstrap-icons/font/bootstrap-icons.css'
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "../../components/ui/button"
 import {
@@ -27,15 +27,6 @@ const LoginPage = () => {
     const [generalError, setGeneralError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
 
-    // useEffect(() => {
-    //     const getCookies = async () => {
-    //         const res = await fetch('/api/me');
-    //         const data = await res.json();
-    //         console.log('Cookies:', data); // { token, deviceId }
-    //     };
-
-    //     getCookies();
-    // }, []);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -59,7 +50,8 @@ const LoginPage = () => {
         setIsLoading(true)
 
         try {
-            const res = await fetch('/api/auth/login', {
+            const token = Cookies.get('Authorization')
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include', // penting agar cookie dikirim
@@ -74,8 +66,9 @@ const LoginPage = () => {
                 return
             }
 
-            // Cookie sudah diset oleh API → kamu bisa redirect
-            router.push('/')
+            setTimeout(() => {
+                router.push('/')
+            },500)
         } catch (err) {
         console.error("Login error:", err)
         setGeneralError("Terjadi kesalahan, coba beberapa saat lagi")

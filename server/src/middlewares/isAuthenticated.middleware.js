@@ -4,13 +4,13 @@ import { deleteToken } from '../services/auth.service.js';
 import { decodeToken, verifyToken } from '../utils/jwt.js';
 
 export const isAuthenticated = async (req, res, next) => {
-    const header = req.get("authorization");
-    const token = header?.split(' ')[1];
-    const deviceId = req.get("device-id");
+    // const header = req.get("authorization");
+    const token = req.cookies.Authorization;
+    const deviceId = req.cookies['device-id'];
     
     try {
         if (!deviceId || !token) {
-            throw new Error("Authorization header not found");
+            throw new Error("Authorization token or device ID cookie not found");
         }
 
         const decodedToken = await decodeToken(token);
