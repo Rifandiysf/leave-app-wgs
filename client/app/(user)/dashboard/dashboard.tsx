@@ -73,10 +73,12 @@ const UserDashboard = () => {
           fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${nik}`, {
             method: 'GET',
             headers: { 'Authorization': `${token}`, 'device-id': deviceId || '' },
+            credentials: "include"
           }),
           fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/leave?limit=1000`, {
             method: 'GET',
             headers: { 'Authorization': `${token}`, 'device-id': deviceId || '' },
+            credentials: "include"
           })
         ]);
 
@@ -258,4 +260,4 @@ const UserDashboard = () => {
   )
 }
 
-export default withAuth(UserDashboard)
+export default UserDashboard /*withAuth()*/

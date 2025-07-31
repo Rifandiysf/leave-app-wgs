@@ -56,4 +56,4 @@ const MandatoryPage = () => {
     )
 }
 
-export default withAuth(MandatoryPage)
+export default MandatoryPage /*withAuth()*/

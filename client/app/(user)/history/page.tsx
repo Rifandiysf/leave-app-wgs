@@ -347,4 +347,4 @@ const HistoryPage = () => {
     )
 }
 
-export default withAuth(HistoryPage)
+export default HistoryPage /*withAuth()*/

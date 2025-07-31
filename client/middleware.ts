@@ -2,24 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 
 
 export default function middleware(request: NextRequest) {
-    // const session = sessionStorage.getItem('user')
-    // const { pathname } = request.nextUrl
+    const { pathname } = request.nextUrl
 
-    // console.log(session)
-    // const isLoginPage = pathname === '/auth/login'
-    // const isPublicPath = isLoginPage
+    const protectedRoutes = ['/', '/history', '/mandatory'];
 
-    // if (!session && isPublicPath) {
-    //     return NextResponse.redirect(new URL('/auth/login', request.url))
-    // }
+    if (protectedRoutes.includes(pathname)) {
+        
+        const authToken = request.cookies.get('Authorization')?.value;
 
-    // if (session && isPublicPath) {
-    //     return NextResponse.redirect(new URL('/', request.url))
-    // }
-
-    // if (pathname.startsWith('/admin') && session !== 'admin') {
-    //     return NextResponse.redirect(new URL('/', request.url))
-    // }
+        if (!authToken) {
+            const url = new URL('/auth/login', request.url);
+            return NextResponse.redirect(url);
+        }
+    }
 
     return NextResponse.next()
 }
@@ -27,5 +22,8 @@ export default function middleware(request: NextRequest) {
 export const config = {
     matcher: [
         '/((?!api|_next/static|_next/image|favicon.ico|logo.png|images|fonts).*)',
+        '/', 
+        '/history', 
+        '/mandatory'
     ],
 };
