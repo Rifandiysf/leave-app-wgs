@@ -37,8 +37,20 @@ export const login = async (req, res, next) => {
 
         const newToken = await generateToken(userData, deviceData);
 
-        res.cookie('Authorization', newToken);
-        res.cookie('device-id', deviceId);
+        res.cookie('Authorization', newToken, {
+            httpOnly: true,
+            secure: false, //set True jika di Production, false untuk di Localhost
+            sameSite: 'lax',
+            path: '/',
+            expires: new Date(Date.now() + 86400000)
+        });
+        res.cookie('device-id', deviceId, {
+            httpOnly: true,
+            secure: false, //set True jika di Production, false untuk di Localhost
+            sameSite: 'lax',
+            path: '/',
+            expires: new Date(Date.now() + 86400000)
+        });
         res.status(200).json({
             success: true,
             message: `Welcome ${user.fullname}`,
