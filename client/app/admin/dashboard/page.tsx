@@ -12,8 +12,10 @@
         gender: string,
         role: string,
         status: string,
-        last_year_leave?: number,
-        this_year_leave?: number,
+        balances: {
+            receive_data : number;
+            expired_date : number;
+        }
         leave_total?: number,
     };
 
@@ -34,9 +36,7 @@
         const [leaveHistory, setLeaveHistory] = useState<ApiLeaveType[]>([]);
         const [isLoading, setIsLoading] = useState(true);
         
-        // Konstanta jatah cuti per tahun
-        const ANNUAL_LEAVE_QUOTA = 12;
-        
+         
         const fetchUsersData = useCallback(async () => {
             try {
                 const token = localStorage?.getItem?.('token');
@@ -193,8 +193,8 @@
         .filter(leave => new Date(leave.start_date).getFullYear() === currentYear - 1)
         .reduce((sum, leave) => sum + (leave.total_days || 0), 0);
 
-    const thisYearRemaining = ANNUAL_LEAVE_QUOTA - thisYearTaken;
-    const lastYearRemaining = ANNUAL_LEAVE_QUOTA - lastYearTaken;
+    const thisYearRemaining = thisYearTaken;
+    const lastYearRemaining = lastYearTaken;
 
     const totalRemainingLeave = thisYearRemaining + lastYearRemaining;
 
@@ -202,8 +202,8 @@
         ...user,
         this_year_taken: thisYearTaken,
         last_year_taken: lastYearTaken,
-        this_year_remaining: thisYearRemaining,
-        last_year_remaining: lastYearRemaining,
+        receive_date: thisYearRemaining,
+        expired_date: lastYearRemaining,
         total_remaining_leave: totalRemainingLeave
     };
 });
@@ -354,7 +354,7 @@
                     <StatCard
                         title="Cuti Pending"
                         value={`${stats.pendingLeaveCount || 0} orang`}
-                        subtitle={`${stats.totalPendingLeaveDays || 0} hari menunggu persetujuan`}
+                        subtitle={` menunggu persetujuan`}
                         icon="bi-clock-history"
                         color="yellow"
                     />
@@ -441,7 +441,7 @@
                     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                         <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
                             <i className="bi bi-arrow-up-circle text-green-500"></i>
-                            Top 5 Sisa Cuti Terbanyak (2 Tahun)
+                             User Dengan Sisa Cuti Terbanyak (2 Tahun)
                         </h3>
                         <div className="space-y-3">
                             {(stats.topRemainingLeaveUsers || []).map((user, index) => (
@@ -460,7 +460,7 @@
                                     <div className="text-right">
                                         <p className="font-bold text-green-600">{user.total_remaining_leave || 0} hari</p>
                                         <p className="text-xs text-gray-500">
-                                            Tahun ini: {user.this_year_remaining || 0} | Tahun lalu: {user.last_year_remaining || 0}
+                                            Tahun ini: {user.receive_date || 0} | Tahun lalu: {user.expired_date || 0}
                                         </p>
                                     </div>
                                 </div>
@@ -471,7 +471,7 @@
                     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                         <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
                             <i className="bi bi-arrow-down-circle text-red-500"></i>
-                            Top 5 Sisa Cuti Tersedikit (2 Tahun)
+                           User Dengan sisa Jatah Cuti Terendah (2 Tahun)
                         </h3>
                         <div className="space-y-3">
                             {(stats.bottomRemainingLeaveUsers || []).map((user, index) => (
@@ -482,7 +482,7 @@
                                         }`}>
                                             {index + 1}
                                         </div>
-                                        <div>
+                                        <div>   
                                             <p className="font-medium text-gray-800">{user.name}</p>
                                             <p className="text-sm text-gray-500">{user.nik} • {(user.role || '').replace(/_/g, ' ')}</p>
                                         </div>
@@ -490,7 +490,7 @@
                                     <div className="text-right">
                                         <p className="font-bold text-red-600">{user.total_remaining_leave || 0} hari</p>
                                         <p className="text-xs text-gray-500">
-                                            Tahun ini: {user.this_year_remaining || 0} | Tahun lalu: {user.last_year_remaining || 0}
+                                            Tahun ini: {user.receive_date || 0} | Tahun lalu: {user.expired_date || 0}
                                         </p>
                                     </div>
                                 </div>
