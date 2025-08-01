@@ -354,6 +354,7 @@ export const getUserByNIK = async (nik) => {
             },
             include: {
                 tb_balance: {
+                    take: 2,
                     where: {
                         expired_date: {
                             gte: new Date()
@@ -375,12 +376,8 @@ export const getUserByNIK = async (nik) => {
         const { tb_balance, NIK, fullname, gender, status_active } = user;
         const currentBalance = tb_balance.filter((bal) => new Date().getFullYear() === bal.receive_date.getFullYear()).reduce((sum, bal) => sum + bal.amount, 0) ?? 0;
         const lastYearBalance = tb_balance.filter((bal) => new Date().getFullYear() !== bal.receive_date.getFullYear()).reduce((sum, bal) => sum + bal.amount, 0) ?? 0;
-        let maxReceiveAmount = user.role === "karyawan_kontrak" ? 1 : 12;
 
-        const pending_request = await prisma.tb_leave.aggregate({
-            _sum: {
-                total_days: true
-            },
+        const pending_request = await prisma.tb_leave.count({
             where: {
                 created_at: {
                     gte: currentDateFirstMonth,
@@ -411,8 +408,6 @@ export const getUserByNIK = async (nik) => {
             },
         });
 
-        console.log('adasd', pending_request._sum.total_days);
-
         const userCopy = {
             NIK: NIK,
             fullname: fullname,
@@ -424,7 +419,7 @@ export const getUserByNIK = async (nik) => {
                 current_amount: currentBalance,
                 carried_amount: lastYearBalance,
                 days_used: approved_request._sum.total_days || 0,
-                pending_request: pending_request._sum.total_days || 0,
+                pending_request: pending_request || 0,
             }
         }
 
