@@ -68,16 +68,9 @@ const EmployeeListContent = () => {
             if (statusFilter) params.append('status', statusFilter);
             if (roleFilter) params.append('role', roleFilter);
 
-            const token = localStorage.getItem('token');
-            const deviceId = localStorage.getItem('device-id');
-
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users?${params.toString()}`, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token && { Authorization: `${token}` }),
-                    ...(deviceId && { 'device-id': deviceId }),
-                },
+                credentials: 'include',
             });
 
             const resJson = await response.json();

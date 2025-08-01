@@ -51,16 +51,11 @@ export default function Header() {
     }, []);
 
     const handleLogout = async () => {
-        const token = localStorage.getItem('token')
-        const deviceId = localStorage.getItem('device-id')
 
         try {
             await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/logout`, {
                 method: 'GET',
-                headers: {
-                    Authorization: `${token}`,
-                    'device-id': deviceId || '',
-                },
+                credentials: 'include',
             })
 
             Cookies.remove('Authorization', { path: '/' });

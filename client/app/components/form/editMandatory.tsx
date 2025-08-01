@@ -101,15 +101,8 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
         }
 
         try {
-            const token = localStorage.getItem('token');
-            const deviceId = localStorage.getItem('device-id');
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/mandatory/${initialData.id_mandatory}`, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token && { Authorization: `${token}` }),
-                    ...(deviceId && { 'device-id': deviceId }),
-                },
                 credentials: 'include',
                 body: JSON.stringify(payload),
             })

@@ -39,16 +39,9 @@
         
         const fetchUsersData = useCallback(async () => {
             try {
-                const token = localStorage?.getItem?.('token');
-                const deviceId = localStorage?.getItem?.('device-id');
-
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users?limit=1000`, {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...(token && { Authorization: `${token}` }),
-                        ...(deviceId && { 'device-id': deviceId }),
-                    },
+                    credentials: 'include',
                 });
 
                 const resJson = await response.json();

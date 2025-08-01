@@ -77,15 +77,8 @@ const MandatoryLeavePage = () => {
 
             url += `${searchTerm ? '&' : '?'}page=${page}&limit=${itemPerPage}`
 
-            const token = localStorage.getItem('token');
-            const deviceId = localStorage.getItem('device-id');
-
             const res = await fetch(url, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token && { Authorization: `${token}` }),
-                    ...(deviceId && { 'device-id': deviceId }),
-                }
+                credentials: 'include',
             })
 
             if (!res.ok) {

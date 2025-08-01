@@ -80,11 +80,7 @@ const SpecialLeavePage = () => {
             const deviceId = localStorage.getItem('device-id');
 
             const res = await fetch(url, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token && { Authorization: `${token}` }),
-                    ...(deviceId && { 'device-id': deviceId }),
-                }
+                credentials: 'include',
             })
 
             if (!res.ok) {

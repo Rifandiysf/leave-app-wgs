@@ -70,12 +70,10 @@ const UserDashboard = () => {
         const [dashboardResponse, allLeavesResponse] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${nik}`, {
             method: 'GET',
-            // headers: { 'Authorization': `${token}`, 'device-id': deviceId || '' },
             credentials: "include"
           }),
           fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/leave?limit=1000`, {
             method: 'GET',
-            // headers: { 'Authorization': `${token}`, 'device-id': deviceId || '' },
             credentials: "include"
           })
         ]);
