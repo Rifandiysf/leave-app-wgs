@@ -53,7 +53,7 @@ export const createLeave = async (data) => {
 
     if (!total_days) {
         total_days = calculateHolidaysDays(
-            createDateFromString(start_date), 
+            createDateFromString(start_date),
             createDateFromString(end_date)
         );
     }
@@ -262,7 +262,7 @@ export const getAllUsers = async (page, limit, search = '', gender = '', status 
             ...(role ? [{ role: role }] : [])
         ],
         NOT: {
-                    role: "magang"
+            role: "magang"
         }
     };
 
@@ -275,10 +275,12 @@ export const getAllUsers = async (page, limit, search = '', gender = '', status 
 
     const leaveAmount = await prisma.tb_balance.findMany({
         where: {
-            receive_date: {
-                gte: new Date(`${lastYear}-01-01`),
-                lte: new Date(`${currentYear}-12-31`)
+            expired_date: {
+                gte: new Date()
             }
+        },
+        orderBy: {
+            expired_date: "desc"
         }
     });
 
@@ -495,8 +497,8 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
     }
 
     const currentYear = new Date().getFullYear();
-    const targetYear = (leave_type === 'last_year_leave') 
-        ? currentYear - 1 
+    const targetYear = (leave_type === 'last_year_leave')
+        ? currentYear - 1
         : currentYear;
 
     let balance;
@@ -530,7 +532,7 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
         const newBalanceData = {
             NIK: nik,
             amount: adjustment_value,
-            receive_date: new Date(`${targetYear}-01-01`), 
+            receive_date: new Date(`${targetYear}-01-01`),
             expired_date: new Date(`${targetYear + 2}-01-01`),
         };
 
