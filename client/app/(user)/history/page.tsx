@@ -12,7 +12,6 @@ import {
 } from "../../components/ui/pagination"
 import Modal from "@/app/components/Modal/Modal"
 import { formatDate, formatUppercase } from "@/lib/format"
-import withAuth from "@/lib/auth/withAuth"
 import { Label } from "@/app/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/app/components/ui/select"
 
@@ -340,4 +339,4 @@ const HistoryPage = () => {
     )
 }
 
-export default HistoryPage /*withAuth()*/
+export default HistoryPage

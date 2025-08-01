@@ -106,6 +106,7 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/special/${initialData.id_special}`, {
                 method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(payload),
             })

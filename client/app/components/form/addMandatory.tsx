@@ -85,6 +85,7 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/mandatory`, {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(payload),
             })

@@ -13,7 +13,6 @@ import {
 import { Switch } from "@/app/components/ui/switch"
 import { AddSpecial } from '@/app/components/form/addSpecial'
 import { EditSpecial } from '@/app/components/form/editSpecial'
-import withAuth from '@/lib/auth/withAuth'
 
 type dataSpecialLeaveType = {
     id_special: string,
@@ -75,9 +74,6 @@ const SpecialLeavePage = () => {
             }
 
             url += `${searchTerm ? '&' : '?'}page=${page}&limit=${itemPerPage}`
-
-            const token = localStorage.getItem('token');
-            const deviceId = localStorage.getItem('device-id');
 
             const res = await fetch(url, {
                 credentials: 'include',
@@ -230,4 +226,4 @@ const SpecialLeavePage = () => {
     )
 }
 
-export default withAuth(SpecialLeavePage, { requireAdmin: true })
+export default SpecialLeavePage

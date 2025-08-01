@@ -3,7 +3,6 @@
     import { useState, useEffect, useCallback } from "react";
     import 'bootstrap-icons/font/bootstrap-icons.css';
     import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-    import withAuth from "@/lib/auth/withAuth";
     import axiosInstance from "@/lib/api/axiosInstance";
 
     type dataLeaveType = {
@@ -495,4 +494,4 @@
         );
     };
 
-    export default withAuth(DashboardPage, { requireAdmin: true });
+    export default DashboardPage

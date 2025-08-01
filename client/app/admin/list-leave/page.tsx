@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import Modal from '@/app/components/Modal/Modal';
 import axiosInstance from '@/lib/api/axiosInstance';
 import { LeaveChoiceModal } from '@/app/components/LeaveChoiceModal/page';
-import withAuth from '@/lib/auth/withAuth';
 import { Notification } from '@/app/components/notification/Notification';
 import { Label } from '@/app/components/ui/label';
 import { formatUppercase } from '@/lib/format';
@@ -529,4 +528,4 @@ const ListOfLeavePage = () => {
     );
 }
 
-export default withAuth(ListOfLeavePage, { requireAdmin: true });
+export default ListOfLeavePage

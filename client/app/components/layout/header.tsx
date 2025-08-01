@@ -31,10 +31,10 @@ export default function Header() {
 
                 if (res.ok) {
                     const result = await res.json();
-                    const userData = result.data;
+                    const userData = result.user_data;
                     setUser({
-                        fullname: userData.name,
-                        isAdmin: userData.role === 'admin' || userData.role === 'super_admin'
+                        fullname: userData.fullname,
+                        isAdmin: userData.role === 'admin' || userData.role === 'super_admin' 
                     });
                 } else {
                     setUser({ fullname: 'Guest', isAdmin: false });
@@ -69,7 +69,7 @@ export default function Header() {
         }
     }
 
-    const isUserDashboard = pathname === '/'
+    const isUserDashboard = pathname === '/' || pathname === '/history' || pathname === '/mandatory';
     const isAdminPage = pathname.startsWith('/admin')
 
     if (isLoading) {
@@ -155,7 +155,6 @@ export default function Header() {
                     <i className="bi bi-gear-fill text-xl" />
                     <span className="text-sm font-medium">Settings</span>
                 </div>
-
 
                 <Modal
                     mode="confirm"

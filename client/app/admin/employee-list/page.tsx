@@ -15,8 +15,6 @@ import {
 } from "@/app/components/ui/pagination";
 import { SelectDemo } from "@/app/components/select/page";
 import { SelectItem, SelectLabel } from "@/app/components/ui/select";
-import withAuth from "@/lib/auth/withAuth";
-// Impor komponen notifikasi sukses
 import SuccessAlert from "@/app/components/SuccesAlert/SuccesAlert";
 
 type dataLeaveType = {
@@ -263,4 +261,4 @@ const EmployeeListPage = () => (
     </Suspense>
 );
 
-export default withAuth(EmployeeListPage, { requireAdmin: true });
+export default EmployeeListPage

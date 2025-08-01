@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { Card } from "../../components/ui/card";
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import withAuth from "@/lib/auth/withAuth";
 import { ApplyLeave } from "@/app/components/form/applyLeave";
 
 type UserDashboardData = {
@@ -78,46 +77,46 @@ const UserDashboard = () => {
           })
         ]);
 
-         if (!dashboardResponse.ok || !allLeavesResponse.ok) {
-        throw new Error("Failed to fetch all required dashboard data");
+        if (!dashboardResponse.ok || !allLeavesResponse.ok) {
+          throw new Error("Failed to fetch all required dashboard data");
+        }
+
+        const dashboardJson = await dashboardResponse.json();
+        const allLeavesJson = await allLeavesResponse.json();
+
+        setUserData(dashboardJson.data);
+
+        const allUserLeaves = allLeavesJson?.data || [];
+
+        // Calculate pending requests (existing logic)
+        const pendingForUser = allUserLeaves.filter(
+          (leave: { status: string }) => leave.status?.toLowerCase() === 'pending'
+        );
+        setPendingCount(pendingForUser.length);
+
+        // --- START: MODIFIED LOGIC ---
+        // Calculate total days used from approved leaves
+        const approvedLeaves = allUserLeaves.filter(
+          (leave: { status: string }) => leave.status?.toLowerCase() === 'approved'
+        );
+
+        const totalUsedDays = approvedLeaves.reduce(
+          (sum: number, leave: { total_days: number }) => sum + (leave.total_days || 0),
+          0
+        );
+        setUsedDays(totalUsedDays);
+        // --- END: MODIFIED LOGIC ---
+
+      } catch (err: any) {
+        setError(err.message);
+        console.error("Error fetching dashboard data:", err);
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      const dashboardJson = await dashboardResponse.json();
-      const allLeavesJson = await allLeavesResponse.json();
-
-      setUserData(dashboardJson.data);
-
-      const allUserLeaves = allLeavesJson?.data || [];
-
-      // Calculate pending requests (existing logic)
-      const pendingForUser = allUserLeaves.filter(
-        (leave: { status: string }) => leave.status?.toLowerCase() === 'pending'
-      );
-      setPendingCount(pendingForUser.length);
-
-      // --- START: MODIFIED LOGIC ---
-      // Calculate total days used from approved leaves
-      const approvedLeaves = allUserLeaves.filter(
-        (leave: { status: string }) => leave.status?.toLowerCase() === 'approved'
-      );
-      
-      const totalUsedDays = approvedLeaves.reduce(
-        (sum: number, leave: { total_days: number }) => sum + (leave.total_days || 0),
-        0
-      );
-      setUsedDays(totalUsedDays);
-      // --- END: MODIFIED LOGIC ---
-
-    } catch (err: any) {
-      setError(err.message);
-      console.error("Error fetching dashboard data:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  fetchUserDashboardData();
-}, []);
+    fetchUserDashboardData();
+  }, []);
 
 
 
@@ -154,10 +153,10 @@ const UserDashboard = () => {
       label: "Pending Requests"
     },
     {
-    icon: "bi-check-circle-fill",
-    count: usedDays, 
-    label: "Days Used"
-  }
+      icon: "bi-check-circle-fill",
+      count: usedDays,
+      label: "Days Used"
+    }
   ];
 
   return (
@@ -222,9 +221,9 @@ const UserDashboard = () => {
               <h2 className="text-base sm:text-2xl md:text-3xl font-bold text-blue-900 mb-2 sm:mb-3">
                 Ready to take a break?
               </h2>
-               
+
               <p className="text-gray-600 mb-4 sm:mb-8 text-xs sm:text-base">
-                
+
                 Submit your leave request and we’ll process it for you
               </p>
               <ApplyLeave />
@@ -256,4 +255,4 @@ const UserDashboard = () => {
   )
 }
 
-export default UserDashboard /*withAuth()*/
+export default UserDashboard

@@ -88,6 +88,7 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/special`, {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(payload),
             })

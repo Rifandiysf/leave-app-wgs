@@ -151,6 +151,7 @@ export function ApplyLeave() {
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/leave`, {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(payload),
             })
