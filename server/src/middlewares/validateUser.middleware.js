@@ -9,7 +9,7 @@ export const validateUser = async (req, res, next) => {
         const user = await fetchUserData("email", email.toLowerCase());
         
         if (!user) {
-            const error = new Error("User not found");
+            const error = new Error("User not found.");
             error.statusCode = 404;
             throw error;
         }
@@ -18,8 +18,14 @@ export const validateUser = async (req, res, next) => {
         const match = await bcrypt.compare(password, hashpassword);
 
         if (!match) {
-            const error = new Error("Email and password are not matched.");
+            const error = new Error("Your email or password is incorrect.");
             error.statusCode = 400;
+            throw error;
+        }
+
+        if (user.status_active === "resign") {
+            const error = new Error(`Account is no longer active.`);
+            error.statusCode = 401;
             throw error;
         }
 
@@ -29,20 +35,9 @@ export const validateUser = async (req, res, next) => {
             throw error;
         }
 
-        if (user.status_active === "resign") {
-            const error = new Error(`Account is inactive`);
-            error.statusCode = 401;
-            throw error;
-        }
-
         return next();
     } catch (error) {
-        const statusCode = error && error.statusCode ? error.statusCode : 400;
-        return res.status(statusCode).json({
-            status: "failed",
-            message: error.message,
-            status_code: statusCode
-        })
+        next(error);
     }
 
 }

@@ -10,15 +10,47 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/app/components/ui/popover"
+import { cn } from "@/lib/utils"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/app/components/ui/select"
 
 type DatePickerFieldProps = {
     label: string
     value: Date | undefined
     onChange: (date: Date | undefined) => void
+    className?: string
 }
 
-export function DatePickerField({ label, value, onChange }: DatePickerFieldProps) {
+export function DatePickerField({
+    label,
+    value,
+    onChange,
+    className,
+}: DatePickerFieldProps) {
     const [open, setOpen] = React.useState(false)
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const years = Array.from({ length: 7 }, (_, i) => currentYear - 3 + i)
+    const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ]
+
+    const [selectedMonth, setSelectedMonth] = React.useState<number>((value ?? now).getMonth())
+    const [selectedYear, setSelectedYear] = React.useState<number>((value ?? now).getFullYear())
+
+    const handleMonthChange = (monthIndex: number) => {
+        setSelectedMonth(monthIndex)
+    }
+
+    const handleYearChange = (year: number) => {
+        setSelectedYear(year)
+    }
 
     return (
         <div className="flex flex-col gap-3 w-full">
@@ -30,20 +62,76 @@ export function DatePickerField({ label, value, onChange }: DatePickerFieldProps
                     <Button
                         variant="outline"
                         id={label.toLowerCase()}
-                        className="w-full justify-between font-normal"
+                        className={cn(
+                            'w-full justify-between font-normal',
+                            className
+                        )}
                     >
                         {value ? value.toLocaleDateString() : "Select date"}
                         <ChevronDownIcon />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                <PopoverContent className="w-auto p-4" align="start">
+                    <div className="flex gap-2 mb-4">
+                        <Select
+                            value={selectedMonth.toString()}
+                            onValueChange={(val) => handleMonthChange(Number(val))}
+                        >
+                            <SelectTrigger className="w-[140px]">
+                                <SelectValue placeholder="Month" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {months.map((month, index) => (
+                                    <SelectItem key={month} value={index.toString()}>
+                                        {month}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <Select
+                            value={selectedYear.toString()}
+                            onValueChange={(val) => handleYearChange(Number(val))}
+                        >
+                            <SelectTrigger className="w-[100px]">
+                                <SelectValue placeholder="Year" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {years.map((year) => (
+                                    <SelectItem key={year} value={year.toString()}>
+                                        {year}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
                     <Calendar
                         mode="single"
                         selected={value}
-                        captionLayout="dropdown"
+                        month={new Date(selectedYear, selectedMonth)}
+                        onMonthChange={(newDate) => {
+                            setSelectedMonth(newDate.getMonth());
+                            setSelectedYear(newDate.getFullYear());
+                        }}
                         onSelect={(date) => {
-                            onChange(date)
-                            setOpen(false)
+                            if (date) {
+                                const day = date.getDay()
+                                if (day !== 0 && day !== 6) {
+                                    onChange(date)
+                                    setOpen(false)
+                                }
+                            }
+                        }}
+                        disabled={(date) => {
+                            const day = date.getDay()
+                            return day === 0 || day === 6
+                        }}
+                        modifiers={{
+                            weekend: (date) => date.getDay() === 0 || date.getDay() === 6,
+                        }}
+                        modifiersClassNames={{
+                            weekend: "text-red-700",
                         }}
                     />
                 </PopoverContent>

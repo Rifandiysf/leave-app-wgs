@@ -13,7 +13,6 @@ import {
 } from "@/app/components/ui/dialog"
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
-import { Switch } from "@/app/components/ui/switch"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select"
 
 type dataSpecialType = {
@@ -21,7 +20,6 @@ type dataSpecialType = {
     title: string
     applicable_gender: string
     duration: number
-    is_active: boolean
     description: string
 }
 
@@ -34,11 +32,12 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
     const [title, setTitle] = useState(initialData.title)
     const [gender, setGender] = useState(initialData.applicable_gender)
     const [duration, setDuration] = useState(initialData.duration)
-    const [isActive, setIsActive] = useState(initialData.is_active)
     const [description, setDescription] = useState(initialData.description)
 
     const [titleError, setTitleError] = useState("")
     const [descriptionError, setDescriptionError] = useState("")
+    const [genderError, setGenderError] = useState("")
+    const [durationError, setDurationError] = useState("")
     const [generalError, setGeneralError] = useState('')
     const [generalSuccess, setGeneralSuccess] = useState('')
     const [isLoading, setIsLoading] = useState(false)
@@ -49,17 +48,17 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
             setTitle(initialData.title)
             setGender(initialData.applicable_gender)
             setDuration(initialData.duration)
-            setIsActive(initialData.is_active)
             setDescription(initialData.description)
             setTitleError("")
             setDescriptionError("")
+            setGenderError("")
+            setDurationError("")
             setGeneralError("")
             setGeneralSuccess("")
         } else {
             setTitle(initialData.title)
             setGender(initialData.applicable_gender)
             setDuration(initialData.duration)
-            setIsActive(initialData.is_active)
             setDescription(initialData.description)
         }
     }, [isDialogOpen, initialData])
@@ -71,19 +70,25 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
         setGeneralSuccess("")
         setTitleError("")
         setDescriptionError("")
+        setGenderError("")
+        setDurationError("")
 
         let hasError = false
         if (!title.trim()) {
-            setTitleError("Title cannot be empty")
-            hasError = true
+            setTitleError("Title cannot be empty");
+            hasError = true;
         }
         if (!description.trim()) {
-            setDescriptionError("Description cannot be empty")
-            hasError = true
+            setDescriptionError("Description cannot be empty");
+            hasError = true;
         }
         if (duration <= 0) {
-            // setDurationError("Duration must be a positive number")
-            // hasError = true;
+            setDurationError("Amount cannot be 0 days");
+            hasError = true;
+        }
+        if (!gender.trim()) {
+            setGenderError("Gander cannot be empty");
+            hasError = true;
         }
 
         if (hasError) {
@@ -95,7 +100,6 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
             title,
             applicable_gender: gender,
             duration,
-            is_active: isActive,
             description,
         }
 
@@ -169,7 +173,7 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
                                     if (titleError) setTitleError("")
                                 }}
                                 placeholder="Edit title"
-                                required
+                                className={titleError ? 'border-red-400' : ''}
                             />
                             {titleError && (
                                 <p className="text-sm text-red-600 mt-1">{titleError}</p>
@@ -177,8 +181,8 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="gender">Gender</Label>
-                            <Select onValueChange={(value) => setGender(value)}>
-                                <SelectTrigger className="w-full">
+                            <Select value={gender} onValueChange={(value) => setGender(value)} >
+                                <SelectTrigger className={`w-full ${genderError ? 'border-red-400' : ''}`}>
                                     <SelectValue placeholder="Select the gender" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -190,6 +194,9 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
+                            {genderError && (
+                                <p className="text-sm text-red-600 mt-1">{genderError}</p>
+                            )}
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="duration">Duration</Label>
@@ -200,8 +207,11 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
                                 value={duration}
                                 onChange={(e) => setDuration(Number(e.target.value))}
                                 placeholder="Edit duration"
-                                required
+                                className={durationError ? 'border-red-400' : ''}
                             />
+                            {durationError && (
+                                <p className="text-sm text-red-600 mt-1">{durationError}</p>
+                            )}
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="description">Description</Label>
@@ -213,19 +223,11 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
                                     if (descriptionError) setDescriptionError("")
                                 }}
                                 placeholder="Edit description"
-                                className="border-[1.5px] border-[#0000001f] rounded-sm p-1 focus:border-2 focus:border-black"
+                                className={`border-[1.5px] border-[#0000001f] ${descriptionError ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
                             />
                             {descriptionError && (
                                 <p className="text-sm text-red-600 mt-1">{descriptionError}</p>
                             )}
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="active-switch">Active</Label>
-                            <Switch
-                                id="active-switch"
-                                checked={isActive}
-                                onCheckedChange={(val) => setIsActive(val)}
-                            />
                         </div>
                     </div>
 

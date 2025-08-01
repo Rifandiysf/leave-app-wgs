@@ -1,7 +1,7 @@
 'use client'
 
 import 'bootstrap-icons/font/bootstrap-icons.css'
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "../../components/ui/button"
 import {
@@ -15,6 +15,7 @@ import {
 import { Input } from "../../components/ui/input"
 import { Label } from "@/app/components/ui/label"
 import Image from "next/image"
+import Cookies from 'js-cookie'
 
 const LoginPage = () => {
     const router = useRouter()
@@ -25,6 +26,14 @@ const LoginPage = () => {
     const [passwordError, setPasswordError] = useState('')
     const [generalError, setGeneralError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+
+    useEffect(() => {
+        const token = Cookies.get('Authorization'); // Ambil token dari cookie (asumsi tidak HttpOnly)
+        if (token) {
+            setIsLoading(true)
+            router.push('/');
+        }
+    }, [router]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -48,31 +57,21 @@ const LoginPage = () => {
         setIsLoading(true)
 
         try {
-            const storedDeviceId = localStorage.getItem('device-id') ?? '';
+            // const token = Cookies.get('Authorization')
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'device-id': storedDeviceId ?? ''
-                },
-                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // penting agar cookie dikirim
                 body: JSON.stringify({ email, password })
             })
 
-            const data = await res.json();
-            const token = res.headers.get("Authorization");
-            const deviceId = res.headers.get("device-id");
+            const result = await res.json()
 
             if (!res.ok) {
-                setGeneralError(data.message)
+                setGeneralError(result.message)
                 setIsLoading(false)
                 return
             }
-
-            localStorage.setItem('token', token ?? '');
-            localStorage.setItem('device-id', deviceId ?? '');
-
-            router.push('/')
         } catch (err) {
             console.error("Login error:", err)
             setGeneralError("Terjadi kesalahan, coba beberapa saat lagi")
@@ -156,11 +155,6 @@ const LoginPage = () => {
                                         Processing…
                                     </>
                                 ) : 'Login'}
-                            </Button>
-
-                            <Button variant="outline" className="w-full bg-white flex justify-center items-center gap-2">
-                                <Image src="/images/google.svg" alt="google" width={20} height={20} />
-                                Login with Google
                             </Button>
                         </CardFooter>
                     </form>

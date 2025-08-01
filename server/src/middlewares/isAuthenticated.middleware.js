@@ -4,13 +4,13 @@ import { deleteToken } from '../services/auth.service.js';
 import { decodeToken, verifyToken } from '../utils/jwt.js';
 
 export const isAuthenticated = async (req, res, next) => {
-    const header = req.get("authorization");
-    const token = header?.split(' ')[1];
-    const deviceId = req.get("device-id");
+    // const header = req.get("authorization");
+    const token = req.cookies.Authorization;
+    const deviceId = req.cookies['device-id'];
     
     try {
-        if (!header || !token) {
-            throw new Error("Authorization header not found");
+        if (!deviceId || !token) {
+            throw new Error("Authorization token or device ID cookie not found");
         }
 
         const decodedToken = await decodeToken(token);
@@ -18,21 +18,17 @@ export const isAuthenticated = async (req, res, next) => {
         const isValid = await verifyToken(token);
 
         if (!decodedToken || !isValid) {
-            throw new Error("Invalid session: your authentication token is either incorrect or expired.");
+            throw new Error("Unauthorized. please login to access this resources.");
         }
 
         return next();
     } catch (error) {
+        error.statusCode = 401
         if (error.name === "TokenExpiredError" && token) {
             await deleteToken(token, deviceId);
-            error.message = "Login session expired";
+            error.cause = "Login session expired";
         }
 
-        return res.status(408).json({
-            status: false,
-            status_code: 408,
-            message: "Unauthorized. Please login to access this resource.",
-            detail: error.message
-        });
+        next(error)
     }
 };

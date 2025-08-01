@@ -13,14 +13,15 @@ import {
 } from "@/app/components/ui/dialog"
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
-import { Switch } from "@/app/components/ui/switch"
+import { DatePickerField } from "../date-picker/datePicker"
+import { parseISO } from "date-fns"
 
 type dataMandatoryType = {
     id_mandatory: string
     title: string
-    duration: number
-    is_active: boolean
     description: string
+    start_date: string
+    end_date: string
 }
 
 type Props = {
@@ -30,13 +31,14 @@ type Props = {
 
 export function EditMandatory({ initialData, onFormSubmit }: Props) {
     const [title, setTitle] = useState(initialData.title)
-    const [duration, setDuration] = useState(initialData.duration)
-    const [isActive, setIsActive] = useState(initialData.is_active)
     const [description, setDescription] = useState(initialData.description)
+    const [startDate, setStartDate] = useState<Date>()
+    const [endDate, setEndDate] = useState<Date>()
 
     const [titleError, setTitleError] = useState("")
     const [descriptionError, setDescriptionError] = useState("")
     const [generalError, setGeneralError] = useState('')
+    const [dateError, setDateError] = useState("")
     const [generalSuccess, setGeneralSuccess] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -44,18 +46,19 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
     useEffect(() => {
         if (isDialogOpen) {
             setTitle(initialData.title)
-            setDuration(initialData.duration)
-            setIsActive(initialData.is_active)
             setDescription(initialData.description)
+            setStartDate(initialData.start_date ? parseISO(initialData.start_date) : undefined)
+            setEndDate(initialData.end_date ? parseISO(initialData.end_date) : undefined)
             setTitleError("")
             setDescriptionError("")
+            setDateError("")
             setGeneralError("")
             setGeneralSuccess("")
         } else {
             setTitle(initialData.title)
-            setDuration(initialData.duration)
-            setIsActive(initialData.is_active)
             setDescription(initialData.description)
+            setStartDate(initialData.start_date ? parseISO(initialData.start_date) : undefined)
+            setEndDate(initialData.end_date ? parseISO(initialData.end_date) : undefined)
         }
     }, [isDialogOpen, initialData])
 
@@ -66,6 +69,7 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
         setGeneralSuccess("")
         setTitleError("")
         setDescriptionError("")
+        setDateError("")
 
         let hasError = false
         if (!title.trim()) {
@@ -76,9 +80,12 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
             setDescriptionError("Description cannot be empty")
             hasError = true
         }
-        if (duration <= 0) {
-            // setDurationError("Duration must be a positive number")
-            // hasError = true;
+        if (!startDate || !endDate) {
+            setDateError("Both start and end date are required.")
+            hasError = true
+        } else if (endDate < startDate) {
+            setDateError("End date cannot be before start date.")
+            hasError = true
         }
 
         if (hasError) {
@@ -88,9 +95,9 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
         setIsLoading(true)
         const payload = {
             title,
-            duration,
-            is_active: isActive,
             description,
+            start_date: startDate?.toLocaleDateString('en-CA'),
+            end_date: endDate?.toLocaleDateString('en-CA')
         }
 
         try {
@@ -163,7 +170,7 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
                                     if (titleError) setTitleError("")
                                 }}
                                 placeholder="Edit title"
-                                required
+                                className={titleError ? 'border-red-400' : ''}
                             />
                             {titleError && (
                                 <p className="text-sm text-red-600 mt-1">{titleError}</p>
@@ -171,15 +178,13 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="duration">Duration</Label>
-                            <Input
-                                id="duration"
-                                type="number"
-                                min={0}
-                                value={duration}
-                                onChange={(e) => setDuration(Number(e.target.value))}
-                                placeholder="Edit duration"
-                                required
-                            />
+                            <div className="grid grid-cols-2 gap-2">
+                                <DatePickerField label="Start Leave" value={startDate} onChange={(value) => { setStartDate(value) }} className={dateError ? 'border-red-400' : ''}/>
+                                <DatePickerField label="End Leave" value={endDate} onChange={(value) => { setEndDate(value) }} className={dateError ? 'border-red-400' : ''}/>
+                            </div>
+                            {dateError && (
+                                <p className="text-sm text-red-600 mt-1">{dateError}</p>
+                            )}
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="description">Description</Label>
@@ -191,19 +196,11 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
                                     if (descriptionError) setDescriptionError("")
                                 }}
                                 placeholder="Edit description"
-                                className="border-[1.5px] border-[#0000001f] rounded-sm p-1 focus:border-2 focus:border-black"
+                                className={`border-[1.5px] border-[#0000001f] ${descriptionError ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
                             />
                             {descriptionError && (
                                 <p className="text-sm text-red-600 mt-1">{descriptionError}</p>
                             )}
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="active-switch">Active</Label>
-                            <Switch
-                                id="active-switch"
-                                checked={isActive}
-                                onCheckedChange={(val) => setIsActive(val)}
-                            />
                         </div>
                     </div>
 

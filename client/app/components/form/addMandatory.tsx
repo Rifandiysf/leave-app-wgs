@@ -13,16 +13,17 @@ import {
 } from "@/app/components/ui/dialog"
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
-import { Switch } from "@/app/components/ui/switch"
+import { DatePickerField } from "../date-picker/datePicker"
 
 export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
     const [title, setTitle] = useState("")
-    const [duration, setDuration] = useState(0)
     const [description, setDescription] = useState("")
-    const [isActive, setIsActive] = useState(false)
+    const [startDate, setStartDate] = useState<Date>()
+    const [endDate, setEndDate] = useState<Date>()
 
     const [titleError, setTitleError] = useState("")
     const [descriptionError, setDescriptionError] = useState("")
+    const [dateError, setDateError] = useState("")
     const [generalError, setGeneralError] = useState('')
     const [generalSuccess, setGeneralSuccess] = useState('')
     const [isLoading, setIsLoading] = useState(false)
@@ -31,11 +32,13 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
     useEffect(() => {
         if (!isDialogOpen) {
             setTitle("");
-            setDuration(0);
             setDescription("");
-            setIsActive(false);
+            setStartDate(undefined);
+            setEndDate(undefined);
+
             setTitleError("");
             setDescriptionError("");
+            setDateError("")
             setGeneralError("");
             setGeneralSuccess("");
         }
@@ -47,7 +50,8 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
         setGeneralError("")
         setGeneralSuccess("")
         setTitleError("")
-        setDescriptionError("")
+        setDescription("")
+        setDateError("")
 
         let hasError = false;
         if (!title.trim()) {
@@ -58,9 +62,12 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
             setDescriptionError("Description cannot be empty");
             hasError = true;
         }
-        if (duration <= 0) {
-            // setDurationError("Duration must be a positive number");
-            // hasError = true;
+        if (!startDate || !endDate) {
+            setDateError("Both start and end date are required.")
+            hasError = true
+        } else if (endDate < startDate) {
+            setDateError("End date cannot be before start date.")
+            hasError = true
         }
 
         if (hasError) {
@@ -70,9 +77,9 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
         setIsLoading(true)
         const payload = {
             title,
-            duration,
-            is_active: isActive,
             description,
+            start_date: startDate?.toLocaleDateString('en-CA'),
+            end_date: endDate?.toLocaleDateString('en-CA'),
         }
 
         try {
@@ -109,8 +116,8 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
     return (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-                <Button variant="default">
-                    <i className="bi bi-plus-circle-fill text-lg"></i> Add Mandatory Leave
+                <Button variant="default" className="text-black">
+                    <i className="bi bi-plus-circle-fill text-lg text-slate-600"></i> Add Mandatory Leave
                 </Button>
             </DialogTrigger>
 
@@ -142,21 +149,20 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
                                     if (titleError) setTitleError("");
                                 }}
                                 placeholder="Type the new leave title"
+                                className={titleError ? 'border-red-400' : ''}
                             />
                             {titleError && (
                                 <p className="text-sm text-red-600 mt-1">{titleError}</p>
                             )}
                         </div>
                         <div className="grid gap-3">
-                            <Label htmlFor="duration">Duration</Label>
-                            <Input
-                                id="duration"
-                                type="number"
-                                min={0}
-                                value={duration}
-                                onChange={(e) => setDuration(Number(e.target.value))}
-                                placeholder="Set amount in days"
-                            />
+                            <div className="grid grid-cols-2 gap-2">
+                                <DatePickerField label="Start Leave" value={startDate} onChange={(value) => { setStartDate(value) }} className={dateError ? 'border-red-400' : ''}/>
+                                <DatePickerField label="End Leave" value={endDate} onChange={(value) => { setEndDate(value) }} className={dateError ? 'border-red-400' : ''}/>
+                            </div>
+                            {dateError && (
+                                <p className="text-sm text-red-600 mt-1">{dateError}</p>
+                            )}
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="description">Description</Label>
@@ -168,19 +174,11 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
                                     if (descriptionError) setDescriptionError("");
                                 }}
                                 placeholder="Type the information"
-                                className="border-[1.5px] border-[#0000001f] rounded-sm p-1 focus:border-2 focus:border-black"
+                                className={`border-[1.5px] border-[#0000001f] ${descriptionError ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
                             />
                             {descriptionError && (
                                 <p className="text-sm text-red-600 mt-1">{descriptionError}</p>
                             )}
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="active-switch">Active</Label>
-                            <Switch
-                                id="active-switch"
-                                checked={isActive}
-                                onCheckedChange={(val) => setIsActive(val)}
-                            />
                         </div>
                     </div>
 

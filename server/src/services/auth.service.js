@@ -41,8 +41,7 @@ export const deleteToken = async (nik, deviceId) => {
         })
         return deletedToken;
     } catch (error) {
-        error.message = "Invalid token";
-        throw error;
+        return null;
     }
         
 }

@@ -14,13 +14,15 @@ import { Switch } from "@/app/components/ui/switch"
 import { AddMandatory } from '@/app/components/form/addMandatory'
 import { EditMandatory } from '@/app/components/form/editMandatory'
 import withAuth from '@/lib/auth/withAuth'
+import { formatDate } from '@/lib/format'
 
 type dataMandatoryLeaveType = {
     id_mandatory: string,
     title: string,
-    duration: number,
     is_active: boolean,
     description: string,
+    start_date: string,
+    end_date: string,
 }
 
 type PaginationInfo = {
@@ -128,7 +130,7 @@ const MandatoryLeavePage = () => {
     }
 
     return (
-        <section className="relative p-3 min-h-[calc(100dvh-137px)]">
+        <section className="relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
             <div className='flex justify-end items-center gap-3 mb-4'>
                 <div className="flex max-sm:w-full">
                     <input
@@ -150,8 +152,9 @@ const MandatoryLeavePage = () => {
                         <tr>
                             <th className="p-3 text-[18px] font-semibold tracking-wide">No</th>
                             <th className="p-3 text-[18px] font-semibold tracking-wide">Leave Title</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Amount</th>
                             <th className="p-3 text-[18px] font-semibold tracking-wide">Information</th>
+                            <th className="p-3 text-[18px] font-semibold tracking-wide">Start Date</th>
+                            <th className="p-3 text-[18px] font-semibold tracking-wide">End Date</th>
                             <th className="p-3 text-[18px] font-semibold tracking-wide">Action</th>
                         </tr>
                     </thead>
@@ -159,7 +162,7 @@ const MandatoryLeavePage = () => {
                         {isLoading ? (
                             Array.from({ length: paginationInfo.item.per_page }).map((_, rowIdx) => (
                                 <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
-                                    {Array.from({ length: 5 }).map((_, colIdx) => (
+                                    {Array.from({ length: 6 }).map((_, colIdx) => (
                                         <th key={colIdx} className="p-3">
                                             <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
                                         </th>
@@ -168,7 +171,7 @@ const MandatoryLeavePage = () => {
                             ))
                         ) : dataMandatoryLeave.length === 0 ? (
                             <tr>
-                                <td colSpan={5} className="p-4 text-center text-gray-500">
+                                <td colSpan={6} className="p-4 text-center text-gray-500">
                                     No mandatory leaves found.
                                 </td>
                             </tr>
@@ -179,8 +182,9 @@ const MandatoryLeavePage = () => {
                                         {(paginationInfo.current_page - 1) * itemPerPage + idx + 1}
                                     </th>
                                     <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.title}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.duration} Days</th>
                                     <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.description}</th>
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{formatDate(data.start_date)}</th>
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{formatDate(data.end_date)}</th>
                                     <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
                                         <div className="flex justify-center items-center gap-2">
                                             <EditMandatory initialData={data} onFormSubmit={handleFormSubmitSuccess} />
@@ -210,6 +214,7 @@ const MandatoryLeavePage = () => {
                                     <PaginationLink
                                         isActive={currentPage === i + 1}
                                         onClick={() => handlePageChange(i + 1)}
+                                        className='cursor-pointer'
                                     >
                                         {i + 1}
                                     </PaginationLink>

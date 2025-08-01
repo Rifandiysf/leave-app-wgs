@@ -37,10 +37,20 @@ export const login = async (req, res, next) => {
 
         const newToken = await generateToken(userData, deviceData);
 
-        res.cookie('token', `Bearer ${newToken}`);
-        res.cookie('device-id', deviceId);
-        // res.setHeader('Authorization', `Bearer ${newToken}`);
-        // res.setHeader('device-id', deviceId);
+        res.cookie('Authorization', newToken, {
+            httpOnly: true,
+            secure: false, //set True jika di Production, false untuk di Localhost
+            sameSite: 'lax',
+            path: '/',
+            expires: new Date(Date.now() + 86400000)
+        });
+        res.cookie('device-id', deviceId, {
+            httpOnly: true,
+            secure: false, //set True jika di Production, false untuk di Localhost
+            sameSite: 'lax',
+            path: '/',
+            expires: new Date(Date.now() + 86400000)
+        });
         res.status(200).json({
             success: true,
             message: `Welcome ${user.fullname}`,
@@ -51,9 +61,7 @@ export const login = async (req, res, next) => {
             }
         });
     } catch (error) {
-        return res.status(400).json({
-            message: error.message
-        });
+       next(error);
     }
 }
 
@@ -63,17 +71,17 @@ export const logout = async (req, res, next) => {
         const header = req.get("authorization");
         const token = header?.split(' ')[1];
 
+        // check expired token.
         const decode = decodeToken(token)
+
+        // check if token are exist in database.
         await deleteToken(decode.NIK, deviceId);
+
         res.status(200).json({
             success: true,
             message: "You have been successfully logged out.",
         });
     } catch (error) {
-        res.status(400).json({
-            status: "failed",
-            message: error.message,
-            status_code: 400
-        });
+        next(error);
     }
 }

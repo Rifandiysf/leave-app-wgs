@@ -13,7 +13,6 @@ import {
 } from "@/app/components/ui/dialog"
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
-import { Switch } from "@/app/components/ui/switch"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select"
 
 export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
@@ -21,10 +20,11 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
     const [gender, setGender] = useState("")
     const [duration, setDuration] = useState(0)
     const [description, setDescription] = useState("")
-    const [isActive, setIsActive] = useState(false)
 
     const [titleError, setTitleError] = useState("")
     const [descriptionError, setDescriptionError] = useState("")
+    const [genderError, setGenderError] = useState("")
+    const [durationError, setDurationError] = useState("")
     const [generalError, setGeneralError] = useState('')
     const [generalSuccess, setGeneralSuccess] = useState('')
     const [isLoading, setIsLoading] = useState(false)
@@ -36,9 +36,10 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
             setGender("");
             setDuration(0);
             setDescription("");
-            setIsActive(false);
             setTitleError("");
             setDescriptionError("");
+            setGenderError("");
+            setDurationError("");
             setGeneralError("");
             setGeneralSuccess("");
         }
@@ -51,6 +52,8 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
         setGeneralSuccess("")
         setTitleError("")
         setDescriptionError("")
+        setGenderError("")
+        setDurationError("")
 
         let hasError = false;
         if (!title.trim()) {
@@ -62,8 +65,12 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
             hasError = true;
         }
         if (duration <= 0) {
-            // setDurationError("Duration must be a positive number");
-            // hasError = true;
+            setDurationError("Amount cannot be 0 days");
+            hasError = true;
+        }
+        if (!gender.trim()) {
+            setGenderError("Gander cannot be empty");
+            hasError = true;
         }
 
         if (hasError) {
@@ -75,7 +82,6 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
             title,
             applicable_gender: gender,
             duration,
-            is_active: isActive,
             description,
         }
 
@@ -113,8 +119,8 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
     return (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-                <Button variant="default">
-                    <i className="bi bi-plus-circle-fill text-lg"></i> Add Special Leave
+                <Button variant="default" className="text-black">
+                    <i className="bi bi-plus-circle-fill text-lg text-slate-600"></i> Add Special Leave
                 </Button>
             </DialogTrigger>
 
@@ -146,6 +152,7 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
                                     if (titleError) setTitleError("");
                                 }}
                                 placeholder="Type the new leave title"
+                                className={titleError ? 'border-red-400' : ''}
                             />
                             {titleError && (
                                 <p className="text-sm text-red-600 mt-1">{titleError}</p>
@@ -154,7 +161,7 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
                         <div className="grid gap-3">
                             <Label htmlFor="gender">Gender</Label>
                             <Select onValueChange={(value) => setGender(value)}>
-                                <SelectTrigger className="w-full">
+                                <SelectTrigger className={`w-full ${genderError ? 'border-e-red-400' : ''}`}>
                                     <SelectValue placeholder="Select the gender" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -166,6 +173,9 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
+                            {genderError && (
+                                <p className="text-sm text-red-600 mt-1">{genderError}</p>
+                            )}
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="duration">Duration</Label>
@@ -176,7 +186,11 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
                                 value={duration}
                                 onChange={(e) => setDuration(Number(e.target.value))}
                                 placeholder="Set amount in days"
+                                className={durationError ? 'border-red-400' : ''}
                             />
+                            {durationError && (
+                                <p className="text-sm text-red-600 mt-1">{durationError}</p>
+                            )}
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="description">Description</Label>
@@ -188,19 +202,11 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
                                     if (descriptionError) setDescriptionError("");
                                 }}
                                 placeholder="Type the description"
-                                className="border-[1.5px] border-[#0000001f] rounded-sm p-1 focus:border-2 focus:border-black"
+                                className={`border-[1.5px] border-[#0000001f] ${descriptionError ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
                             />
                             {descriptionError && (
                                 <p className="text-sm text-red-600 mt-1">{descriptionError}</p>
                             )}
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="active-switch">Active</Label>
-                            <Switch
-                                id="active-switch"
-                                checked={isActive}
-                                onCheckedChange={(val) => setIsActive(val)}
-                            />
                         </div>
                     </div>
 
