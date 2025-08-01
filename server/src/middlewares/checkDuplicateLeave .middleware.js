@@ -8,7 +8,7 @@ const isValidDate = (dateString) => {
 
 export const checkDuplicateLeave = async (req, res, next) => {
     try {
-        const token = req.get("authorization")?.split(" ")[1];
+        const token = req.cookies["Authorization"];
         const user = await decodeToken(token);
         const { start_date, end_date } = req.body;
 

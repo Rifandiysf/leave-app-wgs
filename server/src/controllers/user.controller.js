@@ -7,7 +7,7 @@ import { responsePagination } from "../utils/responsePagination.utils.js";
 
 export const createLeaveRequest = async (req, res, next) => {
     try {
-        const user = await decodeToken(req.get('authorization').split(' ')[1])
+        const user = await decodeToken(req.cookies["Authorization"])
 
         console.log("Request body:", req.body);
         console.log("id_special di body:", req.body.id_special);
@@ -32,7 +32,7 @@ export const getLeaveRequests = async (req, res, next) => {
         const page = parseInt(req.query.page) || 1
         const limit = parseInt(req.query.limit) || 10
 
-        const user = await decodeToken(req.get('authorization').split(' ')[1])
+        const user = await decodeToken( req.cookies["Authorization"])
         const leaves = await getLeavesByNIK(user.NIK, page, limit)
 
         if (!leaves || leaves.length === 0) {
@@ -54,7 +54,7 @@ export const getLeavesByFilter = async (req, res, next) => {
     try {
         const { value, type, status, page = 1, limit = 10 } = req.query;
 
-        const user = await decodeToken(req.get('authorization').split(' ')[1]);
+        const user = await decodeToken(req.cookies["Authorization"]);
 
         const leaves = await getLeavesByFilterService(user.NIK, type, status, value, page, limit);
 
@@ -77,7 +77,7 @@ export const getLeaveRequestsById = async (req, res) => {
     try {
 
         const { id } = req.params
-        const user = await decodeToken(req.get('authorization').split(' ')[1])
+        const user = await decodeToken(req.cookies["Authorization"])
 
         const leaves = await getLeavesById(user.NIK, id)
 
@@ -112,7 +112,7 @@ export const allUsers = async (req, res, next) => {
 
 export const getUser = async (req, res, next) => {
     try {
-        const decode = await decodeToken(req.get("authorization").split(' ')[1]);
+        const decode = await decodeToken(req.cookies["Authorization"]);
         const { role, NIK } = decode;
         const { nik } = req.params;
         const isAdmin = ["admin", "super_admin"].includes(role);
@@ -143,7 +143,7 @@ export const getUser = async (req, res, next) => {
 
 export const getUserMe = async (req, res, next) => {
     try {
-        const decode = await decodeToken(req.get("authorization").split(' ')[1]);
+        const decode = await decodeToken(req.cookies["Authorization"]);
         const { NIK } = decode;
 
         const user = await getUserByNIK(NIK);
@@ -197,7 +197,7 @@ export const modifyAmount = async (req, res, next) => {
     try {
         const { nik } = req.params;
         const { adjustment_value, notes, leave_type } = req.body;
-        const token = req.get("authorization").split(' ')[1];
+        const token =  req.cookies["Authorization"];
 
         const decodedToken = await decodeToken(token);
         const actor = {
