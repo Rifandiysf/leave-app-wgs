@@ -5,7 +5,7 @@ import { decodeToken, verifyToken } from '../utils/jwt.js';
 
 export const isAuthenticated = async (req, res, next) => {
     // const header = req.get("authorization");
-    const token = req.cookies.Authorization;
+    const token = req.cookies["Authorization"];
     const deviceId = req.cookies['device-id'];
     
     try {
