@@ -16,12 +16,18 @@ type UserSearchResult = {
 const AmountLeavePage = () => {
   const router = useRouter();
 
+  // DYNAMIC YEAR: Get the current year and the previous year dynamically.
+  const thisYear = new Date().getFullYear(); // e.g., 2025
+  const lastYear = thisYear - 1; // e.g., 2024
+
   const [nik, setNik] = useState("");
   const [currentBalance, setCurrentBalance] = useState(0);
   const [amountToAdd, setAmountToAdd] = useState<number>(0);
   const [total, setTotal] = useState(0);
   const [information, setInformation] = useState("");
-  const [selectedYear, setSelectedYear] = useState("2025");
+  
+  // DYNAMIC YEAR: Initialize state with the dynamic current year.
+  const [selectedYear, setSelectedYear] = useState(thisYear.toString());
 
   const [thisYearBalance, setThisYearBalance] = useState(0);
   const [lastYearBalance, setLastYearBalance] = useState(0);
@@ -72,12 +78,13 @@ const AmountLeavePage = () => {
   useEffect(() => {
     if (!userWasSelected) return;
 
-    if (selectedYear === "2024") {
+    // DYNAMIC YEAR: Use the dynamic `lastYear` variable for comparison.
+    if (selectedYear === lastYear.toString()) {
       setCurrentBalance(lastYearBalance);
     } else {
       setCurrentBalance(thisYearBalance);
     }
-  }, [selectedYear, userWasSelected, thisYearBalance, lastYearBalance]);
+  }, [selectedYear, userWasSelected, thisYearBalance, lastYearBalance, lastYear]);
 
   const handleUserSelect = (user: UserSearchResult) => {
     setUserWasSelected(true);
@@ -88,21 +95,21 @@ const AmountLeavePage = () => {
     const lastYearBal = user.last_year_leave || 0;
     setThisYearBalance(thisYearBal);
     setLastYearBalance(lastYearBal);
-
-    setCurrentBalance(selectedYear === "2024" ? lastYearBal : thisYearBal);
+    
+    // DYNAMIC YEAR: Use the dynamic `lastYear` variable for comparison.
+    setCurrentBalance(selectedYear === lastYear.toString() ? lastYearBal : thisYearBal);
     setSearchResults([]);
   };
 
   const handleConfirmSubmit = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
-
-    // FIX: Payload disederhanakan dengan menghapus 'year'
-    // Kita hanya mengandalkan 'leave_type' yang lebih eksplisit
+    
+    // DYNAMIC YEAR: Use the dynamic `lastYear` variable to determine the payload.
     const payload = {
       adjustment_value: Number(amountToAdd),
       notes: information.trim(),
-      leave_type: selectedYear === "2024" ? "last_year_leave" : "this_year_leave"
+      leave_type: selectedYear === lastYear.toString() ? "last_year_leave" : "this_year_leave"
     };
 
     try {
@@ -118,14 +125,17 @@ const AmountLeavePage = () => {
   };
 
   const isFormValid = nik && selectedUserName && amountToAdd > 0 && information.trim() !== '';
-  const isDirty = nik.trim() !== '' || amountToAdd > 0 || information.trim() !== '' || selectedYear !== "2025";
+  // DYNAMIC YEAR: Use the dynamic `thisYear` variable for the dirty check.
+  const isDirty = nik.trim() !== '' || amountToAdd > 0 || information.trim() !== '' || selectedYear !== thisYear.toString();
 
+  // DYNAMIC YEAR: Make the label generator dynamic.
   const getYearLabel = (year: string) => {
-    return year === "2024" ? "2024 (Last Year)" : "2025 (This Year)";
+    return year === lastYear.toString() ? `${lastYear} (Last Year)` : `${thisYear} (This Year)`;
   };
 
+  // DYNAMIC YEAR: Make the confirmation message dynamic.
   const getConfirmationMessage = () => {
-    const yearType = selectedYear === "2024" ? "last year" : "this year";
+    const yearType = selectedYear === lastYear.toString() ? "last year" : "this year";
     return `Are you sure you want to add ${amountToAdd} leaves from ${yearType} (${selectedYear}) for ${nik} - ${selectedUserName}?`;
   };
 
@@ -193,7 +203,8 @@ const AmountLeavePage = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">Select Year</label>
               <div className="flex gap-6">
-                {["2024", "2025"].map((year) => (
+                {/* DYNAMIC YEAR: Use dynamic years for the radio buttons. */}
+                {[lastYear.toString(), thisYear.toString()].map((year) => (
                   <label key={year} className="flex items-center cursor-pointer">
                     <input
                       type="radio"
@@ -301,6 +312,7 @@ const AmountLeavePage = () => {
                   Confirm
                 </button>
               )}
+              
             </div>
           </div>
         </div>
