@@ -54,16 +54,21 @@ const UserDashboard = () => {
       setError(null);
 
       try {
-        const userString = localStorage.getItem('user');
+        const userProfileResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/me`, {
+          method: 'GET',
+          credentials: "include"
+        });
 
-        if (!userString) {
-          throw new Error("User data or token not found. Please log in again.");
+        if (!userProfileResponse.ok) {
+          throw new Error("User data not found. Please log in again.");
         }
 
-        const user = JSON.parse(userString);
-        const nik = user.NIK || user.nik;
+        const userProfileJson = await userProfileResponse.json();
+        const user = userProfileJson.user_data;
+        const nik = user.NIK;
+
         if (!nik) {
-          throw new Error("User NIK not found in local storage.");
+          throw new Error("User NIK not found in profile data.");
         }
 
         const [dashboardResponse, allLeavesResponse] = await Promise.all([
