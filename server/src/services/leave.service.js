@@ -156,6 +156,7 @@ export const updateLeave = async (id, status, reason, nik) => {
                     gt: new Date()
                 }
             },
+            take: 2,
             orderBy: {
                 expired_date: "asc" // [-1] = currentYearBalance && [0..n] = lastYearBalance
             }
