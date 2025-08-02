@@ -153,7 +153,7 @@ export const updateLeave = async (id, status, reason, nik) => {
             where: {
                 NIK: data.NIK,
                 expired_date: {
-                    gte: new Date()
+                    gt: new Date()
                 }
             },
             orderBy: {
