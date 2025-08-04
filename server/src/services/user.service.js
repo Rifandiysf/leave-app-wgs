@@ -1,6 +1,6 @@
 import { date } from "zod/v4";
 import prisma from "../utils/client.js"
-import { calculateHolidaysDays, createDateFromString } from '../utils/leaves.utils.js';
+import { calculateHolidaysDays, createDateFromString, formatDateIndonesia } from '../utils/leaves.utils.js';
 import { status_active } from "../../generated/prisma/index.js";
 
 
@@ -573,7 +573,7 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
 export const getAllMandatoryLeavesService = async (page = 1, limit = 10) => {
     const skip = (page - 1) * limit;
 
-    const [data, total] = await Promise.all([
+    const [rawData, total] = await Promise.all([
         prisma.tb_mandatory_leave.findMany({
             skip,
             take: limit,
@@ -584,6 +584,14 @@ export const getAllMandatoryLeavesService = async (page = 1, limit = 10) => {
             where: { is_active: true }
         })
     ]);
+
+    const data = rawData.map(item => {
+        const formattedDate = createDateFromString(item.start_date);
+        const tanggalFormatted = formatDateIndonesia(formattedDate);
+
+        const message = `konfimasi cuti sebelum tanggal ${tanggalFormatted}`;
+        return { ...item, message };
+    });
 
     const totalPages = Math.ceil(total / limit);
 
