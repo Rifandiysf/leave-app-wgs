@@ -77,6 +77,17 @@ export const logout = async (req, res, next) => {
         // check if token are exist in database.
         await deleteToken(decode.NIK, deviceId);
 
+        res.clearCookie("Authorization", {
+            httpOnly: true,
+            secure: true,
+            path: "/"
+        });
+        res.clearCookie("device-id", {
+            httpOnly: true,
+            secure: true,
+            path: "/"
+        });
+
         res.status(200).json({
             success: true,
             message: "You have been successfully logged out.",
