@@ -1,5 +1,5 @@
 import { success } from "zod/v4";
-import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK, adjustModifyAmount } from "../services/user.service.js"
+import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK, adjustModifyAmount, getAllMandatoryLeavesService } from "../services/user.service.js"
 import prisma from '../utils/client.js'
 import { decodeToken } from "../utils/jwt.js";
 import { responsePagination } from "../utils/responsePagination.utils.js";
@@ -32,7 +32,7 @@ export const getLeaveRequests = async (req, res, next) => {
         const page = parseInt(req.query.page) || 1
         const limit = parseInt(req.query.limit) || 10
 
-        const user = await decodeToken( req.cookies["Authorization"])
+        const user = await decodeToken(req.cookies["Authorization"])
         const leaves = await getLeavesByNIK(user.NIK, page, limit)
 
         if (!leaves || leaves.length === 0) {
@@ -197,7 +197,7 @@ export const modifyAmount = async (req, res, next) => {
     try {
         const { nik } = req.params;
         const { adjustment_value, notes, leave_type } = req.body;
-        const token =  req.cookies["Authorization"];
+        const token = req.cookies["Authorization"];
 
         const decodedToken = await decodeToken(token);
         const actor = {
@@ -213,7 +213,7 @@ export const modifyAmount = async (req, res, next) => {
 
         if (actor.nik === nik) {
             const error = new Error("You are not allowed to add your own leave balance");
-            error.statusCode = 403; 
+            error.statusCode = 403;
             throw error;
         }
 
@@ -236,11 +236,26 @@ export const modifyAmount = async (req, res, next) => {
             notes,
             actor,
             targetRole,
-            leave_type 
+            leave_type
         );
 
         res.status(200).json({ message: 'Balance adjusted successfully', data: result });
     } catch (error) {
         next(error);
+    }
+};
+
+export const getAllMandatoryLeaves = async (req, res, next) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 100;
+
+        const result = await getAllMandatoryLeavesService(page, limit);
+
+        const paginationResponse = responsePagination("All mandatory leave was successfully taken", result, limit);
+
+        res.status(200).json(paginationResponse);
+    } catch (error) {
+        next(error)
     }
 };

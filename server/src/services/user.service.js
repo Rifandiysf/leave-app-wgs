@@ -569,3 +569,23 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
 
     return updatedAmount;
 };
+
+export const getAllMandatoryLeavesService = async (page = 1, limit = 10) => {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+        prisma.tb_mandatory_leave.findMany({
+            skip,
+            take: limit,
+            orderBy: { start_date: 'asc' },
+            where: { is_active: true }
+        }),
+        prisma.tb_mandatory_leave.count({
+            where: { is_active: true }
+        })
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return { data, total, totalPages, page };
+};
