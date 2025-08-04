@@ -2,6 +2,7 @@ import express, { urlencoded } from 'express';
 import { PORT, HOSTNAME} from './config/env.js';
 import routes from './routes/index.route.js';
 import cors from 'cors'
+import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import responseTime from 'response-time';
 import morgan from 'morgan'
@@ -15,6 +16,7 @@ app.use(morgan('dev'));
 app.use(responseTime());
 app.use(express.json());
 app.use(express.urlencoded( { extended: true}));
+app.use(cookieParser());
 app.use(compression({
     threshold: 0
 }))

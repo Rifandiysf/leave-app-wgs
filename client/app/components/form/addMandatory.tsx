@@ -83,15 +83,9 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
         }
 
         try {
-            const token = localStorage.getItem('token');
-            const deviceId = localStorage.getItem('device-id');
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/mandatory`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token && { Authorization: `${token}` }),
-                    ...(deviceId && { 'device-id': deviceId }),
-                },
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(payload),
             })

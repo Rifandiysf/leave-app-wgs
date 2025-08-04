@@ -53,7 +53,7 @@ export const createLeave = async (data) => {
 
     if (!total_days) {
         total_days = calculateHolidaysDays(
-            createDateFromString(start_date), 
+            createDateFromString(start_date),
             createDateFromString(end_date)
         );
     }
@@ -262,7 +262,7 @@ export const getAllUsers = async (page, limit, search = '', gender = '', status 
             ...(role ? [{ role: role }] : [])
         ],
         NOT: {
-                    role: "magang"
+            role: "magang"
         }
     };
 
@@ -275,10 +275,12 @@ export const getAllUsers = async (page, limit, search = '', gender = '', status 
 
     const leaveAmount = await prisma.tb_balance.findMany({
         where: {
-            receive_date: {
-                gte: new Date(`${lastYear}-01-01`),
-                lte: new Date(`${currentYear}-12-31`)
+            expired_date: {
+                gte: new Date()
             }
+        },
+        orderBy: {
+            expired_date: "desc"
         }
     });
 
@@ -352,6 +354,7 @@ export const getUserByNIK = async (nik) => {
             },
             include: {
                 tb_balance: {
+                    take: 2,
                     where: {
                         expired_date: {
                             gte: new Date()
@@ -371,14 +374,10 @@ export const getUserByNIK = async (nik) => {
         }
 
         const { tb_balance, NIK, fullname, gender, status_active } = user;
-        const currentBalance = tb_balance.filter((bal) => new Date().getFullYear() === bal.receive_date.getFullYear()).reduce((sum, bal) => sum + bal.amount, 0) ?? 0;
-        const lastYearBalance = tb_balance.filter((bal) => new Date().getFullYear() !== bal.receive_date.getFullYear()).reduce((sum, bal) => sum + bal.amount, 0) ?? 0;
-        let maxReceiveAmount = user.role === "karyawan_kontrak" ? 1 : 12;
+        const currentBalance = tb_balance.filter((bal) => new Date().getFullYear() === bal.receive_date.getFullYear())?.[0]?.amount ?? 0;
+        const lastYearBalance = tb_balance.filter((bal) => new Date().getFullYear() !== bal.receive_date.getFullYear())?.[0]?.amount ?? 0;
 
-        const pending_request = await prisma.tb_leave.aggregate({
-            _sum: {
-                total_days: true
-            },
+        const pending_request = await prisma.tb_leave.count({
             where: {
                 created_at: {
                     gte: currentDateFirstMonth,
@@ -409,8 +408,6 @@ export const getUserByNIK = async (nik) => {
             },
         });
 
-        console.log('adasd', pending_request._sum.total_days);
-
         const userCopy = {
             NIK: NIK,
             fullname: fullname,
@@ -422,12 +419,13 @@ export const getUserByNIK = async (nik) => {
                 current_amount: currentBalance,
                 carried_amount: lastYearBalance,
                 days_used: approved_request._sum.total_days || 0,
-                pending_request: pending_request._sum.total_days || 0,
+                pending_request: pending_request || 0,
             }
         }
 
         return userCopy;
     } catch (error) {
+        console.log(error);
         throw error;
     }
 
@@ -495,8 +493,8 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
     }
 
     const currentYear = new Date().getFullYear();
-    const targetYear = (leave_type === 'last_year_leave') 
-        ? currentYear - 1 
+    const targetYear = (leave_type === 'last_year_leave')
+        ? currentYear - 1
         : currentYear;
 
     let balance;
@@ -530,7 +528,7 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
         const newBalanceData = {
             NIK: nik,
             amount: adjustment_value,
-            receive_date: new Date(`${targetYear}-01-01`), 
+            receive_date: new Date(`${targetYear}-01-01`),
             expired_date: new Date(`${targetYear + 2}-01-01`),
         };
 

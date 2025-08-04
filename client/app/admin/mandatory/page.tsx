@@ -13,7 +13,6 @@ import {
 import { Switch } from "@/app/components/ui/switch"
 import { AddMandatory } from '@/app/components/form/addMandatory'
 import { EditMandatory } from '@/app/components/form/editMandatory'
-import withAuth from '@/lib/auth/withAuth'
 import { formatDate } from '@/lib/format'
 
 type dataMandatoryLeaveType = {
@@ -77,15 +76,8 @@ const MandatoryLeavePage = () => {
 
             url += `${searchTerm ? '&' : '?'}page=${page}&limit=${itemPerPage}`
 
-            const token = localStorage.getItem('token');
-            const deviceId = localStorage.getItem('device-id');
-
             const res = await fetch(url, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token && { Authorization: `${token}` }),
-                    ...(deviceId && { 'device-id': deviceId }),
-                }
+                credentials: 'include',
             })
 
             if (!res.ok) {
@@ -235,4 +227,4 @@ const MandatoryLeavePage = () => {
     )
 }
 
-export default withAuth(MandatoryLeavePage, { requireAdmin: true })
+export default MandatoryLeavePage

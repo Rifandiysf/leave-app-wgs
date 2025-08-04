@@ -3,7 +3,6 @@
     import { useState, useEffect, useCallback } from "react";
     import 'bootstrap-icons/font/bootstrap-icons.css';
     import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-    import withAuth from "@/lib/auth/withAuth";
     import axiosInstance from "@/lib/api/axiosInstance";
 
     type dataLeaveType = {
@@ -39,16 +38,9 @@
          
         const fetchUsersData = useCallback(async () => {
             try {
-                const token = localStorage?.getItem?.('token');
-                const deviceId = localStorage?.getItem?.('device-id');
-
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users?limit=1000`, {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...(token && { Authorization: `${token}` }),
-                        ...(deviceId && { 'device-id': deviceId }),
-                    },
+                    credentials: 'include',
                 });
 
                 const resJson = await response.json();
@@ -502,4 +494,4 @@
         );
     };
 
-    export default withAuth(DashboardPage, { requireAdmin: true });
+    export default DashboardPage

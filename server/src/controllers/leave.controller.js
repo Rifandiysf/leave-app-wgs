@@ -19,7 +19,7 @@ import { decodeToken } from "../utils/jwt.js";
 export const updateLeaveById = async (req, res, next) => {
   const { id } = req.params;
   const { reason, status } = req.body;
-  const decodedToken = await decodeToken(req.get('authorization').split(' ')[1]);
+  const decodedToken = await decodeToken(req.cookies["Authorization"]);
   const { NIK } = decodedToken;
 
   try {

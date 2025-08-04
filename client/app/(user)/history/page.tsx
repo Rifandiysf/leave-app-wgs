@@ -12,7 +12,6 @@ import {
 } from "../../components/ui/pagination"
 import Modal from "@/app/components/Modal/Modal"
 import { formatDate, formatUppercase } from "@/lib/format"
-import withAuth from "@/lib/auth/withAuth"
 import { Label } from "@/app/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/app/components/ui/select"
 
@@ -96,15 +95,8 @@ const HistoryPage = () => {
 
             url += `${searchTerm && '&'}page=${page}&limit=${itemPerPage}`
 
-            const token = localStorage.getItem('token');
-            const deviceId = localStorage.getItem('device-id');
-
             const res = await fetch(url, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token && { Authorization: `${token}` }),
-                    ...(deviceId && { 'device-id': deviceId }),
-                }
+                credentials: 'include',
             })
 
             if (!res.ok) {
@@ -347,4 +339,4 @@ const HistoryPage = () => {
     )
 }
 
-export default withAuth(HistoryPage)
+export default HistoryPage
