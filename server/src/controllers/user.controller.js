@@ -218,7 +218,9 @@ export const modifyAmount = async (req, res, next) => {
         }
 
         const targetUser = await prisma.tb_users.findUnique({
-            where: { NIK: nik },
+            where: { NIK: nik,
+                status_active: 'active'
+             },
             select: { role: true }
         });
 
