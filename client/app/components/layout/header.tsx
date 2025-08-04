@@ -1,4 +1,3 @@
-
 'use client'
 
 import Image from 'next/image'
@@ -12,6 +11,7 @@ export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [fullname, setFullname] = useState('Guest')
     const [isAdmin, setIsAdmin] = useState(false)
+    const [isSuperAdmin, setIsSuperAdmin] = useState(false) // State untuk super_admin
 
     const pathname = usePathname()
     const router = useRouter()
@@ -28,7 +28,9 @@ export default function Header() {
                 setFullname(payload?.fullname || 'User')
 
                 const role = payload?.role
+                // Tentukan role admin dan super_admin
                 setIsAdmin(role === 'admin' || role === 'super_admin')
+                setIsSuperAdmin(role === 'super_admin') // Akan true HANYA jika rolenya super_admin
             }
         } catch (error) {
             console.error('Failed to parse token:', error)
@@ -38,7 +40,6 @@ export default function Header() {
     const handleLogout = async () => {
         const token = localStorage.getItem('token')
         const deviceId = localStorage.getItem('device-id')
-
         try {
             await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/logout`, {
                 method: 'GET',
@@ -47,20 +48,20 @@ export default function Header() {
                     'device-id': deviceId || '',
                 },
             })
-
+        } catch (err) {
+            console.error('Logout failed', err)
+        } finally {
             localStorage.removeItem('token')
             localStorage.removeItem('device-id')
             router.push('/auth/login')
-        } catch (err) {
-            console.error('Logout failed', err)
         }
     }
 
-    const isUserDashboard = pathname === '/' 
+    const isUserDashboard = pathname === '/'
     const isAdminPage = pathname.startsWith('/admin')
-
+    
     return (
-        <header className="flex items-center justify-between bg-white lg:bg-transparent lg:p-0">
+        <header className="flex items-center justify-between p-4 bg-white lg:bg-transparent lg:p-0">
             <div className="lg:hidden">
                 <Image src="/images/logo-wgs.svg" alt="Logo WGS" width={140} height={38} priority />
                 <h2 className="text-xl font-medium text-black truncate mt-1">Welcome {fullname}</h2>
@@ -74,6 +75,7 @@ export default function Header() {
                 </button>
             </div>
 
+            {/* Mobile Menu Pop-out */}
             {isMenuOpen && (
                 <div className="fixed inset-0 z-40 lg:hidden" onClick={() => setIsMenuOpen(false)}>
                     <div className="fixed top-4 right-4 w-60 bg-white rounded-xl shadow-lg z-50 p-4" onClick={(e) => e.stopPropagation()}>
@@ -83,32 +85,35 @@ export default function Header() {
                                 <i className="bi bi-x text-xl text-gray-600" />
                             </button>
                         </div>
-                        <div className="h-px bg-gray-500 mb-4" />
-                        <nav className="flex flex-col">
+                        <div className="h-px bg-gray-200 mb-2" />
+                        <nav className="flex flex-col space-y-1">
                             {isAdmin && isAdminPage && (
-                                <Link href="/" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                                <Link href="/" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100">
                                     <i className="bi bi-box-arrow-in-left text-[26px] ml-[2px]" />
                                     <span className="font-medium text-gray-700">Employee Side</span>
                                 </Link>
                             )}
                             {isAdmin && isUserDashboard && (
-                                <Link href="/admin/dashboard" className="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                                <Link href="/admin/dashboard" className="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-100">
                                     <i className="bi bi-person-workspace text-2xl" />
                                     <span className="font-medium text-gray-700">Admin Side</span>
                                 </Link>
                             )}
                             
-                            <Link href="#" className="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                                <i className="bi bi-gear text-2xl" />
-                                <span className="font-medium text-gray-700">Setting</span>
-                            </Link>
+                            {/* PERBAIKAN DI SINI: Gunakan state 'isSuperAdmin' */}
+                            {isSuperAdmin && (
+                                <Link href="/admin/settings" className="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-100">
+                                    <i className="bi bi-gear-fill text-2xl" />
+                                    <span className="font-medium text-gray-700">Settings</span>
+                                </Link>
+                            )}
                             
                             <Modal
                                 mode="confirm"
-                                title="Are you sure you want to log out of your account?"
+                                title="Are you sure you want to log out?"
                                 onConfirm={handleLogout}
                                 variant="ghost"
-                                triggerClassName="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors w-full justify-start"
+                                triggerClassName="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 w-full justify-start"
                                 triggerLabel={
                                     <>
                                         <i className="bi bi-box-arrow-right text-2xl ml-[3px]" />
@@ -121,6 +126,7 @@ export default function Header() {
                 </div>
             )}
 
+            {/* Desktop Header */}
             <div className="hidden lg:flex items-center space-x-6">
                 {isAdmin && isUserDashboard && (
                     <Link href="/admin/dashboard" className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
@@ -128,28 +134,31 @@ export default function Header() {
                         <span className="text-sm font-medium">Admin Side</span>
                     </Link>
                 )}
-                {isAdmin && isAdminPage      && (
+                {isAdmin && isAdminPage && (
                     <Link href="/" className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
-                        <i className="bi bi-box-arrow-in-left  w-6 text-center text-2xl" />
+                        <i className="bi bi-box-arrow-in-left w-6 text-center text-2xl" />
                         <span className="text-sm font-medium">Employee Side</span>
                     </Link>
                 )}
-                <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
-                    <i className="bi bi-gear-fill text-xl" />
-                    <span className="text-sm font-medium">Settings</span>
-                </div>  
-
- 
+                
+                {/* PERBAIKAN DI SINI: Gunakan state 'isSuperAdmin' */}
+                {isSuperAdmin && (
+                    <Link href="/admin/settings" className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
+                        <i className="bi bi-gear-fill text-xl" />
+                        <span className="text-sm font-medium">Settings</span>
+                    </Link>
+                )}
+                
                 <Modal
                     mode="confirm"
-                    title="Are you sure you want to log out of your account?"
+                    title="Are you sure you want to log out?"
                     onConfirm={handleLogout}
-                    variant="ghost" 
+                    variant="ghost"
                     triggerClassName="hover:text-blue-900 text-gray-700 p-0"
                     triggerLabel={
                         <div className="flex items-center space-x-2">
-                             <i className="bi bi-box-arrow-right text-xl" />
-                             <span className="font-medium">Logout</span>
+                            <i className="bi bi-box-arrow-right text-xl" />
+                            <span className="font-medium">Logout</span>
                         </div>
                     }
                 />

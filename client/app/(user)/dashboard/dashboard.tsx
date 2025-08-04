@@ -91,14 +91,13 @@ const UserDashboard = () => {
 
       const allUserLeaves = allLeavesJson?.data || [];
 
-      // Calculate pending requests (existing logic)
+
       const pendingForUser = allUserLeaves.filter(
         (leave: { status: string }) => leave.status?.toLowerCase() === 'pending'
       );
       setPendingCount(pendingForUser.length);
 
-      // --- START: MODIFIED LOGIC ---
-      // Calculate total days used from approved leaves
+
       const approvedLeaves = allUserLeaves.filter(
         (leave: { status: string }) => leave.status?.toLowerCase() === 'approved'
       );
@@ -108,14 +107,13 @@ const UserDashboard = () => {
         0
       );
       setUsedDays(totalUsedDays);
-      // --- END: MODIFIED LOGIC ---
 
     } catch (err: any) {
       setError(err.message);
       console.error("Error fetching dashboard data:", err);
     } finally {
       setIsLoading(false);
-    }
+    } 
   };
 
   fetchUserDashboardData();
@@ -191,7 +189,7 @@ const UserDashboard = () => {
             className="group hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 border-0 overflow-hidden relative rounded-lg sm:rounded-2xl p-2 sm:p-3">
             <div className="absolute top-0 right-0 w-14 h-14 sm:w-20 sm:h-20 bg-blue-200 rounded-full -mr-6 -mt-6 opacity-50"></div>
             <div className="absolute bottom-0 left-0 w-12 h-12 sm:w-16 sm:h-16 bg-blue-300 rounded-full -ml-4 -mb-4 opacity-30"></div>
-            <div className="relative p-1 sm:p-2">
+            <div className="relative p-1 sm:p-2"> 
               <div className="flex items-center justify-between mb-2 sm:mb-4">
                 <div className="w-8 h-8 sm:w-12 sm:h-12 bg-blue-600 rounded-xl flex items-center justify-center">
                   <i className="bi bi-calendar-check text-white text-base sm:text-xl" />
