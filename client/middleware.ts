@@ -25,10 +25,12 @@ export default async function middleware(request: NextRequest) {
         try {
             const { payload } = await jwtVerify(authToken, secret);
             const userRole = payload.role as string;
-
-            if (pathname.startsWith(adminPaths) && userRole !== 'admin') {
-                return NextResponse.redirect(new URL('/forbidden', request.url));
-            }
+            if (
+                    pathname.startsWith(adminPaths) &&
+                    !['admin', 'super_admin'].includes(userRole)
+                    ) {
+                    return NextResponse.redirect(new URL('/forbidden', request.url));
+                    }
             
         } catch (error) {
             console.error("Token verification failed:", error);

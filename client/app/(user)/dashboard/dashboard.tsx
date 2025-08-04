@@ -93,14 +93,13 @@ const UserDashboard = () => {
 
         const allUserLeaves = allLeavesJson?.data || [];
 
-        // Calculate pending requests (existing logic)
+
         const pendingForUser = allUserLeaves.filter(
           (leave: { status: string }) => leave.status?.toLowerCase() === 'pending'
         );
         setPendingCount(pendingForUser.length);
 
-        // --- START: MODIFIED LOGIC ---
-        // Calculate total days used from approved leaves
+
         const approvedLeaves = allUserLeaves.filter(
           (leave: { status: string }) => leave.status?.toLowerCase() === 'approved'
         );
@@ -110,7 +109,7 @@ const UserDashboard = () => {
           0
         );
         setUsedDays(totalUsedDays);
-        // --- END: MODIFIED LOGIC ---
+
 
       } catch (err: any) {
         setError(err.message);
