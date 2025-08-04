@@ -55,14 +55,8 @@ export function ApplyLeave() {
 
     useEffect(() => {
         if (leaveType === 'special_leave') {
-            const token = localStorage.getItem('token');
-            const deviceId = localStorage.getItem('device-id');
             fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/special`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token && { Authorization: `${token}` }),
-                    ...(deviceId && { 'device-id': deviceId }),
-                }
+                credentials: 'include',
             }).then((res) => res.json()).then(data => {
                 setSpecialLeaves(data?.data || [])
             }).catch(err => {
@@ -155,15 +149,9 @@ export function ApplyLeave() {
         }
 
         try {
-            const token = localStorage.getItem('token');
-            const deviceId = localStorage.getItem('device-id');
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/leave`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token && { Authorization: `${token}` }),
-                    ...(deviceId && { 'device-id': deviceId }),
-                },
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(payload),
             })

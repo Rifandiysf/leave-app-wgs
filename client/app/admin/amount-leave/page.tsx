@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import withAuth from "@/lib/auth/withAuth";
 import Modal from '@/app/components/Modal/Modal';
 import axiosInstance from "@/lib/api/axiosInstance";
 
@@ -321,4 +320,4 @@ const AmountLeavePage = () => {
   );
 };
 
-export default withAuth(AmountLeavePage);
+export default AmountLeavePage

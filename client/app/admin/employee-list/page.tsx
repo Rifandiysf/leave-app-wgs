@@ -15,8 +15,6 @@ import {
 } from "@/app/components/ui/pagination";
 import { SelectDemo } from "@/app/components/select/page";
 import { SelectItem, SelectLabel } from "@/app/components/ui/select";
-import withAuth from "@/lib/auth/withAuth";
-// Impor komponen notifikasi sukses
 import SuccessAlert from "@/app/components/SuccesAlert/SuccesAlert";
 
 type dataLeaveType = {
@@ -68,16 +66,9 @@ const EmployeeListContent = () => {
             if (statusFilter) params.append('status', statusFilter);
             if (roleFilter) params.append('role', roleFilter);
 
-            const token = localStorage.getItem('token');
-            const deviceId = localStorage.getItem('device-id');
-
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users?${params.toString()}`, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token && { Authorization: `${token}` }),
-                    ...(deviceId && { 'device-id': deviceId }),
-                },
+                credentials: 'include',
             });
 
             const resJson = await response.json();
@@ -270,4 +261,4 @@ const EmployeeListPage = () => (
     </Suspense>
 );
 
-export default withAuth(EmployeeListPage, { requireAdmin: true });
+export default EmployeeListPage
