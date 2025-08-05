@@ -1,5 +1,5 @@
 import express from "express";
-import { createLeaveRequest, getLeaveRequestsById, getLeavesByFilter, allUsers, getUser, updateUser, deleteUser, getLeaveRequests, modifyAmount, getUserMe} from "../controllers/user.controller.js";
+import { createLeaveRequest, getLeaveRequestsById, getLeavesByFilter, allUsers, getUser, updateUser, deleteUser, getLeaveRequests, modifyAmount, getUserMe, getAllMandatoryLeaves} from "../controllers/user.controller.js";
 import { validate } from "../middlewares/validate.js";
 import leaveRequestSchema from "../validators/leave.validator.js";
 import { isAuthenticated } from "../middlewares/isAuthenticated.middleware.js";
@@ -10,12 +10,12 @@ import { validateSpecialLeaveNotWeekend } from "../middlewares/validateSpecialLe
 import { checkDuplicateLeave } from "../middlewares/checkDuplicateLeave .middleware.js";
 import { validateStartDate } from "../middlewares/validateStartDate.middleware.js";
 import { validateLeaveDateRange } from "../middlewares/validateLeaveDateRange.middleware.js";
-import { getMandatoryLeaves, getSpecialLeave } from "../controllers/leave.controller.js";
+import { getSpecialLeave } from "../controllers/leave.controller.js";
 
 const userRoutes = express.Router();
 
 userRoutes.get('/special', getSpecialLeave)
-userRoutes.get('/mandatory', getMandatoryLeaves)
+userRoutes.get('/mandatory', getAllMandatoryLeaves)
 
 userRoutes.post('/leave', validate(leaveRequestSchema), validateStartDate, checkDuplicateLeave, validateLeaveDateRange, validateLeaveBalance, validateSpecialLeaveNotWeekend, createLeaveRequest);
 userRoutes.get('/leave', getLeaveRequests);

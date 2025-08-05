@@ -10,7 +10,11 @@ export const checkDuplicateLeave = async (req, res, next) => {
     try {
         const token = req.cookies["Authorization"];
         const user = await decodeToken(token);
-        const { start_date, end_date } = req.body;
+        const { start_date, end_date, leave_type } = req.body;
+
+        if (leave_type === "mandatory_leave") {
+            return next();
+        }
 
         if (!isValidDate(start_date) || (end_date && !isValidDate(end_date))) {
             const error = new Error("Invalid date format. Please use YYYY-MM-DD");
@@ -30,8 +34,8 @@ export const checkDuplicateLeave = async (req, res, next) => {
                         end_date: { gte: start },
                     },
                 ],
-                status : {
-                    in : ["approved", "pending", "expired"]
+                status: {
+                    in: ["approved", "pending", "expired"]
                 },
             },
         });
