@@ -695,10 +695,14 @@ export const getAllMandatoryLeavesService = async (page = 1, limit = 10) => {
     ]);
 
     const data = rawData.map(item => {
-        const formattedDate = createDateFromString(item.start_date);
-        const tanggalFormatted = formatDateIndonesia(formattedDate);
+        const originalDate = createDateFromString(item.start_date);
+        
+        const adjustedDate = new Date(originalDate);
+        adjustedDate.setDate(adjustedDate.getDate() - 7);
 
-        const message = `konfimasi cuti sebelum tanggal ${tanggalFormatted}`;
+        const tanggalFormatted = formatDateIndonesia(adjustedDate);
+
+        const message = `konfirmasi cuti sebelum tanggal ${tanggalFormatted}`;
         return { ...item, message };
     });
 
