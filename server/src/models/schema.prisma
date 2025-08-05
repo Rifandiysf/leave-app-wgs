@@ -103,6 +103,12 @@ model tb_jwt_token {
   tb_users     tb_users @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
 }
 
+model tb_settings {
+  id    String @id @default(uuid())
+  logo  String 
+  color String 
+}
+
 enum applicable_gender {
   m
   f
