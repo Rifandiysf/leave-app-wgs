@@ -1,5 +1,9 @@
 import prisma from "../utils/client.js"
 
-export const serviceCreateSeeting = async (data) => {
+export const serviceCreateSetting = async (data) => {
     return await prisma.tb_settings.create({data})
+}
+
+export const serviceGetSetting = async () => {
+    return await prisma.tb_settings.findMany()
 }
