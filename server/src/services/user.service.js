@@ -569,3 +569,35 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
 
     return updatedAmount;
 };
+
+export const getLeaveTrendByNik = async (nik) => {
+    const leaves = await prisma.tb_leave.findMany({
+        where : {
+            NIK: nik,
+            status: 'approved'
+        },
+        orderBy : {
+            start_date : 'asc'
+        }
+    })
+
+    const trend = {}
+
+    leaves.forEach((leave) => {
+        const year = leave.start_date.getFullYear()
+        const leaveType = leave.leave_type?.toLowerCase()
+
+        if(!leaveType) {
+            throw new Error(`Unknown leave type ${leaveType}`);
+            return;
+        }
+
+        if (!trend[year]) {
+            trend[year] = {mandatory_leave: 0, special_leave: 0, personal_leave: 0}
+        }
+
+        trend[year][leaveType] += 1
+    })
+
+    return trend
+}
