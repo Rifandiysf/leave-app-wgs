@@ -143,7 +143,7 @@ export const createLeave = async (data) => {
 
         await prisma.tb_leave_log.create({
             data: {
-                old_status: 'rejected',
+                old_status: 'pending',
                 new_status: status,
                 reason: reason,
                 changed_by_nik: NIK,
