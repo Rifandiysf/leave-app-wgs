@@ -105,8 +105,8 @@ model tb_jwt_token {
 
 model tb_settings {
   id    String @id @default(uuid())
-  logo  String 
-  color String 
+  logo  String? 
+  color String? 
 }
 
 enum applicable_gender {

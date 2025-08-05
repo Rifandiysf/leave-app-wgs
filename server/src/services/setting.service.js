@@ -7,3 +7,12 @@ export const serviceCreateSetting = async (data) => {
 export const serviceGetSetting = async () => {
     return await prisma.tb_settings.findMany()
 }
+
+export const serviceUpdateSetting = async (id, data) => {
+    return await prisma.tb_settings.update({
+        where: {
+            id: id
+        },
+        data
+    })
+}
