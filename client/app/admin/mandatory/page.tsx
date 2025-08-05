@@ -14,6 +14,9 @@ import { Switch } from "@/app/components/ui/switch"
 import { AddMandatory } from '@/app/components/form/addMandatory'
 import { EditMandatory } from '@/app/components/form/editMandatory'
 import { formatDate } from '@/lib/format'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/app/components/ui/dialog"
+import { Button } from "@/app/components/ui/button"
+import { updateMandatoryLeaveStatus } from '@/lib/api/service/leave'
 
 type dataMandatoryLeaveType = {
     id_mandatory: string,
@@ -53,6 +56,9 @@ const MandatoryLeavePage = () => {
     })
     const [search, setSearch] = useState("")
     const [debouncedSearch, setDebouncedSearch] = useState("")
+    const [selectedSwitch, setSelectedSwitch] = useState<{ id: string, currentStatus: boolean } | null>(null)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isUpdating, setIsUpdating] = useState(false)
 
     // Debounce search
     useEffect(() => {
@@ -121,6 +127,27 @@ const MandatoryLeavePage = () => {
         }
     }
 
+    const handleSwitchClick = (id: string, currentStatus: boolean) => {
+        setSelectedSwitch({ id, currentStatus })
+        setIsModalOpen(true)
+    }
+
+    const handleConfirmToggle = async () => {
+        if (!selectedSwitch) return
+
+        setIsUpdating(true)
+        try {
+            await updateMandatoryLeaveStatus(selectedSwitch.id, !selectedSwitch.currentStatus)
+            setIsModalOpen(false)
+            setSelectedSwitch(null)
+            fetchMandatoryLeaves(currentPage, debouncedSearch)
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setIsUpdating(false)
+        }
+    }
+
     return (
         <section className="relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
             <div className='flex justify-end items-center gap-3 mb-4'>
@@ -180,7 +207,7 @@ const MandatoryLeavePage = () => {
                                     <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
                                         <div className="flex justify-center items-center gap-2">
                                             <EditMandatory initialData={data} onFormSubmit={handleFormSubmitSuccess} />
-                                            <Switch checked={data.is_active} />
+                                            <Switch checked={data.is_active} onClick={() => handleSwitchClick(data.id_mandatory, data.is_active)} />
                                         </div>
                                     </th>
                                 </tr>
@@ -223,6 +250,25 @@ const MandatoryLeavePage = () => {
                     </PaginationContent>
                 </Pagination>
             </div>
+
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirm Update Action</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to {selectedSwitch?.currentStatus ? 'disable' : 'enable'} this leave?
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setIsModalOpen(false)} disabled={isUpdating}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleConfirmToggle} disabled={isUpdating} className='text-black'>
+                            {isUpdating ? 'Updating...' : 'Confirm'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </section>
     )
 }

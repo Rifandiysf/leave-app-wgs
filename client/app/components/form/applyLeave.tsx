@@ -9,6 +9,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Notification } from '../notification/Notification';
+import { DateRange } from 'react-day-picker';
 
 export function ApplyLeave() {
     const [title, setTitle] = useState("")
@@ -179,7 +180,7 @@ export function ApplyLeave() {
         if (!date) return '';
         return date.toLocaleDateString('en-GB', {
             day: '2-digit',
-            month: 'long',
+            month: 'short',
             year: 'numeric'
         });
     }
@@ -253,7 +254,16 @@ export function ApplyLeave() {
                                         )}
                                     </div>
                                     <div className="grid grid-cols-1 gap-2">
-                                        <DatePickerField label="Start Leave" value={startDate} onChange={(value) => setStartDate(value)} className={dateError && 'border-red-400'} />
+                                        <DatePickerField
+                                            label="Leave Date"
+                                            value={startDate && endDate ? { from: startDate, to: endDate } : undefined}
+                                            onChange={(range: DateRange | undefined) => {
+                                                setStartDate(range?.from)
+                                                setEndDate(range?.to)
+                                                if (dateError) setDateError("")
+                                            }}
+                                            className={dateError && 'border-red-400'}
+                                        />
                                         {dateError && (
                                             <p className="text-sm text-red-600 mt-1">{dateError}</p>
                                         )}
@@ -295,9 +305,17 @@ export function ApplyLeave() {
                                             <p className="text-sm text-red-600 mt-1">{reasonError}</p>
                                         )}
                                     </div>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <DatePickerField label="Start Leave" value={startDate} onChange={(value) => setStartDate(value)} className={dateError && 'border-red-400'} />
-                                        <DatePickerField label="End Leave" value={endDate} onChange={(value) => setEndDate(value)} className={dateError && 'border-red-400'} />
+                                    <div className="grid grid-cols-1 gap-2">
+                                        <DatePickerField
+                                            label="Leave Date"
+                                            value={startDate && endDate ? { from: startDate, to: endDate } : undefined}
+                                            onChange={(range: DateRange | undefined) => {
+                                                setStartDate(range?.from)
+                                                setEndDate(range?.to)
+                                                if (dateError) setDateError("")
+                                            }}
+                                            className={dateError && 'border-red-400'}
+                                        />
                                         {dateError && (
                                             <p className="text-sm text-red-600 mt-1">{dateError}</p>
                                         )}
