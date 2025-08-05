@@ -9,14 +9,18 @@ export const createLeaveRequest = async (req, res, next) => {
     try {
         const user = await decodeToken(req.cookies["Authorization"])
 
-        console.log("Request body:", req.body);
-        console.log("id_special di body:", req.body.id_special);
+        console.log("Raw request body:", req.body);
+        console.log("Request headers:", req.headers);
+        console.log("Content-Type:", req.headers['content-type']);
 
         const leave = await createLeave({
             ...req.body,
             NIK: user.NIK,
             total_days: req.workingDays
         })
+
+        // console.log("Data yang akan dikirim ke createLeave:", requestData);
+
 
         res.status(201).json({
             message: "Leave request created successfully",
@@ -248,7 +252,7 @@ export const modifyAmount = async (req, res, next) => {
 export const getAllMandatoryLeaves = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 100;
+        const limit = parseInt(req.query.limit) || 10;
 
         const result = await getAllMandatoryLeavesService(page, limit);
 

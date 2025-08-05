@@ -1,6 +1,6 @@
 import { date } from "zod/v4";
 import prisma from "../utils/client.js"
-import { calculateHolidaysDays, createDateFromString, formatDateIndonesia } from '../utils/leaves.utils.js';
+import { calculateHolidaysDays, calculateMandatoryLeaveDays, createDateFromString, formatDateIndonesia } from '../utils/leaves.utils.js';
 import { status_active } from "../../generated/prisma/index.js";
 
 
@@ -11,7 +11,12 @@ export const createLeave = async (data) => {
         start_date,
         reason,
         NIK,
+        status
     } = data;
+
+    console.log("Data di createLeave (full object):", JSON.stringify(data, null, 2));
+    console.log("STATUS di createLeave:", status);
+    console.log("Type of status:", typeof status);
 
     let end_date = data.end_date;
     let total_days = data.total_days;
@@ -49,6 +54,110 @@ export const createLeave = async (data) => {
 
         title = specialLeave.title;
         reason = specialLeave.title;
+    }
+
+    if (leave_type === 'mandatory_leave') {
+        const { id_mandatory } = data;
+
+        if (!status) {
+            throw new Error("Status is required for mandatory leave and cannot be undefined.");
+        }
+
+        const mandatoryLeave = await prisma.tb_mandatory_leave.findUnique({
+            where: { id_mandatory }
+        })
+
+        if (!mandatoryLeave) {
+            throw new Error("Invalid id_mandatory provided");
+        }
+
+        if (status === "approved") {
+            reason = "-";
+        } else if (status === "rejected") {
+            if (!reason || reason.trim() === "") {
+                throw new Error("Reason is required when status is rejected");
+            }
+        } else {
+            reason = data.reason || "mandatory leave created";
+        }
+
+        const startDate = mandatoryLeave.start_date
+        const endDate = mandatoryLeave.end_date
+
+        total_days = calculateMandatoryLeaveDays(
+            createDateFromString(startDate),
+            createDateFromString(endDate)
+        );
+
+        const userBalance = await prisma.tb_balance.findMany({
+            where: {
+                NIK,
+                expired_date: { gt: new Date() }
+            },
+            orderBy: {
+                expired_date: 'desc'
+            }
+        });
+
+        let updatedBalances = [...userBalance];
+        let balancesUsed = [];
+        let daysToDeduct = total_days;
+
+        for (let i = 0; i < updatedBalances.length; i++) {
+            const balance = updatedBalances[i];
+            const beforeAmount = balance.amount;
+
+            balance.amount -= daysToDeduct;
+            if (balance.amount < 0 && i !== updatedBalances.length - 1) {
+                daysToDeduct = -1 * balance.amount;
+                balance.amount = 0;
+            } else {
+                daysToDeduct = 0;
+            }
+
+            balancesUsed.push([balance.id_balance, balance.receive_date.getFullYear(), beforeAmount - balance.amount]);
+
+            if (daysToDeduct === 0) break;
+        }
+
+        const balanceUpdates = updatedBalances.map((balance) =>
+            prisma.tb_balance.update({
+                where: { id_balance: balance.id_balance },
+                data: { amount: balance.amount }
+            })
+        );
+
+        const createdLeave = await prisma.tb_leave.create({
+            data: {
+                title: mandatoryLeave.title,
+                leave_type: 'mandatory_leave',
+                start_date: startDate,
+                end_date: endDate,
+                reason,
+                NIK,
+                total_days,
+                id_mandatory,
+                status
+            }
+        });
+
+        await prisma.tb_leave_log.create({
+            data: {
+                old_status: 'rejected',
+                new_status: status,
+                reason: reason,
+                changed_by_nik: NIK,
+                id_leave: createdLeave.id_leave,
+                changed_at: new Date(),
+                balances_used: balancesUsed
+            }
+        });
+
+        await prisma.$transaction([
+            ...balanceUpdates,
+        ]);
+
+        return createdLeave;
     }
 
     if (!total_days) {

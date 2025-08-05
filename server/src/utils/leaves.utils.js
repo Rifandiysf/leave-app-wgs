@@ -1,5 +1,18 @@
 import prisma from "./client.js";
 
+
+export const calculateMandatoryLeaveDays = (startDate, endDate) => {
+    if (startDate.getTime() === endDate.getTime()) {
+        return 1;
+    }
+    
+    const timeDiff = endDate.getTime() - startDate.getTime();
+    const totalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+    
+    return totalDays;
+};
+
+
 export const createDateFromString = (dateInput) => {
     if (dateInput instanceof Date) {
         const year = dateInput.getFullYear();
