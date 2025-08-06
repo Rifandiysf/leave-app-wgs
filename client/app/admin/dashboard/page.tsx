@@ -5,7 +5,6 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import axiosInstance from "@/lib/api/axiosInstance";
 
-// Tipe data disesuaikan agar cocok dengan data dari API dan UserDashboard
 type dataLeaveType = {
     nik: string;
     name: string;
@@ -21,7 +20,7 @@ type dataLeaveType = {
 
 type ApiLeaveType = {
     id_leave: string;
-    name: string;
+    name:string;
     leave_type: string;
     start_date: string;
     end_date: string;
@@ -38,7 +37,6 @@ const DashboardPage = () => {
 
     const fetchUsersData = useCallback(async () => {
         try {
-            // 1. Ambil daftar dasar semua pengguna (yang memiliki nama)
             const initialResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users?limit=1000`, {
                 method: 'GET',
                 credentials: 'include',
@@ -51,7 +49,6 @@ const DashboardPage = () => {
                 return;
             }
 
-            // 2. Buat array of promises untuk mengambil detail setiap pengguna
             const detailPromises = basicUsers.map(user =>
                 fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${user.nik}`, {
                     method: 'GET',
@@ -59,26 +56,22 @@ const DashboardPage = () => {
                 }).then(res => {
                     if (!res.ok) {
                         console.error(`Gagal mengambil detail untuk user ${user.nik}. Status: ${res.status}`);
-                        return { data: {} }; // Kembalikan objek kosong jika gagal
+                        return { data: {} }; 
                     }
                     return res.json();
                 })
             );
 
-            // 3. Jalankan semua promise
             const detailedResponses = await Promise.all(detailPromises);
 
-            // 4. Gabungkan data dasar (dengan nama) dan data detail (dengan balance)
             const usersWithDetails = basicUsers.map((basicUser, index) => {
                 const detailedData = detailedResponses[index].data;
 
-                // Gabungkan objek basicUser dengan detailedData
                 const mergedUser = {
                     ...basicUser,
                     ...detailedData,
                 };
 
-                // Pastikan struktur balance ada sebagai fallback
                 if (!mergedUser.balance) {
                     mergedUser.balance = {
                         total_amount: 0,
@@ -180,7 +173,6 @@ const DashboardPage = () => {
 
         const sixMonthLeave = monthlyLeaveData.slice(0, 6).reduce((sum, month) => sum + month.leave, 0);
 
-        // Perhitungan untuk karyawan cuti mingguan
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         const weeklyLeaveUsers = allLeaveData.filter(leave => {
@@ -210,7 +202,6 @@ const DashboardPage = () => {
             .sort((a, b) => a.total_amount - b.total_amount)
             .slice(0, 5);
         
-        // ## PERBAIKAN DI SINI: Tambahkan weeklyLeaveUsers ke objek return ##
         return {
             totalUsers, activeCount, inactiveCount, totalThisYearLeave, totalLastYearLeave, totalAllLeave,
             sixMonthLeave, pendingLeaveCount, pendingLeaves, topRemainingLeaveUsers, bottomRemainingLeaveUsers,
@@ -234,6 +225,13 @@ const DashboardPage = () => {
             </div>
         </div>
     );
+
+    // Opsi untuk memformat tanggal
+    const dateOptions: Intl.DateTimeFormatOptions = {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    };
 
     if (isLoading) {
         return (
@@ -274,9 +272,9 @@ const DashboardPage = () => {
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
                     <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
                         <i className="bi bi-clock-history text-yellow-500"></i>
-                        Karyawan dengan Cuti Pending ({stats.pendingLeaveCount} orang)
+                        Karyawan dengan Cuti Pending ({stats.pendingLeaveCount} Pending)
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${stats.pendingLeaves.length > 9 ? 'max-h-[400px] overflow-y-auto pr-2' : ''}`}>
                         {stats.pendingLeaves.map((leave: ApiLeaveType) => (
                             <div key={leave.id_leave} className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
                                 <div className="flex items-center justify-between mb-2">
@@ -284,8 +282,9 @@ const DashboardPage = () => {
                                     <span className="px-2 py-1 bg-yellow-200 text-yellow-800 rounded-full text-xs font-medium">Pending</span>
                                 </div>
                                 <p className="text-sm text-gray-600 mb-1">Tipe: {leave.leave_type?.replace(/_/g, ' ')}</p>
-                                <p className="text-sm text-gray-600 mb-1">Tanggal: {new Date(leave.start_date).toLocaleDateString('id-ID')} - {new Date(leave.end_date).toLocaleDateString('id-ID')}</p>
-                                <p className="text-sm text-gray-600">Durasi: {leave.total_days} hari</p>
+                                <p className="text-sm text-gray-600 mb-1">Tanggal mulai: {new Date(leave.start_date).toLocaleDateString('id-ID', dateOptions)}</p>
+                                <p className="text-sm text-gray-600 mb-1">Tanggal Selesai: {new Date(leave.end_date).toLocaleDateString('id-ID', dateOptions)}</p>
+                                <p className="text-sm text-gray-600">Durasi: {leave.total_days} Hari</p>
                             </div>
                         ))}
                     </div>
