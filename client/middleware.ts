@@ -26,7 +26,7 @@ export default async function middleware(request: NextRequest) {
             const { payload } = await jwtVerify(authToken, secret);
             const userRole = payload.role as string;
 
-            if (pathname.startsWith(adminPaths) && userRole !== 'admin') {
+            if (pathname.startsWith(adminPaths) && !['admin', 'super_admin'].includes(userRole)) {
                 return NextResponse.redirect(new URL('/forbidden', request.url));
             }
             

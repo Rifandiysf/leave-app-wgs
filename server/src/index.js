@@ -33,6 +33,6 @@ app.use('/api/v1/', routes);
 app.use(errorHandler);
 
 
-app.listen(PORT, HOSTNAME, () => {
-    console.log(`Server running at http://${HOSTNAME}:${PORT}`);
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
 });

@@ -241,15 +241,6 @@ const HistoryPage = () => {
                                                 description=""
                                                 showFooter={false}
                                             >
-                                                {/* <div className="flex flex-col gap-2">
-                                                    <h1>Type : {formatUppercase(data.leave_type)}</h1>
-                                                    <h1>Start Leave : {formatDate(data.start_date)}</h1>
-                                                    <h1>End Leave : {formatDate(data.end_date)}</h1>
-                                                    <h1>Leave Used : {data.total_days} Days</h1>
-                                                    <h1>Raason Leave : {data.reason}</h1>
-                                                    <h1>Status : <i className={`bi bi-circle-fill text-xs ${data.status === 'rejected' ? 'text-red-500' : data.status === 'approved' ? 'text-green-500' : data.status === 'pending' ? 'text-yellow-500' : 'text-gray-500'}`}></i> {formatUppercase(data.status)} by {data.tb_leave_log?.tb_users?.fullname}</h1>
-                                                    <h1>Reason Rejected : {data.tb_leave_log?.reason}</h1>
-                                                </div> */}
                                                 <div className="grid grid-cols-2 grid-rows-1 gap-3">
                                                     <div className="flex flex-col gap-5">
                                                         <div className="flex flex-col gap-0.5">

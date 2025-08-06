@@ -20,7 +20,7 @@ type MandatoryType = {
 
 const SkeletonCard = () => {
     return (
-        <div className="gap-1.5 border-none shadow-none min-h-54 p-1.5 rounded-md animate-pulse">
+        <div className="bg-gray-100 gap-1.5 border-none shadow-none min-h-54 p-1.5 rounded-md animate-pulse">
             <div className="bg-gray-300 border-none shadow-none p-3 rounded-sm space-y-2">
                 <div className="h-5 bg-gray-300 rounded w-3/4"></div>
                 <div className="h-3 bg-gray-300 rounded w-full"></div>
@@ -86,8 +86,12 @@ const MandatoryPage = () => {
                     <SkeletonCard key={idx} />
                 ))}
             </div>
+            ) : dataMandatory.length === 0 ? (
+                <div className='flex justify-center items-center'>
+                    <h1 className="text-2xl font-bold">No Mandatory Leave Available</h1>
+                </div>
             ) : (
-                <div className='grid grid-cols-2 gap-3'>
+                <div className='grid grid-cols-2 gap-3 mb-16'>
                     {dataMandatory.map((data, idx) => {
                         const singleDay = isSameDay(data.start_date, data.end_date)
 
