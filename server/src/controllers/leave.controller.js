@@ -114,7 +114,9 @@ export const getSpecialLeave = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
-    const result = await getSpecialLeaveService(page, limit);
+    const gender = req.user.gender === 'male' ? 'm' : 'f'
+
+    const result = await getSpecialLeaveService(gender, page, limit);
 
     const paginationResponse = responsePagination("All special leave was successfully taken", result, limit);
 

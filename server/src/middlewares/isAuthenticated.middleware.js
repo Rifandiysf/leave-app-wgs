@@ -17,6 +17,8 @@ export const isAuthenticated = async (req, res, next) => {
 
         const isValid = await verifyToken(token);
 
+        req.user = decodedToken; 
+
         if (!decodedToken || !isValid) {
             throw new Error("Unauthorized. please login to access this resources.");
         }

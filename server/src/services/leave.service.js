@@ -223,7 +223,7 @@ export const updateLeave = async (id, status, reason, nik) => {
                 }
             }
         }
-        
+
         if (data.leave_type == "personal_leave" && userBalance.find((bal) => bal.receive_date.getFullYear() === new Date().getFullYear())?.amount < 0) {
             const error = new Error('Insufficient leave balance');
             error.statusCode = 400;
@@ -407,7 +407,7 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
                 }
                 : {
                     reason: "-",
-                    balances_used: "-"  ,
+                    balances_used: "-",
                     tb_users: {
                         fullname: "-"
                     }
@@ -435,7 +435,7 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
 
 
 
-export const getSpecialLeaveService = async (page = 1, limit = 10) => {
+export const getSpecialLeaveService = async (gender, page = 1, limit = 10) => {
     const skip = (page - 1) * limit;
 
     const [data, total] = await Promise.all([
@@ -443,8 +443,19 @@ export const getSpecialLeaveService = async (page = 1, limit = 10) => {
             skip,
             take: limit,
             orderBy: { title: 'asc' },
+            where: {
+                applicable_gender: {
+                    in: [gender, 'mf']
+                }
+            }
         }),
-        prisma.tb_special_leave.count(),
+        prisma.tb_special_leave.count({
+            where: {
+                applicable_gender: {
+                    in: [gender, 'mf']
+                }
+            }
+        }),
     ]);
 
     const totalPages = Math.ceil(total / limit);
@@ -776,7 +787,7 @@ export const expiredLeave = async () => {
         const pendingLeaves = await prisma.tb_leave.findMany({
             where: {
                 status: 'pending',
-                start_date : {
+                start_date: {
                     lte: todayDate
                 }
             }
