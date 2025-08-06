@@ -27,26 +27,27 @@ export const login = async (req, res, next) => {
             email: user.email,
             fullname: user.fullname,
             role: user.role,
+            gender: user.gender
         }
 
         const deviceData = {
             deviceInfo: deviceInfoData,
             deviceId: deviceId
         }
-        
+
 
         const newToken = await generateToken(userData, deviceData);
 
         res.cookie('Authorization', newToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production", 
+            secure: process.env.NODE_ENV === "production",
             sameSite: 'lax',
             path: '/',
             expires: new Date(Date.now() + 86400000)
         });
         res.cookie('device-id', deviceId, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production", 
+            secure: process.env.NODE_ENV === "production",
             sameSite: 'lax',
             path: '/',
             expires: new Date(Date.now() + 86400000)
@@ -61,7 +62,7 @@ export const login = async (req, res, next) => {
             }
         });
     } catch (error) {
-       next(error);
+        next(error);
     }
 }
 
