@@ -9,6 +9,7 @@ import morgan from 'morgan'
 import timeout from 'connect-timeout';
 import errorHandler from './middlewares/errorHandler.middleware.js';
 import './jobs/leaveScheduler.js';
+import './jobs/autoMandatoryLeave.js';
 
 const app = express()
 app.use(timeout('5s'));
@@ -32,6 +33,6 @@ app.use('/api/v1/', routes);
 app.use(errorHandler);
 
 
-app.listen(PORT, HOSTNAME, () => {
-    console.log(`Server running at http://${HOSTNAME}:${PORT}`);
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
 });

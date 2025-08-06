@@ -1,7 +1,11 @@
 import { createDateFromString } from "../utils/leaves.utils.js"
 
 export const validateStartDate = (req, res, next) => {
-    const { start_date } = req.body
+    const { start_date, leave_type } = req.body
+
+    if (leave_type === "mandatory_leave") {
+        return next();
+    }
 
     const startDate = createDateFromString(start_date)
     const today = createDateFromString(new Date())
@@ -19,7 +23,7 @@ export const validateStartDate = (req, res, next) => {
 
     const yearDiff = startDate.getFullYear() - today.getFullYear()
 
-    if(yearDiff > 1){
+    if (yearDiff > 1) {
         const error = new Error("you can't apply for leave two years or more in advance.")
         error.status = 400
         return next(error)

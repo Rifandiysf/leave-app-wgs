@@ -19,3 +19,19 @@ export async function applyLeave(payload: {
     });
     return res.data;
 }
+
+export const updateSpecialLeaveStatus = async (id: string, newStatus: boolean) => {
+    const response = await axiosInstance.patch(`/leaves/special/${id}`, {
+        is_active: newStatus
+    })
+
+    return response.data
+}
+
+export const updateMandatoryLeaveStatus = async (id: string, newStatus: boolean) => {
+    const response = await axiosInstance.patch(`/leaves/mandatory/${id}`, {
+        is_active: newStatus
+    })
+
+    return response.data
+}

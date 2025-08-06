@@ -176,6 +176,17 @@ export const updateLeave = async (id, status, reason, nik) => {
 
         const isStartDateNextYear = new Date().getFullYear() < data.start_date.getFullYear();
 
+        const currentYear = new Date().getFullYear();
+        const currentYearBalance = userBalance.find(balance => balance.receive_date.getFullYear() === currentYear);
+
+        if (totalDaysUsed > currentYearBalance.amount) {
+            const err = new Error(`Cannot approve leave for next year because total days ${totalDaysUsed} exceed current year's balance ${currentYearBalance.amount}`);
+            err.statusCode = 400;
+            throw err;
+        }
+
+
+
         if (data.leave_type !== "special_leave") {
             // reduce
             // array di loop ini disort dari paling lama/ [-1] = currentBalance
@@ -223,7 +234,7 @@ export const updateLeave = async (id, status, reason, nik) => {
                 }
             }
         }
-        
+
         if (data.leave_type == "personal_leave" && userBalance.find((bal) => bal.receive_date.getFullYear() === new Date().getFullYear())?.amount < 0) {
             const error = new Error('Insufficient leave balance');
             error.statusCode = 400;
@@ -407,7 +418,7 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
                 }
                 : {
                     reason: "-",
-                    balances_used: "-"  ,
+                    balances_used: "-",
                     tb_users: {
                         fullname: "-"
                     }
@@ -435,7 +446,7 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
 
 
 
-export const getSpecialLeaveService = async (page = 1, limit = 10) => {
+export const getSpecialLeaveService = async (gender, page = 1, limit = 10) => {
     const skip = (page - 1) * limit;
 
     const [data, total] = await Promise.all([
@@ -443,8 +454,19 @@ export const getSpecialLeaveService = async (page = 1, limit = 10) => {
             skip,
             take: limit,
             orderBy: { title: 'asc' },
+            where: {
+                applicable_gender: {
+                    in: [gender, 'mf']
+                }
+            }
         }),
-        prisma.tb_special_leave.count(),
+        prisma.tb_special_leave.count({
+            where: {
+                applicable_gender: {
+                    in: [gender, 'mf']
+                }
+            }
+        }),
     ]);
 
     const totalPages = Math.ceil(total / limit);
@@ -776,7 +798,7 @@ export const expiredLeave = async () => {
         const pendingLeaves = await prisma.tb_leave.findMany({
             where: {
                 status: 'pending',
-                start_date : {
+                start_date: {
                     lte: todayDate
                 }
             }

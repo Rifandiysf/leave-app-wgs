@@ -8,9 +8,13 @@ import {
 } from '../utils/leaves.utils.js';
 
 export const validateLeaveBalance = async (req, res, next) => {
+    const { start_date, end_date, leave_type } = req.body;
+    const { NIK } = await decodeToken(req.cookies["Authorization"]);
+
+    if (leave_type === "mandatory_leave") {
+        return next();
+    }
     try {
-        const { start_date, end_date, leave_type } = req.body;
-        const { NIK } = await decodeToken( req.cookies["Authorization"]);
 
         if (!['personal_leave', 'mandatory_leave'].includes(leave_type)) {
             return next();

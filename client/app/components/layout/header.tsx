@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import Modal from '@/app/components/Modal/Modal';
 import Cookies from 'js-cookie';
+import SettingModal from '../Modal/Setting'
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -115,10 +116,7 @@ export default function Header() {
                                 </Link>
                             )}
 
-                            <Link href="#" className="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                                <i className="bi bi-gear text-2xl" />
-                                <span className="font-medium text-gray-700">Setting</span>
-                            </Link>
+                            <SettingModal/>
 
                             <Modal
                                 mode="confirm"
@@ -151,17 +149,18 @@ export default function Header() {
                         <span className="text-sm font-medium">Employee Side</span>
                     </Link>
                 )}
-                <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
+                <SettingModal/>
+                {/* <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
                     <i className="bi bi-gear-fill text-xl" />
                     <span className="text-sm font-medium">Settings</span>
-                </div>
+                </div> */}
 
                 <Modal
                     mode="confirm"
                     title="Are you sure you want to log out of your account?"
                     onConfirm={handleLogout}
                     variant="ghost"
-                    triggerClassName="hover:text-blue-900 text-gray-700 p-0"
+                    triggerClassName="hover:text-blue-900 text-gray-700 p-2"
                     triggerLabel={
                         <div className="flex items-center space-x-2">
                             <i className="bi bi-box-arrow-right text-xl" />

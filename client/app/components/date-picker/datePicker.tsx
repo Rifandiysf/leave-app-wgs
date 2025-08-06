@@ -5,24 +5,15 @@ import { ChevronDownIcon } from "lucide-react"
 import { Button } from "@/app/components/ui/button"
 import { Calendar } from "@/app/components/ui/calendar"
 import { Label } from "@/app/components/ui/label"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/app/components/ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "@/app/components/ui/popover"
 import { cn } from "@/lib/utils"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/app/components/ui/select"
+import { DateRange } from "react-day-picker"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 
-type DatePickerFieldProps = {
+type DateRangePickerFieldProps = {
     label: string
-    value: Date | undefined
-    onChange: (date: Date | undefined) => void
+    value: DateRange | undefined
+    onChange: (date: DateRange | undefined) => void
     className?: string
 }
 
@@ -31,7 +22,7 @@ export function DatePickerField({
     value,
     onChange,
     className,
-}: DatePickerFieldProps) {
+}: DateRangePickerFieldProps) {
     const [open, setOpen] = React.useState(false)
     const now = new Date()
     const currentYear = now.getFullYear()
@@ -41,8 +32,8 @@ export function DatePickerField({
         "July", "August", "September", "October", "November", "December"
     ]
 
-    const [selectedMonth, setSelectedMonth] = React.useState<number>((value ?? now).getMonth())
-    const [selectedYear, setSelectedYear] = React.useState<number>((value ?? now).getFullYear())
+    const [selectedMonth, setSelectedMonth] = React.useState<number>((value?.from ?? now).getMonth())
+    const [selectedYear, setSelectedYear] = React.useState<number>((value?.from ?? now).getFullYear())
 
     const handleMonthChange = (monthIndex: number) => {
         setSelectedMonth(monthIndex)
@@ -50,6 +41,30 @@ export function DatePickerField({
 
     const handleYearChange = (year: number) => {
         setSelectedYear(year)
+    }
+
+    const formatRangeLabel = () => {
+        if (value?.from && value?.to) {
+            return `${value.from.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            })} -> ${value.to.toLocaleDateString('en-GB',
+                {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                }
+            )}`
+        } else if (value?.from) {
+            return `${value.from.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            })}`
+        } else {
+            return "Select date"
+        }
     }
 
     return (
@@ -67,7 +82,7 @@ export function DatePickerField({
                             className
                         )}
                     >
-                        {value ? value.toLocaleDateString() : "Select date"}
+                        {formatRangeLabel()}
                         <ChevronDownIcon />
                     </Button>
                 </PopoverTrigger>
@@ -107,25 +122,21 @@ export function DatePickerField({
                     </div>
 
                     <Calendar
-                        mode="single"
+                        mode="range"
                         selected={value}
                         month={new Date(selectedYear, selectedMonth)}
                         onMonthChange={(newDate) => {
                             setSelectedMonth(newDate.getMonth());
                             setSelectedYear(newDate.getFullYear());
                         }}
-                        onSelect={(date) => {
-                            if (date) {
-                                const day = date.getDay()
-                                if (day !== 0 && day !== 6) {
-                                    onChange(date)
-                                    setOpen(false)
-                                }
-                            }
+                        onSelect={(range) => {
+                            onChange(range)
                         }}
                         disabled={(date) => {
+                            const today = new Date()
+                            today.setHours(0, 0, 0, 0)
                             const day = date.getDay()
-                            return day === 0 || day === 6
+                            return day === 0 || day === 6 || date < today
                         }}
                         modifiers={{
                             weekend: (date) => date.getDay() === 0 || date.getDay() === 6,
@@ -133,6 +144,7 @@ export function DatePickerField({
                         modifiersClassNames={{
                             weekend: "text-red-700",
                         }}
+                        numberOfMonths={1}
                     />
                 </PopoverContent>
             </Popover>

@@ -13,6 +13,10 @@ import {
 import { Switch } from "@/app/components/ui/switch"
 import { AddSpecial } from '@/app/components/form/addSpecial'
 import { EditSpecial } from '@/app/components/form/editSpecial'
+import { formatUpperCase } from '@/lib/format'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/app/components/ui/dialog"
+import { Button } from "@/app/components/ui/button"
+import { updateSpecialLeaveStatus } from '@/lib/api/service/leave'
 
 type dataSpecialLeaveType = {
     id_special: string,
@@ -52,6 +56,9 @@ const SpecialLeavePage = () => {
     })
     const [search, setSearch] = useState("")
     const [debouncedSearch, setDebouncedSearch] = useState("")
+    const [selectedSwitch, setSelectedSwitch] = useState<{ id: string, currentStatus: boolean } | null>(null)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isUpdating, setIsUpdating] = useState(false)
 
     // Debounce search
     useEffect(() => {
@@ -75,9 +82,7 @@ const SpecialLeavePage = () => {
 
             url += `${searchTerm ? '&' : '?'}page=${page}&limit=${itemPerPage}`
 
-            const res = await fetch(url, {
-                credentials: 'include',
-            })
+            const res = await fetch(url, { credentials: 'include' })
 
             if (!res.ok) {
                 const errorData = await res.json()
@@ -85,7 +90,6 @@ const SpecialLeavePage = () => {
             }
 
             const result = await res.json()
-
             setDataSpecialLeave(result.data)
             setPaginationInfo(result.pagination)
 
@@ -117,6 +121,27 @@ const SpecialLeavePage = () => {
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= paginationInfo.last_visible_page) {
             setCurrentPage(page)
+        }
+    }
+
+    const handleSwitchClick = (id: string, currentStatus: boolean) => {
+        setSelectedSwitch({ id, currentStatus })
+        setIsModalOpen(true)
+    }
+
+    const handleConfirmToggle = async () => {
+        if (!selectedSwitch) return
+
+        setIsUpdating(true)
+        try {
+            await updateSpecialLeaveStatus(selectedSwitch.id, !selectedSwitch.currentStatus)
+            setIsModalOpen(false)
+            setSelectedSwitch(null)
+            fetchSpecialLeaves(currentPage, debouncedSearch)
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setIsUpdating(false)
         }
     }
 
@@ -153,7 +178,7 @@ const SpecialLeavePage = () => {
                         {isLoading ? (
                             Array.from({ length: paginationInfo.item.per_page }).map((_, rowIdx) => (
                                 <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
-                                    {Array.from({ length: itemPerPage }).map((_, colIdx) => (
+                                    {Array.from({ length: 6 }).map((_, colIdx) => (
                                         <th key={colIdx} className="p-3">
                                             <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
                                         </th>
@@ -173,13 +198,13 @@ const SpecialLeavePage = () => {
                                         {(paginationInfo.current_page - 1) * itemPerPage + idx + 1}
                                     </th>
                                     <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.title}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.applicable_gender}</th>
+                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{formatUpperCase(data.applicable_gender)}</th>
                                     <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.duration} Days</th>
                                     <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.description}</th>
                                     <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
                                         <div className="flex justify-center items-center gap-2">
                                             <EditSpecial initialData={data} onFormSubmit={handleFormSubmitSuccess} />
-                                            <Switch checked={data.is_active} />
+                                            <Switch checked={data.is_active} onClick={() => handleSwitchClick(data.id_special, data.is_active)} />
                                         </div>
                                     </th>
                                 </tr>
@@ -222,6 +247,25 @@ const SpecialLeavePage = () => {
                     </PaginationContent>
                 </Pagination>
             </div>
+
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirm Update Action</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to {selectedSwitch?.currentStatus ? 'disable' : 'enable'} this leave?
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setIsModalOpen(false)} disabled={isUpdating}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleConfirmToggle} disabled={isUpdating} className='text-black'>
+                            {isUpdating ? 'Updating...' : 'Confirm'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </section>
     )
 }
