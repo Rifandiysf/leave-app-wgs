@@ -125,7 +125,7 @@ const SettingModal = () => {
 
                                             <div>
                                                 <Label htmlFor="accent-colors" className='block text-sm font-medium mb-2'>Website Colors</Label>
-                                                <div className='flex gap-2'>
+                                                <div className='flex justify-center gap-2'>
                                                     <ColorPicker title='Primary Color' value={formatUpperCase(primaryColor)} onChange={(e) => setPrimaryColor(e.target.value)}/>
                                                     <ColorPicker title='Secondary Color' value={formatUpperCase(secondaryColor)} onChange={(e) => setSecondaryColor(e.target.value)}/>
                                                     <ColorPicker title='Primary Text' value={formatUpperCase(primaryTextColor)} onChange={(e) => setPrimaryTextColor(e.target.value)}/>
