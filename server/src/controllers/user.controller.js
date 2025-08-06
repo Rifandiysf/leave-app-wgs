@@ -250,14 +250,14 @@ export const modifyAmount = async (req, res, next) => {
 export const leaveTrend = async (req, res, next) => {
     try {
         const {nik} = req.params
-        const trend = await getLeaveTrendByNik(nik)
+        const result = await getLeaveTrendByNik(nik)
 
         res.status(200).json({
             success: true,
-            message: 'successfully get leave data trends',
+            message: result.message,
             data: {
                 nik,
-                trend
+                trend : result.trend
             }
         })
     } catch(error) {

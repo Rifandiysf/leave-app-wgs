@@ -581,6 +581,13 @@ export const getLeaveTrendByNik = async (nik) => {
         }
     })
 
+    if (leaves.length === 0) {
+        return {
+            message : `There is no leave data for NIK ${nik}`,
+            trend : {}
+        }
+    }
+
     const trend = {}
 
     leaves.forEach((leave) => {
@@ -599,5 +606,8 @@ export const getLeaveTrendByNik = async (nik) => {
         trend[year][leaveType] += 1
     })
 
-    return trend
+    return {
+        message : `Successfully get leave data trends for NIK ${nik}` ,
+        trend
+    }
 }
