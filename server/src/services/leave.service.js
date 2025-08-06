@@ -176,6 +176,17 @@ export const updateLeave = async (id, status, reason, nik) => {
 
         const isStartDateNextYear = new Date().getFullYear() < data.start_date.getFullYear();
 
+        const currentYear = new Date().getFullYear();
+        const currentYearBalance = userBalance.find(balance => balance.receive_date.getFullYear() === currentYear);
+
+        if (totalDaysUsed > currentYearBalance.amount) {
+            const err = new Error(`Cannot approve leave for next year because total days ${totalDaysUsed} exceed current year's balance ${currentYearBalance.amount}`);
+            err.statusCode = 400;
+            throw err;
+        }
+
+
+
         if (data.leave_type !== "special_leave") {
             // reduce
             // array di loop ini disort dari paling lama/ [-1] = currentBalance
