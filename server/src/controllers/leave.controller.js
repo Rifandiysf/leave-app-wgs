@@ -90,7 +90,7 @@ export const historyLeave = async (req, res, next) => {
 
 export const historyLeaveSearch = async (req, res, next) => {
   try {
-    const { value = '', type = '', status = ''} = req.query;
+    const { value = '', type = '', status = '' } = req.query;
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
 
