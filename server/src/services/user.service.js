@@ -729,6 +729,7 @@ export const getAllMandatoryLeavesService = async (page = 1, limit = 10, req) =>
         }
 
         return { ...item, message, taken };
+
     });
 
     const totalPages = Math.ceil(total / limit);
