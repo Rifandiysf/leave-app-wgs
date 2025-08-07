@@ -26,16 +26,16 @@ export default async function middleware(request: NextRequest) {
             const { payload } = await jwtVerify(authToken, secret);
             const userRole = payload.role as string;
             if (
-                    pathname.startsWith(adminPaths) &&
-                    !['admin', 'super_admin'].includes(userRole)
-                    ) {
-                    return NextResponse.redirect(new URL('/forbidden', request.url));
-                    }
+                pathname.startsWith(adminPaths) &&
+                !['admin', 'super_admin'].includes(userRole)
+            ) {
+                return NextResponse.redirect(new URL('/forbidden', request.url));
+            }
 
             if (pathname.startsWith(adminPaths) && !['admin', 'super_admin'].includes(userRole)) {
                 return NextResponse.redirect(new URL('/forbidden', request.url));
             }
-            
+
         } catch (error) {
             console.error("Token verification failed:", error);
             const url = new URL(loginPath, request.url);
@@ -50,8 +50,8 @@ export default async function middleware(request: NextRequest) {
 export const config = {
     matcher: [
         '/((?!api|_next/static|_next/image|favicon.ico|logo.png|images|fonts).*)',
-        '/', 
-        '/history', 
+        '/',
+        '/history',
         '/mandatory',
         '/admin/:path*',
         '/auth/login'
