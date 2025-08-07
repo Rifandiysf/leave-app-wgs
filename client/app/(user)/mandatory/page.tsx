@@ -26,6 +26,7 @@ type MandatoryType = {
     start_date: string
     end_date: string
     message: string
+    taken: boolean
 }
 
 const SkeletonCard = () => {
@@ -57,8 +58,7 @@ const SkeletonCard = () => {
 const MandatoryPage = () => {
     const [dataMandatory, setMandatory] = useState<MandatoryType[]>([])
     const [loading, setLoading] = useState<boolean>(true)
-
-    const [appliedStatus, setAppliedStatus] = useState<Record<string, 'approved' | 'rejected'>>({})
+    const [appliedStatus, setAppliedStatus] = useState<Record<string, 'approved' | 'rejected' | undefined>>({})
     const [selectedMandatory, setSelectedMandatory] = useState<MandatoryType | null>(null)
     const [isApply, setIsApply] = useState(true)
     const [isLoading, setIsLoading] = useState(false)
@@ -69,6 +69,15 @@ const MandatoryPage = () => {
         try {
             const res = await axiosInstance.get('/users/mandatory?limit=50')
             setMandatory(res.data.data)
+
+            const initialAppliedStatus: Record<string, 'approved' | 'rejected' | undefined> = {}
+            res.data.data.forEach((item: MandatoryType) => {
+                if (item.taken) {
+                    initialAppliedStatus[item.id_mandatory] = 'approved'
+                }
+            })
+            setAppliedStatus(initialAppliedStatus)
+
         } catch (error) {
             console.error('Error fetching data:', error)
         } finally {
@@ -118,7 +127,7 @@ const MandatoryPage = () => {
             }
 
             await axiosInstance.post('/users/leave', payload)
-
+            await fetchMandatoryData()
             setAppliedStatus(prev => ({
                 ...prev,
                 [selectedMandatory.id_mandatory]: isApply ? "approved" : "rejected"
@@ -152,6 +161,7 @@ const MandatoryPage = () => {
                 <div className='grid grid-cols-2 gap-3 mb-16'>
                     {dataMandatory.map((data, idx) => {
                         const singleDay = isSameDay(data.start_date, data.end_date)
+                        const currentDisplayStatus = appliedStatus[data.id_mandatory];
 
                         return (
                             <Card key={idx} className="gap-1.5 border-none shadow-none min-h-54 p-1.5 rounded-md">
@@ -177,13 +187,13 @@ const MandatoryPage = () => {
                                     <div className='flex flex-col'>
                                         <Label className='font-bold text-lg'>Apply Segera</Label>
                                         <p className='text-xs font-medium text-red-400'>{data.message}</p>
-                                        <p className={`text-xs font-medium ${appliedStatus[data.id_mandatory] === 'approved' ? 'text-green-500' : 'text-red-500'}`}>
-                                            {appliedStatus[data.id_mandatory] === 'approved' && "✓ Approved"}
-                                            {appliedStatus[data.id_mandatory] === 'rejected' && "✕ Rejected"}
+                                        <p className={`text-xs font-medium ${currentDisplayStatus === 'approved' ? 'text-green-500' : 'text-red-500'}`}>
+                                            {currentDisplayStatus === 'approved' && "✓ Approved"}
+                                            {currentDisplayStatus === 'rejected' && "✕ Rejected"}
                                         </p>
                                     </div>
                                     <Switch
-                                        checked={appliedStatus[data.id_mandatory] === 'approved'}
+                                        checked={data.taken}
                                         onCheckedChange={(checked) => handleToggleChange(checked, data)}
                                         disabled={isWithin7Days(data.start_date)}
                                     />
@@ -194,7 +204,6 @@ const MandatoryPage = () => {
                 </div>
             )}
 
-            {/* MODAL KONFIRMASI */}
             <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
                 <DialogContent className="sm:max-w-[450px]">
                     <DialogHeader className="text-center">
