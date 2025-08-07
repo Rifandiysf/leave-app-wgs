@@ -1,7 +1,8 @@
 import { date } from "zod/v4";
 import prisma from "../utils/client.js"
 import { calculateHolidaysDays, calculateMandatoryLeaveDays, createDateFromString, formatDateIndonesia } from '../utils/leaves.utils.js';
-import { status_active } from "../../generated/prisma/index.js";
+import { leave_type, status_active } from "../../generated/prisma/index.js";
+import { decodeToken } from "../utils/jwt.js";
 
 
 export const createLeave = async (data) => {
@@ -679,8 +680,11 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
     return updatedAmount;
 };
 
-export const getAllMandatoryLeavesService = async (page = 1, limit = 10) => {
+export const getAllMandatoryLeavesService = async (page = 1, limit = 10, req) => {
     const skip = (page - 1) * limit;
+
+    const decoded = await decodeToken(req.cookies["Authorization"]);
+    const userNIK = decoded.NIK;
 
     const [rawData, total] = await Promise.all([
         prisma.tb_mandatory_leave.findMany({
@@ -694,19 +698,40 @@ export const getAllMandatoryLeavesService = async (page = 1, limit = 10) => {
         })
     ]);
 
+    const userLeaves = await prisma.tb_leave.findMany({
+        where: {
+            NIK: userNIK,
+            leave_type: leave_type.mandatory_leave
+        },
+        select: {
+            id_mandatory: true,
+            status: true
+        }
+    });
+
+    const leaveMap = {};
+    for (const leave of userLeaves) {
+        leaveMap[leave.id_mandatory] = leave.status;
+    }
+
     const data = rawData.map(item => {
-        const originalDate = createDateFromString(item.start_date);
-        
-        const adjustedDate = new Date(originalDate);
-        adjustedDate.setDate(adjustedDate.getDate() - 7);
+        const formattedDate = createDateFromString(item.start_date);
+        const tanggalFormatted = formatDateIndonesia(formattedDate);
+        const message = `konfimasi cuti sebelum tanggal ${tanggalFormatted}`;
 
-        const tanggalFormatted = formatDateIndonesia(adjustedDate);
+        const status = leaveMap[item.id_mandatory];
+        let taken = false;
 
-        const message = `konfirmasi cuti sebelum tanggal ${tanggalFormatted}`;
-        return { ...item, message };
+        if (status === 'approved') {
+            taken = true;
+        } else if (status === 'rejected') {
+            taken = false;
+        }
+
+        return { ...item, message, taken };
+
     });
 
     const totalPages = Math.ceil(total / limit);
-
     return { data, total, totalPages, page };
 };
