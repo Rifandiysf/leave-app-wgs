@@ -16,6 +16,7 @@ import {
 import { SelectDemo } from "@/app/components/select/page";
 import { SelectItem, SelectLabel } from "@/app/components/ui/select";
 import SuccessAlert from "@/app/components/SuccesAlert/SuccesAlert";
+import Statistics from "@/app/components/Modal/Statistics";
 
 type dataLeaveType = {
     nik: string,
@@ -276,7 +277,9 @@ const EmployeeListContent = () => {
                                                 <td className="p-3">{data.leave_total || 0}</td>
                                                 <td className="p-3">{(data.role || '').replace(/_/g, ' ')}</td>
                                                 <td className="p-3">{renderStatus(data.status)}</td>
-                                                <td className="p-3"></td>
+                                                <td className="p-3">
+                                                    <Statistics/>
+                                                </td>
                                             </tr>
                                         ))
                                     )}
