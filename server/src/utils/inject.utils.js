@@ -13,12 +13,12 @@ export const processData = async (data, number, tx) => {
                 let leaveLogData = createLeaveLogData(item);
                 dataLog.push(leaveLogData)
             }
-            
+
             console.log(`LINES ${count}: `, item, '\n');
             console.log('TOTAL CHUNK ', count, '\n');
             count++;
         }
-       
+
 
         console.log(dataLog);
 
@@ -37,8 +37,13 @@ export const processData = async (data, number, tx) => {
 }
 
 const modifyLeaveData = (data) => {
-        data.total_days = Number(data.total_days)
-        data.id_leave = uuid()
+    const startDate = data.start_date
+    const endDate = data.end_date
+
+    data.total_days = Number(data.total_days)
+    data.id_leave = uuid()
+    data.start_date = new Date(startDate)
+    data.end_date = new Date(endDate)
 }
 
 const createLeaveLogData = (data) => {
