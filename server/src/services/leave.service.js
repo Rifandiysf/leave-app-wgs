@@ -117,7 +117,7 @@ export const updateLeave = async (id, status, reason, nik) => {
             throw err;
         }
 
-        if (data.NIK === nik) {
+        if (data.NIK === nik && data.leave_type !== "mandatory_leave") {
             const err = new Error("you cannot approve or reject your own leave");
             err.statusCode = 400;
             throw err;
