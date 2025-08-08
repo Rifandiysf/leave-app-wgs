@@ -204,56 +204,58 @@ const MandatoryLeavePage = () => {
                 </div>
             </div>
 
-            <div className="overflow-x-auto">
-                <table className="w-full table-auto rounded-t-2xl">
-                    <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] rounded-2xl shadow-lg">
-                        <tr>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">No</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Leave Title</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Information</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Start Date</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">End Date</th>
-                            <th className="p-3 text-[18px] font-semibold tracking-wide">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody className="cursor-pointer">
-                        {isLoading ? (
-                            Array.from({ length: paginationInfo.item.per_page }).map((_, rowIdx) => (
-                                <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
-                                    {Array.from({ length: 6 }).map((_, colIdx) => (
-                                        <th key={colIdx} className="p-3">
-                                            <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
-                                        </th>
-                                    ))}
-                                </tr>
-                            ))
-                        ) : dataMandatoryLeave.length === 0 ? (
+            <div className="rounded-md overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full table-auto rounded-t-2xl">
+                        <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] rounded-2xl shadow-lg">
                             <tr>
-                                <td colSpan={6} className="p-4 text-center text-gray-500">
-                                    No mandatory leaves found.
-                                </td>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">No</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">Leave Title</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">Information</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">Start Date</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">End Date</th>
+                                <th className="p-3 text-[18px] font-semibold tracking-wide">Action</th>
                             </tr>
-                        ) : (
-                            dataMandatoryLeave.map((data, idx) => (
-                                <tr key={data.id_mandatory} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
-                                        {(paginationInfo.current_page - 1) * itemPerPage + idx + 1}
-                                    </th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.title}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.description}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{formatDate(data.start_date)}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{formatDate(data.end_date)}</th>
-                                    <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
-                                        <div className="flex justify-center items-center gap-2">
-                                            <EditMandatory initialData={data} onFormSubmit={handleFormSubmitSuccess} />
-                                            <Switch checked={data.is_active} onClick={() => handleSwitchClick(data.id_mandatory, data.is_active)} />
-                                        </div>
-                                    </th>
+                        </thead>
+                        <tbody className="cursor-pointer">
+                            {isLoading ? (
+                                Array.from({ length: paginationInfo.item.per_page }).map((_, rowIdx) => (
+                                    <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
+                                        {Array.from({ length: 6 }).map((_, colIdx) => (
+                                            <th key={colIdx} className="p-3">
+                                                <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
+                                            </th>
+                                        ))}
+                                    </tr>
+                                ))
+                            ) : dataMandatoryLeave.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="p-4 text-center text-gray-500">
+                                        No mandatory leaves found.
+                                    </td>
                                 </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                            ) : (
+                                dataMandatoryLeave.map((data, idx) => (
+                                    <tr key={data.id_mandatory} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
+                                            {(paginationInfo.current_page - 1) * itemPerPage + idx + 1}
+                                        </th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.title}</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.description}</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{formatDate(data.start_date)}</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{formatDate(data.end_date)}</th>
+                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
+                                            <div className="flex justify-center items-center gap-2">
+                                                <EditMandatory initialData={data} onFormSubmit={handleFormSubmitSuccess} />
+                                                <Switch checked={data.is_active} onClick={() => handleSwitchClick(data.id_mandatory, data.is_active)} />
+                                            </div>
+                                        </th>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div className="flex justify-center items-center bg-white py-5">
@@ -266,23 +268,23 @@ const MandatoryLeavePage = () => {
                             />
                         </PaginationItem>
 
-                            {paginationInfo.last_visible_page > 1 &&
-                                getVisiblePages(currentPage, paginationInfo.last_visible_page).map((page, idx) => (
-                                    <PaginationItem key={idx}>
-                                        {page === 'ellipsis' ? (
-                                            <span className="px-2 text-gray-500 select-none">…</span>
-                                        ) : (
-                                            <PaginationLink
-                                                isActive={currentPage === page}
-                                                onClick={() => handlePageChange(page)}
-                                                className="cursor-pointer"
-                                            >
-                                                {page}
-                                            </PaginationLink>
-                                        )}
-                                    </PaginationItem>
-                                ))
-                            }
+                        {paginationInfo.last_visible_page > 1 &&
+                            getVisiblePages(currentPage, paginationInfo.last_visible_page).map((page, idx) => (
+                                <PaginationItem key={idx}>
+                                    {page === 'ellipsis' ? (
+                                        <span className="px-2 text-gray-500 select-none">…</span>
+                                    ) : (
+                                        <PaginationLink
+                                            isActive={currentPage === page}
+                                            onClick={() => handlePageChange(page)}
+                                            className="cursor-pointer"
+                                        >
+                                            {page}
+                                        </PaginationLink>
+                                    )}
+                                </PaginationItem>
+                            ))
+                        }
 
                         <PaginationItem>
                             <PaginationNext

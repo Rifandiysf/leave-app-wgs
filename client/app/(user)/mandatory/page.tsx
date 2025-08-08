@@ -61,7 +61,7 @@ const MandatoryPage = () => {
     const [loading, setLoading] = useState<boolean>(true)
     const [appliedStatus, setAppliedStatus] = useState<Record<string, 'approved' | 'rejected' | undefined>>({})
     const [selectedMandatory, setSelectedMandatory] = useState<MandatoryType | null>(null)
-    const [isApply, setIsApply] = useState(true)
+    const [isApply, setIsApply] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [showConfirmModal, setShowConfirmModal] = useState(false)
     const [cancelReason, setCancelReason] = useState("")
@@ -163,7 +163,13 @@ const MandatoryPage = () => {
             }
 
             await axiosInstance.post('/users/leave', payload)
-            await fetchMandatoryData()
+            setMandatory(prevData =>
+                prevData.map(item =>
+                    item.id_mandatory === selectedMandatory.id_mandatory
+                        ? { ...item, taken: isApply }
+                        : item
+                )
+            )
             setAppliedStatus(prev => ({
                 ...prev,
                 [selectedMandatory.id_mandatory]: isApply ? "approved" : "rejected"

@@ -28,18 +28,75 @@ type dataLeaveType = {
     leave_total?: number
 };
 
+type PaginationInfo = {
+    current_page: number,
+    last_visible_page: number,
+    has_next_page: boolean,
+    item: {
+        count: number,
+        total: number,
+        per_page: number
+    }
+}
 
-// Komponen ini berisi semua logika dan tampilan halaman.
-// Dibuat terpisah agar bisa menggunakan hook useSearchParams.
+const itemPerPage = 7
+
+type PageItem = number | 'ellipsis'
+
+const getVisiblePages = (current: number, total: number, maxVisible: number = 5): PageItem[] => {
+    const pages: PageItem[] = []
+
+    if (total <= maxVisible + 2) {
+        for (let i = 1; i <= total; i++) pages.push(i)
+        return pages
+    }
+
+    const half = Math.floor(maxVisible / 2)
+    let start = Math.max(current - half, 2)
+    let end = Math.min(current + half, total - 1)
+
+    if (current <= half + 2) {
+        start = 2
+        end = maxVisible
+    }
+
+    if (current >= total - half - 1) {
+        start = total - maxVisible + 1
+        end = total - 1
+    }
+
+    pages.push(1)
+
+    if (start > 2) pages.push('ellipsis')
+
+    for (let i = start; i <= end; i++) {
+        pages.push(i)
+    }
+
+    if (end < total - 1) pages.push('ellipsis')
+
+    pages.push(total)
+
+    return pages
+}
+
 const EmployeeListContent = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
 
     const [dataLeave, setDataLeave] = useState<dataLeaveType[]>([]);
+    const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
+        current_page: 1,
+        last_visible_page: 1,
+        has_next_page: false,
+        item: {
+            count: 0,
+            total: 0,
+            per_page: 10
+        }
+    })
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
-    const ITEMS_PER_PAGE = 7;
 
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [genderFilter, setGenderFilter] = useState<string | null>(null);
@@ -59,7 +116,7 @@ const EmployeeListContent = () => {
         try {
             const params = new URLSearchParams();
             params.append('page', currentPage.toString());
-            params.append('limit', ITEMS_PER_PAGE.toString());
+            params.append('limit', itemPerPage.toString());
 
             if (searchTerm) params.append('search', searchTerm);
             if (genderFilter) params.append('gender', genderFilter);
@@ -73,11 +130,16 @@ const EmployeeListContent = () => {
 
             const resJson = await response.json();
             const fetchedData = resJson?.data?.data || resJson?.data || resJson || [];
-            const lastPage = resJson?.pagination?.last_visible_page || 1;
+            const paginationData = resJson?.pagination || {
+                current_page: 1,
+                last_visible_page: 1,
+                has_next_page: false,
+                item: { count: 0, total: 0, per_page: itemPerPage },
+            };
 
             if (Array.isArray(fetchedData)) {
                 setDataLeave(fetchedData);
-                setTotalPages(lastPage);
+                setPaginationInfo(paginationData);
             }
         } catch (error) {
             console.error("Failed to fetch data:", error);
@@ -98,10 +160,8 @@ const EmployeeListContent = () => {
         };
     }, [searchTerm, genderFilter, statusFilter, roleFilter, currentPage, debouncedFetchData]);
 
-    // Fungsi untuk menutup notifikasi dan membersihkan URL
     const handleCloseSuccessAlert = () => {
         setShowSuccess(false);
-        // Ganti URL untuk menghapus `?success=true` agar notifikasi tidak muncul lagi saat refresh
         const currentPath = window.location.pathname;
         router.replace(currentPath, { scroll: false });
     };
@@ -116,14 +176,18 @@ const EmployeeListContent = () => {
     };
 
     const handlePageChange = (page: number) => {
-        if (page >= 1 && page <= totalPages) {
+        if (page >= 1 && page <= paginationInfo.last_visible_page) {
             setCurrentPage(page);
         }
     };
 
+    const paginationPages = getVisiblePages(
+        currentPage,
+        paginationInfo.last_visible_page
+    );
+
     return (
         <>
-            {/* Notifikasi sukses akan dirender di sini */}
             <SuccessAlert
                 isOpen={showSuccess}
                 onClose={handleCloseSuccessAlert}
@@ -167,84 +231,94 @@ const EmployeeListContent = () => {
             </section>
 
             <section className="relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
-                <div className="max-sm:overflow-x-scroll">
-                    <table className="w-full text-base text-center">
-                        <thead className="text-black bg-[#F0f4f9] backdrop-blur-sm">
-                            <tr className="text-base">
-                                <th className="p-3 font-semibold">NIK</th>
-                                <th className="p-3 font-semibold">Name</th>
-                                <th className="p-3 font-semibold">Gender</th>
-                                <th className="p-3 font-semibold">This Year Leave</th>
-                                <th className="p-3 font-semibold">Last Year Leave</th>
-                                <th className="p-3 font-semibold">Leave Total</th>
-                                <th className="p-3 font-semibold">Role</th>
-                                <th className="p-3 font-semibold">Status</th>
-                                <th className="p-3 font-semibold">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {isLoading ? (
-                                Array.from({ length: ITEMS_PER_PAGE }).map((_, rowIdx) => (
-                                    <tr key={rowIdx} className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-gray-100 animate-pulse'}>
-                                        {Array.from({ length: 9 }).map((_, colIdx) => (
-                                            <td key={colIdx} className="p-3">
-                                                <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))
-                            ) :
-                                dataLeave.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={9} className="p-4 text-center text-gray-500">
-                                            No Data User Found.
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    dataLeave.map((data) => (
-                                        <tr key={data.nik} className="odd:bg-[#e8efff] even:bg-[#f8faff]">
-                                            <td className="p-3">{data.nik}</td>
-                                            <td className="p-3">{data.name}</td>
-                                            <td className="p-3 capitalize">{data.gender}</td>
-                                            <td className="p-3">{data.this_year_leave || 0}</td>
-                                            <td className="p-3">{data.last_year_leave || 0}</td>
-                                            <td className="p-3">{data.leave_total || 0}</td>
-                                            <td className="p-3">{(data.role || '').replace(/_/g, ' ')}</td>
-                                            <td className="p-3">{renderStatus(data.status)}</td>
-                                            <td className="p-3"></td>
+                <div className="rounded-md overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-base text-center">
+                            <thead className="text-black bg-[#F0f4f9] backdrop-blur-sm">
+                                <tr className="text-base">
+                                    <th className="p-3 font-semibold">NIK</th>
+                                    <th className="p-3 font-semibold">Name</th>
+                                    <th className="p-3 font-semibold">Gender</th>
+                                    <th className="p-3 font-semibold">This Year Leave</th>
+                                    <th className="p-3 font-semibold">Last Year Leave</th>
+                                    <th className="p-3 font-semibold">Leave Total</th>
+                                    <th className="p-3 font-semibold">Role</th>
+                                    <th className="p-3 font-semibold">Status</th>
+                                    <th className="p-3 font-semibold">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody className="cursor-pointer">
+                                {isLoading ? (
+                                    Array.from({ length: itemPerPage }).map((_, rowIdx) => (
+                                        <tr key={rowIdx} className='animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]'>
+                                            {Array.from({ length: 9 }).map((_, colIdx) => (
+                                                <td key={colIdx} className="p-3">
+                                                    <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
+                                                </td>
+                                            ))}
                                         </tr>
                                     ))
-                                )}
-                        </tbody>
-                    </table>
+                                ) :
+                                    dataLeave.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={9} className="p-4 text-center text-gray-500">
+                                                No Data User Found.
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        dataLeave.map((data) => (
+                                            <tr key={data.nik} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
+                                                <td className="p-3">{data.nik}</td>
+                                                <td className="p-3">{data.name}</td>
+                                                <td className="p-3 capitalize">{data.gender}</td>
+                                                <td className="p-3">{data.this_year_leave || 0}</td>
+                                                <td className="p-3">{data.last_year_leave || 0}</td>
+                                                <td className="p-3">{data.leave_total || 0}</td>
+                                                <td className="p-3">{(data.role || '').replace(/_/g, ' ')}</td>
+                                                <td className="p-3">{renderStatus(data.status)}</td>
+                                                <td className="p-3"></td>
+                                            </tr>
+                                        ))
+                                    )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div className="flex justify-center items-center bg-white py-5">
+                <div className="flex justify-center items-center bg-background py-5">
                     <Pagination>
                         <PaginationContent>
                             <PaginationItem>
                                 <PaginationPrevious
                                     onClick={() => handlePageChange(currentPage - 1)}
-                                    className={`${currentPage === 1 ? "pointer-events-none opacity-50 cursor-default" : "cursor-pointer"}`}
+                                    className={`${currentPage === 1
+                                        ? "pointer-events-none opacity-50 cursor-default"
+                                        : "cursor-pointer"}`}
                                 />
                             </PaginationItem>
 
-                            {Array.from({ length: totalPages }, (_, i) => (
-                                <PaginationItem key={i}>
-                                    <PaginationLink
-                                        isActive={currentPage === i + 1}
-                                        onClick={() => handlePageChange(i + 1)}
-                                        className='cursor-pointer'
-                                    >
-                                        {i + 1}
-                                    </PaginationLink>
+                            {paginationPages.map((page, idx) => (
+                                <PaginationItem key={idx}>
+                                    {page === "ellipsis" ? (
+                                        <span className="px-2 text-gray-500 select-none">…</span>
+                                    ) : (
+                                        <PaginationLink
+                                            isActive={currentPage === page}
+                                            onClick={() => handlePageChange(page)}
+                                            className="cursor-pointer"
+                                        >
+                                            {page}
+                                        </PaginationLink>
+                                    )}
                                 </PaginationItem>
                             ))}
 
                             <PaginationItem>
                                 <PaginationNext
                                     onClick={() => handlePageChange(currentPage + 1)}
-                                    className={`${currentPage === totalPages ? "pointer-events-none opacity-50 cursor-default" : "cursor-pointer"}`}
+                                    className={`${currentPage === paginationInfo.last_visible_page
+                                        ? "pointer-events-none opacity-50 cursor-default"
+                                        : "cursor-pointer"}`}
                                 />
                             </PaginationItem>
                         </PaginationContent>
