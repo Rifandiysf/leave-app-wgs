@@ -3,7 +3,7 @@ import prisma from "../utils/client.js"
 import { calculateHolidaysDays, calculateMandatoryLeaveDays, createDateFromString, formatDateIndonesia } from '../utils/leaves.utils.js';
 import { leave_type, status_active } from "../../generated/prisma/index.js";
 import { decodeToken } from "../utils/jwt.js";
-
+import { updateLeave } from "./leave.service.js";
 
 export const createLeave = async (data) => {
     let {
@@ -66,66 +66,30 @@ export const createLeave = async (data) => {
 
         const mandatoryLeave = await prisma.tb_mandatory_leave.findUnique({
             where: { id_mandatory }
-        })
+        });
 
         if (!mandatoryLeave) {
             throw new Error("Invalid id_mandatory provided");
         }
 
+        let finalReason;
         if (status === "approved") {
-            reason = "-";
+            finalReason = "-";
         } else if (status === "rejected") {
             if (!reason || reason.trim() === "") {
                 throw new Error("Reason is required when status is rejected");
             }
+            finalReason = reason;
         } else {
-            reason = data.reason || "mandatory leave created";
+            finalReason = data.reason || "mandatory leave created";
         }
 
-        const startDate = mandatoryLeave.start_date
-        const endDate = mandatoryLeave.end_date
+        const startDate = mandatoryLeave.start_date;
+        const endDate = mandatoryLeave.end_date;
 
         total_days = calculateMandatoryLeaveDays(
             createDateFromString(startDate),
             createDateFromString(endDate)
-        );
-
-        const userBalance = await prisma.tb_balance.findMany({
-            where: {
-                NIK,
-                expired_date: { gt: new Date() }
-            },
-            orderBy: {
-                expired_date: 'desc'
-            }
-        });
-
-        let updatedBalances = [...userBalance];
-        let balancesUsed = [];
-        let daysToDeduct = total_days;
-
-        for (let i = 0; i < updatedBalances.length; i++) {
-            const balance = updatedBalances[i];
-            const beforeAmount = balance.amount;
-
-            balance.amount -= daysToDeduct;
-            if (balance.amount < 0 && i !== updatedBalances.length - 1) {
-                daysToDeduct = -1 * balance.amount;
-                balance.amount = 0;
-            } else {
-                daysToDeduct = 0;
-            }
-
-            balancesUsed.push([balance.id_balance, balance.receive_date.getFullYear(), beforeAmount - balance.amount]);
-
-            if (daysToDeduct === 0) break;
-        }
-
-        const balanceUpdates = updatedBalances.map((balance) =>
-            prisma.tb_balance.update({
-                where: { id_balance: balance.id_balance },
-                data: { amount: balance.amount }
-            })
         );
 
         const createdLeave = await prisma.tb_leave.create({
@@ -134,29 +98,37 @@ export const createLeave = async (data) => {
                 leave_type: 'mandatory_leave',
                 start_date: startDate,
                 end_date: endDate,
-                reason,
+                reason: finalReason,
                 NIK,
                 total_days,
                 id_mandatory,
-                status
+                status: status 
             }
         });
 
-        await prisma.tb_leave_log.create({
-            data: {
-                old_status: 'pending',
-                new_status: status,
-                reason: reason,
-                changed_by_nik: NIK,
-                id_leave: createdLeave.id_leave,
-                changed_at: new Date(),
-                balances_used: balancesUsed
-            }
-        });
 
-        await prisma.$transaction([
-            ...balanceUpdates,
-        ]);
+        if (status !== 'pending') {
+            try {
+                await prisma.tb_leave.update({
+                    where: { id_leave: createdLeave.id_leave },
+                    data: { status: 'pending' }
+                });
+
+                const updatedLeave = await updateLeave(
+                    createdLeave.id_leave,
+                    status,
+                    finalReason,
+                    NIK
+                );
+                
+                return updatedLeave;
+            } catch (error) {
+                await prisma.tb_leave.delete({
+                    where: { id_leave: createdLeave.id_leave }
+                });
+                throw error;
+            }
+        }
 
         return createdLeave;
     }
@@ -183,6 +155,31 @@ export const createLeave = async (data) => {
         data: leaveData,
     });
 };
+
+export const createLeaveRequest = async (req, res, next) => {
+    try {
+        const user = await decodeToken(req.cookies["Authorization"]);
+
+        console.log("Raw request body:", req.body);
+        console.log("Request headers:", req.headers);
+        console.log("Content-Type:", req.headers['content-type']);
+
+        const leave = await createLeave({
+            ...req.body,
+            NIK: user.NIK,
+            total_days: req.workingDays
+        });
+
+        res.status(201).json({
+            message: "Leave request created successfully",
+            data: leave,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Refactored createLeave function
 
 export const getLeavesByNIK = async (NIK, page, limit) => {
     const skip = (page - 1) * limit;
