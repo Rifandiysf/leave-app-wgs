@@ -92,6 +92,22 @@ export const createLeave = async (data) => {
             createDateFromString(endDate)
         );
 
+        const existingLeave = await prisma.tb_leave.findFirst({
+            where: {
+                id_mandatory,
+                NIK,
+            },
+        });
+
+        if (existingLeave) {
+            return await updateLeave(
+                existingLeave.id_leave,
+                status,
+                finalReason,
+                NIK
+            );
+        }
+
         const createdLeave = await prisma.tb_leave.create({
             data: {
                 title: mandatoryLeave.title,
@@ -102,25 +118,18 @@ export const createLeave = async (data) => {
                 NIK,
                 total_days,
                 id_mandatory,
-                status: status 
+                status: 'pending'
             }
         });
 
-
         if (status !== 'pending') {
             try {
-                await prisma.tb_leave.update({
-                    where: { id_leave: createdLeave.id_leave },
-                    data: { status: 'pending' }
-                });
-
                 const updatedLeave = await updateLeave(
                     createdLeave.id_leave,
                     status,
                     finalReason,
                     NIK
                 );
-                
                 return updatedLeave;
             } catch (error) {
                 await prisma.tb_leave.delete({

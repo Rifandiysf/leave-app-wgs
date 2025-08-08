@@ -111,7 +111,7 @@ export const updateLeave = async (id, status, reason, nik) => {
             throw err;
         }
 
-        if (data.status === status) {
+        if (data.status === status && data.leave_type !== "mandatory_leave") {
             const err = new Error("New status and old status can't be the same");
             err.statusCode = 400;
             throw err;
