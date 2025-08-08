@@ -12,9 +12,12 @@ import {
   updateMandatoryLeaveService,
   getSearchSpecialLeaveService,
   getSearchMandatoryLeaveService,
+  importFileServices,
 } from "../services/leave.service.js"
 import { responsePagination } from "../utils/responsePagination.utils.js";
 import { decodeToken } from "../utils/jwt.js";
+import { success } from "zod/v4";
+import fs from 'fs';
 
 export const updateLeaveById = async (req, res, next) => {
   const { id } = req.params;
@@ -90,7 +93,7 @@ export const historyLeave = async (req, res, next) => {
 
 export const historyLeaveSearch = async (req, res, next) => {
   try {
-    const { value = '', type = '', status = ''} = req.query;
+    const { value = '', type = '', status = '' } = req.query;
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
 
@@ -238,4 +241,35 @@ export const updateMandatoryLeave = async (req, res) => {
     })
   }
 };
+
+export const importFile = async (req, res, next) => {
+  // todo: buat error handling dan tambahkan fungsi import file dari service
+  try {
+    const process = await importFileServices(`./src/temp/${req.file.originalname}`)
+    if (process) {
+      fs.unlink(`./src/temp/${req.file.originalname}`, (err) => {
+        if (err) {
+          throw err
+        }
+      })
+
+      res.json({
+        success: true,
+        data: {
+          process
+        }
+      })
+    }
+
+  } catch (error) {
+    
+    fs.unlink(`./src/temp/${req.file.originalname}`, (err) => {
+      if (err) {
+        throw err
+      }
+    })
+    next(error)
+  }
+
+}
 

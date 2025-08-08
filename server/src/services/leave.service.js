@@ -2,8 +2,10 @@ import { promise } from "zod/v4";
 import { leave_type } from "../../generated/prisma/index.js";
 import prisma from "../utils/client.js";
 import { calculateHolidaysDays, createDateFromString } from "../utils/leaves.utils.js";
-import { date } from "zod";
-
+import fs from 'fs';
+import { parse } from 'fast-csv';
+import { pipeline, Transform } from "stream";
+import { processData } from "../utils/inject.utils.js";
 
 export const getAllLeavesService = async (page, limit) => {
     const skip = (page - 1) * limit;
@@ -223,7 +225,7 @@ export const updateLeave = async (id, status, reason, nik) => {
                 }
             }
         }
-        
+
         if (data.leave_type == "personal_leave" && userBalance.find((bal) => bal.receive_date.getFullYear() === new Date().getFullYear())?.amount < 0) {
             const error = new Error('Insufficient leave balance');
             error.statusCode = 400;
@@ -260,7 +262,8 @@ export const updateLeave = async (id, status, reason, nik) => {
 }
 
 export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, limit = 10 }) => {
-    const changeFormat = (text) =>
+    try {
+        const changeFormat = (text) =>
         text?.trim().toLowerCase().replace(/\s+/g, '_');
 
     const offset = (page - 1) * limit;
@@ -270,7 +273,9 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
             ...(type && { leave_type: changeFormat(type) }),
             ...(status && { status: status }),
             NOT: { status: 'pending' }
+            
         },
+        take: limit,
         orderBy: { created_at: 'desc' },
         include: {
             tb_users: {
@@ -341,6 +346,10 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
         page,
         totalPages
     };
+    } catch (error) {
+        throw error
+    }
+    
 };
 
 
@@ -407,7 +416,7 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
                 }
                 : {
                     reason: "-",
-                    balances_used: "-"  ,
+                    balances_used: "-",
                     tb_users: {
                         fullname: "-"
                     }
@@ -776,7 +785,7 @@ export const expiredLeave = async () => {
         const pendingLeaves = await prisma.tb_leave.findMany({
             where: {
                 status: 'pending',
-                start_date : {
+                start_date: {
                     lte: todayDate
                 }
             }
@@ -800,4 +809,74 @@ export const expiredLeave = async () => {
         console.error('[CRON] Failed to update leave status to expired : ', error)
         throw error
     }
-} 
+}
+
+
+export const importFileServices = async (path) => {
+
+    //config
+    const CHUNK_BASE = 100
+
+    let data = []
+    let chunkCount = 0
+
+    // stream 
+    const readable = fs.createReadStream(path)
+    const parser = parse({
+        delimiter: ";",
+        headers: true
+    })
+
+    try {
+        const process = await prisma.$transaction(async (tx) => {
+            const transform = new Transform({
+                objectMode: true,
+                async transform(chunk, encoding, cb) {
+                    try {
+                        data.push(chunk)
+                        if (data.length === CHUNK_BASE) {
+
+                            await processData(data, chunkCount, tx)
+
+                            data = []
+                        }
+
+                        chunkCount++
+                        cb()
+                    } catch (error) {
+                        cb(error)
+                    }
+                }
+            })
+
+            await new Promise((resolve, reject) => {
+                pipeline(readable, parser, transform, async (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        if (data.length > 0) {
+                            await processData(data, chunkCount, tx);
+                        }
+
+                        console.log("Finished injecting data into database!");
+                        console.log('Total data received: ', chunkCount);
+                        resolve();
+                    }
+                })
+            });
+        }, {
+            timeout: 60000000,
+            maxWait: 6000
+        }).catch(function (rej) {
+            throw rej
+        })
+
+        const result = {
+            data_received: chunkCount,
+        }
+
+        return result;
+    } catch (error) {
+        throw error
+    }
+}
