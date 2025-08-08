@@ -129,10 +129,10 @@ const EmployeeListContent = () => {
                 onClose={handleCloseSuccessAlert}
                 title="Leave data added successfully"
             />
-            
+
             <section className="flex justify-end items-center p-5 border-b-[1.5px] border-[#0000001f]">
                 <div className="flex justify-end items-center gap-3 mb-4 max-sm:flex-col">
-                    
+
                     <div className="flex max-sm:w-full">
                         <input
                             type="text"
@@ -155,7 +155,7 @@ const EmployeeListContent = () => {
                             <SelectItem value="active">Active</SelectItem>
                             <SelectItem value="resign">Resign</SelectItem>
                         </SelectDemo>
-                        <SelectDemo placeholder="Role"  onValueChange={(value) => setRoleFilter(value === 'all' ? null : value)}>
+                        <SelectDemo placeholder="Role" onValueChange={(value) => setRoleFilter(value === 'all' ? null : value)}>
                             <SelectLabel>Role</SelectLabel>
                             <SelectItem value="all">All</SelectItem>
                             <SelectItem value="karyawan_kontrak">Karyawan Kontrak</SelectItem>
@@ -179,13 +179,14 @@ const EmployeeListContent = () => {
                                 <th className="p-3 font-semibold">Leave Total</th>
                                 <th className="p-3 font-semibold">Role</th>
                                 <th className="p-3 font-semibold">Status</th>
+                                <th className="p-3 font-semibold">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 Array.from({ length: ITEMS_PER_PAGE }).map((_, rowIdx) => (
                                     <tr key={rowIdx} className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-gray-100 animate-pulse'}>
-                                        {Array.from({ length: 8 }).map((_, colIdx) => (
+                                        {Array.from({ length: 9 }).map((_, colIdx) => (
                                             <td key={colIdx} className="p-3">
                                                 <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
                                             </td>
@@ -193,26 +194,27 @@ const EmployeeListContent = () => {
                                     </tr>
                                 ))
                             ) :
-                             dataLeave.length === 0 ? (
-                                <tr>
-                                    <td colSpan={7} className="p-4 text-center text-gray-500">
-                                        No Data User Found.
-                                    </td>
-                                </tr>
-                            ) :  (
-                                dataLeave.map((data) => (
-                                    <tr key={data.nik} className="odd:bg-[#e8efff] even:bg-[#f8faff]">
-                                        <td className="p-3">{data.nik}</td>
-                                        <td className="p-3">{data.name}</td>
-                                        <td className="p-3 capitalize">{data.gender}</td>
-                                        <td className="p-3">{data.this_year_leave || 0}</td>
-                                        <td className="p-3">{data.last_year_leave || 0}</td>
-                                        <td className="p-3">{data.leave_total || 0}</td>
-                                        <td className="p-3">{(data.role || '').replace(/_/g, ' ')}</td>
-                                        <td className="p-3">{renderStatus(data.status)}</td>
+                                dataLeave.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={9} className="p-4 text-center text-gray-500">
+                                            No Data User Found.
+                                        </td>
                                     </tr>
-                                ))
-                            )}
+                                ) : (
+                                    dataLeave.map((data) => (
+                                        <tr key={data.nik} className="odd:bg-[#e8efff] even:bg-[#f8faff]">
+                                            <td className="p-3">{data.nik}</td>
+                                            <td className="p-3">{data.name}</td>
+                                            <td className="p-3 capitalize">{data.gender}</td>
+                                            <td className="p-3">{data.this_year_leave || 0}</td>
+                                            <td className="p-3">{data.last_year_leave || 0}</td>
+                                            <td className="p-3">{data.leave_total || 0}</td>
+                                            <td className="p-3">{(data.role || '').replace(/_/g, ' ')}</td>
+                                            <td className="p-3">{renderStatus(data.status)}</td>
+                                            <td className="p-3"></td>
+                                        </tr>
+                                    ))
+                                )}
                         </tbody>
                     </table>
                 </div>

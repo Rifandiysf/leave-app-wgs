@@ -45,6 +45,46 @@ type PaginationInfo = {
 
 const itemPerPage = 7
 
+type PageItem = number | 'ellipsis'
+
+const getVisiblePages = (current: number, total: number, maxVisible: number = 5): PageItem[] => {
+    const pages: PageItem[] = []
+
+    if (total <= maxVisible + 2) {
+        for (let i = 1; i <= total; i++) pages.push(i)
+        return pages
+    }
+
+    const half = Math.floor(maxVisible / 2)
+    let start = Math.max(current - half, 2)
+    let end = Math.min(current + half, total - 1)
+
+    if (current <= half + 2) {
+        start = 2
+        end = maxVisible
+    }
+
+    if (current >= total - half - 1) {
+        start = total - maxVisible + 1
+        end = total - 1
+    }
+
+    pages.push(1)
+
+    if (start > 2) pages.push('ellipsis')
+
+    for (let i = start; i <= end; i++) {
+        pages.push(i)
+    }
+
+    if (end < total - 1) pages.push('ellipsis')
+
+    pages.push(total)
+
+    return pages
+}
+
+
 const HistoryPage = () => {
     const [currentPage, setCurrentPage] = useState(1)
     const [isLoading, setIsLoading] = useState(false)
@@ -191,8 +231,8 @@ const HistoryPage = () => {
                 </Select>
             </div>
 
-            <div className="w-full">
-                <div className="max-sm:overflow-x-scroll">
+            <div className="w-full border-border rounded-md overflow-hidden">
+                <div className="overflow-x-auto">
                     <table className="w-full min-w-max">
                         <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] rounded-2xl shadow-2xl">
                             <tr>
@@ -202,7 +242,7 @@ const HistoryPage = () => {
                                 <th className="p-3 text-[16px] sm:text-[18px] font-semibold">End Leave</th>
                                 <th className="p-3 text-[16px] sm:text-[18px] font-semibold">Leave Usage</th>
                                 <th className="p-3 text-[16px] sm:text-[18px] font-semibold">Title</th>
-                                <th className="p-3 text-[16px] sm:text-[18px] font-semibold">Note</th>
+                                <th className="p-3 text-[16px] sm:text-[18px] font-semibold">Detail</th>
                             </tr>
                         </thead>
                         <tbody className="cursor-pointer">
@@ -292,7 +332,7 @@ const HistoryPage = () => {
                     </table>
                 </div>
 
-                <div className="flex justify-center items-center bg-white py-5">
+                <div className="flex justify-between items-center bg-background py-5">
                     <Pagination>
                         <PaginationContent>
                             <PaginationItem>
@@ -303,15 +343,19 @@ const HistoryPage = () => {
                             </PaginationItem>
 
                             {paginationInfo.last_visible_page > 1 &&
-                                Array.from({ length: paginationInfo.last_visible_page }, (_, i) => (
-                                    <PaginationItem key={i}>
-                                        <PaginationLink
-                                            isActive={currentPage === i + 1}
-                                            onClick={() => handlePageChange(i + 1)}
-                                            className='cursor-pointer'
-                                        >
-                                            {i + 1}
-                                        </PaginationLink>
+                                getVisiblePages(currentPage, paginationInfo.last_visible_page).map((page, idx) => (
+                                    <PaginationItem key={idx}>
+                                        {page === 'ellipsis' ? (
+                                            <span className="px-2 text-gray-500 select-none">…</span>
+                                        ) : (
+                                            <PaginationLink
+                                                isActive={currentPage === page}
+                                                onClick={() => handlePageChange(page)}
+                                                className="cursor-pointer"
+                                            >
+                                                {page}
+                                            </PaginationLink>
+                                        )}
                                     </PaginationItem>
                                 ))
                             }

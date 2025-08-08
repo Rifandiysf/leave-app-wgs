@@ -40,6 +40,45 @@ type PaginationInfo = {
 
 const itemPerPage = 7
 
+type PageItem = number | 'ellipsis'
+
+const getVisiblePages = (current: number, total: number, maxVisible: number = 5): PageItem[] => {
+    const pages: PageItem[] = []
+
+    if (total <= maxVisible + 2) {
+        for (let i = 1; i <= total; i++) pages.push(i)
+        return pages
+    }
+
+    const half = Math.floor(maxVisible / 2)
+    let start = Math.max(current - half, 2)
+    let end = Math.min(current + half, total - 1)
+
+    if (current <= half + 2) {
+        start = 2
+        end = maxVisible
+    }
+
+    if (current >= total - half - 1) {
+        start = total - maxVisible + 1
+        end = total - 1
+    }
+
+    pages.push(1)
+
+    if (start > 2) pages.push('ellipsis')
+
+    for (let i = start; i <= end; i++) {
+        pages.push(i)
+    }
+
+    if (end < total - 1) pages.push('ellipsis')
+
+    pages.push(total)
+
+    return pages
+}
+
 const SpecialLeavePage = () => {
     const [currentPage, setCurrentPage] = useState(1)
     const [isLoading, setIsLoading] = useState(false)
@@ -224,19 +263,23 @@ const SpecialLeavePage = () => {
                             />
                         </PaginationItem>
 
-                        {paginationInfo.last_visible_page > 1 &&
-                            Array.from({ length: paginationInfo.last_visible_page }, (_, i) => (
-                                <PaginationItem key={i}>
-                                    <PaginationLink
-                                        isActive={currentPage === i + 1}
-                                        onClick={() => handlePageChange(i + 1)}
-                                        className='cursor-pointer'
-                                    >
-                                        {i + 1}
-                                    </PaginationLink>
-                                </PaginationItem>
-                            ))
-                        }
+                            {paginationInfo.last_visible_page > 1 &&
+                                getVisiblePages(currentPage, paginationInfo.last_visible_page).map((page, idx) => (
+                                    <PaginationItem key={idx}>
+                                        {page === 'ellipsis' ? (
+                                            <span className="px-2 text-gray-500 select-none">…</span>
+                                        ) : (
+                                            <PaginationLink
+                                                isActive={currentPage === page}
+                                                onClick={() => handlePageChange(page)}
+                                                className="cursor-pointer"
+                                            >
+                                                {page}
+                                            </PaginationLink>
+                                        )}
+                                    </PaginationItem>
+                                ))
+                            }
 
                         <PaginationItem>
                             <PaginationNext
