@@ -179,7 +179,7 @@ export const updateLeave = async (id, status, reason, nik) => {
         const currentYear = new Date().getFullYear();
         const currentYearBalance = userBalance.find(balance => balance.receive_date.getFullYear() === currentYear);
 
-        if (totalDaysUsed > currentYearBalance.amount) {
+        if (totalDaysUsed > currentYearBalance.amount && data.leave_type !== "mandatory_leave") {
             const err = new Error(`Cannot approve leave for next year because total days ${totalDaysUsed} exceed current year's balance ${currentYearBalance.amount}`);
             err.statusCode = 400;
             throw err;
