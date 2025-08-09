@@ -9,6 +9,7 @@ import morgan from 'morgan'
 import timeout from 'connect-timeout';
 import errorHandler from './middlewares/errorHandler.middleware.js';
 import './jobs/leaveScheduler.js';
+import './jobs/autoMandatoryLeave.js';
 
 const app = express()
 app.use(timeout('5s'));
