@@ -726,7 +726,7 @@ export const getAllMandatoryLeavesService = async (page = 1, limit = 10, req) =>
         const message = `konfimasi cuti sebelum tanggal ${tanggalFormatted}`;
 
         const status = leaveMap[item.id_mandatory];
-        let taken = false;
+        let taken = true;
 
         if (status === 'approved') {
             taken = true;
