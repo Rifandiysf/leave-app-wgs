@@ -22,6 +22,7 @@ type dataLeaveType = {
     nik: string,
     name: string,
     gender: string,
+    join_date: string,
     role: string,
     status: string,
     last_year_leave?: number,
@@ -189,11 +190,13 @@ const EmployeeListContent = () => {
 
     return (
         <>
+        
             <SuccessAlert
                 isOpen={showSuccess}
                 onClose={handleCloseSuccessAlert}
                 title="Leave data added successfully"
             />
+            
 
             <section className="flex justify-end items-center p-5 border-b-[1.5px] border-[#0000001f]">
                 <div className="flex justify-end items-center gap-3 mb-4 max-sm:flex-col">
@@ -278,7 +281,7 @@ const EmployeeListContent = () => {
                                                 <td className="p-3">{(data.role || '').replace(/_/g, ' ')}</td>
                                                 <td className="p-3">{renderStatus(data.status)}</td>
                                                 <td className="p-3">
-                                                    <Statistics/>
+                                                    <Statistics user={data}/>
                                                 </td>
                                             </tr>
                                         ))
@@ -332,8 +335,6 @@ const EmployeeListContent = () => {
     );
 }
 
-// Ini adalah komponen wrapper yang diperlukan oleh Next.js
-// agar `useSearchParams` dapat bekerja dengan benar.
 const EmployeeListPage = () => (
     <Suspense fallback={<div>Loading page...</div>}>
         <EmployeeListContent />
