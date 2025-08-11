@@ -14,6 +14,7 @@ import {
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
 import { DatePickerField } from "../date-picker/datePicker"
+import { DateRange } from 'react-day-picker';
 
 export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
     const [title, setTitle] = useState("")
@@ -150,9 +151,18 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
                             )}
                         </div>
                         <div className="grid gap-3">
-                            <div className="grid grid-cols-2 gap-2">
-                                <DatePickerField label="Start Leave" value={startDate} onChange={(value) => { setStartDate(value) }} className={dateError ? 'border-red-400' : ''}/>
-                                <DatePickerField label="End Leave" value={endDate} onChange={(value) => { setEndDate(value) }} className={dateError ? 'border-red-400' : ''}/>
+                            <div className="grid grid-cols-1 gap-2">
+                                <DatePickerField
+                                    label="Leave Date"
+                                    mode="range"
+                                    value={startDate && endDate ? { from: startDate, to: endDate } : undefined}
+                                    onChange={(range: DateRange | undefined) => {
+                                        setStartDate(range?.from)
+                                        setEndDate(range?.to)
+                                        if (dateError) setDateError("")
+                                    }}
+                                    className={dateError ? 'border-red-400' : ''}
+                                />
                             </div>
                             {dateError && (
                                 <p className="text-sm text-red-600 mt-1">{dateError}</p>

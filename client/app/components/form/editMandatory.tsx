@@ -15,6 +15,7 @@ import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
 import { DatePickerField } from "../date-picker/datePicker"
 import { parseISO } from "date-fns"
+import { DateRange } from "react-day-picker"
 
 type dataMandatoryType = {
     id_mandatory: string
@@ -172,9 +173,18 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="duration">Duration</Label>
-                            <div className="grid grid-cols-2 gap-2">
-                                <DatePickerField label="Start Leave" value={startDate} onChange={(value) => { setStartDate(value) }} className={dateError ? 'border-red-400' : ''}/>
-                                <DatePickerField label="End Leave" value={endDate} onChange={(value) => { setEndDate(value) }} className={dateError ? 'border-red-400' : ''}/>
+                            <div className="grid grid-cols-1 gap-2">
+                                <DatePickerField
+                                    label="Leave Date"
+                                    mode="range"
+                                    value={startDate && endDate ? { from: startDate, to: endDate } : undefined}
+                                    onChange={(range: DateRange | undefined) => {
+                                        setStartDate(range?.from)
+                                        setEndDate(range?.to)
+                                        if (dateError) setDateError("")
+                                    }}
+                                    className={dateError ? 'border-red-400' : ''}
+                                />
                             </div>
                             {dateError && (
                                 <p className="text-sm text-red-600 mt-1">{dateError}</p>
