@@ -10,25 +10,23 @@ import { cn } from "@/lib/utils"
 import { DateRange, SelectSingleEventHandler, SelectRangeEventHandler } from "react-day-picker"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 
-// Define a union type for the props to handle both single and range modes
 type DatePickerFieldProps = {
     label: string;
     className?: string;
-    // Common props for Calendar component
-    // If mode is "single", value is Date and onChange handles Date
-    mode?: "single" | "range"; // Add mode parameter
+    mode?: "single" | "range";
+    disablePastAndWeekends?: boolean;
 } & (
-    | {
-        mode?: "single";
-        value: Date | undefined;
-        onChange: (date: Date | undefined) => void;
-    }
-    | {
-        mode: "range";
-        value: DateRange | undefined;
-        onChange: (range: DateRange | undefined) => void;
-    }
-);
+        | {
+            mode?: "single";
+            value: Date | undefined;
+            onChange: (date: Date | undefined) => void;
+        }
+        | {
+            mode: "range";
+            value: DateRange | undefined;
+            onChange: (range: DateRange | undefined) => void;
+        }
+    );
 
 export function DatePickerField({
     label,
@@ -36,9 +34,13 @@ export function DatePickerField({
     onChange,
     className,
     mode = "range",
+    disablePastAndWeekends = true,
 }: DatePickerFieldProps) {
     const [open, setOpen] = React.useState(false)
     const now = new Date()
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const currentYear = now.getFullYear()
     const years = Array.from({ length: 7 }, (_, i) => currentYear - 3 + i)
     const months = [
@@ -98,6 +100,14 @@ export function DatePickerField({
             }
         }
     }
+
+    const getDisabledDates = (date: Date) => {
+        if (disablePastAndWeekends) {
+            const day = date.getDay();
+            return day === 0 || day === 6 || date < today;
+        }
+        return false;
+    };
 
     return (
         <div className="flex flex-col gap-3 w-full">
@@ -162,12 +172,7 @@ export function DatePickerField({
                                 setSelectedYear(newDate.getFullYear());
                             }}
                             onSelect={onChange as SelectSingleEventHandler}
-                            disabled={(date) => {
-                                const today = new Date()
-                                today.setHours(0, 0, 0, 0)
-                                const day = date.getDay()
-                                return day === 0 || day === 6 || date < today
-                            }}
+                            disabled={getDisabledDates}
                             modifiers={{
                                 weekend: (date) => date.getDay() === 0 || date.getDay() === 6,
                             }}
@@ -186,12 +191,7 @@ export function DatePickerField({
                                 setSelectedYear(newDate.getFullYear());
                             }}
                             onSelect={onChange as SelectRangeEventHandler}
-                            disabled={(date) => {
-                                const today = new Date()
-                                today.setHours(0, 0, 0, 0)
-                                const day = date.getDay()
-                                return day === 0 || day === 6 || date < today
-                            }}
+                            disabled={getDisabledDates}
                             modifiers={{
                                 weekend: (date) => date.getDay() === 0 || date.getDay() === 6,
                             }}

@@ -155,6 +155,7 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
                                 <DatePickerField
                                     label="Leave Date"
                                     mode="range"
+                                    disablePastAndWeekends={false}
                                     value={startDate && endDate ? { from: startDate, to: endDate } : undefined}
                                     onChange={(range: DateRange | undefined) => {
                                         setStartDate(range?.from)
