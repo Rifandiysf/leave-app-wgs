@@ -1,5 +1,5 @@
 import express from "express";
-import { createMandatoryLeave, createSpecialLeave, getAllLeaves, getLeavesByFilter, getMandatoryLeaves, getSearchMandatoryLeave, getSearchSpecialLeave, getSpecialLeave, historyLeave, historyLeaveSearch, updateLeaveById, updateMandatoryLeave, updateSpecialLeave, importFile } from '../controllers/leave.controller.js';
+import { createMandatoryLeave, createSpecialLeave, getAllLeaves, getLeavesByFilter, getMandatoryLeaves, getSearchMandatoryLeave, getSearchSpecialLeave, getSpecialLeave, historyLeave, historyLeaveSearch, updateLeaveById, updateMandatoryLeave, updateSpecialLeave, importFile, exportFile } from '../controllers/leave.controller.js';
 import { validate } from '../middlewares/validate.js';
 import { validateRole } from '../middlewares/validateRole.middleware.js';
 import updateLeaveRequestSchema from "../validators/updateLeave.validator.js";
@@ -27,6 +27,7 @@ leaveRoutes.post('/mandatory', checkStartDateTwoWeeksAhead, validate(mandatoryLe
 leaveRoutes.patch('/mandatory/:id', validate(mandatoryLeaveFormUpdate), updateMandatoryLeave)
 
 leaveRoutes.post('/import', uploadFile, importFile)
+leaveRoutes.get('/export', exportFile)
 
 leaveRoutes.patch('/:id', validate(updateLeaveRequestSchema), updateLeaveById)
 

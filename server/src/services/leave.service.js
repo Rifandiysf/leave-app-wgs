@@ -3,7 +3,7 @@ import { leave_type } from "../../generated/prisma/index.js";
 import prisma from "../utils/client.js";
 import { calculateHolidaysDays, createDateFromString } from "../utils/leaves.utils.js";
 import fs from 'fs';
-import { parse } from 'fast-csv';
+import { parse, format } from 'fast-csv';
 import { pipeline, Transform } from "stream";
 import { processData } from "../utils/inject.utils.js";
 
@@ -264,92 +264,92 @@ export const updateLeave = async (id, status, reason, nik) => {
 export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, limit = 10 }) => {
     try {
         const changeFormat = (text) =>
-        text?.trim().toLowerCase().replace(/\s+/g, '_');
+            text?.trim().toLowerCase().replace(/\s+/g, '_');
 
-    const offset = (page - 1) * limit;
+        const offset = (page - 1) * limit;
 
-    const leaves = await prisma.tb_leave.findMany({
-        where: {
-            ...(type && { leave_type: changeFormat(type) }),
-            ...(status && { status: status }),
-            NOT: { status: 'pending' }
-            
-        },
-        take: limit,
-        orderBy: { created_at: 'desc' },
-        include: {
-            tb_users: {
-                select: {
-                    fullname: true
-                }
+        const leaves = await prisma.tb_leave.findMany({
+            where: {
+                ...(type && { leave_type: changeFormat(type) }),
+                ...(status && { status: status }),
+                NOT: { status: 'pending' }
+
             },
-            tb_leave_log: {
-                orderBy: { changed_at: 'desc' },
-                take: 1,
-                select: {
-                    reason: true,
-                    balances_used: true,
-                    tb_users: {
-                        select: {
-                            fullname: true
+            take: limit,
+            orderBy: { created_at: 'desc' },
+            include: {
+                tb_users: {
+                    select: {
+                        fullname: true
+                    }
+                },
+                tb_leave_log: {
+                    orderBy: { changed_at: 'desc' },
+                    take: 1,
+                    select: {
+                        reason: true,
+                        balances_used: true,
+                        tb_users: {
+                            select: {
+                                fullname: true
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
 
-    // Filter by fullname if value is given
-    const filtered = await Promise.all(
-        leaves.map(async (leave) => {
-            const user = await prisma.tb_users.findUnique({
-                where: { NIK: leave.NIK },
-                select: { fullname: true }
-            });
+        // Filter by fullname if value is given
+        const filtered = await Promise.all(
+            leaves.map(async (leave) => {
+                const user = await prisma.tb_users.findUnique({
+                    where: { NIK: leave.NIK },
+                    select: { fullname: true }
+                });
 
-            if (value && !user?.fullname.toLowerCase().includes(value.toLowerCase())) {
-                return null;
-            }
+                if (value && !user?.fullname.toLowerCase().includes(value.toLowerCase())) {
+                    return null;
+                }
 
-            const latestLog = leave.tb_leave_log?.[0] || {
-                reason: "-",
-                tb_users: { fullname: "-" }
-            };
+                const latestLog = leave.tb_leave_log?.[0] || {
+                    reason: "-",
+                    tb_users: { fullname: "-" }
+                };
 
-            return {
-                id_leave: leave.id_leave,
-                title: leave.title,
-                leave_type: leave.leave_type,
-                start_date: leave.start_date,
-                end_date: leave.end_date,
-                total_days: leave.total_days,
-                reason: leave.reason,
-                status: leave.status,
-                created_at: leave.created_at,
-                NIK: leave.NIK,
-                fullname: leave.tb_users?.fullname || "Unknown",
-                id_special: leave.id_special,
-                id_mandatory: leave.id_mandatory,
-                tb_leave_log: latestLog
-            };
-        })
-    );
+                return {
+                    id_leave: leave.id_leave,
+                    title: leave.title,
+                    leave_type: leave.leave_type,
+                    start_date: leave.start_date,
+                    end_date: leave.end_date,
+                    total_days: leave.total_days,
+                    reason: leave.reason,
+                    status: leave.status,
+                    created_at: leave.created_at,
+                    NIK: leave.NIK,
+                    fullname: leave.tb_users?.fullname || "Unknown",
+                    id_special: leave.id_special,
+                    id_mandatory: leave.id_mandatory,
+                    tb_leave_log: latestLog
+                };
+            })
+        );
 
-    const cleaned = filtered.filter(Boolean);
-    const total = cleaned.length;
-    const totalPages = Math.ceil(total / limit);
-    const paginated = cleaned.slice(offset, offset + limit);
+        const cleaned = filtered.filter(Boolean);
+        const total = cleaned.length;
+        const totalPages = Math.ceil(total / limit);
+        const paginated = cleaned.slice(offset, offset + limit);
 
-    return {
-        data: paginated,
-        total,
-        page,
-        totalPages
-    };
+        return {
+            data: paginated,
+            total,
+            page,
+            totalPages
+        };
     } catch (error) {
         throw error
     }
-    
+
 };
 
 
@@ -880,3 +880,67 @@ export const importFileServices = async (path) => {
         throw error
     }
 }
+
+
+export const exportFileServices = async (target) => {
+    let result = []
+    try {
+        console.log('target', target)
+        switch (target) {
+            case 'leave':
+                result = await prisma.tb_leave.findMany({
+                    select: {
+                        title: true,
+                        leave_type: true,
+                        start_date: true,
+                        end_date: true,
+                        total_days: true,
+                        NIK: true
+                    }
+                });
+                break;
+            case 'user':
+                result = await prisma.tb_users.findMany()
+                break;
+            case 'balance':
+                result = await prisma.tb_balance.findMany({})
+            case 'log':
+                result = await prisma.tb_leave_log.findMany({
+                    omit: {
+                        new_status: true,
+                        old_status: true,
+                        id_leave: true
+                    }
+                })
+
+            default:
+                break;
+        }
+        // Ambil data dari Prisma (pakai select, bukan omit)
+
+        // Buat write stream ke file
+        const writeable = fs.createWriteStream('./src/temp/result.csv');
+        const write = format({ headers: true, delimiter: ';' });
+
+        // Pipe output CSV ke file
+        write.pipe(writeable);
+
+        // Masukkan semua data ke CSV
+        result.forEach(row => write.write(row));
+
+        // Akhiri penulisan CSV
+        write.end();
+
+        // Promise untuk memastikan file selesai ditulis
+        return new Promise((resolve, reject) => {
+            writeable.on('finish', () => {
+                console.log('Finish writing data');
+                resolve({ success: true, count: result.length });
+            });
+            writeable.on('error', reject);
+        });
+
+    } catch (error) {
+        throw error;
+    }
+};

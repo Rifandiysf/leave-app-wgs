@@ -13,6 +13,7 @@ import {
   getSearchSpecialLeaveService,
   getSearchMandatoryLeaveService,
   importFileServices,
+  exportFileServices,
 } from "../services/leave.service.js"
 import { responsePagination } from "../utils/responsePagination.utils.js";
 import { decodeToken } from "../utils/jwt.js";
@@ -270,6 +271,16 @@ export const importFile = async (req, res, next) => {
     })
     next(error)
   }
+}
 
+export const exportFile = async (req, res, next) => {
+  try {
+    const target = req.query.target  
+    const result = await exportFileServices(target);
+
+    res.download('./src/temp/result.csv');
+  } catch (error) {
+    next(error)
+  }
 }
 
