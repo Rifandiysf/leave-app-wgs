@@ -474,6 +474,22 @@ export const getSpecialLeaveService = async (gender, page = 1, limit = 10) => {
     return { data, total, totalPages, page };
 };
 
+export const getSpecialLeaveServiceAdmin = async (page = 1, limit = 10) => {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+        prisma.tb_special_leave.findMany({
+            skip,
+            take: limit,
+            orderBy: { title: 'asc' }
+        }),
+        prisma.tb_special_leave.count(),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return { data, total, totalPages, page };
+};
 
 export const getSearchSpecialLeaveService = async (data, page = 1, limit = 10) => {
     const skip = (page - 1) * limit;
