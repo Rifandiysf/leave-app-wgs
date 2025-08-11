@@ -192,7 +192,7 @@ export const updateLeave = async (id, status, reason, nik) => {
             // array di loop ini disort dari paling lama/ [-1] = currentBalance
             if ((data.status === "pending" || data.status === "rejected") && status === "approved") {
 
-                if (existing) {
+                if (existing && data.leave_type !== 'mandatory_leave') {
                     const err = new Error("There's overlap leave");
                     err.statusCode = 400;
                     throw err;
@@ -656,7 +656,7 @@ export const updateLeaveBalance = async (user) => {
 
         const eligiblePrev = monthsPrev - 3;
 
-        if (eligiblePrev > 0) {
+        if (today.getMonth() === 0 && eligiblePrev > 0) {
             const adjustmentPrev = await prisma.tb_balance_adjustment.aggregate({
                 where: {
                     NIK: user.NIK,
@@ -734,6 +734,11 @@ export const updateLeaveBalance = async (user) => {
                 where: {
                     NIK: user.NIK,
                     actor: 'system',
+                    notes: {
+                        not : {
+                            contains : `(backfill ${previousYear})`
+                        }
+                    },
                     created_at: {
                         gte: new Date(`${currentYear}-01-01`),
                         lte: new Date(`${currentYear}-12-31`)
