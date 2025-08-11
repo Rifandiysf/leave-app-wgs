@@ -61,7 +61,8 @@ const SettingModal = () => {
                     <Tabs defaultValue="appearance" className='w-full'>
                         <TabsList>
                             <TabsTrigger value="appearance">Appearance</TabsTrigger>
-                            <TabsTrigger value="Config">Config</TabsTrigger>
+                            <TabsTrigger value="config">Config</TabsTrigger>
+                            <TabsTrigger value="inject">Inject</TabsTrigger>
                         </TabsList>
                         <TabsContent value="appearance">
                             <Card className='w-full shadow-none border-none rounded-lg p-3'>
@@ -86,7 +87,7 @@ const SettingModal = () => {
                                 </CardContent>
                             </Card>
                         </TabsContent>
-                        <TabsContent value="Config">
+                        <TabsContent value="config">
                             <Card className='w-full shadow-none border-none rounded-lg p-3 gap-1'>
                                 <CardHeader className='px-1'>
                                     <CardTitle>Config</CardTitle>
@@ -95,7 +96,6 @@ const SettingModal = () => {
                                 <CardContent className='flex gap-4 p-0'>
                                     <Card className='w-full shadow-none border-none rounded-lg'>
                                         <CardContent className='flex flex-col gap-6 p-0'>
-                                            {/* Upload Logo */}
                                             <div>
                                                 <Label className='block text-sm font-medium mb-1'>Website Logo</Label>
                                                 <div

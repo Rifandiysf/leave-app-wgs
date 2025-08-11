@@ -66,6 +66,8 @@ export function ApplyLeave() {
         } else {
             setSelectedSpecialLeaveId("")
         }
+        setStartDate(undefined)
+        setEndDate(undefined)
     }, [leaveType])
 
     const handleApplyLeave = async (e: React.FormEvent) => {
@@ -80,28 +82,29 @@ export function ApplyLeave() {
 
         let hasError = false;
 
+        // Validate leave type selection
         if (!leaveType) {
             setLeaveTypeError("Leave type is required");
             hasError = true;
         }
 
         if (leaveType === "special_leave") {
+            // Special Leave specific validations
             if (!selectedSpecialLeaveId) {
                 setSpecialLeaveError("Please select a special leave type");
                 hasError = true;
             }
             if (!startDate) {
-                setDateError("Start date is required for special leave.");
+                setDateError("Leave date is required for special leave.");
                 hasError = true;
             }
-
+            // Auto-set title and reason for special leave
             const selectedSpecialLeave = specialLeaves.find(leave => leave.id_special === selectedSpecialLeaveId);
             if (selectedSpecialLeave) {
-
                 setTitle(selectedSpecialLeave.title);
+                setReason("Special Leave"); // Reason is fixed for special leave
             }
-        } else {
-
+        } else { // Personal Leave validations
             if (!title.trim()) {
                 setTitleError("Title cannot be empty");
                 hasError = true;
@@ -256,10 +259,11 @@ export function ApplyLeave() {
                                     <div className="grid grid-cols-1 gap-2">
                                         <DatePickerField
                                             label="Leave Date"
-                                            value={startDate && endDate ? { from: startDate, to: endDate } : undefined}
-                                            onChange={(range: DateRange | undefined) => {
-                                                setStartDate(range?.from)
-                                                setEndDate(range?.to)
+                                            mode="single"
+                                            value={startDate}
+                                            onChange={(date: Date | undefined) => {
+                                                setStartDate(date)
+                                                setEndDate(date)
                                                 if (dateError) setDateError("")
                                             }}
                                             className={dateError && 'border-red-400'}
@@ -308,6 +312,7 @@ export function ApplyLeave() {
                                     <div className="grid grid-cols-1 gap-2">
                                         <DatePickerField
                                             label="Leave Date"
+                                            mode="range"
                                             value={startDate && endDate ? { from: startDate, to: endDate } : undefined}
                                             onChange={(range: DateRange | undefined) => {
                                                 setStartDate(range?.from)
