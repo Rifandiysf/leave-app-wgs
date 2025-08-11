@@ -556,7 +556,7 @@ export const getUserByNIK = async (nik) => {
                 total_days: true
             },
             where: {
-                end_date: {
+                start_date: {
                     gte: currentDateFirstMonth,
                     lte: currentDateLastMonth,
                 },
