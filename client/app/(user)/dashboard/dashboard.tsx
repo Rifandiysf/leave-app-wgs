@@ -13,6 +13,7 @@ type UserDashboardData = {
     current_amount: number;
     carried_amount: number;
     pending_request: number;
+    used_days: number;
   };
   leave: {
     total_days: number;
@@ -40,11 +41,8 @@ const DashboardSkeleton = () => (
   </>
 );
 
-
 const UserDashboard = () => {
   const [userData, setUserData] = useState<UserDashboardData | null>(null);
-  const [pendingCount, setPendingCount] = useState(0);
-  const [usedDays, setUsedDays] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -71,45 +69,17 @@ const UserDashboard = () => {
           throw new Error("User NIK not found in profile data.");
         }
 
-        const [dashboardResponse, allLeavesResponse] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${nik}`, {
-            method: 'GET',
-            credentials: "include"
-          }),
-          fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/leave?limit=1000`, {
-            method: 'GET',
-            credentials: "include"
-          })
-        ]);
+        const dashboardResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${nik}`, {
+          method: 'GET',
+          credentials: "include"
+        });
 
-        if (!dashboardResponse.ok || !allLeavesResponse.ok) {
-          throw new Error("Failed to fetch all required dashboard data");
+        if (!dashboardResponse.ok) {
+          throw new Error("Failed to fetch dashboard data");
         }
 
         const dashboardJson = await dashboardResponse.json();
-        const allLeavesJson = await allLeavesResponse.json();
-
         setUserData(dashboardJson.data);
-
-        const allUserLeaves = allLeavesJson?.data || [];
-
-
-        const pendingForUser = allUserLeaves.filter(
-          (leave: { status: string }) => leave.status?.toLowerCase() === 'pending'
-        );
-        setPendingCount(pendingForUser.length);
-
-
-        const approvedLeaves = allUserLeaves.filter(
-          (leave: { status: string }) => leave.status?.toLowerCase() === 'approved'
-        );
-
-        const totalUsedDays = approvedLeaves.reduce(
-          (sum: number, leave: { total_days: number }) => sum + (leave.total_days || 0),
-          0
-        );
-        setUsedDays(totalUsedDays);
-
 
       } catch (err: any) {
         setError(err.message);
@@ -121,8 +91,6 @@ const UserDashboard = () => {
 
     fetchUserDashboardData();
   }, []);
-
-
 
   if (isLoading) {
     return <DashboardSkeleton />;
@@ -153,12 +121,12 @@ const UserDashboard = () => {
     },
     {
       icon: "bi-clock-history",
-      count: pendingCount,
+      count: userData?.balance.pending_request || 0,
       label: "Pending Requests"
     },
     {
       icon: "bi-check-circle-fill",
-      count: usedDays,
+      count: userData?.balance.used_days || 0,
       label: "Days Used"
     }
   ];
@@ -227,7 +195,6 @@ const UserDashboard = () => {
               </h2>
 
               <p className="text-gray-600 mb-4 sm:mb-8 text-xs sm:text-base">
-
                 Submit your leave request and we’ll process it for you
               </p>
               <ApplyLeave />
@@ -259,4 +226,4 @@ const UserDashboard = () => {
   )
 }
 
-export default UserDashboard
+export default UserDashboard;
