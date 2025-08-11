@@ -500,6 +500,7 @@ export const getUserByNIK = async (nik) => {
     try {
         const currentDate = new Date();
         const currentDateFirstMonth = new Date(new Date().getFullYear(), 0, 1);
+        const currentDateLastMonth = new Date(new Date().getFullYear(), 11, 31);
 
         const user = await prisma.tb_users.findUnique({
             omit: {
@@ -540,7 +541,6 @@ export const getUserByNIK = async (nik) => {
         const pending_request = await prisma.tb_leave.count({
             where: {
                 created_at: {
-                    gte: currentDateFirstMonth,
                     lte: currentDate
                 },
                 NIK: nik,
@@ -558,7 +558,7 @@ export const getUserByNIK = async (nik) => {
             where: {
                 end_date: {
                     gte: currentDateFirstMonth,
-                    lte: currentDate,
+                    lte: currentDateLastMonth,
                 },
                 NIK: NIK,
                 status: "approved",
@@ -578,7 +578,7 @@ export const getUserByNIK = async (nik) => {
                 total_amount: currentBalance + lastYearBalance || 0,
                 current_amount: currentBalance,
                 carried_amount: lastYearBalance,
-                days_used: approved_request._sum.total_days || 0,
+                used_days: approved_request._sum.total_days || 0,
                 pending_request: pending_request || 0,
             }
         }
