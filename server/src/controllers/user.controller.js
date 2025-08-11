@@ -1,5 +1,5 @@
 import { success } from "zod/v4";
-import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK, adjustModifyAmount, getAllMandatoryLeavesService } from "../services/user.service.js"
+import { createLeave, getLeavesByFilterService, getLeavesById, getAllUsers, updateUserByNIK, deleteUserByNIK, getUserByNIK, getLeavesByNIK, adjustModifyAmount, getAllMandatoryLeavesService, getLeaveTrendByNik } from "../services/user.service.js"
 import prisma from '../utils/client.js'
 import { decodeToken } from "../utils/jwt.js";
 import { responsePagination } from "../utils/responsePagination.utils.js";
@@ -265,3 +265,24 @@ export const getAllMandatoryLeaves = async (req, res, next) => {
         next(error)
     }
 };
+
+
+export const leaveTrend = async (req, res, next) => {
+    try {
+        const {nik} = req.params
+        const result = await getLeaveTrendByNik(nik)
+
+        res.status(200).json({
+            success: true,
+            message: result.message,
+            data: {
+                nik,
+                trend : result.trend
+            }
+        })
+    } catch(error) {
+        error.cause = error.message
+        error.message = 'failed to get leave data trends'
+        next(error)
+    }
+}

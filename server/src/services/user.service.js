@@ -741,3 +741,46 @@ export const getAllMandatoryLeavesService = async (page = 1, limit = 10, req) =>
     const totalPages = Math.ceil(total / limit);
     return { data, total, totalPages, page };
 };
+
+
+export const getLeaveTrendByNik = async (nik) => {
+    const leaves = await prisma.tb_leave.findMany({
+        where : {
+            NIK: nik,
+            status: 'approved'
+        },
+        orderBy : {
+            start_date : 'asc'
+        }
+    })
+
+    if (leaves.length === 0) {
+        return {
+            message : `There is no leave data for NIK ${nik}`,
+            trend : {}
+        }
+    }
+
+    const trend = {}
+
+    leaves.forEach((leave) => {
+        const year = leave.start_date.getFullYear()
+        const leaveType = leave.leave_type?.toLowerCase()
+
+        if(!leaveType) {
+            throw new Error(`Unknown leave type ${leaveType}`);
+            return;
+        }
+
+        if (!trend[year]) {
+            trend[year] = {mandatory_leave: 0, special_leave: 0, personal_leave: 0}
+        }
+
+        trend[year][leaveType] += 1
+    })
+
+    return {
+        message : `Successfully get leave data trends for NIK ${nik}` ,
+        trend
+    }
+}
