@@ -198,7 +198,7 @@ const HistoryPage = () => {
                         placeholder="Search By Title..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                 </div>
                 <Select onValueChange={(value) => setStatus(value === 'all' ? null : value)}>
@@ -234,7 +234,7 @@ const HistoryPage = () => {
             <div className="w-full border-border rounded-md overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full min-w-max">
-                        <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] rounded-2xl shadow-2xl">
+                        <thead className="border-b-[1.5px] border-border bg-[#f0f4f9] dark:bg-card rounded-2xl shadow-2xl">
                             <tr>
                                 <th className="p-3 text-[16px] sm:text-[18px] font-semibold">Status</th>
                                 <th className="p-3 text-[16px] sm:text-[18px] font-semibold">Type</th>
@@ -264,7 +264,7 @@ const HistoryPage = () => {
                                 </tr>
                             ) : (
                                 dataHistoryLeave.map((data, idx) => (
-                                    <tr key={idx} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
+                                    <tr key={idx} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] odd:dark:bg-card/30 even:dark:bg-card/70 transition-colors duration-300">
                                         <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{statusTag(data.status)}</th>
                                         <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{formatUppercase(data.leave_type)}</th>
                                         <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{formatDate(data.start_date)}</th>

@@ -185,7 +185,7 @@ const MandatoryPage = () => {
 
     return (
         <section className="p-4">
-            <div className="flex justify-center items-center my-2 border-b-[1.5px] border-accent">
+            <div className="flex justify-center items-center my-2 border-b-[1.5px] border-border">
                 <h1 className="text-2xl font-bold">Mandatory</h1>
             </div>
 
@@ -207,8 +207,8 @@ const MandatoryPage = () => {
                         const leaveHasPassed = isLeavePassed(data.end_date);
 
                         return (
-                            <Card key={idx} className={`gap-1.5 border-none shadow-none p-1.5 rounded-md ${leaveHasPassed && 'opacity-50'}`}>
-                                <Card className="bg-[#dde8ffab] border-none shadow-none p-3 rounded-sm">
+                            <div key={idx} className={`gap-1.5 border-none shadow-none p-1.5 rounded-md bg-accent ${leaveHasPassed && 'opacity-50'}`}>
+                                <Card className="bg-[#dde8ffab] dark:bg-card border-none shadow-none p-3 rounded-sm">
                                     <div>
                                         <Label className={`${currentDisplayStatus === 'approved' || 'rejected' ? 'flex justify-between gap-1.5 text-xl font-semibold mb-1' : 'text-xl font-semibold mb-1'}`}>
                                             {data.title}
@@ -220,21 +220,21 @@ const MandatoryPage = () => {
                                                 leaveHasPassed && <span className="text-gray-600 bg-gray-100 p-2 px-3 rounded-full text-xs">HAS PASSED</span>
                                             )}
                                         </Label>
-                                        <p className=" text-gray-600 text-sm">{data.description}</p>
+                                        <p className=" text-muted-foreground text-sm">{data.description}</p>
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <p className="text-xs font-bold bg-white py-1 px-2.5 rounded-full">{formatDate(data.start_date)}</p>
+                                            <p className="text-xs font-bold bg-background py-1 px-2.5 rounded-full">{formatDate(data.start_date)}</p>
                                             {!singleDay && (
                                                 <>
                                                     <i className="bi bi-arrow-right-short"></i>
-                                                    <p className="text-xs font-bold bg-white py-1 px-2.5 rounded-full">{formatDate(data.end_date)}</p>
+                                                    <p className="text-xs font-bold bg-background py-1 px-2.5 rounded-full">{formatDate(data.end_date)}</p>
                                                 </>
                                             )}
                                         </div>
                                     </div>
                                 </Card>
-                                <div className='flex justify-between items-center mx-2'>
+                                <div className='flex justify-between items-center m-2'>
                                     {currentDisplayStatus === 'approved' ? (
                                         <div className='flex'>
                                             <Label className='font-bold text-lg'>Apply Segera</Label>
@@ -251,7 +251,7 @@ const MandatoryPage = () => {
                                         disabled={isWithin7Days(data.start_date) || leaveHasPassed}
                                     />
                                 </div>
-                            </Card>
+                            </div>
                         )
                     })}
                 </div>

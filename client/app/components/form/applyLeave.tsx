@@ -192,19 +192,19 @@ export function ApplyLeave() {
         <>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                    <Button className="w-full px-4 sm:px-8 py-2 sm:py-4 bg-white text-blue-900 font-semibold hover:bg-blue-50 hover:shadow-lg transition-all duration-300 rounded-xl border-0 text-sm sm:text-lg">
+                    <Button className="w-full px-4 sm:px-8 py-2 sm:py-4 bg-blue-600 text-white font-semibold hover:bg-blue-500 hover:shadow-lg transition-all duration-300 rounded-xl border-0 text-sm sm:text-lg">
                         <i className="bi bi-calendar-event-fill" />
                         Apply For Leave
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[550px]">
+                <DialogContent className="sm:max-w-[550px] bg-background">
                     <form onSubmit={handleApplyLeave}>
                         <DialogHeader className="flex flex-col justify-center items-center mb-3">
                             <DialogTitle>
                                 <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
                                     <i className="bi bi-file-earmark-text text-white text-2xl" />
                                 </div>
-                                Leave Application
+                                <span className='text-foreground'>Leave Application</span>
                             </DialogTitle>
                             <DialogDescription>Fill in the details for your leave request</DialogDescription>
                         </DialogHeader>

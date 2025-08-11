@@ -45,7 +45,7 @@ export default function Sidebar({role}: sidebarProps) {
         fetchUserData();
     }, []);
 
-    const isActive = (path: string) => pathname === path ? 'bg-white shadow-sm' : 'hover:bg-blue-200'
+    const isActive = (path: string) => pathname === path ? 'bg-background shadow-sm' : 'hover:bg-blue-200 hover:dark:bg-blue-900'
     const isBottomActive = (path: string) => pathname === path ? 'text-blue-700' : 'text-gray-500'
 
     const broadcastResetView = () => {
@@ -63,18 +63,17 @@ export default function Sidebar({role}: sidebarProps) {
             {role === 'admin' ? (
                 <>
                     {/* Sidebar Desktop Admin */}
-                    <aside className="w-64 flex-col hidden lg:flex bg-white h-full fixed lg:relative z-50">
-                        <div className="bg-white p-7 pb-3">
+                    <aside className="w-64 flex-col hidden lg:flex bg-background h-full fixed lg:relative z-50">
+                        <div className="bg-background p-7 pb-3">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <Image src="/images/logo-wgs.svg" alt="Logo WGS" width={120} height={40} priority />
-                                    <h2 className="text-2xl font-medium text-black mt-2 truncate">{welcomeText}</h2>
+                                    <h2 className="text-2xl font-medium text-foreground mt-2 truncate">{welcomeText}</h2>
                                 </div>
                             </div>
                         </div>
-                        <nav className="bg-blue-100 p-4 flex-1 relative rounded-se-4xl">
+                        <nav className="bg-card p-4 flex-1 relative rounded-se-4xl">
                             <div className="font-semibold mt-8 space-y-2">
-
                                 <Link href="/admin/dashboard" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/dashboard')}`}>
                                     <i className="bi bi-person-workspace text-xl w-6 text-center" />
                                     <span className="ml-3">Dashboard</span>
@@ -105,7 +104,7 @@ export default function Sidebar({role}: sidebarProps) {
                     </aside>
 
                     {/* === BOTTOM BAR ADMIN === */}
-                    <nav className="fixed bottom-0 left-0 w-full bg-white border-t z-50 flex items-start h-17 lg:hidden">
+                    <nav className="fixed bottom-0 left-0 w-full bg-card border-t z-50 flex items-start h-17 lg:hidden">
                         <Link href="/admin/dashboard" className={`flex flex-col items-center text-center flex-1 h-full pt-2 px-1 ${isBottomActive('/admin/dashboard')}`}>
                             <i className="bi bi-person-workspace text-xl" />
                             <span className="text-[10px] leading-tight mt-1">Dashboard</span>
@@ -135,16 +134,16 @@ export default function Sidebar({role}: sidebarProps) {
             ) : (
                 <>
                     {/* Sidebar & Bottom Bar User */}
-                    <aside className="w-64 flex-col hidden lg:flex bg-white h-full fixed lg:relative z-50">
-                        <div className="bg-white p-7 pb-3">
+                    <aside className="w-64 flex-col hidden lg:flex bg-background h-full fixed lg:relative z-50">
+                        <div className="bg-background p-7 pb-3">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <Image src="/images/logo-wgs.svg" alt="Logo WGS" width={120} height={40} priority />
-                                    <h2 className="text-2xl font-medium text-black mt-2 truncate">{welcomeText}</h2>
+                                    <h2 className="text-2xl font-medium text-foreground mt-2 truncate">{welcomeText}</h2>
                                 </div>
                             </div>
                         </div>
-                        <nav className="bg-blue-100 p-4 flex-1 pt-5 relative rounded-se-4xl">
+                        <nav className="bg-card p-4 flex-1 pt-5 relative rounded-se-4xl">
                             <div className="font-semibold mt-8 space-y-2">
                                 <Link href="/" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/')}`}>
                                     <i className="bi bi-person-workspace text-xl w-6 text-center" />
@@ -162,7 +161,7 @@ export default function Sidebar({role}: sidebarProps) {
                             </div>
                         </nav>
                     </aside>
-                    <nav className="fixed bottom-0 left-0 w-full bg-white border-t z-50 flex justify-around items-center py-2 lg:hidden">
+                    <nav className="fixed bottom-0 left-0 w-full bg-card border-t z-50 flex justify-around items-center py-2 lg:hidden">
                         <Link href="/" className={`flex flex-col items-center text-xs ${isBottomActive('/')}`}>
                             <i className={`bi bi-person-workspace text-xl`} />
                             <span>Dashboard</span>

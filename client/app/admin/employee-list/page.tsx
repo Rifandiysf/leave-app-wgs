@@ -198,7 +198,7 @@ const EmployeeListContent = () => {
             />
             
 
-            <section className="flex justify-end items-center p-5 border-b-[1.5px] border-[#0000001f]">
+            <section className="flex justify-end items-center p-5 border-b-[1.5px] border-border">
                 <div className="flex justify-end items-center gap-3 mb-4 max-sm:flex-col">
 
                     <div className="flex max-sm:w-full">
@@ -207,7 +207,7 @@ const EmployeeListContent = () => {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Search..."
-                            className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
                     </div>
                     <div className="flex gap-3">
@@ -238,7 +238,7 @@ const EmployeeListContent = () => {
                 <div className="rounded-md overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-base text-center">
-                            <thead className="text-black bg-[#F0f4f9] backdrop-blur-sm">
+                            <thead className="text-foreground bg-[#F0f4f9] dark:bg-card backdrop-blur-sm">
                                 <tr className="text-base">
                                     <th className="p-3 font-semibold">NIK</th>
                                     <th className="p-3 font-semibold">Name</th>
@@ -271,7 +271,7 @@ const EmployeeListContent = () => {
                                         </tr>
                                     ) : (
                                         dataLeave.map((data) => (
-                                            <tr key={data.nik} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
+                                            <tr key={data.nik} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] odd:dark:bg-card/30 even:dark:bg-card/70 transition-colors duration-300">
                                                 <td className="p-3">{data.nik}</td>
                                                 <td className="p-3">{data.name}</td>
                                                 <td className="p-3 capitalize">{data.gender}</td>

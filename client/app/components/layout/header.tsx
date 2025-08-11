@@ -78,41 +78,41 @@ export default function Header() {
     }
 
     return (
-        <header className="flex items-center justify-between bg-white lg:bg-transparent lg:p-0">
+        <header className="flex items-center justify-between lg:bg-transparent lg:p-0">
             <div className="lg:hidden">
                 <Image src="/images/logo-wgs.svg" alt="Logo WGS" width={140} height={38} priority />
-                <h2 className="text-xl font-medium text-black truncate mt-1">Welcome {user.fullname}</h2>
+                <h2 className="text-xl font-medium text-foreground truncate mt-1">Welcome {user.fullname}</h2>
             </div>
 
             <div className="flex-1 hidden lg:block"></div>
 
             <div className="lg:hidden">
                 <button onClick={() => setIsMenuOpen(true)} className="p-1.5">
-                    <i className="bi bi-list text-2xl text-gray-800" />
+                    <i className="bi bi-list text-2xl text-foreground" />
                 </button>
             </div>
 
             {isMenuOpen && (
                 <div className="fixed inset-0 z-40 lg:hidden" onClick={() => setIsMenuOpen(false)}>
-                    <div className="fixed top-4 right-4 w-60 bg-white rounded-xl shadow-lg z-50 p-4" onClick={(e) => e.stopPropagation()}>
+                    <div className="fixed top-4 right-4 w-60 bg-card rounded-xl shadow-lg z-50 p-4" onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-bold text-gray-800">Menu</h3>
+                            <h3 className="font-bold text-card-foreground">Menu</h3>
                             <button onClick={() => setIsMenuOpen(false)} className="p-1">
-                                <i className="bi bi-x text-xl text-gray-600" />
+                                <i className="bi bi-x text-xl text-card-foreground" />
                             </button>
                         </div>
                         <div className="h-px bg-gray-500 mb-4" />
                         <nav className="flex flex-col">
                             {user.isAdmin && isAdminPage && (
-                                <Link href="/" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                                <Link href="/" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700 transition-colors">
                                     <i className="bi bi-box-arrow-in-left text-[26px] ml-[2px]" />
-                                    <span className="font-medium text-gray-700">Employee Side</span>
+                                    <span className="font-medium text-card-foreground">Employee Side</span>
                                 </Link>
                             )}
                             {user.isAdmin && isUserDashboard && (
-                                <Link href="/admin/dashboard" className="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                                <Link href="/admin/dashboard" className="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-700 transition-colors">
                                     <i className="bi bi-person-workspace text-2xl" />
-                                    <span className="font-medium text-gray-700">Admin Side</span>
+                                    <span className="font-medium text-card-foreground">Admin Side</span>
                                 </Link>
                             )}
 
@@ -123,11 +123,11 @@ export default function Header() {
                                 title="Are you sure you want to log out of your account?"
                                 onConfirm={handleLogout}
                                 variant="ghost"
-                                triggerClassName="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors w-full justify-start"
+                                triggerClassName="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-700 transition-colors w-full justify-start"
                                 triggerLabel={
                                     <>
                                         <i className="bi bi-box-arrow-right text-2xl ml-[3px]" />
-                                        <span className="font-medium text-gray-700">Logout</span>
+                                        <span className="font-medium text-card-foreground">Logout</span>
                                     </>
                                 }
                             />
@@ -163,8 +163,8 @@ export default function Header() {
                     triggerClassName="hover:text-blue-900 text-gray-700 p-2"
                     triggerLabel={
                         <div className="flex items-center space-x-2">
-                            <i className="bi bi-box-arrow-right text-xl" />
-                            <span className="font-medium">Logout</span>
+                            <i className="bi bi-box-arrow-right text-xl text-foreground" />
+                            <span className="font-medium text-foreground">Logout</span>
                         </div>
                     }
                 />

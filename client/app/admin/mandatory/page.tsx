@@ -196,7 +196,7 @@ const MandatoryLeavePage = () => {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search..."
-                        className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                 </div>
                 <div className="flex gap-3">
@@ -207,7 +207,7 @@ const MandatoryLeavePage = () => {
             <div className="rounded-md overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full table-auto rounded-t-2xl">
-                        <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] rounded-2xl shadow-lg">
+                        <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] dark:bg-card rounded-2xl shadow-lg">
                             <tr>
                                 <th className="p-3 text-[18px] font-semibold tracking-wide">No</th>
                                 <th className="p-3 text-[18px] font-semibold tracking-wide">Leave Title</th>
@@ -236,7 +236,7 @@ const MandatoryLeavePage = () => {
                                 </tr>
                             ) : (
                                 dataMandatoryLeave.map((data, idx) => (
-                                    <tr key={data.id_mandatory} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
+                                    <tr key={data.id_mandatory} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] odd:dark:bg-card/30 even:dark:bg-card/70 transition-colors duration-300">
                                         <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
                                             {(paginationInfo.current_page - 1) * itemPerPage + idx + 1}
                                         </th>
@@ -258,7 +258,7 @@ const MandatoryLeavePage = () => {
                 </div>
             </div>
 
-            <div className="flex justify-center items-center bg-white py-5">
+            <div className="flex justify-center items-center py-5">
                 <Pagination>
                     <PaginationContent>
                         <PaginationItem>

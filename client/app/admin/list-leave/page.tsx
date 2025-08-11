@@ -265,8 +265,8 @@ const ListOfLeavePage = () => {
 
             {!isChoiceModalOpen && viewMode && (
                 <>
-                    <section className="flex justify-between items-center p-5 border-b-[1.5px] border-[#0000001f]">
-                        <h1 className="text-2xl font-bold text-gray-800">
+                    <section className="flex justify-between items-center p-5 border-b-[1.5px] border-border">
+                        <h1 className="text-2xl font-bold text-foreground">
                             {viewMode === 'requests' ? 'Leave Requests' : 'Leave History'}
                         </h1>
                         <div className="flex justify-end items-center gap-3">
@@ -276,7 +276,7 @@ const ListOfLeavePage = () => {
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     placeholder="Search by name..."
-                                    className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                    className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 />
                             </div>
                             {viewMode === 'requests' ? (
@@ -329,7 +329,7 @@ const ListOfLeavePage = () => {
                         <div className='rounded-md overflow-hidden'>
                             <div className='overflow-x-auto'>
                                 <table className="w-full text-base text-center">
-                                    <thead className="text-black bg-[#F0f4f9] backdrop-blur-sm">
+                                    <thead className="text-foreground bg-[#F0f4f9] dark:bg-card backdrop-blur-sm">
                                         <tr>
                                             <th className="p-3 align-middle font-semibold ">Name</th>
                                             <th className="p-3 align-middle font-semibold ">Type</th>
@@ -358,7 +358,7 @@ const ListOfLeavePage = () => {
                                                 </tr>
                                             ) : (
                                                 leaveData.map((data, index) => (
-                                                    <tr key={`${data.id_leave}-${index}`} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] transition-colors duration-300">
+                                                    <tr key={`${data.id_leave}-${index}`} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] odd:dark:bg-card/30 even:dark:bg-card/70 transition-colors duration-300">
                                                         <td className="p-3 align-middle">{data.name || data.fullname}</td>
                                                         <td className="p-3 align-middle">{formatLeaveType(data.leave_type)}</td>
                                                         <td className="p-3 align-middle">{formatDate(data.start_date)}</td>

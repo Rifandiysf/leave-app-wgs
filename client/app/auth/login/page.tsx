@@ -97,7 +97,7 @@ const LoginPage = () => {
                                     id="email"
                                     type="email"
                                     placeholder="m@example.com"
-                                    className="bg-white border-[1.5px] border-[#0000001f]"
+                                    className="bg-accent border-[1.5px] border-[#0000001f]"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
@@ -112,7 +112,7 @@ const LoginPage = () => {
                                     <Input
                                         id="password"
                                         type={showPassword ? "text" : "password"}
-                                        className="bg-white border-[1.5px] border-[#0000001f] pr-10"
+                                        className="bg-accent border-[1.5px] border-[#0000001f] pr-10"
                                         value={password}
                                         placeholder="Type your password"
                                         onChange={(e) => setPassword(e.target.value)}

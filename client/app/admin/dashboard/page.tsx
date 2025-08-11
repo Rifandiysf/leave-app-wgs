@@ -21,7 +21,7 @@ type dataLeaveType = {
 
 type ApiLeaveType = {
     id_leave: string;
-    name:string;
+    name: string;
     leave_type: string;
     start_date: string;
     end_date: string;
@@ -61,7 +61,7 @@ const DashboardPage = () => {
                 }).then(res => {
                     if (!res.ok) {
                         console.error(`Gagal mengambil detail untuk user ${user.nik}. Status: ${res.status}`);
-                        return { data: {} }; 
+                        return { data: {} };
                     }
                     return res.json();
                 })
@@ -120,10 +120,10 @@ const DashboardPage = () => {
     const availableYears = useMemo(() => {
         const allLeaveData = [...leaveRequests, ...leaveHistory];
         if (!allLeaveData.length) return [new Date().getFullYear()];
-        
+
         const years = new Set(allLeaveData.map(leave => new Date(leave.start_date).getFullYear()).filter(year => !isNaN(year)));
         const sortedYears = Array.from(years).sort((a, b) => b - a); // Sort descending
-        
+
         return sortedYears.length > 0 ? sortedYears : [new Date().getFullYear()];
     }, [leaveRequests, leaveHistory]);
 
@@ -152,7 +152,7 @@ const DashboardPage = () => {
             return leaveYear === currentYearForCards - 1 && isApproved;
         });
         const totalLastYearLeave = lastYearLeaves.reduce((sum, leave) => sum + (leave.total_days || 0), 0);
-        
+
         const sixMonthLeave = currentYearLeaves
             .filter(leave => new Date(leave.start_date).getMonth() < 6) // Jan-Jun
             .reduce((sum, leave) => sum + (leave.total_days || 0), 0);
@@ -177,7 +177,7 @@ const DashboardPage = () => {
         }));
         const topRemainingLeaveUsers = [...userLeaveStats].sort((a, b) => b.total_amount - a.total_amount).slice(0, 5);
         const bottomRemainingLeaveUsers = [...userLeaveStats].sort((a, b) => a.total_amount - b.total_amount).slice(0, 5);
-        
+
         // MODIFIED: This calculation now uses the 'yearForChart' parameter
         const monthlyChartLeaves = allLeaveData.filter(leave => {
             const leaveYear = new Date(leave.start_date).getFullYear();
@@ -210,12 +210,12 @@ const DashboardPage = () => {
 
     // StatCard and dateOptions remain the same
     const StatCard = ({ title, value, subtitle, icon, color = "blue" }: any) => (
-        <div className="bg-white rounded-2xl p-6 border hover:shadow-md transition-all duration-200">
+        <div className="bg-white dark:bg-card rounded-2xl p-6 border hover:shadow-md transition-all duration-200">
             <div className="flex items-center justify-between">
                 <div>
-                    <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
+                    <p className="text-sm font-medium text-foreground mb-1">{title}</p>
                     <p className={`text-3xl font-bold text-${color}-600 mb-1`}>{value}</p>
-                    {subtitle && <p className="text-sm text-gray-400">{subtitle}</p>}
+                    {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
                 </div>
                 <div className={`p-3 bg-${color}-100 rounded-xl`}>
                     <i className={`bi ${icon} text-2xl text-${color}-600`}></i>
@@ -248,12 +248,12 @@ const DashboardPage = () => {
     }
 
     return (
-        <div className="min-h-screen p-6">
+        <div className="min-h-screen p-6 bg-background">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard Admin</h1>
-                <p className="text-gray-600">Ringkasan informasi dan statistik karyawan</p>
+                <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard Admin</h1>
+                <p className="text-muted-foreground">Ringkasan informasi dan statistik karyawan</p>
             </div>
-            
+
             {/* Stat Cards section remains the same, it will use the `stats` state */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <StatCard title="Total Karyawan" value={stats.totalUsers || 0} subtitle={`${stats.activeCount || 0} aktif, ${stats.inactiveCount || 0} tidak aktif`} icon="bi-people-fill" color="blue" />
@@ -264,8 +264,8 @@ const DashboardPage = () => {
 
             {/* Pending Leaves section remains the same */}
             {stats.pendingLeaves && stats.pendingLeaves.length > 0 && (
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <div className="dark:bg-card rounded-2xl p-6 shadow-sm border border-border mb-8">
+                    <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
                         <i className="bi bi-clock-history text-yellow-500"></i>
                         Karyawan dengan Cuti Pending ({stats.pendingLeaveCount} Pending)
                     </h3>
@@ -288,10 +288,10 @@ const DashboardPage = () => {
 
             {/* MODIFIED: Chart section now includes the year selector */}
             <div className=" grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
                     {/* MODIFIED: Title is now a flex container with the dropdown */}
                     <div className="flex items-center justify-between mb-4">
-                         <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                        <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
                             <i className="bi bi-graph-up text-blue-500"></i>
                             Trend Cuti Bulanan
                         </h3>
@@ -326,8 +326,8 @@ const DashboardPage = () => {
 
             {/* Top/Bottom users lists remain the same */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <div className="dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
+                    <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
                         <i className="bi bi-arrow-up-circle text-green-500"></i>
                         User Dengan Sisa Cuti Terbanyak
                     </h3>
@@ -354,8 +354,8 @@ const DashboardPage = () => {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <div className="dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
+                    <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
                         <i className="bi bi-arrow-down-circle text-red-500"></i>
                         User Dengan Sisa Cuti Terendah
                     </h3>

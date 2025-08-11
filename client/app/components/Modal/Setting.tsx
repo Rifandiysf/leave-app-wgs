@@ -1,33 +1,67 @@
+"use client";
+
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import { Button } from "../ui/button"
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/app/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card"
 import { Label } from "@/app/components/ui/label"
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from "@/app/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs"
 import { useDropzone } from 'react-dropzone'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { formatUpperCase } from '@/lib/format'
 import ColorPicker from '../ui/colorPicker'
 
 const SettingModal = () => {
-    const [theme, setTheme] = useState('light')
+    const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light');
     const [logoPreview, setLogoPreview] = useState<string | null>(null)
     const [primaryColor, setPrimaryColor] = useState('#000000')
     const [secondaryColor, setSecondaryColor] = useState('#0011FF')
     const [primaryTextColor, setPrimaryTextColor] = useState('#000000')
     const [secondaryTextColor, setSecondaryTextColor] = useState('#1C398E')
 
+    // Load dari localStorage saat pertama kali render
+    useEffect(() => {
+        const savedTheme = localStorage.getItem("theme") as 'light' | 'dark' | 'system' | null;
+        if (savedTheme) applyTheme(savedTheme);
+
+        const savedColors = localStorage.getItem("themeColors");
+        if (savedColors) {
+            const colors = JSON.parse(savedColors);
+            setPrimaryColor(colors.primary);
+            setSecondaryColor(colors.secondary);
+            setPrimaryTextColor(colors.primaryText);
+            setSecondaryTextColor(colors.secondaryText);
+            applyColors(colors);
+        }
+    }, []);
+
+    // Terapkan theme
+    const applyTheme = (mode: 'light' | 'dark' | 'system') => {
+        setTheme(mode);
+        localStorage.setItem("theme", mode);
+
+        if (mode === "dark") {
+            document.documentElement.classList.add("dark");
+        } else if (mode === "light") {
+            document.documentElement.classList.remove("dark");
+        } else {
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            if (prefersDark) {
+                document.documentElement.classList.add("dark");
+            } else {
+                document.documentElement.classList.remove("dark");
+            }
+        }
+    };
+
+    // Terapkan warna ke CSS variable
+    const applyColors = (colors: { primary: string; secondary: string; primaryText: string; secondaryText: string }) => {
+        Object.entries(colors).forEach(([key, value]) => {
+            document.documentElement.style.setProperty(`--${key}`, value);
+        });
+    };
+
+    // Upload Logo
     const onDrop = useCallback((acceptedFiles: File[]) => {
         const file = acceptedFiles[0]
         if (file) {
@@ -44,10 +78,25 @@ const SettingModal = () => {
         accept: { 'image/*': [] },
         multiple: false
     })
+
+    // Simpan setting ke localStorage
+    const handleSave = () => {
+        const colors = {
+            primary: primaryColor,
+            secondary: secondaryColor,
+            primaryText: primaryTextColor,
+            secondaryText: secondaryTextColor,
+        };
+
+        localStorage.setItem("themeColors", JSON.stringify(colors));
+        applyColors(colors);
+        alert("Settings saved locally!");
+    };
+
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="default" className='flex items-center cursor-pointer hover:text-blue-900 transition-colors'>
+                <Button variant="ghost" size="default" className='flex items-center cursor-pointer transition-colors'>
                     <i className="bi bi-gear-fill text-xl" />
                     <span className="text-sm font-medium">Settings</span>
                 </Button>
@@ -62,8 +111,9 @@ const SettingModal = () => {
                         <TabsList>
                             <TabsTrigger value="appearance">Appearance</TabsTrigger>
                             <TabsTrigger value="config">Config</TabsTrigger>
-                            <TabsTrigger value="inject">Inject</TabsTrigger>
                         </TabsList>
+
+                        {/* Theme */}
                         <TabsContent value="appearance">
                             <Card className='w-full shadow-none border-none rounded-lg p-3'>
                                 <CardHeader className='px-1'>
@@ -75,18 +125,23 @@ const SettingModal = () => {
                                         <button
                                             key={item}
                                             type="button"
-                                            onClick={() => setTheme(item)}
-                                            className={`flex-1 bg-white border rounded-lg p-3 flex flex-col items-center gap-2 transition-all ${theme === item ? 'border-blue-600 ring-2 ring-blue-200' : 'border-gray-300'}`}
+                                            onClick={() => applyTheme(item as 'light' | 'dark' | 'system')}
+                                            className={`flex-1 bg-background rounded-lg p-3 flex flex-col items-center gap-2 transition-all ${theme === item ? 'border-blue-600 ring-2 ring-blue-200' : 'border-gray-300'}`}
                                         >
                                             <div className={`w-full h-24 rounded-md ${item === 'light' ? 'bg-gray-100' : item === 'dark' ? 'bg-gray-800' : 'bg-gradient-to-r from-gray-100 from-50% to-gray-800 to-50%'} flex items-center justify-center`}>
                                                 <div className="w-10 h-6 rounded bg-white shadow-md"></div>
                                             </div>
-                                            <div className="flex justify-center items-center gap-1 text-sm font-semibold capitalize">{theme === item ? <i className='bi-check-circle-fill text-blue-600'></i> : <i className='bi-circle-fill text-gray-200'></i>}{item} Mode</div>
+                                            <div className="flex justify-center items-center gap-1 text-sm text-foreground font-semibold capitalize">
+                                                {theme === item ? <i className='bi-check-circle-fill text-blue-600'></i> : <i className='bi-circle-fill text-gray-200'></i>}
+                                                {item} Mode
+                                            </div>
                                         </button>
                                     ))}
                                 </CardContent>
                             </Card>
                         </TabsContent>
+
+                        {/* Config */}
                         <TabsContent value="config">
                             <Card className='w-full shadow-none border-none rounded-lg p-3 gap-1'>
                                 <CardHeader className='px-1'>
@@ -94,14 +149,14 @@ const SettingModal = () => {
                                     <CardDescription>Customize your website</CardDescription>
                                 </CardHeader>
                                 <CardContent className='flex gap-4 p-0'>
-                                    <Card className='w-full shadow-none border-none rounded-lg'>
+                                    <Card className='w-full shadow-none border-none rounded-lg dark:bg-card'>
                                         <CardContent className='flex flex-col gap-6 p-0'>
+                                            {/* Logo */}
                                             <div>
                                                 <Label className='block text-sm font-medium mb-1'>Website Logo</Label>
                                                 <div
                                                     {...getRootProps()}
-                                                    className={`border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center cursor-pointer transition-all ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-white'
-                                                        }`}
+                                                    className={`border-2 border-muted-foreground border-dashed rounded-md p-6 flex flex-col items-center justify-center cursor-pointer transition-all ${isDragActive ? 'border-blue-500 bg-muted-foreground/20' : 'border-gray-300 bg-muted-foreground/20'}`}
                                                 >
                                                     <input {...getInputProps()} />
                                                     {isDragActive ? (
@@ -123,13 +178,14 @@ const SettingModal = () => {
                                                 </div>
                                             </div>
 
+                                            {/* Colors */}
                                             <div>
-                                                <Label htmlFor="accent-colors" className='block text-sm font-medium mb-2'>Website Colors</Label>
+                                                <Label className='block text-sm font-medium mb-2'>Website Colors</Label>
                                                 <div className='flex gap-2'>
-                                                    <ColorPicker title='Primary Color' value={formatUpperCase(primaryColor)} onChange={(e) => setPrimaryColor(e.target.value)}/>
-                                                    <ColorPicker title='Secondary Color' value={formatUpperCase(secondaryColor)} onChange={(e) => setSecondaryColor(e.target.value)}/>
-                                                    <ColorPicker title='Primary Text' value={formatUpperCase(primaryTextColor)} onChange={(e) => setPrimaryTextColor(e.target.value)}/>
-                                                    <ColorPicker title='Secondary Text' value={formatUpperCase(secondaryTextColor)} onChange={(e) => setSecondaryTextColor(e.target.value)}/>
+                                                    <ColorPicker title='Primary Color' value={formatUpperCase(primaryColor)} onChange={(e) => setPrimaryColor(e.target.value)} />
+                                                    <ColorPicker title='Secondary Color' value={formatUpperCase(secondaryColor)} onChange={(e) => setSecondaryColor(e.target.value)} />
+                                                    <ColorPicker title='Primary Text' value={formatUpperCase(primaryTextColor)} onChange={(e) => setPrimaryTextColor(e.target.value)} />
+                                                    <ColorPicker title='Secondary Text' value={formatUpperCase(secondaryTextColor)} onChange={(e) => setSecondaryTextColor(e.target.value)} />
                                                 </div>
                                             </div>
                                         </CardContent>
@@ -139,7 +195,6 @@ const SettingModal = () => {
                         </TabsContent>
                     </Tabs>
                 </div>
-
                 <div className="flex w-full items-center justify-between">
                     <DialogClose asChild>
                         <Button variant="ghost" className="text-gray-700 hover:bg-gray-100 px-3">
@@ -150,6 +205,7 @@ const SettingModal = () => {
 
                     <Button
                         className="text-green-600 bg-green-100 hover:bg-green-200 rounded-lg px-4 py-1 transition-colors"
+                        onClick={handleSave}
                     >
                         Save Change
                     </Button>
@@ -159,4 +215,4 @@ const SettingModal = () => {
     )
 }
 
-export default SettingModal
+export default SettingModal;
