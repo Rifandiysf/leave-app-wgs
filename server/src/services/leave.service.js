@@ -104,13 +104,21 @@ export const updateLeave = async (id, status, reason, nik) => {
             throw err;
         }
 
+        const start = createDateFromString(new Date(data.start_date));
+        const end = createDateFromString(new Date(data.end_date));
+        
+        if (data.NIK === nik && data.leave_type !== "mandatory_leave") {
+            const err = new Error("you cannot approve or reject your own leave");
+            err.statusCode = 400;
+            throw err;
+        }
 
-        if (data.start_date <= new Date() && data.leave_type !== 'special_leave') {
+        if (start <= new Date() && data.leave_type !== 'special_leave') {
             const err = new Error("The start date of the leave has passed the current date");
             err.statusCode = 400;
             throw err;
-        } else if (data.start_date < new Date() && data.leave_type == 'special_leave') {
-            const err = new Error("The start date of the leave has passed the current date");
+        } else if (start < new Date().setHours(0, 0, 0, 0) && data.leave_type === 'special_leave') {
+            const err = new Error("The start date of tssshe leave has passed the current date");
             err.statusCode = 400;
             throw err;
         }
@@ -120,18 +128,6 @@ export const updateLeave = async (id, status, reason, nik) => {
             err.statusCode = 400;
             throw err;
         }
-
-        if (data.NIK === nik && data.leave_type !== "mandatory_leave") {
-            const err = new Error("you cannot approve or reject your own leave");
-            err.statusCode = 400;
-            throw err;
-        }
-
-        const start = createDateFromString(new Date(data.start_date));
-        const end = createDateFromString(new Date(data.end_date));
-
-        console.log(start)
-        console.log(end)
 
         const existing = await prisma.tb_leave.findFirst({
             where: {
@@ -188,8 +184,6 @@ export const updateLeave = async (id, status, reason, nik) => {
             err.statusCode = 400;
             throw err;
         }
-
-
 
         if (data.leave_type !== "special_leave") {
             // reduce
