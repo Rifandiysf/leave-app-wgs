@@ -20,7 +20,6 @@ export default function InformationPage() {
         'Tombol "Apply for Leave": Tombol utama untuk mengajukan cuti baru (Personal Leave).',
         'Menu "History": Membawa Anda ke halaman Riwayat Cuti.',
         'Menu "Mandatory": Membawa Anda ke halaman Cuti Wajib Perusahaan.',
-        'Menu "Setting": Untuk mengganti tema warna tampilan website Anda pribadi.',
         'Tombol "Logout": Untuk keluar dari akun Anda secara aman.'
       ]
     },
