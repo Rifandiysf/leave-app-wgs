@@ -12,6 +12,6 @@ const router = express.Router();
 router.use('/auth', authRoutes);
 router.use('/users', isAuthenticated, userRoutes);
 router.use('/leaves', isAuthenticated, validateRole('super_admin', 'admin'), leaveRoutes);
-router.use('/setting', isAuthenticated, validateRole('super_admin'), settingRoutes)
+router.use('/setting', isAuthenticated, settingRoutes)
 
 export default router;
