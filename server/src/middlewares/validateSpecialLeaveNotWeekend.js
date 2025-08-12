@@ -2,8 +2,6 @@ export const validateSpecialLeaveNotWeekend = (req, res, next) => {
     try {
         const { leave_type, start_date, end_date } = req.body;
 
-        if (leave_type !== 'special_leave') return next();
-
         const start = new Date(start_date);
         const end = new Date(end_date);
 
