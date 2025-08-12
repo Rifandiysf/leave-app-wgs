@@ -66,7 +66,7 @@ export const processData = async (data, number, tx) => {
             })
         }
 
-        // console.log('TOTAL DATA RECEIVED: ', number);
+        console.log('TOTAL DATA RECEIVED: ', number);
     } catch (error) {
         console.log(error)
         throw error

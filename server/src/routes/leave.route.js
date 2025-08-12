@@ -1,12 +1,11 @@
 import express from "express";
-import { createMandatoryLeave, createSpecialLeave, getAllLeaves, getLeavesByFilter, getMandatoryLeaves, getSearchMandatoryLeave, getSearchSpecialLeave, getSpecialLeave, historyLeave, historyLeaveSearch, updateLeaveById, updateMandatoryLeave, updateSpecialLeave, importFile, exportFile } from '../controllers/leave.controller.js';
+import { createMandatoryLeave, createSpecialLeave, getAllLeaves, getLeavesByFilter, getMandatoryLeaves, getSearchMandatoryLeave, getSearchSpecialLeave, getSpecialLeave, historyLeave, historyLeaveSearch, updateLeaveById, updateMandatoryLeave, updateSpecialLeave } from '../controllers/leave.controller.js';
 import { validate } from '../middlewares/validate.js';
 import { validateRole } from '../middlewares/validateRole.middleware.js';
 import updateLeaveRequestSchema from "../validators/updateLeave.validator.js";
 import { specialLeaveForm, specialLeaveFormUpdate } from "../validators/specialLeaveForm.validator.js";
 import { mandatoryLeaveForm, mandatoryLeaveFormUpdate } from "../validators/mandatoryLeaveForm.validator.js";
 import { checkStartDateTwoWeeksAhead } from "../middlewares/checkStartDateTwoWeeksAhead.middleware.js";
-import { uploadFile } from "../middlewares/uploadFile.middleware.js";
 
 const leaveRoutes = express.Router();
 
@@ -25,9 +24,6 @@ leaveRoutes.get('/mandatory', getMandatoryLeaves)
 leaveRoutes.get('/mandatory/search', getSearchMandatoryLeave)
 leaveRoutes.post('/mandatory', checkStartDateTwoWeeksAhead, validate(mandatoryLeaveForm), createMandatoryLeave)
 leaveRoutes.patch('/mandatory/:id', validate(mandatoryLeaveFormUpdate), updateMandatoryLeave)
-
-leaveRoutes.post('/import', uploadFile, importFile)
-leaveRoutes.get('/export', exportFile)
 
 leaveRoutes.patch('/:id', validate(updateLeaveRequestSchema), updateLeaveById)
 
