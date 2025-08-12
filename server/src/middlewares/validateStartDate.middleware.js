@@ -3,7 +3,7 @@ import { createDateFromString } from "../utils/leaves.utils.js"
 export const validateStartDate = (req, res, next) => {
     const { start_date, leave_type } = req.body
 
-    if (leave_type === "mandatory_leave") {
+    if (leave_type === "mandatory_leave" || leave_type === "special_leave") {
         return next();
     }
 
