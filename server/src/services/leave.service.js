@@ -105,7 +105,11 @@ export const updateLeave = async (id, status, reason, nik) => {
         }
 
 
-        if (data.start_date <= new Date()) {
+        if (data.start_date <= new Date() && data.leave_type !== 'special_leave') {
+            const err = new Error("The start date of the leave has passed the current date");
+            err.statusCode = 400;
+            throw err;
+        } else if (data.start_date < new Date() && data.leave_type == 'special_leave') {
             const err = new Error("The start date of the leave has passed the current date");
             err.statusCode = 400;
             throw err;
@@ -735,8 +739,8 @@ export const updateLeaveBalance = async (user) => {
                     NIK: user.NIK,
                     actor: 'system',
                     notes: {
-                        not : {
-                            contains : `(backfill ${previousYear})`
+                        not: {
+                            contains: `(backfill ${previousYear})`
                         }
                     },
                     created_at: {
