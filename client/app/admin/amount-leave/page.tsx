@@ -139,7 +139,8 @@ const AmountLeavePage = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-background rounded-xl shadow-lg p-8 w-full max-w-2xl relative">
+      <div className="bg-background rounded-xl shadow-lg py-2 px-8 w-full max-w-2xl relative">
+
         <div className="text-center mb-6">
           <h2 className="text-xl font-bold inline-block px-4 py-1 rounded">
             Add Amount Leave
