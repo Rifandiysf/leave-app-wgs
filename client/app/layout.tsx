@@ -2,6 +2,7 @@
 
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
+import Head from 'next/head'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -13,43 +14,42 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
+// Fungsi untuk inisialisasi tema
+const initializeTheme = () => {
+  try {
+    const root = document.documentElement
+    const theme = localStorage.getItem('theme')
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+    // Menggunakan ternary operator untuk kode yang lebih ringkas
+    const newTheme = theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : prefersDark ? 'dark' : 'light';
+    root.classList.toggle('dark', newTheme === 'dark');
+
+    // Menginisialisasi warna tema dari localStorage jika ada
+    const colors = localStorage.getItem('themeColors');
+    if (colors) {
+      const parsedColors = JSON.parse(colors);
+      Object.entries(parsedColors).forEach(([key, value]) => {
+        root.style.setProperty(`--${key}`, value);
+      });
+    }
+  } catch (e) {
+    console.error('Theme initialization error', e);
+  }
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const scriptContent = `(${initializeTheme.toString()})()`
+
   return (
     <html lang="en">
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('theme') || 'light';
-                  if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                  } else if (theme === 'light') {
-                    document.documentElement.classList.remove('dark');
-                  } else {
-                    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    if (prefersDark) document.documentElement.classList.add('dark');
-                    else document.documentElement.classList.remove('dark');
-                  }
-
-                  var colors = localStorage.getItem('themeColors');
-                  if (colors) {
-                    var parsed = JSON.parse(colors);
-                    Object.entries(parsed).forEach(function([key, value]) {
-                      document.documentElement.style.setProperty('--' + key, value);
-                    });
-                  }
-                } catch (e) {
-                  console.error('Theme init error', e);
-                }
-              })();
-            `,
-        }}
-      />
+      <Head>
+        <script dangerouslySetInnerHTML={{ __html: scriptContent }} />
+      </Head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
       </body>
