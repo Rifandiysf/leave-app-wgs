@@ -70,7 +70,7 @@ export default function Header() {
         }
     }
 
-    const isUserDashboard = pathname === '/' || pathname === '/history' || pathname === '/mandatory';
+    const isUserDashboard = pathname === '/' || pathname === '/history' || pathname === '/mandatory' || pathname === '/information';
     const isAdminPage = pathname.startsWith('/admin')
 
     if (isLoading) {
