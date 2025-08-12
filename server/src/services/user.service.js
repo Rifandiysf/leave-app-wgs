@@ -45,9 +45,9 @@ export const createLeave = async (data) => {
         while (count < duration - 1) {
             tempDate.setUTCDate(tempDate.getUTCDate() + 1);
             const day = tempDate.getUTCDay();
-            if (day !== 0 && day !== 6) {
+            // if (day !== 0 && day !== 6) {
                 count++;
-            }
+            // }
         }
 
         end_date = tempDate;
