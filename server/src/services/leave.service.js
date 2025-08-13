@@ -103,7 +103,7 @@ export const updateLeave = async (id, status, reason, nik) => {
 
         const start = createDateFromString(new Date(data.start_date));
         const end = createDateFromString(new Date(data.end_date));
-        
+
         if (data.NIK === nik && data.leave_type !== "mandatory_leave") {
             const err = new Error("you cannot approve or reject your own leave");
             err.statusCode = 400;
@@ -645,7 +645,7 @@ export const updateLeaveBalance = async (user) => {
 
     } else if (user.role === 'karyawan_kontrak') {
         //console.log(`[DEBUG] Processing kontrak employee NIK: ${user.NIK}, today: ${today.toISOString()}`);
-        
+
         // Hitung effective join date
         const joinEffective = new Date(joinDate);
         if (joinDate.getDate() > 20) {
@@ -657,65 +657,160 @@ export const updateLeaveBalance = async (user) => {
         // BACKFILL TAHUN SEBELUMNYA (hanya di Januari)
         if (today.getMonth() === 0) {
             //console.log(`[DEBUG] NIK: ${user.NIK} - Processing January backfill`);
-            const previousYear = currentYear - 1;
-            
+            const previous_year = currentYear - 1;
+
             // Hitung eligible months untuk tahun sebelumnya
             const firstEligiblePrev = new Date(joinEffective);
             firstEligiblePrev.setMonth(firstEligiblePrev.getMonth() + 3);
-            
-            const startOfPrevYear = new Date(previousYear, 0, 1, 0, 0, 0, 0)
-            const endOfPrevYear = new Date(previousYear, 11, 31, 23, 59, 59, 999)
-            
+
+            const startOfPrevYear = new Date(previous_year, 0, 1, 0, 0, 0, 0)
+            const endOfPrev_year = new Date(previous_year, 11, 31, 23, 59, 59, 999)
+
             // Effective start untuk tahun sebelumnya
             const effectiveStartPrev = firstEligiblePrev > startOfPrevYear ? firstEligiblePrev : startOfPrevYear;
-            
+
             // Hitung total eligible months di tahun sebelumnya
             let eligibleMonthsPrev = 0;
-            if (effectiveStartPrev <= endOfPrevYear) {
-                eligibleMonthsPrev = (endOfPrevYear.getFullYear() - effectiveStartPrev.getFullYear()) * 12 +
-                                   (endOfPrevYear.getMonth() - effectiveStartPrev.getMonth()) + 1;
+            if (effectiveStartPrev <= endOfPrev_year) {
+                eligibleMonthsPrev = (endOfPrev_year.getFullYear() - effectiveStartPrev.getFullYear()) * 12 +
+                    (endOfPrev_year.getMonth() - effectiveStartPrev.getMonth()) + 1;
             }
 
 
             //console.log(`[DEBUG] NIK: ${user.NIK} - Previous year eligible months: ${eligibleMonthsPrev}`);
 
-        const previousYear = currentYear - 1;
-        const firstOfPrevYear = new Date(`${previousYear}-01-01`);
-        const endOfPrevYear = new Date(`${previousYear}-12-31T23:59:59`);
+            const previousYear = currentYear - 1;
+            const firstOfPrevYear = new Date(`${previousYear}-01-01`);
+            const endOfPrevYear = new Date(`${previousYear}-12-31T23:59:59`);
 
-        const monthsPrev = (endOfPrevYear.getFullYear() - joinEffective.getFullYear()) * 12 +
-            (endOfPrevYear.getMonth() - joinEffective.getMonth()) + 1;
+            const monthsPrev = (endOfPrevYear.getFullYear() - joinEffective.getFullYear()) * 12 +
+                (endOfPrevYear.getMonth() - joinEffective.getMonth()) + 1;
 
-        const eligiblePrev = monthsPrev - 3;
+            const eligiblePrev = monthsPrev - 3;
 
-        if (today.getMonth() === 0 && eligiblePrev > 0) {
-            const adjustmentPrev = await prisma.tb_balance_adjustment.aggregate({
-                where: {
-                    NIK: user.NIK,
-                    actor: 'system',
-                    created_at: {
-                        gte: firstOfPrevYear,
-                        lte: endOfPrevYear
-                    }
-                },
-                _sum: {
-                    adjustment_value: true
-                }
-            });
-
-            const currentPrev = adjustmentPrev._sum.adjustment_value || 0;
-            const toAddPrev = eligiblePrev - currentPrev;
-
-
-            if (eligibleMonthsPrev > 0) {
-                // Hitung total yang sudah diberikan untuk tahun sebelumnya (EXCLUDE backfill)
-                const adjustmentsPrev = await prisma.tb_balance_adjustment.aggregate({
+            if (today.getMonth() === 0 && eligiblePrev > 0) {
+                const adjustmentPrev = await prisma.tb_balance_adjustment.aggregate({
                     where: {
                         NIK: user.NIK,
                         actor: 'system',
                         created_at: {
-                            gte: startOfPrevYear,
+                            gte: firstOfPrevYear,
                             lte: endOfPrevYear
+                        }
+                    },
+                    _sum: {
+                        adjustment_value: true
+                    }
+                });
+
+                const currentPrev = adjustmentPrev._sum.adjustment_value || 0;
+                const toAddPrev = eligiblePrev - currentPrev;
+
+
+                if (eligibleMonthsPrev > 0) {
+                    // Hitung total yang sudah diberikan untuk tahun sebelumnya (EXCLUDE backfill)
+                    const adjustmentsPrev = await prisma.tb_balance_adjustment.aggregate({
+                        where: {
+                            NIK: user.NIK,
+                            actor: 'system',
+                            created_at: {
+                                gte: startOfPrevYear,
+                                lte: endOfPrevYear
+                            },
+                            notes: {
+                                not: { contains: 'backfill' }
+                            }
+                        },
+                        _sum: {
+                            adjustment_value: true
+                        }
+                    });
+
+                    const alreadyGivenPrev = adjustmentsPrev._sum.adjustment_value || 0;
+                    const toBackfill = eligibleMonthsPrev - alreadyGivenPrev;
+
+                    //console.log(`[DEBUG] NIK: ${user.NIK} - Already given prev year: ${alreadyGivenPrev}, to backfill: ${toBackfill}`);
+
+                    if (toBackfill > 0) {
+                        // Cari balance tahun sebelumnya
+                        const balancePrev = await prisma.tb_balance.findFirst({
+                            where: {
+                                NIK: user.NIK,
+                                receive_date: {
+                                    gte: startOfPrevYear,
+                                    lte: endOfPrevYear
+                                }
+                            }
+                        });
+
+                        if (balancePrev) {
+                            await prisma.$transaction([
+                                prisma.tb_balance.update({
+                                    where: {
+                                        id_balance: balancePrev.id_balance
+                                    },
+                                    data: {
+                                        amount: balancePrev.amount + toBackfill
+                                    }
+                                }),
+                                prisma.tb_balance_adjustment.create({
+                                    data: {
+                                        NIK: user.NIK,
+                                        adjustment_value: toBackfill,
+                                        notes: `backfill ${toBackfill} days for year ${previousYear}`,
+                                        created_at: new Date(),
+                                        actor: 'system'
+                                    }
+                                })
+                            ]);
+                            console.log(`[Balance Backfill] NIK: ${user.NIK}, added: ${toBackfill} to ${previousYear}`);
+                        }
+                    }
+                }
+            }
+
+            // PERHITUNGAN UNTUK TAHUN BERJALAN
+            //console.log(`[DEBUG] NIK: ${user.NIK} - Processing current year: ${currentYear}`);
+
+            const firstEligibleMonth = new Date(joinEffective);
+            firstEligibleMonth.setMonth(firstEligibleMonth.getMonth() + 3);
+
+            const startOfCurrentYear = new Date(`${currentYear}-01-01`);
+            const effectiveStart = firstEligibleMonth > startOfCurrentYear ? firstEligibleMonth : startOfCurrentYear;
+
+            //console.log(`[DEBUG] NIK: ${user.NIK} - firstEligibleMonth: ${firstEligibleMonth.toISOString()}, effectiveStart: ${effectiveStart.toISOString()}`);
+
+            // Hitung eligible months sampai bulan ini
+            let eligibleMonths = 0;
+
+            // Normalize dates untuk perbandingan yang akurat
+            const todayNormalized = new Date(today.getFullYear(), today.getMonth(), 1);
+            const effectiveStartNormalized = new Date(effectiveStart.getFullYear(), effectiveStart.getMonth(), 1);
+
+            //console.log(`[DEBUG] NIK: ${user.NIK} - todayNormalized: ${todayNormalized.toISOString()}, effectiveStartNormalized: ${effectiveStartNormalized.toISOString()}`);
+
+            if (effectiveStartNormalized <= todayNormalized) {
+                eligibleMonths = (todayNormalized.getFullYear() - effectiveStartNormalized.getFullYear()) * 12 +
+                    (todayNormalized.getMonth() - effectiveStartNormalized.getMonth()) + 1;
+            }
+
+            //console.log(`[DEBUG] NIK: ${user.NIK} - eligibleMonths for current year: ${eligibleMonths}`);
+
+            if (eligibleMonths >= 1) {
+                // Hitung yang sudah diberikan untuk tahun ini (EXCLUDE backfill)
+                const adjustmentsThisYear = await prisma.tb_balance_adjustment.aggregate({
+                    where: {
+                        NIK: user.NIK,
+                        actor: 'system',
+                        notes: {
+                            not: {
+                                contains: `(backfill ${previousYear})`
+                            }
+                        },
+                        created_at: {
+                            gte: new Date(currentYear, 0, 1, 0, 0, 0, 0),           // 1 Jan 00:00:00 local time
+                            lte: new Date(currentYear, 11, 31, 23, 59, 59, 999)    // 31 Dec 23:59:59 local time
+
                         },
                         notes: {
                             not: { contains: 'backfill' }
@@ -726,180 +821,86 @@ export const updateLeaveBalance = async (user) => {
                     }
                 });
 
-                const alreadyGivenPrev = adjustmentsPrev._sum.adjustment_value || 0;
-                const toBackfill = eligibleMonthsPrev - alreadyGivenPrev;
+                const alreadyGivenThisYear = adjustmentsThisYear._sum.adjustment_value || 0;
+                const toAdd = eligibleMonths - alreadyGivenThisYear;
 
-                //console.log(`[DEBUG] NIK: ${user.NIK} - Already given prev year: ${alreadyGivenPrev}, to backfill: ${toBackfill}`);
+                //console.log(`[DEBUG] NIK: ${user.NIK} - alreadyGivenThisYear: ${alreadyGivenThisYear}, toAdd: ${toAdd}`);
 
-                if (toBackfill > 0) {
-                    // Cari balance tahun sebelumnya
-                    const balancePrev = await prisma.tb_balance.findFirst({
+                if (toAdd > 0) {
+                    const receiveDate = new Date();
+                    receiveDate.setHours(12, 0, 0, 0);
+
+                    const expiredDate = new Date(receiveDate);
+                    expiredDate.setFullYear(receiveDate.getFullYear() + 2, 0, 1);
+
+                    // Cari existing balance untuk tahun ini
+                    const existingBalance = await prisma.tb_balance.findFirst({
                         where: {
                             NIK: user.NIK,
                             receive_date: {
-                                gte: startOfPrevYear,
-                                lte: endOfPrevYear
+                                gte: startOfCurrentYear,
+                                lte: new Date(`${currentYear}-12-31T23:59:59`)
                             }
                         }
                     });
 
-                    if (balancePrev) {
+                    //console.log(`[DEBUG] NIK: ${user.NIK} - existingBalance: ${existingBalance ? 'found' : 'not found'}`);
+
+                    if (!existingBalance) {
+                        // Buat balance baru
                         await prisma.$transaction([
-                            prisma.tb_balance.update({
-                                where: {
-                                    id_balance: balancePrev.id_balance
-                                },
+                            prisma.tb_balance.create({
                                 data: {
-                                    amount: balancePrev.amount + toBackfill
+                                    NIK: user.NIK,
+                                    amount: toAdd,
+                                    receive_date: receiveDate,
+                                    expired_date: expiredDate
                                 }
                             }),
                             prisma.tb_balance_adjustment.create({
                                 data: {
                                     NIK: user.NIK,
-                                    adjustment_value: toBackfill,
-                                    notes: `backfill ${toBackfill} days for year ${previousYear}`,
+                                    adjustment_value: toAdd,
+                                    notes: `get ${toAdd} days of leave`,
                                     created_at: new Date(),
                                     actor: 'system'
                                 }
                             })
                         ]);
-                        console.log(`[Balance Backfill] NIK: ${user.NIK}, added: ${toBackfill} to ${previousYear}`);
+                        console.log(`[Balance Created] NIK: ${user.NIK}, amount: ${toAdd}`);
+                    } else {
+                        // Update balance existing
+                        await prisma.$transaction([
+                            prisma.tb_balance.update({
+                                where: {
+                                    id_balance: existingBalance.id_balance
+                                },
+                                data: {
+                                    amount: existingBalance.amount + toAdd
+                                }
+                            }),
+                            prisma.tb_balance_adjustment.create({
+                                data: {
+                                    NIK: user.NIK,
+                                    adjustment_value: toAdd,
+                                    notes: `add ${toAdd} days of leave`,
+                                    created_at: new Date(),
+                                    actor: 'system'
+                                }
+                            })
+                        ]);
+                        console.log(`[Balance Updated] NIK: ${user.NIK}, added: ${toAdd}, total: ${existingBalance.amount + toAdd}`);
                     }
-                }
-            }
-        }
-
-        // PERHITUNGAN UNTUK TAHUN BERJALAN
-        //console.log(`[DEBUG] NIK: ${user.NIK} - Processing current year: ${currentYear}`);
-        
-        const firstEligibleMonth = new Date(joinEffective);
-        firstEligibleMonth.setMonth(firstEligibleMonth.getMonth() + 3);
-
-        const startOfCurrentYear = new Date(`${currentYear}-01-01`);
-        const effectiveStart = firstEligibleMonth > startOfCurrentYear ? firstEligibleMonth : startOfCurrentYear;
-        
-        //console.log(`[DEBUG] NIK: ${user.NIK} - firstEligibleMonth: ${firstEligibleMonth.toISOString()}, effectiveStart: ${effectiveStart.toISOString()}`);
-        
-        // Hitung eligible months sampai bulan ini
-        let eligibleMonths = 0;
-        
-        // Normalize dates untuk perbandingan yang akurat
-        const todayNormalized = new Date(today.getFullYear(), today.getMonth(), 1);
-        const effectiveStartNormalized = new Date(effectiveStart.getFullYear(), effectiveStart.getMonth(), 1);
-        
-        //console.log(`[DEBUG] NIK: ${user.NIK} - todayNormalized: ${todayNormalized.toISOString()}, effectiveStartNormalized: ${effectiveStartNormalized.toISOString()}`);
-        
-        if (effectiveStartNormalized <= todayNormalized) {
-            eligibleMonths = (todayNormalized.getFullYear() - effectiveStartNormalized.getFullYear()) * 12 +
-                           (todayNormalized.getMonth() - effectiveStartNormalized.getMonth()) + 1;
-        }
-
-        //console.log(`[DEBUG] NIK: ${user.NIK} - eligibleMonths for current year: ${eligibleMonths}`);
-
-        if (eligibleMonths >= 1) {
-            // Hitung yang sudah diberikan untuk tahun ini (EXCLUDE backfill)
-            const adjustmentsThisYear = await prisma.tb_balance_adjustment.aggregate({
-                where: {
-                    NIK: user.NIK,
-                    actor: 'system',
-                    notes: {
-                        not: {
-                            contains: `(backfill ${previousYear})`
-                        }
-                    },
-                    created_at: {
-                        gte: new Date(currentYear, 0, 1, 0, 0, 0, 0),           // 1 Jan 00:00:00 local time
-                        lte: new Date(currentYear, 11, 31, 23, 59, 59, 999)    // 31 Dec 23:59:59 local time
-
-                    },
-                    notes: {
-                        not: { contains: 'backfill' }
-                    }
-                },
-                _sum: {
-                    adjustment_value: true
-                }
-            });
-
-            const alreadyGivenThisYear = adjustmentsThisYear._sum.adjustment_value || 0;
-            const toAdd = eligibleMonths - alreadyGivenThisYear;
-
-            //console.log(`[DEBUG] NIK: ${user.NIK} - alreadyGivenThisYear: ${alreadyGivenThisYear}, toAdd: ${toAdd}`);
-
-            if (toAdd > 0) {
-                const receiveDate = new Date();
-                receiveDate.setHours(12, 0, 0, 0);
-
-                const expiredDate = new Date(receiveDate);
-                expiredDate.setFullYear(receiveDate.getFullYear() + 2, 0, 1);
-
-                // Cari existing balance untuk tahun ini
-                const existingBalance = await prisma.tb_balance.findFirst({
-                    where: {
-                        NIK: user.NIK,
-                        receive_date: {
-                            gte: startOfCurrentYear,
-                            lte: new Date(`${currentYear}-12-31T23:59:59`)
-                        }
-                    }
-                });
-
-                //console.log(`[DEBUG] NIK: ${user.NIK} - existingBalance: ${existingBalance ? 'found' : 'not found'}`);
-
-                if (!existingBalance) {
-                    // Buat balance baru
-                    await prisma.$transaction([
-                        prisma.tb_balance.create({
-                            data: {
-                                NIK: user.NIK,
-                                amount: toAdd,
-                                receive_date: receiveDate,
-                                expired_date: expiredDate
-                            }
-                        }),
-                        prisma.tb_balance_adjustment.create({
-                            data: {
-                                NIK: user.NIK,
-                                adjustment_value: toAdd,
-                                notes: `get ${toAdd} days of leave`,
-                                created_at: new Date(),
-                                actor: 'system'
-                            }
-                        })
-                    ]);
-                    console.log(`[Balance Created] NIK: ${user.NIK}, amount: ${toAdd}`);
-                } else {
-                    // Update balance existing
-                    await prisma.$transaction([
-                        prisma.tb_balance.update({
-                            where: {
-                                id_balance: existingBalance.id_balance
-                            },
-                            data: {
-                                amount: existingBalance.amount + toAdd
-                            }
-                        }),
-                        prisma.tb_balance_adjustment.create({
-                            data: {
-                                NIK: user.NIK,
-                                adjustment_value: toAdd,
-                                notes: `add ${toAdd} days of leave`,
-                                created_at: new Date(),
-                                actor: 'system'
-                            }
-                        })
-                    ]);
-                    console.log(`[Balance Updated] NIK: ${user.NIK}, added: ${toAdd}, total: ${existingBalance.amount + toAdd}`);
-                }
-            } //else {
+                } //else {
                 //console.log(`[SKIP] NIK: ${user.NIK} - No additional balance needed (toAdd: ${toAdd})`);
-            //}
-        } //else {
+                //}
+            } //else {
             //console.log(`[SKIP] NIK: ${user.NIK} - Not eligible yet (eligibleMonths: ${eligibleMonths})`);
-       // }
+            // }
 
-    } else {
-        console.log(`[SKIP] NIK: ${user.NIK} role: magang`);
+        } else {
+            console.log(`[SKIP] NIK: ${user.NIK} role: magang`);
+        }
     }
 };
 
