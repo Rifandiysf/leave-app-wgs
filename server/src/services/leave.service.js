@@ -676,36 +676,7 @@ export const updateLeaveBalance = async (user) => {
                                    (endOfPrevYear.getMonth() - effectiveStartPrev.getMonth()) + 1;
             }
 
-
             //console.log(`[DEBUG] NIK: ${user.NIK} - Previous year eligible months: ${eligibleMonthsPrev}`);
-
-        const previousYear = currentYear - 1;
-        const firstOfPrevYear = new Date(`${previousYear}-01-01`);
-        const endOfPrevYear = new Date(`${previousYear}-12-31T23:59:59`);
-
-        const monthsPrev = (endOfPrevYear.getFullYear() - joinEffective.getFullYear()) * 12 +
-            (endOfPrevYear.getMonth() - joinEffective.getMonth()) + 1;
-
-        const eligiblePrev = monthsPrev - 3;
-
-        if (today.getMonth() === 0 && eligiblePrev > 0) {
-            const adjustmentPrev = await prisma.tb_balance_adjustment.aggregate({
-                where: {
-                    NIK: user.NIK,
-                    actor: 'system',
-                    created_at: {
-                        gte: firstOfPrevYear,
-                        lte: endOfPrevYear
-                    }
-                },
-                _sum: {
-                    adjustment_value: true
-                }
-            });
-
-            const currentPrev = adjustmentPrev._sum.adjustment_value || 0;
-            const toAddPrev = eligiblePrev - currentPrev;
-
 
             if (eligibleMonthsPrev > 0) {
                 // Hitung total yang sudah diberikan untuk tahun sebelumnya (EXCLUDE backfill)
@@ -802,11 +773,6 @@ export const updateLeaveBalance = async (user) => {
                 where: {
                     NIK: user.NIK,
                     actor: 'system',
-                    notes: {
-                        not: {
-                            contains: `(backfill ${previousYear})`
-                        }
-                    },
                     created_at: {
                         gte: new Date(currentYear, 0, 1, 0, 0, 0, 0),           // 1 Jan 00:00:00 local time
                         lte: new Date(currentYear, 11, 31, 23, 59, 59, 999)    // 31 Dec 23:59:59 local time
