@@ -266,7 +266,6 @@ export const getAllMandatoryLeaves = async (req, res, next) => {
     }
 };
 
-
 export const leaveTrend = async (req, res, next) => {
     try {
         const {nik} = req.params
@@ -285,4 +284,5 @@ export const leaveTrend = async (req, res, next) => {
         error.message = 'failed to get leave data trends'
         next(error)
     }
+
 }
