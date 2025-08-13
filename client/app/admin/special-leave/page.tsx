@@ -217,10 +217,10 @@ const SpecialLeavePage = () => {
                         <tbody className="cursor-pointer">
                             {isLoading ? (
                                 Array.from({ length: paginationInfo.item.per_page }).map((_, rowIdx) => (
-                                    <tr key={rowIdx} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
+                                    <tr key={rowIdx} className="animate-pulse bg-gray-200 dark:bg-gray-600">
                                         {Array.from({ length: 6 }).map((_, colIdx) => (
                                             <th key={colIdx} className="p-3">
-                                                <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
+                                                <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4 mx-auto" />
                                             </th>
                                         ))}
                                     </tr>

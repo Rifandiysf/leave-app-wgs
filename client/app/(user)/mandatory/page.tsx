@@ -32,25 +32,25 @@ type MandatoryType = {
 
 const SkeletonCard = () => {
     return (
-        <div className="bg-gray-100 gap-1.5 border-none shadow-none min-h-54 p-1.5 rounded-md animate-pulse">
-            <div className="bg-gray-300 border-none shadow-none p-3 rounded-sm space-y-2">
-                <div className="h-5 bg-gray-300 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-300 rounded w-full"></div>
+        <div className="bg-gray-100 dark:bg-gray-400 gap-1.5 border-none shadow-none min-h-54 p-1.5 rounded-md animate-pulse">
+            <div className="bg-gray-300 dark:bg-gray-600 border-none shadow-none p-3 rounded-sm space-y-2">
+                <div className="h-5 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
+                <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-full"></div>
                 <div className="mt-3 space-y-1">
-                    <div className="h-4 bg-gray-300 rounded w-1/4"></div>
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/4"></div>
                     <div className="flex items-center gap-2">
-                        <div className="h-5 w-20 bg-gray-300 rounded-full"></div>
-                        <div className="h-5 w-5 bg-gray-300 rounded-full"></div>
-                        <div className="h-5 w-20 bg-gray-300 rounded-full"></div>
+                        <div className="h-5 w-20 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                        <div className="h-5 w-5 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                        <div className="h-5 w-20 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
                     </div>
                 </div>
             </div>
             <div className='flex justify-between items-center mx-2 mt-2'>
                 <div className='space-y-1'>
-                    <div className="h-4 bg-gray-300 rounded w-24"></div>
-                    <div className="h-3 bg-gray-300 rounded w-40"></div>
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-24"></div>
+                    <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-40"></div>
                 </div>
-                <div className="h-6 w-10 bg-gray-300 rounded-full"></div>
+                <div className="h-6 w-10 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
             </div>
         </div>
     )

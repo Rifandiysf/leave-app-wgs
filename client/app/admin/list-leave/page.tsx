@@ -343,9 +343,9 @@ const ListOfLeavePage = () => {
                                     <tbody className="cursor-pointer">
                                         {isLoading ? (
                                             Array.from({ length: itemPerPage }).map((_, rowIdx) => (
-                                                <tr key={`loading-${rowIdx}`} className="animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]">
+                                                <tr key={`loading-${rowIdx}`} className="animate-pulse bg-gray-200 dark:bg-gray-600">
                                                     {Array.from({ length: 7 }).map((_, colIdx) => (
-                                                        <td key={`loading-cell-${colIdx}`} className="p-3 text-center"><div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" /></td>
+                                                        <td key={`loading-cell-${colIdx}`} className="p-3 text-center"><div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4 mx-auto" /></td>
                                                     ))}
                                                 </tr>
                                             ))

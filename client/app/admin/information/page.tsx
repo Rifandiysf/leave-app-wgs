@@ -85,7 +85,7 @@ export default function AdminInformationPage() {
         <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500 rounded-2xl shadow-lg mb-6">
           <i className="bi bi-book text-white text-3xl"></i>
         </div>
-        <h1 className="text-3xl font-bold text-slate-900 mb-3">
+        <h1 className="text-3xl font-bold text-foreground mb-3">
           Panduan Penggunaan Website Cuti - Admin
         </h1>
       </div>
@@ -101,7 +101,7 @@ export default function AdminInformationPage() {
                 <div className={`inline-flex items-center justify-center w-12 h-12 bg-blue-500 rounded-2xl shadow-lg mb-6" ${section.color} text-white shadow-sm`}>
                   <i className={`bi ${section.icon} text-lg`}></i>
                 </div>
-                <CardTitle className="text-xl font-semibold text-slate-900">
+                <CardTitle className="text-xl font-semibold text-foreground">
                   {section.title}
                 </CardTitle>
               </div>
@@ -112,7 +112,7 @@ export default function AdminInformationPage() {
                 {section.content.map((point, i) => (
                   <div key={i} className="flex items-start space-x-3 group">
                     <div className="w-1.5 h-1.5 bg-slate-400 rounded-full mt-2 group-hover:bg-slate-600 transition-colors" />
-                    <p className="text-slate-700 leading-relaxed text-sm">
+                    <p className="text-foreground leading-relaxed text-sm">
                       {point}
                     </p>
                   </div>
