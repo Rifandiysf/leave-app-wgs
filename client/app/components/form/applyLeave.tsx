@@ -365,14 +365,14 @@ export function ApplyLeave() {
                                 {leaveType === "special_leave" ? (
                                     <>
                                         Are you sure you want to apply for special leave on <br />
-                                        <span className="font-medium text-gray-900">
+                                        <span className="font-medium text-foreground">
                                             {formatDate(startDate)}
                                         </span>?
                                     </>
                                 ) : (
                                     <>
                                         Are you sure you want to apply for personal leave from <br />
-                                        <span className="font-medium text-gray-900">
+                                        <span className="font-medium text-foreground">
                                             {formatDate(startDate)} to {formatDate(endDate)}
                                         </span>?
                                     </>
