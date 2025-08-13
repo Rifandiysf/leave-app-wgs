@@ -1,3 +1,4 @@
+import { status, status_active } from '../../generated/prisma/index.js';
 import prisma from '../utils/client.js';
 
 async function manualSeed() {
@@ -19,6 +20,7 @@ async function manualSeed() {
         password: 'Rani1234!',
         gender: 'female',
         role: 'karyawan_kontrak',
+        status: 'active',
         join_date: new Date('2024-01-15'),
       },
       {
@@ -28,6 +30,7 @@ async function manualSeed() {
         password: 'Budi1234!',
         gender: 'male',
         role: 'karyawan_tetap',
+        status: 'active',
         join_date: new Date('2023-11-01'),
       },
       {
@@ -37,6 +40,7 @@ async function manualSeed() {
         password: 'Tina1234!',
         gender: 'female',
         role: 'magang',
+        status: 'active',
         join_date: new Date('2025-06-01'),
       },
       {
@@ -46,6 +50,7 @@ async function manualSeed() {
         password: 'Admin123!',
         gender: 'male',
         role: 'admin',
+        status: 'active',
         join_date: new Date('2024-09-15'),
       },
       {
@@ -55,9 +60,61 @@ async function manualSeed() {
         password: 'Super123!',
         gender: 'female',
         role: 'super_admin',
+        status: 'active',
         join_date: new Date('2023-01-10'),
       },
+      {
+        NIK: '100006',
+        fullname: 'Tati Kontrak',
+        email: 'tati.kontrak@perusahaan.com',
+        password: 'Tati123!',
+        gender: 'female',
+        role: 'karyawan_kontrak',
+        status: 'active',
+        join_date: new Date('2015-10-24'),
+      },
+      {
+        NIK: '100007',
+        fullname: 'Bondan Admin',
+        email: 'bondan.admin@perusahaan.com',
+        password: 'Bondan123!',
+        gender: 'male',
+        role: 'admin',
+        status: 'resign',
+        join_date: new Date('2017-03-15'),
+      },
+      {
+        NIK: '100008',
+        fullname: 'Santi Kontrak',
+        email: 'santi.kontrak@perusahaan.com',
+        password: 'Santi123!',
+        gender: 'female',
+        role: 'karyawan_kontrak',
+        status: 'resign',
+        join_date: new Date('2018-07-09'),
+      },
+      {
+        NIK: '100009',
+        fullname: 'Andi Magang',
+        email: 'andi.magang@perusahaan.com',
+        password: 'Andi123!',
+        gender: 'male',
+        role: 'magang',
+        status: 'resign',
+        join_date: new Date('2020-01-20'),
+      },
+      {
+        NIK: '100010',
+        fullname: 'Rina Tetap',
+        email: 'rina.tetap@perusahaan.com',
+        password: 'Rina123!',
+        gender: 'female',
+        role: 'karyawan_tetap',
+        status: 'resign',
+        join_date: new Date('2016-05-12'),
+      },
     ];
+
 
     for (const user of users) {
       await tx.tb_users.create({
@@ -68,6 +125,7 @@ async function manualSeed() {
           password: user.password,
           gender: user.gender,
           role: user.role,
+          status_active: user.status,
           join_date: user.join_date,
         },
       });
