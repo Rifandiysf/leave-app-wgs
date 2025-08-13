@@ -8,31 +8,15 @@ import { Label } from "@/app/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs"
 import { useDropzone } from 'react-dropzone'
 import { useCallback, useEffect, useState } from 'react'
-import { formatUpperCase } from '@/lib/format'
-import ColorPicker from '../ui/colorPicker'
 
 const SettingModal = () => {
     const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light');
-    const [logoPreview, setLogoPreview] = useState<string | null>(null)
-    const [primaryColor, setPrimaryColor] = useState('#000000')
-    const [secondaryColor, setSecondaryColor] = useState('#0011FF')
-    const [primaryTextColor, setPrimaryTextColor] = useState('#000000')
-    const [secondaryTextColor, setSecondaryTextColor] = useState('#1C398E')
+    const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
 
     // Load dari localStorage saat pertama kali render
     useEffect(() => {
         const savedTheme = localStorage.getItem("theme") as 'light' | 'dark' | 'system' | null;
         if (savedTheme) applyTheme(savedTheme);
-
-        const savedColors = localStorage.getItem("themeColors");
-        if (savedColors) {
-            const colors = JSON.parse(savedColors);
-            setPrimaryColor(colors.primary);
-            setSecondaryColor(colors.secondary);
-            setPrimaryTextColor(colors.primaryText);
-            setSecondaryTextColor(colors.secondaryText);
-            applyColors(colors);
-        }
     }, []);
 
     // Terapkan theme
@@ -54,44 +38,22 @@ const SettingModal = () => {
         }
     };
 
-    // Terapkan warna ke CSS variable
-    const applyColors = (colors: { primary: string; secondary: string; primaryText: string; secondaryText: string }) => {
-        Object.entries(colors).forEach(([key, value]) => {
-            document.documentElement.style.setProperty(`--${key}`, value);
-        });
-    };
-
-    // Upload Logo
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-        const file = acceptedFiles[0]
+    const onDropCsv = useCallback((acceptedFiles: File[]) => {
+        const file = acceptedFiles[0];
         if (file) {
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                setLogoPreview(reader.result as string)
-            }
-            reader.readAsDataURL(file)
+            setUploadedFileName(file.name);
         }
-    }, [])
+    }, []);
 
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({
-        onDrop,
-        accept: { 'image/*': [] },
+    const { getRootProps: getRootPropsCsv, getInputProps: getInputPropsCsv, isDragActive: isDragActiveCsv } = useDropzone({
+        onDrop: onDropCsv,
+        accept: {
+            'text/csv': ['.csv'],
+            'application/vnd.ms-excel': ['.csv'],
+        },
         multiple: false
-    })
+    });
 
-    // Simpan setting ke localStorage
-    const handleSave = () => {
-        const colors = {
-            primary: primaryColor,
-            secondary: secondaryColor,
-            primaryText: primaryTextColor,
-            secondaryText: secondaryTextColor,
-        };
-
-        localStorage.setItem("themeColors", JSON.stringify(colors));
-        applyColors(colors);
-        alert("Settings saved locally!");
-    };
 
     return (
         <Dialog>
@@ -110,7 +72,7 @@ const SettingModal = () => {
                     <Tabs defaultValue="appearance" className='w-full'>
                         <TabsList>
                             <TabsTrigger value="appearance">Appearance</TabsTrigger>
-                            <TabsTrigger value="config">Config</TabsTrigger>
+                            <TabsTrigger value="inject">Inject</TabsTrigger>
                         </TabsList>
 
                         {/* Theme */}
@@ -141,51 +103,40 @@ const SettingModal = () => {
                             </Card>
                         </TabsContent>
 
-                        {/* Config */}
-                        <TabsContent value="config">
+                        <TabsContent value='inject'>
                             <Card className='w-full shadow-none border-none rounded-lg p-3 gap-1'>
                                 <CardHeader className='px-1'>
-                                    <CardTitle>Config</CardTitle>
-                                    <CardDescription>Customize your website</CardDescription>
+                                    <CardTitle>Inject Data dari File CSV</CardTitle>
+                                    <CardDescription>Unggah file CSV untuk memasukkan data ke database.</CardDescription>
                                 </CardHeader>
                                 <CardContent className='flex gap-4 p-0'>
                                     <Card className='w-full shadow-none border-none rounded-lg dark:bg-card'>
                                         <CardContent className='flex flex-col gap-6 p-0'>
-                                            {/* Logo */}
                                             <div>
-                                                <Label className='block text-sm font-medium mb-1'>Website Logo</Label>
+                                                <Label className='block text-sm font-medium mb-1'>Unggah File CSV</Label>
                                                 <div
-                                                    {...getRootProps()}
-                                                    className={`border-2 border-muted-foreground border-dashed rounded-md p-6 flex flex-col items-center justify-center cursor-pointer transition-all ${isDragActive ? 'border-blue-500 bg-muted-foreground/20' : 'border-gray-300 bg-muted-foreground/20'}`}
+                                                    {...getRootPropsCsv()}
+                                                    className={`border-2 border-muted-foreground border-dashed rounded-md p-6 flex flex-col items-center justify-center cursor-pointer transition-all ${isDragActiveCsv ? 'border-blue-500 bg-muted-foreground/20' : 'border-gray-300 bg-muted-foreground/20'}`}
                                                 >
-                                                    <input {...getInputProps()} />
-                                                    {isDragActive ? (
-                                                        <p className="text-blue-600">Drop the logo here...</p>
+                                                    <input {...getInputPropsCsv()} />
+                                                    {isDragActiveCsv ? (
+                                                        <p className="text-blue-600">Lepaskan file CSV Anda di sini...</p>
                                                     ) : (
                                                         <>
-                                                            {logoPreview ? (
-                                                                <div className='mt-1 w-24 h-24 rounded overflow-hidden flex flex-col items-center justify-center'>
-                                                                    <img src={logoPreview} alt="Logo Preview" className='object-contain w-full h-full' />
+                                                            {uploadedFileName ? (
+                                                                <div className='mt-1 text-center'>
+                                                                    <i className="bi bi-file-earmark-spreadsheet-fill text-3xl text-green-500 mb-2" />
+                                                                    <p className="text-sm text-green-600">{uploadedFileName}</p>
                                                                 </div>
                                                             ) : (
                                                                 <>
                                                                     <i className="bi bi-cloud-arrow-up-fill text-3xl text-gray-400 mb-2" />
-                                                                    <p className="text-sm text-gray-500">Drag & drop your logo here, or click to select file</p>
+                                                                    <p className="text-sm text-gray-500">Tarik & lepas file CSV di sini, atau klik untuk memilih file</p>
+                                                                    <p className="text-xs text-gray-400 mt-1">Hanya file dengan format .csv yang diterima.</p>
                                                                 </>
                                                             )}
                                                         </>
                                                     )}
-                                                </div>
-                                            </div>
-
-                                            {/* Colors */}
-                                            <div>
-                                                <Label className='block text-sm font-medium mb-2'>Website Colors</Label>
-                                                <div className='flex gap-2'>
-                                                    <ColorPicker title='Primary Color' value={formatUpperCase(primaryColor)} onChange={(e) => setPrimaryColor(e.target.value)} />
-                                                    <ColorPicker title='Secondary Color' value={formatUpperCase(secondaryColor)} onChange={(e) => setSecondaryColor(e.target.value)} />
-                                                    <ColorPicker title='Primary Text' value={formatUpperCase(primaryTextColor)} onChange={(e) => setPrimaryTextColor(e.target.value)} />
-                                                    <ColorPicker title='Secondary Text' value={formatUpperCase(secondaryTextColor)} onChange={(e) => setSecondaryTextColor(e.target.value)} />
                                                 </div>
                                             </div>
                                         </CardContent>
@@ -205,7 +156,6 @@ const SettingModal = () => {
 
                     <Button
                         className="text-green-600 bg-green-100 hover:bg-green-200 rounded-lg px-4 py-1 transition-colors"
-                        onClick={handleSave}
                     >
                         Save Change
                     </Button>

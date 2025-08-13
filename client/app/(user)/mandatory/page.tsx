@@ -200,7 +200,7 @@ const MandatoryPage = () => {
                     <h1 className="text-2xl font-bold">No Mandatory Leave Available</h1>
                 </div>
             ) : (
-                <div className='grid grid-cols-2 gap-3 mb-16'>
+                <div className='grid grid-cols-2 gap-3 mb-16 max-sm:grid-cols-1'>
                     {dataMandatory.map((data, idx) => {
                         const singleDay = isSameDay(data.start_date, data.end_date)
                         const currentDisplayStatus = appliedStatus[data.id_mandatory];
@@ -268,7 +268,7 @@ const MandatoryPage = () => {
                                 <>
                                     Are you sure you want to apply for mandatory leave on
                                     <br />
-                                    <span className="font-medium text-gray-900">
+                                    <span className="font-medium text-foreground">
                                         {selectedMandatory && formatDate(selectedMandatory.start_date)}
                                     </span>?
                                 </>
@@ -276,11 +276,11 @@ const MandatoryPage = () => {
                                 <>
                                     Are you sure you want to cancel your application?
                                     <br />
-                                    <span className="font-medium text-gray-900">
+                                    <span className="font-medium text-foreground">
                                         Please provide a reason for rejection.
                                     </span>
                                     <Input
-                                        className={`mt-2 w-full border rounded-md p-2 text-sm ${cancelReasonError ? 'border-red-400' : ''}`}
+                                        className={`mt-2 w-full border rounded-md p-2 text-sm text-foreground ${cancelReasonError ? 'border-red-400' : ''}`}
                                         placeholder="Enter your reason here..."
                                         value={cancelReason}
                                         onChange={(e) => setCancelReason(e.target.value)}

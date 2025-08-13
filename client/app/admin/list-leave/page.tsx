@@ -276,7 +276,7 @@ const ListOfLeavePage = () => {
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     placeholder="Search by name..."
-                                    className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                    className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 />
                             </div>
                             {viewMode === 'requests' ? (

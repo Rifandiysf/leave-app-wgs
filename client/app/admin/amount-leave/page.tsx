@@ -175,7 +175,7 @@ const AmountLeavePage = () => {
               </div>
               <input
                 type="text"
-                className="w-full border border-border bg-accent px-3 py-2 rounded-lg pl-10"
+                className="w-full border border-border bg-accent px-3 py-2 rounded-lg pl-10 text-foreground"
                 placeholder="Ketik NIK untuk mencari..."
                 value={nik}
                 onChange={(e) => {
@@ -233,7 +233,7 @@ const AmountLeavePage = () => {
                       value={year}
                       checked={selectedYear === year}
                       onChange={(e) => setSelectedYear(e.target.value)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 flex-shrink-0"
+                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 text-foreground flex-shrink-0"
                     />
                     <span className="ml-3 text-sm text-foreground font-medium">{getYearLabel(year)}</span>
                   </label>
@@ -248,7 +248,7 @@ const AmountLeavePage = () => {
               <input
                 type="number"
                 min="0"
-                className="w-full border border-border bg-accent px-3 py-2 rounded-lg"
+                className="w-full border border-border bg-accent text-foreground px-3 py-2 rounded-lg"
                 value={amountToAdd}
                 onChange={(e) => {
                   const numVal = Number(e.target.value);
@@ -260,7 +260,7 @@ const AmountLeavePage = () => {
               <label className="block text-sm font-medium text-foreground mb-1">Current Balance</label>
               <input
                 type="text"
-                className="w-full border border-border px-3 py-2 rounded-lg bg-muted-foreground/40"
+                className="w-full border border-border px-3 py-2 rounded-lg bg-muted-foreground/40 text-foreground"
                 readOnly
                 value={currentBalance}
               />
@@ -272,7 +272,7 @@ const AmountLeavePage = () => {
             <label className="block text-sm font-medium text-foreground mb-1">Total</label>
             <input
               type="text"
-              className="w-full border border-border px-3 py-2 rounded-lg bg-muted-foreground/40"
+              className="w-full border border-border px-3 py-2 rounded-lg bg-muted-foreground/40 text-foreground"
               readOnly
               value={total}
             />

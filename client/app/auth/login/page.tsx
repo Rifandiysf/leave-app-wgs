@@ -97,7 +97,7 @@ const LoginPage = () => {
                                     id="email"
                                     type="email"
                                     placeholder="m@example.com"
-                                    className="bg-accent border-[1.5px] border-[#0000001f]"
+                                    className="bg-accent border-[1.5px] border-[#0000001f] text-foreground"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
@@ -112,7 +112,7 @@ const LoginPage = () => {
                                     <Input
                                         id="password"
                                         type={showPassword ? "text" : "password"}
-                                        className="bg-accent border-[1.5px] border-[#0000001f] pr-10"
+                                        className="bg-accent border-[1.5px] border-[#0000001f] pr-10 text-foreground"
                                         value={password}
                                         placeholder="Type your password"
                                         onChange={(e) => setPassword(e.target.value)}
@@ -137,7 +137,7 @@ const LoginPage = () => {
                         </div>
 
                         <CardFooter className="flex-col gap-3 mt-6 px-0">
-                            <Button type="submit" className="w-full text-black" disabled={isLoading}>
+                            <Button type="submit" className="w-full text-foreground dark:bg-secondary" disabled={isLoading}>
                                 {isLoading ? (
                                     <>
                                         <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
