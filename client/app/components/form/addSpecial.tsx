@@ -196,7 +196,7 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
                                     if (descriptionError) setDescriptionError("");
                                 }}
                                 placeholder="Type the description"
-                                className={`border-[1.5px] border-[#0000001f] ${descriptionError ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
+                                className={`border-[1.5px] border-border bg-accent ${descriptionError ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
                             />
                             {descriptionError && (
                                 <p className="text-sm text-red-600 mt-1">{descriptionError}</p>

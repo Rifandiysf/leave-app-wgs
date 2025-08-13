@@ -17,6 +17,7 @@ import {
     DialogTitle,
 } from "@/app/components/ui/dialog"
 import { Button } from "@/app/components/ui/button"
+import { Input } from '@/app/components/ui/input'
 
 type MandatoryType = {
     id_mandatory: string
@@ -26,6 +27,7 @@ type MandatoryType = {
     start_date: string
     end_date: string
     message: string
+    taken: boolean
 }
 
 const SkeletonCard = () => {
@@ -57,18 +59,32 @@ const SkeletonCard = () => {
 const MandatoryPage = () => {
     const [dataMandatory, setMandatory] = useState<MandatoryType[]>([])
     const [loading, setLoading] = useState<boolean>(true)
-
-    const [appliedStatus, setAppliedStatus] = useState<Record<string, 'approved' | 'rejected'>>({})
+    const [appliedStatus, setAppliedStatus] = useState<Record<string, 'approved' | 'rejected' | undefined>>({})
     const [selectedMandatory, setSelectedMandatory] = useState<MandatoryType | null>(null)
-    const [isApply, setIsApply] = useState(true)
+    const [isApply, setIsApply] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [showConfirmModal, setShowConfirmModal] = useState(false)
     const [cancelReason, setCancelReason] = useState("")
+    const [cancelReasonError, setCancelReasonError] = useState("")
+
+    useEffect(() => {
+        setCancelReasonError("")
+        setCancelReason("")
+    }, [showConfirmModal])
 
     const fetchMandatoryData = async () => {
         try {
             const res = await axiosInstance.get('/users/mandatory?limit=50')
             setMandatory(res.data.data)
+
+            const initialAppliedStatus: Record<string, 'approved' | 'rejected' | undefined> = {}
+            res.data.data.forEach((item: MandatoryType) => {
+                if (item.taken) {
+                    initialAppliedStatus[item.id_mandatory] = 'approved'
+                }
+            })
+            setAppliedStatus(initialAppliedStatus)
+
         } catch (error) {
             console.error('Error fetching data:', error)
         } finally {
@@ -93,15 +109,27 @@ const MandatoryPage = () => {
     const isWithin7Days = (startDate: string) => {
         const today = new Date()
         const start = new Date(startDate)
+        today.setHours(0, 0, 0, 0);
+        start.setHours(0, 0, 0, 0);
+
         const diffTime = start.getTime() - today.getTime()
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-        return diffDays <= 7
+        return diffDays <= 7 && diffDays >= 0;
+    }
+
+    const isLeavePassed = (endDateStr: string) => {
+        const today = new Date()
+        const endDate = new Date(endDateStr)
+        today.setHours(0, 0, 0, 0);
+        endDate.setHours(0, 0, 0, 0);
+        return endDate < today;
     }
 
     const handleToggleChange = (checked: boolean, item: MandatoryType) => {
         setSelectedMandatory(item)
         setIsApply(checked)
         setCancelReason("")
+        setCancelReasonError("")
         setShowConfirmModal(true)
     }
 
@@ -109,16 +137,39 @@ const MandatoryPage = () => {
         if (!selectedMandatory) return
         setIsLoading(true)
 
+        let hasError: boolean = false;
+        if (!isApply) {
+            if (!cancelReason.trim()) {
+                setCancelReasonError("Reason cannot be empty");
+                hasError = true;
+            } else if (cancelReason.trim().length < 5) {
+                setCancelReasonError("Reason must be at least 5 characters");
+                hasError = true;
+            } else {
+                setCancelReasonError("");
+            }
+        }
+
+        if (hasError) {
+            return;
+        }
+
         try {
             const payload = {
                 id_mandatory: selectedMandatory.id_mandatory,
                 leave_type: "mandatory_leave",
                 status: isApply ? "approved" : "rejected",
-                ...(isApply ? {} : { reason: cancelReason }),
+                ...(isApply ? {} : { reason: cancelReason.trim() }),
             }
 
             await axiosInstance.post('/users/leave', payload)
-
+            setMandatory(prevData =>
+                prevData.map(item =>
+                    item.id_mandatory === selectedMandatory.id_mandatory
+                        ? { ...item, taken: isApply }
+                        : item
+                )
+            )
             setAppliedStatus(prev => ({
                 ...prev,
                 [selectedMandatory.id_mandatory]: isApply ? "approved" : "rejected"
@@ -134,7 +185,7 @@ const MandatoryPage = () => {
 
     return (
         <section className="p-4">
-            <div className="flex justify-center items-center my-2 border-b-[1.5px] border-accent">
+            <div className="flex justify-center items-center my-2 border-b-[1.5px] border-border">
                 <h1 className="text-2xl font-bold">Mandatory</h1>
             </div>
 
@@ -152,49 +203,60 @@ const MandatoryPage = () => {
                 <div className='grid grid-cols-2 gap-3 mb-16'>
                     {dataMandatory.map((data, idx) => {
                         const singleDay = isSameDay(data.start_date, data.end_date)
+                        const currentDisplayStatus = appliedStatus[data.id_mandatory];
+                        const leaveHasPassed = isLeavePassed(data.end_date);
 
                         return (
-                            <Card key={idx} className="gap-1.5 border-none shadow-none min-h-54 p-1.5 rounded-md">
-                                <Card className="bg-[#dde8ffab] border-none shadow-none p-3 rounded-sm">
+                            <div key={idx} className={`gap-1.5 border-none shadow-none p-1.5 rounded-md bg-accent ${leaveHasPassed && 'opacity-50'}`}>
+                                <Card className="bg-[#dde8ffab] dark:bg-card border-none shadow-none p-3 rounded-sm">
                                     <div>
-                                        <Label className="text-xl font-semibold mb-1">{data.title}</Label>
-                                        <p className=" text-gray-600 text-sm">{data.description}</p>
+                                        <Label className={`${currentDisplayStatus === 'approved' || 'rejected' ? 'flex justify-between gap-1.5 text-xl font-semibold mb-1' : 'text-xl font-semibold mb-1'}`}>
+                                            {data.title}
+                                            {currentDisplayStatus === 'approved' ? (
+                                                <span className="text-green-600 bg-green-100 p-2 px-3 rounded-full text-xs">APPROVED</span>
+                                            ) : currentDisplayStatus === 'rejected' ? (
+                                                <span className="text-red-600 bg-red-100 p-2 px-3 rounded-full text-xs">REJECTED</span>
+                                            ) : (
+                                                leaveHasPassed && <span className="text-gray-600 bg-gray-100 p-2 px-3 rounded-full text-xs">HAS PASSED</span>
+                                            )}
+                                        </Label>
+                                        <p className=" text-muted-foreground text-sm">{data.description}</p>
                                     </div>
                                     <div>
-                                        <Label className="text-base font-semibold">Periode</Label>
                                         <div className="flex items-center gap-2">
-                                            <p className="text-xs font-bold bg-white py-1 px-2.5 rounded-full">{formatDate(data.start_date)}</p>
+                                            <p className="text-xs font-bold bg-background py-1 px-2.5 rounded-full">{formatDate(data.start_date)}</p>
                                             {!singleDay && (
                                                 <>
                                                     <i className="bi bi-arrow-right-short"></i>
-                                                    <p className="text-xs font-bold bg-white py-1 px-2.5 rounded-full">{formatDate(data.end_date)}</p>
+                                                    <p className="text-xs font-bold bg-background py-1 px-2.5 rounded-full">{formatDate(data.end_date)}</p>
                                                 </>
                                             )}
                                         </div>
                                     </div>
                                 </Card>
-                                <div className='flex justify-between items-center mx-2'>
-                                    <div className='flex flex-col'>
-                                        <Label className='font-bold text-lg'>Apply Segera</Label>
-                                        <p className='text-xs font-medium text-red-400'>{data.message}</p>
-                                        <p className={`text-xs font-medium ${appliedStatus[data.id_mandatory] === 'approved' ? 'text-green-500' : 'text-red-500'}`}>
-                                            {appliedStatus[data.id_mandatory] === 'approved' && "✓ Approved"}
-                                            {appliedStatus[data.id_mandatory] === 'rejected' && "✕ Rejected"}
-                                        </p>
-                                    </div>
+                                <div className='flex justify-between items-center m-2'>
+                                    {currentDisplayStatus === 'approved' ? (
+                                        <div className='flex'>
+                                            <Label className='font-bold text-lg'>Apply Segera</Label>
+                                        </div>
+                                    ) : (
+                                        <div className='flex flex-col'>
+                                            <Label className='font-bold text-lg'>Apply Segera</Label>
+                                            {!leaveHasPassed && <p className='text-xs font-medium text-red-400'>{data.message}</p>}
+                                        </div>
+                                    )}
                                     <Switch
-                                        checked={appliedStatus[data.id_mandatory] === 'approved'}
+                                        checked={data.taken}
                                         onCheckedChange={(checked) => handleToggleChange(checked, data)}
-                                        disabled={isWithin7Days(data.start_date)}
+                                        disabled={isWithin7Days(data.start_date) || leaveHasPassed}
                                     />
                                 </div>
-                            </Card>
+                            </div>
                         )
                     })}
                 </div>
             )}
 
-            {/* MODAL KONFIRMASI */}
             <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
                 <DialogContent className="sm:max-w-[450px]">
                     <DialogHeader className="text-center">
@@ -217,13 +279,15 @@ const MandatoryPage = () => {
                                     <span className="font-medium text-gray-900">
                                         Please provide a reason for rejection.
                                     </span>
-                                    <textarea
-                                        className="mt-2 w-full border rounded-md p-2 text-sm"
-                                        rows={3}
+                                    <Input
+                                        className={`mt-2 w-full border rounded-md p-2 text-sm ${cancelReasonError ? 'border-red-400' : ''}`}
                                         placeholder="Enter your reason here..."
                                         value={cancelReason}
                                         onChange={(e) => setCancelReason(e.target.value)}
                                     />
+                                    {cancelReasonError && (
+                                        <p className="text-sm text-red-600 mt-1">{cancelReasonError}</p>
+                                    )}
                                 </>
                             )}
                         </DialogDescription>
@@ -238,8 +302,8 @@ const MandatoryPage = () => {
                         </Button>
                         <Button
                             onClick={handleConfirmSubmit}
-                            className="px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full"
-                            disabled={isLoading || (!isApply && cancelReason.trim() === "")}
+                            className="px-8 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-primary text-white rounded-full cursor-pointer"
+                            disabled={isLoading || (!isApply && (cancelReason.trim() === "" || cancelReason.trim().length < 5))}
                         >
                             {isLoading ? (
                                 <>

@@ -120,9 +120,9 @@ export function Modal({
             {TriggerButton()}
             <DialogContent className="sm:max-w-[550px]">
                 <DialogHeader>
-                    <DialogTitle>{title}</DialogTitle>
+                    <DialogTitle className="text-foreground">{title}</DialogTitle>
                 </DialogHeader>
-                <p>{description}</p>
+                <p className="text-muted-foreground">{description}</p>
                 <div className="grid gap-3">
                     <Label htmlFor="reason-reject">Reason</Label>
                     <Input
@@ -159,13 +159,13 @@ export function Modal({
             {TriggerButton()}
             <DialogContent className="sm:max-w-md p-6 [&>button]:hidden">
                 <DialogTitle className="sr-only">{title}</DialogTitle>
-                <p className="text-center text-lg font-medium text-gray-800 mb-8">
+                <p className="text-center text-lg font-medium text-foreground mb-8">
                     {title}
                 </p>
 
                 <div className="flex w-full items-center justify-between">
                     <DialogClose asChild>
-                        <Button variant="ghost" className="text-gray-700 hover:bg-gray-100 px-3">
+                        <Button variant="ghost" className="text-foreground hover:bg-gray-100 px-3">
                             <i className="bi bi-box-arrow-left text-2xl"></i>
                             Cancel
                         </Button>

@@ -1,8 +1,5 @@
-import { promise } from "zod/v4";
-import { leave_type } from "../../generated/prisma/index.js";
 import prisma from "../utils/client.js";
 import { calculateHolidaysDays, createDateFromString } from "../utils/leaves.utils.js";
-import { date } from "zod";
 
 
 export const getAllLeavesService = async (page, limit) => {
@@ -104,30 +101,30 @@ export const updateLeave = async (id, status, reason, nik) => {
             throw err;
         }
 
-
-        if (data.start_date <= new Date()) {
-            const err = new Error("The start date of the leave has passed the current date");
-            err.statusCode = 400;
-            throw err;
-        }
-
-        if (data.status === status) {
-            const err = new Error("New status and old status can't be the same");
-            err.statusCode = 400;
-            throw err;
-        }
-
+        const start = createDateFromString(new Date(data.start_date));
+        const end = createDateFromString(new Date(data.end_date));
+        
         if (data.NIK === nik && data.leave_type !== "mandatory_leave") {
             const err = new Error("you cannot approve or reject your own leave");
             err.statusCode = 400;
             throw err;
         }
 
-        const start = createDateFromString(new Date(data.start_date));
-        const end = createDateFromString(new Date(data.end_date));
+        if (start <= new Date() && data.leave_type !== 'special_leave') {
+            const err = new Error("The start date of the leave has passed the current date");
+            err.statusCode = 400;
+            throw err;
+        } else if (start < new Date().setHours(0, 0, 0, 0) && data.leave_type === 'special_leave') {
+            const err = new Error("The start date of tssshe leave has passed the current date");
+            err.statusCode = 400;
+            throw err;
+        }
 
-        console.log(start)
-        console.log(end)
+        if (data.status === status && data.leave_type !== "mandatory_leave") {
+            const err = new Error("New status and old status can't be the same");
+            err.statusCode = 400;
+            throw err;
+        }
 
         const existing = await prisma.tb_leave.findFirst({
             where: {
@@ -179,20 +176,18 @@ export const updateLeave = async (id, status, reason, nik) => {
         const currentYear = new Date().getFullYear();
         const currentYearBalance = userBalance.find(balance => balance.receive_date.getFullYear() === currentYear);
 
-        if (totalDaysUsed > currentYearBalance.amount && data.leave_type !== "mandatory_leave") {
+        if ((isStartDateNextYear && totalDaysUsed > currentYearBalance.amount) && data.leave_type === "personal_leave") {
             const err = new Error(`Cannot approve leave for next year because total days ${totalDaysUsed} exceed current year's balance ${currentYearBalance.amount}`);
             err.statusCode = 400;
             throw err;
         }
-
-
 
         if (data.leave_type !== "special_leave") {
             // reduce
             // array di loop ini disort dari paling lama/ [-1] = currentBalance
             if ((data.status === "pending" || data.status === "rejected") && status === "approved") {
 
-                if (existing) {
+                if (existing && data.leave_type !== 'mandatory_leave') {
                     const err = new Error("There's overlap leave");
                     err.statusCode = 400;
                     throw err;
@@ -271,87 +266,94 @@ export const updateLeave = async (id, status, reason, nik) => {
 }
 
 export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, limit = 10 }) => {
-    const changeFormat = (text) =>
-        text?.trim().toLowerCase().replace(/\s+/g, '_');
+    try {
+        const changeFormat = (text) =>
+            text?.trim().toLowerCase().replace(/\s+/g, '_');
 
-    const offset = (page - 1) * limit;
+        const offset = (page - 1) * limit;
 
-    const leaves = await prisma.tb_leave.findMany({
-        where: {
-            ...(type && { leave_type: changeFormat(type) }),
-            ...(status && { status: status }),
-            NOT: { status: 'pending' }
-        },
-        orderBy: { created_at: 'desc' },
-        include: {
-            tb_users: {
-                select: {
-                    fullname: true
-                }
+        const leaves = await prisma.tb_leave.findMany({
+            where: {
+                ...(type && { leave_type: changeFormat(type) }),
+                ...(status && { status: status }),
+                NOT: { status: 'pending' }
+
             },
-            tb_leave_log: {
-                orderBy: { changed_at: 'desc' },
-                take: 1,
-                select: {
-                    reason: true,
-                    balances_used: true,
-                    tb_users: {
-                        select: {
-                            fullname: true
+            take: limit,
+            orderBy: { created_at: 'desc' },
+            include: {
+                tb_users: {
+                    select: {
+                        fullname: true
+                    }
+                },
+                tb_leave_log: {
+                    orderBy: { changed_at: 'desc' },
+                    take: 1,
+                    select: {
+                        reason: true,
+                        balances_used: true,
+                        tb_users: {
+                            select: {
+                                fullname: true
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
 
-    // Filter by fullname if value is given
-    const filtered = await Promise.all(
-        leaves.map(async (leave) => {
-            const user = await prisma.tb_users.findUnique({
-                where: { NIK: leave.NIK },
-                select: { fullname: true }
-            });
+        // Filter by fullname if value is given
+        const filtered = await Promise.all(
+            leaves.map(async (leave) => {
+                const user = await prisma.tb_users.findUnique({
+                    where: { NIK: leave.NIK },
+                    select: { fullname: true }
+                });
 
-            if (value && !user?.fullname.toLowerCase().includes(value.toLowerCase())) {
-                return null;
-            }
+                if (value && !user?.fullname.toLowerCase().includes(value.toLowerCase())) {
+                    return null;
+                }
 
-            const latestLog = leave.tb_leave_log?.[0] || {
-                reason: "-",
-                tb_users: { fullname: "-" }
-            };
+                const latestLog = leave.tb_leave_log?.[0] || {
+                    reason: "-",
+                    tb_users: { fullname: "-" }
+                };
 
-            return {
-                id_leave: leave.id_leave,
-                title: leave.title,
-                leave_type: leave.leave_type,
-                start_date: leave.start_date,
-                end_date: leave.end_date,
-                total_days: leave.total_days,
-                reason: leave.reason,
-                status: leave.status,
-                created_at: leave.created_at,
-                NIK: leave.NIK,
-                fullname: leave.tb_users?.fullname || "Unknown",
-                id_special: leave.id_special,
-                id_mandatory: leave.id_mandatory,
-                tb_leave_log: latestLog
-            };
-        })
-    );
+                return {
+                    id_leave: leave.id_leave,
+                    title: leave.title,
+                    leave_type: leave.leave_type,
+                    start_date: leave.start_date,
+                    end_date: leave.end_date,
+                    total_days: leave.total_days,
+                    reason: leave.reason,
+                    status: leave.status,
+                    created_at: leave.created_at,
+                    NIK: leave.NIK,
+                    fullname: leave.tb_users?.fullname || "Unknown",
+                    id_special: leave.id_special,
+                    id_mandatory: leave.id_mandatory,
+                    tb_leave_log: latestLog
+                };
+            })
+        );
 
-    const cleaned = filtered.filter(Boolean);
-    const total = cleaned.length;
-    const totalPages = Math.ceil(total / limit);
-    const paginated = cleaned.slice(offset, offset + limit);
+        const cleaned = filtered.filter(Boolean);
+        const total = cleaned.length;
+        const totalPages = Math.ceil(total / limit);
+        const paginated = cleaned.slice(offset, offset + limit);
 
-    return {
-        data: paginated,
-        total,
-        page,
-        totalPages
-    };
+        return {
+            data: paginated,
+            total,
+            page,
+            totalPages
+        };
+    } catch (error) {
+        throw error
+    }
+
 };
 
 
@@ -474,6 +476,22 @@ export const getSpecialLeaveService = async (gender, page = 1, limit = 10) => {
     return { data, total, totalPages, page };
 };
 
+export const getSpecialLeaveServiceAdmin = async (page = 1, limit = 10) => {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+        prisma.tb_special_leave.findMany({
+            skip,
+            take: limit,
+            orderBy: { title: 'asc' }
+        }),
+        prisma.tb_special_leave.count(),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return { data, total, totalPages, page };
+};
 
 export const getSearchSpecialLeaveService = async (data, page = 1, limit = 10) => {
     const skip = (page - 1) * limit;
@@ -658,7 +676,36 @@ export const updateLeaveBalance = async (user) => {
                                    (endOfPrevYear.getMonth() - effectiveStartPrev.getMonth()) + 1;
             }
 
+
             //console.log(`[DEBUG] NIK: ${user.NIK} - Previous year eligible months: ${eligibleMonthsPrev}`);
+
+        const previousYear = currentYear - 1;
+        const firstOfPrevYear = new Date(`${previousYear}-01-01`);
+        const endOfPrevYear = new Date(`${previousYear}-12-31T23:59:59`);
+
+        const monthsPrev = (endOfPrevYear.getFullYear() - joinEffective.getFullYear()) * 12 +
+            (endOfPrevYear.getMonth() - joinEffective.getMonth()) + 1;
+
+        const eligiblePrev = monthsPrev - 3;
+
+        if (today.getMonth() === 0 && eligiblePrev > 0) {
+            const adjustmentPrev = await prisma.tb_balance_adjustment.aggregate({
+                where: {
+                    NIK: user.NIK,
+                    actor: 'system',
+                    created_at: {
+                        gte: firstOfPrevYear,
+                        lte: endOfPrevYear
+                    }
+                },
+                _sum: {
+                    adjustment_value: true
+                }
+            });
+
+            const currentPrev = adjustmentPrev._sum.adjustment_value || 0;
+            const toAddPrev = eligiblePrev - currentPrev;
+
 
             if (eligibleMonthsPrev > 0) {
                 // Hitung total yang sudah diberikan untuk tahun sebelumnya (EXCLUDE backfill)
@@ -755,6 +802,11 @@ export const updateLeaveBalance = async (user) => {
                 where: {
                     NIK: user.NIK,
                     actor: 'system',
+                    notes: {
+                        not: {
+                            contains: `(backfill ${previousYear})`
+                        }
+                    },
                     created_at: {
                         gte: new Date(currentYear, 0, 1, 0, 0, 0, 0),           // 1 Jan 00:00:00 local time
                         lte: new Date(currentYear, 11, 31, 23, 59, 59, 999)    // 31 Dec 23:59:59 local time
@@ -883,4 +935,4 @@ export const expiredLeave = async () => {
         console.error('[CRON] Failed to update leave status to expired : ', error)
         throw error
     }
-} 
+}
