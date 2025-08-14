@@ -96,6 +96,7 @@ export const exportFileServices = async (target) => {
                 break;
             case 'balance':
                 result = await prisma.tb_balance.findMany({})
+                break;
             case 'log':
                 result = await prisma.tb_leave_log.findMany({
                     omit: {
@@ -104,7 +105,7 @@ export const exportFileServices = async (target) => {
                         id_leave: true
                     }
                 })
-
+                break;
             default:
                 break;
         }

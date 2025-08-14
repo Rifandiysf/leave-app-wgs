@@ -111,8 +111,8 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
     return (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-                <Button variant="default" className="text-black">
-                    <i className="bi bi-plus-circle-fill text-lg text-slate-600"></i> Add Mandatory Leave
+                <Button variant="default" className="text-foreground">
+                    <i className="bi bi-plus-circle-fill text-lg text-foreground"></i> Add Mandatory Leave
                 </Button>
             </DialogTrigger>
 

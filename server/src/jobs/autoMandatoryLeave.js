@@ -8,7 +8,7 @@ cron.schedule('0 0 * * *', async () => {
 
     const today = new Date();
     const targetDate = new Date(today);
-    targetDate.setDate(today.getDate() + 7);
+    targetDate.setDate(today.getDate() + 6);
     targetDate.setHours(0, 0, 0, 0);
 
     const startOfTargetDay = new Date(targetDate);

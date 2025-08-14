@@ -23,19 +23,19 @@ type UserDashboardData = {
 const DashboardSkeleton = () => (
   <>
     <div className="flex flex-col mb-4">
-      <div className="h-8 bg-gray-200 rounded w-1/4 mb-2 animate-pulse"></div>
-      <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+      <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded w-1/4 mb-2 animate-pulse"></div>
+      <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/2 animate-pulse"></div>
     </div>
     <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-8">
-      <div className="h-36 bg-gray-200 rounded-lg sm:rounded-2xl animate-pulse"></div>
-      <div className="h-36 bg-gray-200 rounded-lg sm:rounded-2xl animate-pulse"></div>
+      <div className="h-36 bg-gray-200 dark:bg-gray-600 rounded-lg sm:rounded-2xl animate-pulse"></div>
+      <div className="h-36 bg-gray-200 dark:bg-gray-600 rounded-lg sm:rounded-2xl animate-pulse"></div>
     </div>
     <div className="space-y-6 pb-24">
-      <div className="h-48 bg-gray-200 rounded-lg sm:rounded-2xl animate-pulse"></div>
+      <div className="h-48 bg-gray-200 dark:bg-gray-600 rounded-lg sm:rounded-2xl animate-pulse"></div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
-        <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
-        <div className="h-20 bg-gray-200 rounded-lg animate-pulse sm:col-span-2 md:col-span-1"></div>
+        <div className="h-20 bg-gray-200 dark:bg-gray-600 rounded-lg animate-pulse"></div>
+        <div className="h-20 bg-gray-200 dark:bg-gray-600 rounded-lg animate-pulse"></div>
+        <div className="h-20 bg-gray-200 dark:bg-gray-600 rounded-lg animate-pulse sm:col-span-2 md:col-span-1"></div>
       </div>
     </div>
   </>

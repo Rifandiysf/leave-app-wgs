@@ -14,45 +14,44 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
-// Fungsi untuk inisialisasi tema
+
+
 const initializeTheme = () => {
-  try {
-    const root = document.documentElement
-    const theme = localStorage.getItem('theme')
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      try {
+        const root = document.documentElement
+        const theme = localStorage.getItem('theme')
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
-    // Menggunakan ternary operator untuk kode yang lebih ringkas
-    const newTheme = theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : prefersDark ? 'dark' : 'light';
-    root.classList.toggle('dark', newTheme === 'dark');
+        const newTheme = theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : prefersDark ? 'dark' : 'light';
+        root.classList.toggle('dark', newTheme === 'dark');
 
-    // Menginisialisasi warna tema dari localStorage jika ada
-    const colors = localStorage.getItem('themeColors');
-    if (colors) {
-      const parsedColors = JSON.parse(colors);
-      Object.entries(parsedColors).forEach(([key, value]) => {
-        root.style.setProperty(`--${key}`, value);
-      });
+        const colors = localStorage.getItem('themeColors');
+        if (colors) {
+          const parsedColors = JSON.parse(colors);
+          Object.entries(parsedColors).forEach(([key, value]) => {
+            root.style.setProperty(`--${key}`, value);
+          });
+        }
+      } catch (e) {
+        console.error('Theme initialization error', e);
+      }
     }
-  } catch (e) {
-    console.error('Theme initialization error', e);
-  }
-}
 
 export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
-  const scriptContent = `(${initializeTheme.toString()})()`
+      children,
+    }: Readonly<{
+      children: React.ReactNode
+    }>) {
+      const scriptContent = `(${initializeTheme.toString()})()`
 
   return (
-    <html lang="en">
-      <Head>
-        <script dangerouslySetInnerHTML={{ __html: scriptContent }} />
-      </Head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {children}
-      </body>
-    </html>
-  )
+  <html lang="en">
+    <Head>
+      <script dangerouslySetInnerHTML={{ __html: scriptContent }} />
+    </Head>
+    <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      {children}
+    </body>
+  </html>
+)
 }

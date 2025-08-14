@@ -8,6 +8,7 @@ import responseTime from 'response-time';
 import morgan from 'morgan'
 import errorHandler from './middlewares/errorHandler.middleware.js';
 import './jobs/leaveScheduler.js';
+import './jobs/autoMandatoryLeave.js';
 import { timeouthandle } from './middlewares/requestTimeout.middleware.js';
 
 const app = express()

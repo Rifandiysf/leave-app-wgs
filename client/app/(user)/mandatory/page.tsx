@@ -32,25 +32,25 @@ type MandatoryType = {
 
 const SkeletonCard = () => {
     return (
-        <div className="bg-gray-100 gap-1.5 border-none shadow-none min-h-54 p-1.5 rounded-md animate-pulse">
-            <div className="bg-gray-300 border-none shadow-none p-3 rounded-sm space-y-2">
-                <div className="h-5 bg-gray-300 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-300 rounded w-full"></div>
+        <div className="bg-gray-100 dark:bg-gray-400 gap-1.5 border-none shadow-none min-h-54 p-1.5 rounded-md animate-pulse">
+            <div className="bg-gray-300 dark:bg-gray-600 border-none shadow-none p-3 rounded-sm space-y-2">
+                <div className="h-5 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
+                <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-full"></div>
                 <div className="mt-3 space-y-1">
-                    <div className="h-4 bg-gray-300 rounded w-1/4"></div>
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/4"></div>
                     <div className="flex items-center gap-2">
-                        <div className="h-5 w-20 bg-gray-300 rounded-full"></div>
-                        <div className="h-5 w-5 bg-gray-300 rounded-full"></div>
-                        <div className="h-5 w-20 bg-gray-300 rounded-full"></div>
+                        <div className="h-5 w-20 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                        <div className="h-5 w-5 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                        <div className="h-5 w-20 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
                     </div>
                 </div>
             </div>
             <div className='flex justify-between items-center mx-2 mt-2'>
                 <div className='space-y-1'>
-                    <div className="h-4 bg-gray-300 rounded w-24"></div>
-                    <div className="h-3 bg-gray-300 rounded w-40"></div>
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-24"></div>
+                    <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-40"></div>
                 </div>
-                <div className="h-6 w-10 bg-gray-300 rounded-full"></div>
+                <div className="h-6 w-10 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
             </div>
         </div>
     )
@@ -200,7 +200,7 @@ const MandatoryPage = () => {
                     <h1 className="text-2xl font-bold">No Mandatory Leave Available</h1>
                 </div>
             ) : (
-                <div className='grid grid-cols-2 gap-3 mb-16'>
+                <div className='grid grid-cols-2 gap-3 mb-16 max-sm:grid-cols-1'>
                     {dataMandatory.map((data, idx) => {
                         const singleDay = isSameDay(data.start_date, data.end_date)
                         const currentDisplayStatus = appliedStatus[data.id_mandatory];
@@ -268,7 +268,7 @@ const MandatoryPage = () => {
                                 <>
                                     Are you sure you want to apply for mandatory leave on
                                     <br />
-                                    <span className="font-medium text-gray-900">
+                                    <span className="font-medium text-foreground">
                                         {selectedMandatory && formatDate(selectedMandatory.start_date)}
                                     </span>?
                                 </>
@@ -276,11 +276,11 @@ const MandatoryPage = () => {
                                 <>
                                     Are you sure you want to cancel your application?
                                     <br />
-                                    <span className="font-medium text-gray-900">
+                                    <span className="font-medium text-foreground">
                                         Please provide a reason for rejection.
                                     </span>
                                     <Input
-                                        className={`mt-2 w-full border rounded-md p-2 text-sm ${cancelReasonError ? 'border-red-400' : ''}`}
+                                        className={`mt-2 w-full border rounded-md p-2 text-sm text-foreground ${cancelReasonError ? 'border-red-400' : ''}`}
                                         placeholder="Enter your reason here..."
                                         value={cancelReason}
                                         onChange={(e) => setCancelReason(e.target.value)}

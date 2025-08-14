@@ -207,7 +207,7 @@ const EmployeeListContent = () => {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Search..."
-                            className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
                     </div>
                     <div className="flex gap-3">
@@ -254,10 +254,10 @@ const EmployeeListContent = () => {
                             <tbody className="cursor-pointer">
                                 {isLoading ? (
                                     Array.from({ length: itemPerPage }).map((_, rowIdx) => (
-                                        <tr key={rowIdx} className='animate-pulse odd:bg-[#e8efff] even:bg-[#f8faff]'>
+                                        <tr key={rowIdx} className='animate-pulse bg-gray-200 dark:bg-gray-600'>
                                             {Array.from({ length: 9 }).map((_, colIdx) => (
                                                 <td key={colIdx} className="p-3">
-                                                    <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto" />
+                                                    <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4 mx-auto" />
                                                 </td>
                                             ))}
                                         </tr>
