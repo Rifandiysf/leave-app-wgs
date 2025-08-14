@@ -776,8 +776,12 @@ export const getAllMandatoryLeavesService = async (page = 1, limit = 10, req) =>
     }
 
     const data = rawData.map(item => {
-        const formattedDate = createDateFromString(item.start_date);
-        const tanggalFormatted = formatDateIndonesia(formattedDate);
+        const startDate = createDateFromString(item.start_date);
+
+        const confirmBefore = new Date(startDate);
+        confirmBefore.setDate(confirmBefore.getDate() - 6);
+
+        const tanggalFormatted = formatDateIndonesia(confirmBefore);
         const message = `konfimasi cuti sebelum tanggal ${tanggalFormatted}`;
 
         const status = leaveMap[item.id_mandatory];
@@ -790,7 +794,6 @@ export const getAllMandatoryLeavesService = async (page = 1, limit = 10, req) =>
         }
 
         return { ...item, message, taken };
-
     });
 
     const totalPages = Math.ceil(total / limit);
@@ -799,15 +802,15 @@ export const getAllMandatoryLeavesService = async (page = 1, limit = 10, req) =>
 
 export const getLeaveTrendByNik = async (nik) => {
     const user = await prisma.tb_users.findUnique({
-        where : {NIK : nik},
-        select : {join_date : true}
+        where: { NIK: nik },
+        select: { join_date: true }
 
     })
 
     if (!user) {
         return {
-            message : `User with NIK ${nik} not found`,
-            trend : {}
+            message: `User with NIK ${nik} not found`,
+            trend: {}
 
         }
     }
@@ -832,8 +835,8 @@ export const getLeaveTrendByNik = async (nik) => {
 
     if (leaves.length === 0) {
         return {
-            message : `There is no leave data for NIK ${nik} since joining in ${joinYear}`,
-            trend : {}
+            message: `There is no leave data for NIK ${nik} since joining in ${joinYear}`,
+            trend: {}
 
         }
     }
@@ -841,18 +844,18 @@ export const getLeaveTrendByNik = async (nik) => {
     const trend = {}
     for (let year = joinYear; year <= currentYear; year++) {
         trend[year] = {
-            mandatory_leave : 0,
-            special_leave : 0,
-            personal_leave : 0
+            mandatory_leave: 0,
+            special_leave: 0,
+            personal_leave: 0
         }
     }
- 
+
 
     leaves.forEach((leave) => {
         const year = leave.start_date.getFullYear()
         const leaveType = leave.leave_type?.toLowerCase()
 
-        if(!leaveType) {
+        if (!leaveType) {
             throw new Error(`Unknown leave type ${leaveType}`);
             return;
         }
