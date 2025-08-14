@@ -25,23 +25,23 @@ const uploadSingle = upload.single('file')
 
 export const uploadFile = async (req, res, next) => {
     try {
-        if (!req.file) {
-            const error = new Error("File not found")
-            error.statusCode = 404
-            throw error;
-        }
-        
         uploadSingle(req, res, function (err) {
-        if (err) {
-            console.log(err);
-            next(err)
-        }
+            if (err) {
+                console.log(err);
+                return next(err);
+            }
 
-        console.log("Upload finished: ", req.file.originalname);
-        next()
-    })
+            if (!req.file) {
+                const error = new Error('No file uploaded');
+                error.statusCode = 404;
+                return next(error);
+            }
+
+            console.log("Upload finished: ", req.file.originalname);
+            next();
+        });
     } catch (error) {
-        next(error)
+        next(error);
     }
 }
 
