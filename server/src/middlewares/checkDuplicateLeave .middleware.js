@@ -35,7 +35,7 @@ export const checkDuplicateLeave = async (req, res, next) => {
                     },
                 ],
                 status: {
-                    in: ["approved", "pending", "expired"]
+                    in: ["rejected", "approved", "pending", "expired"]
                 },
             },
         });
