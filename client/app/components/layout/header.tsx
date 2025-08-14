@@ -11,7 +11,7 @@ import SettingModal from '../Modal/Setting'
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [user, setUser] = useState({ fullname: 'Guest', isAdmin: false });
+    const [user, setUser] = useState({ fullname: 'Guest', isAdmin: false, role: '' });
     const [isLoading, setIsLoading] = useState(true);
 
     const pathname = usePathname()
@@ -35,7 +35,8 @@ export default function Header() {
                     const userData = result.user_data;
                     setUser({
                         fullname: userData.fullname,
-                        isAdmin: userData.role === 'admin' || userData.role === 'super_admin'
+                        isAdmin: userData.role === 'admin' || userData.role === 'super_admin',
+                        role: userData.role
                     });
                 } else {
                     setUser({ fullname: 'Guest', isAdmin: false });
@@ -96,7 +97,7 @@ export default function Header() {
                 <div className="fixed inset-0 z-40 lg:hidden" onClick={() => setIsMenuOpen(false)}>
                     <div className="fixed top-4 right-4 w-60 dark:bg-card bg-background rounded-xl shadow-lg z-50 p-4" onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-bold text-card-foreground">Menu</h3>
+                            <h3 className="font-bold text-foreground">Menu</h3>
                             <button onClick={() => setIsMenuOpen(false)} className="p-1">
                                 <i className="bi bi-x text-xl text-foreground" />
                             </button>
@@ -104,19 +105,19 @@ export default function Header() {
                         <div className="h-px bg-gray-500 mb-4" />
                         <nav className="flex flex-col">
                             {user.isAdmin && isAdminPage && (
-                                <Link href="/" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-accent transition-colors">
-                                    <i className="bi bi-box-arrow-in-left text-[26px] ml-[2px]" />
+                                <Link href="/" className="flex items-center space-x-3 p-2 rounded-lg dark:hover:bg-foreground/20 transition-colors">
+                                    <i className="bi bi-box-arrow-in-left text-[24px] ml-[2px]" />
                                     <span className="font-medium text-foreground">Employee Side</span>
                                 </Link>
                             )}
                             {user.isAdmin && isUserDashboard && (
-                                <Link href="/admin/dashboard" className="flex items-center space-x-4 p-2 rounded-lg hover:bg-accent transition-colors">
-                                    <i className="bi bi-person-workspace text-2xl" />
+                                <Link href="/admin/dashboard" className="flex items-center space-x-4 p-2 rounded-lg dark:hover:bg-foreground/20 transition-colors">
+                                    <i className="bi bi-person-workspace text-xl" />
                                     <span className="font-medium text-foreground">Admin Side</span>
                                 </Link>
                             )}
 
-                            <SettingModal />
+                            <SettingModal role={user.role} className='justify-start space-x-2.5 pl-2.5'/>
 
                             <Modal
                                 mode="confirm"
@@ -138,18 +139,18 @@ export default function Header() {
 
             <div className="hidden lg:flex items-center space-x-6">
                 {user.isAdmin && isUserDashboard && (
-                    <Link href="/admin/dashboard" className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
+                    <Link href="/admin/dashboard" className="flex items-center space-x-2 p-1.5 py-1 rounded-md cursor-pointer hover:text-blue-900 dark:hover:bg-foreground/20 transition-colors">
                         <i className="bi bi-person-workspace text-xl w-6 text-center" />
                         <span className="text-sm font-medium">Admin Side</span>
                     </Link>
                 )}
                 {user.isAdmin && isAdminPage && (
-                    <Link href="/" className="flex items-center space-x-2 cursor-pointer hover:text-blue-900 transition-colors">
+                    <Link href="/" className="flex items-center space-x-2 p-1.5 py-1 rounded-md cursor-pointer hover:text-blue-900 dark:hover:bg-foreground/20 transition-colors">
                         <i className="bi bi-box-arrow-in-left  w-6 text-center text-2xl" />
                         <span className="text-sm font-medium">Employee Side</span>
                     </Link>
                 )}
-                <SettingModal />
+                <SettingModal role={user.role}/>
 
                 <Modal
                     mode="confirm"

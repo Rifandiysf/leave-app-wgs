@@ -223,7 +223,7 @@ const AmountLeavePage = () => {
                     key={year} 
                     className={`flex items-center cursor-pointer border-[1.5px] border-border rounded-lg px-4 py-3 transition-colors ${
                       selectedYear === year 
-                        ? 'border-blue-500 bg-blue-200' 
+                        ? 'border-blue-500 bg-blue-500/50' 
                         : 'border-border bg-accent'
                     }`}
                   >
@@ -233,7 +233,7 @@ const AmountLeavePage = () => {
                       value={year}
                       checked={selectedYear === year}
                       onChange={(e) => setSelectedYear(e.target.value)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 text-foreground flex-shrink-0"
+                      className="w-4 h-4 border-gray-300 focus:ring-blue-500 text-foreground flex-shrink-0"
                     />
                     <span className="ml-3 text-sm text-foreground font-medium">{getYearLabel(year)}</span>
                   </label>
@@ -307,7 +307,7 @@ const AmountLeavePage = () => {
             ) : (
               <Button
                 type="button"
-                variant={'ghost'}
+                variant={'default'}
                 className="flex items-center gap-2 text-foreground hover:text-gray-800 font-semibold"
                 onClick={() => router.back()}
               >

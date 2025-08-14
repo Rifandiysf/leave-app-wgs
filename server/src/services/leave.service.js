@@ -80,6 +80,10 @@ export const getLeavesByFilterService = async (type, value, page, limit) => {
 
 export const updateLeave = async (id, status, reason, nik) => {
     try {
+        const currentYear = new Date().getFullYear();
+        const currentDate = new Date()
+        const currentDateFirstMonth = new Date(currentYear, 0, 1)
+
         const data = await prisma.tb_leave.findUnique({
             where: {
                 id_leave: id,
@@ -110,7 +114,7 @@ export const updateLeave = async (id, status, reason, nik) => {
             throw err;
         }
 
-        if (start <= new Date() && data.leave_type !== 'special_leave') {
+        if (start <= currentDate && data.leave_type !== 'special_leave') {
             const err = new Error("The start date of the leave has passed the current date");
             err.statusCode = 400;
             throw err;
@@ -144,13 +148,14 @@ export const updateLeave = async (id, status, reason, nik) => {
             },
         });
 
-        console.log(existing)
-
         const userBalance = await prisma.tb_balance.findMany({
             where: {
                 NIK: data.NIK,
                 expired_date: {
-                    gt: new Date()
+                    gt: new Date(),
+                },
+                receive_date: {
+                    lte: currentDateFirstMonth
                 }
             },
             take: 2,
@@ -172,8 +177,7 @@ export const updateLeave = async (id, status, reason, nik) => {
         }
 
         const isStartDateNextYear = new Date().getFullYear() < data.start_date.getFullYear();
-
-        const currentYear = new Date().getFullYear();
+        console.log(isStartDateNextYear);
         const currentYearBalance = userBalance.find(balance => balance.receive_date.getFullYear() === currentYear);
 
         if ((isStartDateNextYear && totalDaysUsed > currentYearBalance.amount) && data.leave_type === "personal_leave") {
@@ -213,8 +217,10 @@ export const updateLeave = async (id, status, reason, nik) => {
 
                 if (isStartDateNextYear) {
                     updatedBalances = reduceAmount(updatedBalances, totalDaysUsed);
+                    console.log(updatedBalances);
                 } else {
                     updatedBalances = reduceAmount(updatedBalances.reverse(), totalDaysUsed);
+                    console.log(updatedBalances)
                 }
             }
 
@@ -645,7 +651,7 @@ export const updateLeaveBalance = async (user) => {
 
     } else if (user.role === 'karyawan_kontrak') {
         //console.log(`[DEBUG] Processing kontrak employee NIK: ${user.NIK}, today: ${today.toISOString()}`);
-        
+
         // Hitung effective join date
         const joinEffective = new Date(joinDate);
         if (joinDate.getDate() > 20) {
@@ -658,22 +664,22 @@ export const updateLeaveBalance = async (user) => {
         if (today.getMonth() === 0) {
             //console.log(`[DEBUG] NIK: ${user.NIK} - Processing January backfill`);
             const previousYear = currentYear - 1;
-            
+
             // Hitung eligible months untuk tahun sebelumnya
             const firstEligiblePrev = new Date(joinEffective);
             firstEligiblePrev.setMonth(firstEligiblePrev.getMonth() + 3);
-            
+
             const startOfPrevYear = new Date(previousYear, 0, 1, 0, 0, 0, 0)
             const endOfPrevYear = new Date(previousYear, 11, 31, 23, 59, 59, 999)
-            
+
             // Effective start untuk tahun sebelumnya
             const effectiveStartPrev = firstEligiblePrev > startOfPrevYear ? firstEligiblePrev : startOfPrevYear;
-            
+
             // Hitung total eligible months di tahun sebelumnya
             let eligibleMonthsPrev = 0;
             if (effectiveStartPrev <= endOfPrevYear) {
                 eligibleMonthsPrev = (endOfPrevYear.getFullYear() - effectiveStartPrev.getFullYear()) * 12 +
-                                   (endOfPrevYear.getMonth() - effectiveStartPrev.getMonth()) + 1;
+                    (endOfPrevYear.getMonth() - effectiveStartPrev.getMonth()) + 1;
             }
 
             //console.log(`[DEBUG] NIK: ${user.NIK} - Previous year eligible months: ${eligibleMonthsPrev}`);
@@ -742,27 +748,27 @@ export const updateLeaveBalance = async (user) => {
 
         // PERHITUNGAN UNTUK TAHUN BERJALAN
         //console.log(`[DEBUG] NIK: ${user.NIK} - Processing current year: ${currentYear}`);
-        
+
         const firstEligibleMonth = new Date(joinEffective);
         firstEligibleMonth.setMonth(firstEligibleMonth.getMonth() + 3);
 
         const startOfCurrentYear = new Date(`${currentYear}-01-01`);
         const effectiveStart = firstEligibleMonth > startOfCurrentYear ? firstEligibleMonth : startOfCurrentYear;
-        
+
         //console.log(`[DEBUG] NIK: ${user.NIK} - firstEligibleMonth: ${firstEligibleMonth.toISOString()}, effectiveStart: ${effectiveStart.toISOString()}`);
-        
+
         // Hitung eligible months sampai bulan ini
         let eligibleMonths = 0;
-        
+
         // Normalize dates untuk perbandingan yang akurat
         const todayNormalized = new Date(today.getFullYear(), today.getMonth(), 1);
         const effectiveStartNormalized = new Date(effectiveStart.getFullYear(), effectiveStart.getMonth(), 1);
-        
+
         //console.log(`[DEBUG] NIK: ${user.NIK} - todayNormalized: ${todayNormalized.toISOString()}, effectiveStartNormalized: ${effectiveStartNormalized.toISOString()}`);
-        
+
         if (effectiveStartNormalized <= todayNormalized) {
             eligibleMonths = (todayNormalized.getFullYear() - effectiveStartNormalized.getFullYear()) * 12 +
-                           (todayNormalized.getMonth() - effectiveStartNormalized.getMonth()) + 1;
+                (todayNormalized.getMonth() - effectiveStartNormalized.getMonth()) + 1;
         }
 
         //console.log(`[DEBUG] NIK: ${user.NIK} - eligibleMonths for current year: ${eligibleMonths}`);
@@ -858,11 +864,11 @@ export const updateLeaveBalance = async (user) => {
                     console.log(`[Balance Updated] NIK: ${user.NIK}, added: ${toAdd}, total: ${existingBalance.amount + toAdd}`);
                 }
             } //else {
-                //console.log(`[SKIP] NIK: ${user.NIK} - No additional balance needed (toAdd: ${toAdd})`);
+            //console.log(`[SKIP] NIK: ${user.NIK} - No additional balance needed (toAdd: ${toAdd})`);
             //}
         } //else {
-            //console.log(`[SKIP] NIK: ${user.NIK} - Not eligible yet (eligibleMonths: ${eligibleMonths})`);
-       // }
+        //console.log(`[SKIP] NIK: ${user.NIK} - Not eligible yet (eligibleMonths: ${eligibleMonths})`);
+        // }
 
     } else {
         console.log(`[SKIP] NIK: ${user.NIK} role: magang`);

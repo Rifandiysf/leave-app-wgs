@@ -1,17 +1,17 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from "react"; // MODIFIED: Added useMemo
+import { useState, useEffect, useCallback, useMemo } from "react";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import axiosInstance from "@/lib/api/axiosInstance";
 
-// Type definitions remain the same
 type dataLeaveType = {
     nik: string;
     name: string;
     gender: string;
     role: string;
     status: string;
+    join_date: string;
     balance: {
         total_amount: number;
         current_amount: number;
@@ -30,16 +30,19 @@ type ApiLeaveType = {
     status: string;
 };
 
+type UserStatsType = dataLeaveType & {
+    average_leave: number;
+};
+
+
 const DashboardPage = () => {
     const [dataLeave, setDataLeave] = useState<dataLeaveType[]>([]);
     const [leaveRequests, setLeaveRequests] = useState<ApiLeaveType[]>([]);
     const [leaveHistory, setLeaveHistory] = useState<ApiLeaveType[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    // NEW: State for selected year and calculated statistics
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [stats, setStats] = useState<any>({});
 
-    // Data fetching logic (fetchUsersData, fetchLeaveData, fetchData) remains the same
     const fetchUsersData = useCallback(async () => {
         try {
             const initialResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users?limit=1000`, {
@@ -116,18 +119,17 @@ const DashboardPage = () => {
         fetchData();
     }, [fetchData]);
 
-    // NEW: Memoize the available years for the dropdown to prevent recalculation on every render
     const availableYears = useMemo(() => {
         const allLeaveData = [...leaveRequests, ...leaveHistory];
         if (!allLeaveData.length) return [new Date().getFullYear()];
 
         const years = new Set(allLeaveData.map(leave => new Date(leave.start_date).getFullYear()).filter(year => !isNaN(year)));
-        const sortedYears = Array.from(years).sort((a, b) => b - a); // Sort descending
+        const sortedYears = Array.from(years).sort((a, b) => b - a);
 
         return sortedYears.length > 0 ? sortedYears : [new Date().getFullYear()];
     }, [leaveRequests, leaveHistory]);
 
-    // MODIFIED: Wrapped calculation logic in useCallback and it now accepts a year parameter
+
     const calculateStats = useCallback((yearForChart: number) => {
         if (!dataLeave.length) return {};
 
@@ -137,53 +139,53 @@ const DashboardPage = () => {
         const inactiveCount = totalUsers - activeCount;
 
         const allLeaveData = [...leaveRequests, ...leaveHistory];
-        const currentYearForCards = new Date().getFullYear(); // For stat cards, always use the current year
+        const currentYearForCards = new Date().getFullYear();
 
-        const currentYearLeaves = allLeaveData.filter(leave => {
-            const leaveYear = new Date(leave.start_date).getFullYear();
+        const approvedLeaves = allLeaveData.filter(leave => {
             const isApproved = leave.status?.toLowerCase() === 'approved' || leave.status?.toLowerCase() === 'taken';
-            return leaveYear === currentYearForCards && isApproved;
+            return isApproved;
         });
+
+        const currentYearLeaves = approvedLeaves.filter(leave => new Date(leave.start_date).getFullYear() === currentYearForCards);
         const totalThisYearLeave = currentYearLeaves.reduce((sum, leave) => sum + (leave.total_days || 0), 0);
 
-        const lastYearLeaves = allLeaveData.filter(leave => {
-            const leaveYear = new Date(leave.start_date).getFullYear();
-            const isApproved = leave.status?.toLowerCase() === 'approved' || leave.status?.toLowerCase() === 'taken';
-            return leaveYear === currentYearForCards - 1 && isApproved;
-        });
+        const lastYearLeaves = approvedLeaves.filter(leave => new Date(leave.start_date).getFullYear() === currentYearForCards - 1);
         const totalLastYearLeave = lastYearLeaves.reduce((sum, leave) => sum + (leave.total_days || 0), 0);
 
-        const sixMonthLeave = currentYearLeaves
-            .filter(leave => new Date(leave.start_date).getMonth() < 6) // Jan-Jun
-            .reduce((sum, leave) => sum + (leave.total_days || 0), 0);
-
-        // ... other calculations for cards and lists remain the same ...
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-        const weeklyLeaveUsers = allLeaveData.filter(leave => {
+        const weeklyLeaveUsers = approvedLeaves.filter(leave => {
             const leaveDate = new Date(leave.start_date);
-            const isApproved = leave.status?.toLowerCase() === 'approved' || leave.status?.toLowerCase() === 'taken';
-            return leaveDate >= oneWeekAgo && leaveDate <= new Date() && isApproved;
+            return leaveDate >= oneWeekAgo && leaveDate <= new Date();
         }).length;
 
         const pendingLeaves = leaveRequests.filter(leave => leave.status?.toLowerCase() === 'pending');
         const pendingLeaveCount = pendingLeaves.length;
 
-        const userLeaveStats = dataLeave.map(user => ({
-            ...user,
-            current_amount: user.balance?.current_amount || 0,
-            carried_amount: user.balance?.carried_amount || 0,
-            total_amount: user.balance?.total_amount || 0,
-        }));
-        const topRemainingLeaveUsers = [...userLeaveStats].sort((a, b) => b.total_amount - a.total_amount).slice(0, 5);
-        const bottomRemainingLeaveUsers = [...userLeaveStats].sort((a, b) => a.total_amount - b.total_amount).slice(0, 5);
+        const userLeaveStats = dataLeave.map(user => {
+            const userApprovedLeaves = approvedLeaves.filter(leave =>
+                leave.name?.trim().toLowerCase() === user.name?.trim().toLowerCase()
+            );
 
-        // MODIFIED: This calculation now uses the 'yearForChart' parameter
-        const monthlyChartLeaves = allLeaveData.filter(leave => {
-            const leaveYear = new Date(leave.start_date).getFullYear();
-            const isApproved = leave.status?.toLowerCase() === 'approved' || leave.status?.toLowerCase() === 'taken';
-            return leaveYear === yearForChart && isApproved;
+            const totalLeaveTaken = userApprovedLeaves.reduce((sum, leave) => sum + (leave.total_days || 0), 0);
+
+            let averageLeave = 0;
+            // Rata-rata adalah total hari cuti dibagi jumlah pengajuan cuti
+            if (userApprovedLeaves.length > 0) {
+                averageLeave = totalLeaveTaken / userApprovedLeaves.length;
+            }
+
+            return {
+                ...user,
+                balance: user.balance || { total_amount: 0, current_amount: 0, carried_amount: 0 },
+                average_leave: parseFloat(averageLeave.toFixed(1))
+            };
         });
+
+        const topRemainingLeaveUsers = [...userLeaveStats].sort((a, b) => b.balance.total_amount - a.balance.total_amount).slice(0, 5);
+        const bottomRemainingLeaveUsers = [...userLeaveStats].sort((a, b) => a.balance.total_amount - b.balance.total_amount).slice(0, 5);
+
+        const monthlyChartLeaves = approvedLeaves.filter(leave => new Date(leave.start_date).getFullYear() === yearForChart);
 
         const monthlyLeaveData: { month: string; leave: number; }[] = [];
         for (let month = 0; month < 12; month++) {
@@ -195,12 +197,12 @@ const DashboardPage = () => {
 
         return {
             totalUsers, activeCount, inactiveCount, totalThisYearLeave, totalLastYearLeave,
-            sixMonthLeave, pendingLeaveCount, pendingLeaves, topRemainingLeaveUsers, bottomRemainingLeaveUsers,
+            pendingLeaveCount, pendingLeaves, topRemainingLeaveUsers, bottomRemainingLeaveUsers,
             monthlyLeaveData, weeklyLeaveUsers,
         };
     }, [dataLeave, leaveRequests, leaveHistory]);
 
-    // NEW: useEffect to trigger calculations when data or selected year changes
+
     useEffect(() => {
         if (!isLoading) {
             const newStats = calculateStats(selectedYear);
@@ -208,10 +210,9 @@ const DashboardPage = () => {
         }
     }, [selectedYear, isLoading, calculateStats]);
 
-    // StatCard and dateOptions remain the same
     const StatCard = ({ title, value, subtitle, icon, color = "blue" }: any) => (
         <div className="bg-white dark:bg-card rounded-2xl p-6 border hover:shadow-md transition-all duration-200">
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between">
                 <div>
                     <p className="text-sm font-medium text-foreground mb-1">{title}</p>
                     <p className={`text-3xl font-bold text-${color}-600 mb-1`}>{value}</p>
@@ -225,7 +226,6 @@ const DashboardPage = () => {
     );
     const dateOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
 
-    // Loading skeleton remains the same
     if (isLoading) {
         return (
             <div className="min-h-screen p-6">
@@ -254,15 +254,13 @@ const DashboardPage = () => {
                 <p className="text-muted-foreground">Ringkasan informasi dan statistik karyawan</p>
             </div>
 
-            {/* Stat Cards section remains the same, it will use the `stats` state */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <StatCard title="Total Karyawan" value={stats.totalUsers || 0} subtitle={`${stats.activeCount || 0} aktif, ${stats.inactiveCount || 0} tidak aktif`} icon="bi-people-fill" color="blue" />
-                <StatCard title="Cuti 6 Bulan (Jan-Jun)" value={stats.sixMonthLeave || 0} subtitle={`Total cuti di ${new Date().getFullYear()}`} icon="bi-calendar-range-fill" color="green" />
+                <StatCard title="Total Cuti Tahun Ini" value={stats.totalThisYearLeave || 0} subtitle={`Approved di ${new Date().getFullYear()}`} icon="bi-calendar-check-fill" color="green" />
                 <StatCard title="Karyawan Cuti Mingguan" value={`${stats.weeklyLeaveUsers || 0} orang`} subtitle="Cuti dalam 7 hari terakhir" icon="bi-person-dash-fill" color="orange" />
                 <StatCard title="Cuti Pending" value={`${stats.pendingLeaveCount || 0} orang`} subtitle={`Menunggu persetujuan`} icon="bi-clock-history" color="yellow" />
             </div>
 
-            {/* Pending Leaves section remains the same */}
             {stats.pendingLeaves && stats.pendingLeaves.length > 0 && (
                 <div className="dark:bg-card rounded-2xl p-6 shadow-sm border border-border mb-8">
                     <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
@@ -286,16 +284,13 @@ const DashboardPage = () => {
                 </div>
             )}
 
-            {/* MODIFIED: Chart section now includes the year selector */}
             <div className=" grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div className="dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
-                    {/* MODIFIED: Title is now a flex container with the dropdown */}
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
                             <i className="bi bi-graph-up text-blue-500"></i>
                             Trend Cuti Bulanan
                         </h3>
-                        {/* NEW: Year Selector Dropdown */}
                         <select
                             value={selectedYear}
                             onChange={(e) => setSelectedYear(Number(e.target.value))}
@@ -311,7 +306,6 @@ const DashboardPage = () => {
                     </div>
                     <div className="h-80">
                         <ResponsiveContainer width="100%" height="100%">
-                            {/* MODIFIED: Chart data now comes from the 'stats' state */}
                             <LineChart data={stats.monthlyLeaveData}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                 <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
@@ -324,7 +318,6 @@ const DashboardPage = () => {
                 </div>
             </div>
 
-            {/* Top/Bottom users lists remain the same */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div className="dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
                     <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
@@ -332,7 +325,7 @@ const DashboardPage = () => {
                         User Dengan Sisa Cuti Terbanyak
                     </h3>
                     <div className="space-y-3">
-                        {(stats.topRemainingLeaveUsers || []).map((user: dataLeaveType, index: number) => (
+                        {(stats.topRemainingLeaveUsers || []).map((user: UserStatsType, index: number) => (
                             <div key={user.nik} className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
                                 <div className="flex items-center gap-3">
                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${index === 0 ? 'bg-green-500' : index === 1 ? 'bg-green-400' : 'bg-green-300'}`}>
@@ -348,6 +341,7 @@ const DashboardPage = () => {
                                     <p className="text-xs text-gray-500">
                                         Tahun ini: {user.balance.current_amount || 0} | Tahun lalu: {user.balance.carried_amount || 0}
                                     </p>
+                                    <p className="text-xs text-gray-500 mt-1">Rerata Cuti: <b>{user.average_leave}</b> hari</p>
                                 </div>
                             </div>
                         ))}
@@ -360,7 +354,7 @@ const DashboardPage = () => {
                         User Dengan Sisa Cuti Terendah
                     </h3>
                     <div className="space-y-3">
-                        {(stats.bottomRemainingLeaveUsers || []).map((user: dataLeaveType, index: number) => (
+                        {(stats.bottomRemainingLeaveUsers || []).map((user: UserStatsType, index: number) => (
                             <div key={user.nik} className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-100">
                                 <div className="flex items-center gap-3">
                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${index === 0 ? 'bg-red-500' : index === 1 ? 'bg-red-400' : 'bg-red-300'}`}>
@@ -376,6 +370,7 @@ const DashboardPage = () => {
                                     <p className="text-xs text-gray-500">
                                         Tahun ini: {user.balance.current_amount || 0} | Tahun lalu: {user.balance.carried_amount || 0}
                                     </p>
+                                    <p className="text-xs text-gray-500 mt-1">Rerata Cuti: <b>{user.average_leave}</b> hari</p>
                                 </div>
                             </div>
                         ))}

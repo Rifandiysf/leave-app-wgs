@@ -113,8 +113,8 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
     return (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-                <Button variant="default" className="text-black">
-                    <i className="bi bi-plus-circle-fill text-lg text-slate-600"></i> Add Special Leave
+                <Button variant="default" className="text-foreground dark:bg-secondary">
+                    <i className="bi bi-plus-circle-fill text-lg text-foreground"></i> Add Special Leave
                 </Button>
             </DialogTrigger>
 
