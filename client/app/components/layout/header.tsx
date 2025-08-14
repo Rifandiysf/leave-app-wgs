@@ -11,7 +11,7 @@ import SettingModal from '../Modal/Setting'
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [user, setUser] = useState({ fullname: 'Guest', isAdmin: false });
+    const [user, setUser] = useState({ fullname: 'Guest', isAdmin: false, role: '' });
     const [isLoading, setIsLoading] = useState(true);
 
     const pathname = usePathname()
@@ -35,7 +35,8 @@ export default function Header() {
                     const userData = result.user_data;
                     setUser({
                         fullname: userData.fullname,
-                        isAdmin: userData.role === 'admin' || userData.role === 'super_admin'
+                        isAdmin: userData.role === 'admin' || userData.role === 'super_admin',
+                        role: userData.role
                     });
                 } else {
                     setUser({ fullname: 'Guest', isAdmin: false });
@@ -116,7 +117,7 @@ export default function Header() {
                                 </Link>
                             )}
 
-                            <SettingModal />
+                            <SettingModal role={user.role}/>
 
                             <Modal
                                 mode="confirm"
