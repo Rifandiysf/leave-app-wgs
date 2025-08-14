@@ -99,7 +99,7 @@ export function Modal({
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
                 </DialogHeader>
-                <p>{description}</p>
+                <div>{description}</div>
                 <DialogFooter>
                     <DialogClose asChild>
                         <Button variant="ghost">Cancel</Button>
@@ -122,7 +122,7 @@ export function Modal({
                 <DialogHeader>
                     <DialogTitle className="text-foreground">{title}</DialogTitle>
                 </DialogHeader>
-                <p className="text-muted-foreground">{description}</p>
+                <div className="text-muted-foreground">{description}</div>
                 <div className="grid gap-3">
                     <Label htmlFor="reason-reject">Reason</Label>
                     <Input
