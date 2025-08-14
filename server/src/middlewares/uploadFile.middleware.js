@@ -24,7 +24,14 @@ const upload = multer({
 const uploadSingle = upload.single('file')
 
 export const uploadFile = async (req, res, next) => {
-    uploadSingle(req, res, function (err) {
+    try {
+        if (!req.file) {
+            const error = new Error("File not found")
+            error.statusCode = 404
+            throw error;
+        }
+        
+        uploadSingle(req, res, function (err) {
         if (err) {
             console.log(err);
             next(err)
@@ -33,7 +40,8 @@ export const uploadFile = async (req, res, next) => {
         console.log("Upload finished: ", req.file.originalname);
         next()
     })
-
-
+    } catch (error) {
+        next(error)
+    }
 }
 
