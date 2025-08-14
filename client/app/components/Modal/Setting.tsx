@@ -9,19 +9,32 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/ta
 import { useDropzone } from 'react-dropzone'
 import { useCallback, useEffect, useState } from 'react'
 import axiosInstance from '@/lib/api/axiosInstance';
+import { cn } from '@/lib/utils';
 
 type SettingProps = {
     role: string
+    className?: string
 }
 
-const SettingModal = ({ role }: SettingProps) => {
+const SettingModal = ({ role, className }: SettingProps) => {
     const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light');
     const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
     const [isLoading, setIsLoading] = useState(false);
     const [uploadSuccess, setUploadSuccess] = useState(false);
     const [uploadError, setUploadError] = useState(false);
+
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+    const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+    useEffect(() => {
+        if (!isDialogOpen) {
+            setUploadedFileName(null)
+            setUploadSuccess(false)
+            setUploadError(false)
+        }
+    },[isDialogOpen])
 
     useEffect(() => {
         const savedTheme = localStorage.getItem("theme") as 'light' | 'dark' | 'system' | null;
@@ -91,9 +104,9 @@ const SettingModal = ({ role }: SettingProps) => {
 
     return (
         <>
-            <Dialog>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                    <Button variant="ghost" size="default" className='flex items-center cursor-pointer transition-colors'>
+                    <Button variant="ghost" size="default" className={cn('flex items-center cursor-pointer transition-colors', className)}>
                         <i className="bi bi-gear-fill text-xl" />
                         <span className="text-sm font-medium">Settings</span>
                     </Button>
