@@ -106,7 +106,7 @@ const MandatoryPage = () => {
         )
     }
 
-    const isWithin7Days = (startDate: string) => {
+    const isWithin6Days = (startDate: string) => {
         const today = new Date()
         const start = new Date(startDate)
         today.setHours(0, 0, 0, 0);
@@ -114,7 +114,7 @@ const MandatoryPage = () => {
 
         const diffTime = start.getTime() - today.getTime()
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-        return diffDays <= 7 && diffDays >= 0;
+        return diffDays <= 6 && diffDays >= 0;
     }
 
     const isLeavePassed = (endDateStr: string) => {
@@ -248,7 +248,7 @@ const MandatoryPage = () => {
                                     <Switch
                                         checked={data.taken}
                                         onCheckedChange={(checked) => handleToggleChange(checked, data)}
-                                        disabled={isWithin7Days(data.start_date) || leaveHasPassed}
+                                        disabled={isWithin6Days(data.start_date) || leaveHasPassed}
                                     />
                                 </div>
                             </div>
