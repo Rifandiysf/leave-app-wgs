@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import 'bootstrap-icons/font/bootstrap-icons.css';
+// Removed 'bootstrap-icons/font/bootstrap-icons.css' import as it's better handled by a global stylesheet or CDN link in your main HTML file.
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import axiosInstance from "@/lib/api/axiosInstance";
+// Removed the dependency on a custom axiosInstance to make the component more self-contained. Standard fetch will be used instead.
 
 type dataLeaveType = {
     nik: string;
@@ -22,6 +22,7 @@ type dataLeaveType = {
 type ApiLeaveType = {
     id_leave: string;
     name: string;
+    nik: string;
     leave_type: string;
     start_date: string;
     end_date: string;
@@ -89,13 +90,33 @@ const DashboardPage = () => {
 
     const fetchLeaveData = useCallback(async () => {
         try {
-            const requestsResponse = await axiosInstance.get('/leaves');
-            if (requestsResponse.data && Array.isArray(requestsResponse.data.data)) {
-                setLeaveRequests(requestsResponse.data.data);
+            // Replaced axios with standard fetch for consistency and to remove external dependencies.
+            const requestsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves?limit=1000`, {
+                method: 'GET',
+                credentials: 'include',
+            });
+            const requestsJson = await requestsResponse.json();
+            // Added more robust data parsing to handle different API response structures.
+            const leaveRequestData = requestsJson?.data?.data || requestsJson?.data || [];
+            if (Array.isArray(leaveRequestData)) {
+                setLeaveRequests(leaveRequestData);
+            } else {
+                 console.error("Leave requests data is not an array:", leaveRequestData);
+                 setLeaveRequests([]);
             }
-            const historyResponse = await axiosInstance.get('/leaves/logs');
-            if (historyResponse.data && Array.isArray(historyResponse.data.data)) {
-                setLeaveHistory(historyResponse.data.data);
+
+            const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/logs?limit=1000`, {
+                method: 'GET',
+                credentials: 'include',
+            });
+            const historyJson = await historyResponse.json();
+            // Added more robust data parsing for history as well.
+            const leaveHistoryData = historyJson?.data?.data || historyJson?.data || [];
+            if (Array.isArray(leaveHistoryData)) {
+                setLeaveHistory(leaveHistoryData);
+            } else {
+                console.error("Leave history data is not an array:", leaveHistoryData);
+                setLeaveHistory([]);
             }
         } catch (error) {
             console.error("Failed to fetch leave data:", error);
@@ -122,85 +143,105 @@ const DashboardPage = () => {
     const availableYears = useMemo(() => {
         const allLeaveData = [...leaveRequests, ...leaveHistory];
         if (!allLeaveData.length) return [new Date().getFullYear()];
+         console.log("DATA SEMUA KARYAWAN:", dataLeave);
+        console.log("DATA SEMUA CUTI (requests & history):", allLeaveData);
 
         const years = new Set(allLeaveData.map(leave => new Date(leave.start_date).getFullYear()).filter(year => !isNaN(year)));
         const sortedYears = Array.from(years).sort((a, b) => b - a);
 
         return sortedYears.length > 0 ? sortedYears : [new Date().getFullYear()];
-    }, [leaveRequests, leaveHistory]);
+    }, [leaveRequests, leaveHistory, dataLeave]);
 
 
-    const calculateStats = useCallback((yearForChart: number) => {
-        if (!dataLeave.length) return {};
+   const calculateStats = useCallback((yearForChart: number) => {
+    if (!dataLeave.length) return {};
 
-        const activeUsers = dataLeave.filter(user => user.status?.toLowerCase() === 'active');
-        const totalUsers = dataLeave.length;
-        const activeCount = activeUsers.length;
-        const inactiveCount = totalUsers - activeCount;
+    const activeUsers = dataLeave.filter(user => user.status?.toLowerCase() === 'active');
+    const totalUsers = dataLeave.length;
+    const activeCount = activeUsers.length;
+    const inactiveCount = totalUsers - activeCount;
 
-        const allLeaveData = [...leaveRequests, ...leaveHistory];
-        const currentYearForCards = new Date().getFullYear();
+    const allLeaveData = [...leaveRequests, ...leaveHistory];
+    const currentYearForCards = new Date().getFullYear();
 
-        const approvedLeaves = allLeaveData.filter(leave => {
-            const isApproved = leave.status?.toLowerCase() === 'approved' || leave.status?.toLowerCase() === 'taken';
-            return isApproved;
-        });
+    const approvedLeaves = allLeaveData.filter(leave => {
+        const isApproved = leave.status?.toLowerCase() === 'approved' || leave.status?.toLowerCase() === 'taken';
+        return isApproved;
+    });
+      // DEBUG: Cek apakah ada cuti yang berhasil difilter sebagai 'approved'
+    console.log("DATA CUTI APPROVED:", approvedLeaves);
 
-        const currentYearLeaves = approvedLeaves.filter(leave => new Date(leave.start_date).getFullYear() === currentYearForCards);
-        const totalThisYearLeave = currentYearLeaves.reduce((sum, leave) => sum + (leave.total_days || 0), 0);
+    const currentYearLeaves = approvedLeaves.filter(leave => new Date(leave.start_date).getFullYear() === currentYearForCards);
+    const totalThisYearLeave = currentYearLeaves.reduce((sum, leave) => sum + (leave.total_days || 0), 0);
 
-        const lastYearLeaves = approvedLeaves.filter(leave => new Date(leave.start_date).getFullYear() === currentYearForCards - 1);
-        const totalLastYearLeave = lastYearLeaves.reduce((sum, leave) => sum + (leave.total_days || 0), 0);
+    const lastYearLeaves = approvedLeaves.filter(leave => new Date(leave.start_date).getFullYear() === currentYearForCards - 1);
+    const totalLastYearLeave = lastYearLeaves.reduce((sum, leave) => sum + (leave.total_days || 0), 0);
 
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-        const weeklyLeaveUsers = approvedLeaves.filter(leave => {
-            const leaveDate = new Date(leave.start_date);
-            return leaveDate >= oneWeekAgo && leaveDate <= new Date();
-        }).length;
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const weeklyLeaveUsers = approvedLeaves.filter(leave => {
+        const leaveDate = new Date(leave.start_date);
+        return leaveDate >= oneWeekAgo && leaveDate <= new Date();
+    }).length;
 
-        const pendingLeaves = leaveRequests.filter(leave => leave.status?.toLowerCase() === 'pending');
-        const pendingLeaveCount = pendingLeaves.length;
+    const pendingLeaves = leaveRequests.filter(leave => leave.status?.toLowerCase() === 'pending');
+    const pendingLeaveCount = pendingLeaves.length;
 
-        const userLeaveStats = dataLeave.map(user => {
-            const userApprovedLeaves = approvedLeaves.filter(leave =>
-                leave.name?.trim().toLowerCase() === user.name?.trim().toLowerCase()
-            );
+    const DEFAULT_YEARLY_LEAVE = 12; // jatah cuti per tahun
 
-            const totalLeaveTaken = userApprovedLeaves.reduce((sum, leave) => sum + (leave.total_days || 0), 0);
+    const userLeaveStats = dataLeave.map(user => {
+    // 1. Menghitung Masa Kerja (dalam tahun)
+    const joinYear = new Date(user.join_date).getFullYear();
+    const currentYear = new Date().getFullYear();
+    const yearsWorked = (currentYear - joinYear) + 1; // Termasuk tahun ini
+      console.log(`--- Menghitung untuk: ${user.name} (NIK: ${user.nik}) ---`);
 
-            let averageLeave = 0;
-            // Rata-rata adalah total hari cuti dibagi jumlah pengajuan cuti
-            if (userApprovedLeaves.length > 0) {
-                averageLeave = totalLeaveTaken / userApprovedLeaves.length;
-            }
-
-            return {
-                ...user,
-                balance: user.balance || { total_amount: 0, current_amount: 0, carried_amount: 0 },
-                average_leave: parseFloat(averageLeave.toFixed(1))
-            };
-        });
-
-        const topRemainingLeaveUsers = [...userLeaveStats].sort((a, b) => b.balance.total_amount - a.balance.total_amount).slice(0, 5);
-        const bottomRemainingLeaveUsers = [...userLeaveStats].sort((a, b) => a.balance.total_amount - b.balance.total_amount).slice(0, 5);
-
-        const monthlyChartLeaves = approvedLeaves.filter(leave => new Date(leave.start_date).getFullYear() === yearForChart);
-
-        const monthlyLeaveData: { month: string; leave: number; }[] = [];
-        for (let month = 0; month < 12; month++) {
-            const monthName = new Date(yearForChart, month).toLocaleDateString('en', { month: 'short' });
-            const monthLeaves = monthlyChartLeaves.filter(leave => new Date(leave.start_date).getMonth() === month);
-            const monthTotal = monthLeaves.reduce((sum, leave) => sum + (leave.total_days || 0), 0);
-            monthlyLeaveData.push({ month: monthName, leave: monthTotal });
+    // 2. Menghitung Total Cuti yang Dipakai (Numerator)
+        const userApprovedLeaves = approvedLeaves.filter(leave =>
+        leave.nik === user.nik
+    );
+      
+        // DEBUG: Ini adalah bagian paling penting. Apakah cuti user ditemukan?
+        if(userApprovedLeaves.length === 0) {
+            console.warn(`Peringatan: Tidak ada cuti 'approved' yang ditemukan untuk ${user.name}. Pencocokan nama mungkin gagal.`);
+        } else {
+             console.log(`Berhasil menemukan ${userApprovedLeaves.length} data cuti untuk ${user.name}`, userApprovedLeaves);
         }
+    const totalLeaveTaken = userApprovedLeaves.reduce((sum, leave) => sum + (leave.total_days || 0), 0);
+   console.log(`Total Cuti Diambil: ${totalLeaveTaken}`);
+    // 3. Menghitung Total Jatah Cuti Sejak Bergabung (Denominator)
+    const totalLeaveQuota = yearsWorked * DEFAULT_YEARLY_LEAVE;
+
+    // 4. Kalkulasi Akhir (Total Dipakai / Total Jatah)
+    const averageLeave = totalLeaveQuota > 0 ? totalLeaveTaken / totalLeaveQuota : 0;
 
         return {
-            totalUsers, activeCount, inactiveCount, totalThisYearLeave, totalLastYearLeave,
-            pendingLeaveCount, pendingLeaves, topRemainingLeaveUsers, bottomRemainingLeaveUsers,
-            monthlyLeaveData, weeklyLeaveUsers,
+            ...user,
+            balance: user.balance || { total_amount: 0, current_amount: 0, carried_amount: 0 },
+            average_leave: parseFloat(averageLeave.toFixed(2)) 
         };
-    }, [dataLeave, leaveRequests, leaveHistory]);
+    });
+
+    const topRemainingLeaveUsers = [...userLeaveStats].sort((a, b) => b.balance.total_amount - a.balance.total_amount).slice(0, 5);
+    const bottomRemainingLeaveUsers = [...userLeaveStats].sort((a, b) => a.balance.total_amount - b.balance.total_amount).slice(0, 5);
+
+    const monthlyChartLeaves = approvedLeaves.filter(leave => new Date(leave.start_date).getFullYear() === yearForChart);
+
+    const monthlyLeaveData: { month: string; leave: number; }[] = [];
+    for (let month = 0; month < 12; month++) {
+        const monthName = new Date(yearForChart, month).toLocaleDateString('en', { month: 'short' });
+        const monthLeaves = monthlyChartLeaves.filter(leave => new Date(leave.start_date).getMonth() === month);
+        const monthTotal = monthLeaves.reduce((sum, leave) => sum + (leave.total_days || 0), 0);
+        monthlyLeaveData.push({ month: monthName, leave: monthTotal });
+    }
+
+    return {
+        totalUsers, activeCount, inactiveCount, totalThisYearLeave, totalLastYearLeave,
+        pendingLeaveCount, pendingLeaves, topRemainingLeaveUsers, bottomRemainingLeaveUsers,
+        monthlyLeaveData, weeklyLeaveUsers,
+    };
+}, [dataLeave, leaveRequests, leaveHistory]);
+
 
 
     useEffect(() => {
