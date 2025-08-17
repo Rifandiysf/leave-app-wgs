@@ -1,4 +1,5 @@
 import { v4 as uuid } from 'uuid'
+import { Prisma } from '../../generated/prisma/client.js';
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 export const processData = async (data, number, tx) => {
@@ -33,14 +34,10 @@ export const processData = async (data, number, tx) => {
                     break;
             }
 
-
-
             console.log(`LINES ${count}: `, item, '\n');
             console.log('TOTAL CHUNK ', count, '\n');
             count++;
         }
-
-        console.log(dataLeave);
 
         if (dataUser.length > 0) {
             await tx.tb_users.createMany({
@@ -69,6 +66,26 @@ export const processData = async (data, number, tx) => {
         console.log('TOTAL DATA RECEIVED: ', number);
     } catch (error) {
         console.log(error)
+        error.message = 'Theres conflict while inserting data into database';
+        let detail = ''
+        error.statusCode = 400;
+
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            switch (error.code) {
+                case "P2002":
+                    detail = "Theres duplicate data in database."
+                    break;
+                case "P2022": 
+                    detail = "csv file has wrong column name. Please check again."
+                    break;
+                default :
+                    break;
+            }
+        }
+        error.cause = {
+            lines_between: `${number - 9}-${number}`,
+            reason: detail
+        }
         throw error
     }
 }
@@ -80,7 +97,7 @@ const modifyLeaveData = (data) => {
 
     const result = {
         id_leave: uuid(),
-        title: data.title,
+        title: data.reason,
         leave_type: data.leave_type,
         start_date: startDate,
         end_date: endDate,

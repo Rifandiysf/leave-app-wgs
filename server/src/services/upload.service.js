@@ -7,7 +7,7 @@ import { processData } from "../utils/inject.utils.js";
 export const importFileServices = async (path) => {
 
     //config
-    const CHUNK_BASE = 100
+    const CHUNK_BASE = 10
 
     let data = []
     let chunkCount = 0
@@ -38,6 +38,21 @@ export const importFileServices = async (path) => {
                     } catch (error) {
                         cb(error)
                     }
+                },
+                async flush(cb) {
+                    try {
+                        console.log("Flushing remaining data...")
+                        if (data.length > 0) {
+
+                            await processData(data, chunkCount, tx)
+
+                            data = []
+                        }
+                        
+                        cb()
+                    } catch (error) {
+                        cb(error)
+                    }
                 }
             })
 
@@ -46,12 +61,6 @@ export const importFileServices = async (path) => {
                     if (err) {
                         reject(err);
                     } else {
-                        if (data.length > 0) {
-                            await processData(data, chunkCount, tx);
-                        }
-
-                        console.log("Finished injecting data into database!");
-                        console.log('Total data received: ', chunkCount);
                         resolve();
                     }
                 })
