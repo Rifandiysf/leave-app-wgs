@@ -285,7 +285,6 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
                 NOT: { status: 'pending' }
 
             },
-            take: limit,
             orderBy: { created_at: 'desc' },
             include: {
                 tb_users: {
@@ -372,6 +371,7 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
         }
     });
 
+
     const totalPages = Math.ceil(total / limit);
 
     const leaves = await prisma.tb_leave.findMany({
@@ -379,8 +379,6 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
             NOT: { status: 'pending' }
         },
         orderBy: { created_at: 'desc' },
-        skip: offset,
-        take: limit,
         include: {
             tb_users: {
                 select: { fullname: true }
