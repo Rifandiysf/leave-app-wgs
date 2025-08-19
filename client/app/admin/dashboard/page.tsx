@@ -1,8 +1,12 @@
 'use client'
 
 import { useState, useEffect, useCallback } from "react";
+// Tambahkan Legend ke dalam import dari recharts
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
+// --- Type Definitions (Disesuaikan dengan Semua API Response) ---
+
+// Tipe untuk Leaderboard, disesuaikan kembali dengan API (kunci Bhs. Indonesia)
 type LeaderboardUserType = {
     nik: string;
     name: string;
@@ -70,8 +74,17 @@ const DashboardPage = () => {
                 bottom: leaderboardJson.data?.least_used || []
             });
             
-            if (statsJson.data?.availableYears && statsJson.data.availableYears.length > 0) {
-               setAvailableYears(statsJson.data.availableYears);
+            const yearsFromServer = statsJson.data?.availableYears;
+            if (yearsFromServer && yearsFromServer.length > 0) {
+                const yearSet = new Set([...yearsFromServer, year]);
+                const sortedYears = Array.from(yearSet).sort((a, b) => b - a);
+                setAvailableYears(sortedYears);
+            } else {
+                setAvailableYears(prevYears => {
+                    const yearSet = new Set([...prevYears, year]);
+                    const sortedYears = Array.from(yearSet).sort((a, b) => b - a);
+                    return sortedYears;
+                });
             }
 
         } catch (error) {
@@ -170,8 +183,8 @@ const DashboardPage = () => {
                         Karyawan dengan Cuti Pending ({stats.pendingLeaves} Pending)
                     </h3>
                     <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${stats.pendingLeaveList.length > 9 ? 'max-h-[400px] overflow-y-auto pr-2' : ''}`}>
-                        {stats.pendingLeaveList.map((leave: PendingLeaveType) => (
-                            <div key={leave.id_leave} className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                        {stats.pendingLeaveList.map((leave: PendingLeaveType, index: number) => (
+                            <div key={`${leave.id_leave}-${index}`} className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
                                 <div className="flex items-center justify-between mb-2">
                                     <h4 className="font-medium text-gray-800">{leave.name}</h4>
                                     <span className="px-2 py-1 bg-yellow-200 text-yellow-800 rounded-full text-xs font-medium">Pending</span>
@@ -215,7 +228,7 @@ const DashboardPage = () => {
                                 <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
                                 <Legend />
                                 <Line type="monotone" dataKey="mandatory_leave" name="Mandatory Leave" stroke="var(--chart-1)" strokeWidth={2} activeDot={{ r: 6 }} />
-                                <Line type="monotone" dataKey="special_leave" name="Spesial Leave" stroke="var(--chart-2)" strokeWidth={2} activeDot={{ r: 6 }} />
+                                <Line type="monotone" dataKey="special_leave" name="Special Leave" stroke="var(--chart-2)" strokeWidth={2} activeDot={{ r: 6 }} />
                                 <Line type="monotone" dataKey="personal_leave" name="Personal Leave" stroke="var(--chart-3)" strokeWidth={2} activeDot={{ r: 6 }} />
                             </LineChart>
                         </ResponsiveContainer>
@@ -231,7 +244,7 @@ const DashboardPage = () => {
                     </h3>
                     <div className="space-y-3">
                         {leaderboard.top.map((user: LeaderboardUserType, index: number) => (
-                            <div key={user.nik} className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
+                             <div key={`${user.nik}-${index}`} className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
                                 <div className="flex items-center gap-3">
                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${index === 0 ? 'bg-green-500' : index === 1 ? 'bg-green-400' : 'bg-green-300'}`}>
                                         {index + 1}
@@ -246,7 +259,7 @@ const DashboardPage = () => {
                                     <p className="text-xs text-gray-500">
                                         Tahun ini: {user.tahun_ini || 0} | Tahun lalu: {user.tahun_lalu || 0}
                                     </p>
-                                    <p className="text-xs text-gray-500 mt-1">Rata rata Cuti: <b>{user.rerata_cuti}</b></p>
+                                    <p className="text-xs text-gray-500 mt-1">Rerata Cuti: <b>{user.rerata_cuti}</b></p>
                                 </div>
                             </div>
                         ))}
@@ -260,7 +273,7 @@ const DashboardPage = () => {
                     </h3>
                     <div className="space-y-3">
                         {leaderboard.bottom.map((user: LeaderboardUserType, index: number) => (
-                            <div key={user.nik} className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-100">
+                           <div key={`${user.nik}-${index}`} className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-100">
                                 <div className="flex items-center gap-3">
                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${index === 0 ? 'bg-red-500' : index === 1 ? 'bg-red-400' : 'bg-red-300'}`}>
                                         {index + 1}
@@ -275,7 +288,7 @@ const DashboardPage = () => {
                                     <p className="text-xs text-gray-500">
                                         Tahun ini: {user.tahun_ini || 0} | Tahun lalu: {user.tahun_lalu || 0}
                                     </p>
-                                    <p className="text-xs text-gray-500 mt-1">Rata rata Cuti: <b>{user.rerata_cuti}</b></p>
+                                    <p className="text-xs text-gray-500 mt-1">Rerata Cuti: <b>{user.rerata_cuti}</b></p>
                                 </div>
                             </div>
                         ))}
