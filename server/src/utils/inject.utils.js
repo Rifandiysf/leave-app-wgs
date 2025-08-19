@@ -3,7 +3,7 @@ import { Prisma } from '../../generated/prisma/client.js';
 import { balanceSchema, leaveLogSchema, leaveSchema, userSchema } from '../validators/inject.validator.js';
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-export const processData = async (data, number, tx) => {
+export const processData = async (data, number, tx, CHUNK_BASE) => {
     let count = 0;
     let dataLeave = []
     let dataLog = []
@@ -33,10 +33,14 @@ export const processData = async (data, number, tx) => {
                     const userData = modifyUserData(item)
                     dataUser.push(userData)
                     break;
+                
+                default:
+                    const error = new Error("Invalid target table value");
+                    error.statusCode = 400;
+                    throw error;
             }
 
             console.log(`LINES ${count}: `, item, '\n');
-            console.log('TOTAL CHUNK ', count, '\n');
             count++;
         }
 
@@ -67,8 +71,11 @@ export const processData = async (data, number, tx) => {
         console.log('TOTAL DATA RECEIVED: ', number);
     } catch (error) {
         console.log(error)
-        let detail = ''
         error.statusCode = 400;
+
+        let detail = '';
+        let startLine = (number - CHUNK_BASE) < 0 ? 0 : number - CHUNK_BASE;
+        let endLine = number + 1;
 
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
             switch (error.code) {
@@ -83,7 +90,7 @@ export const processData = async (data, number, tx) => {
             }
         }
         error.cause = {
-            lines_between: `${number - 9}-${number}`,
+            lines_between: `${startLine}-${endLine}`,
             reason: detail
         }
         throw error

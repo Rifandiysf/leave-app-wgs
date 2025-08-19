@@ -28,7 +28,7 @@ export const importFileServices = async (path) => {
                         data.push(chunk)
                         if (data.length === CHUNK_BASE) {
 
-                            await processData(data, chunkCount, tx)
+                            await processData(data, chunkCount, tx, CHUNK_BASE)
 
                             data = []
                         }
@@ -44,7 +44,7 @@ export const importFileServices = async (path) => {
                         console.log("Flushing remaining data...")
                         if (data.length > 0) {
 
-                            await processData(data, chunkCount, tx)
+                            await processData(data, chunkCount, tx, CHUNK_BASE)
 
                             data = []
                         }
