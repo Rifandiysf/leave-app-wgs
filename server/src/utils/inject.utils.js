@@ -1,5 +1,6 @@
 import { v4 as uuid } from 'uuid'
 import { Prisma } from '../../generated/prisma/client.js';
+import { balanceSchema, leaveLogSchema, leaveSchema, userSchema } from '../validators/inject.validator.js';
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 export const processData = async (data, number, tx) => {
@@ -66,7 +67,6 @@ export const processData = async (data, number, tx) => {
         console.log('TOTAL DATA RECEIVED: ', number);
     } catch (error) {
         console.log(error)
-        error.message = 'Theres conflict while inserting data into database';
         let detail = ''
         error.statusCode = 400;
 
@@ -108,6 +108,8 @@ const modifyLeaveData = (data) => {
         NIK: data.NIK
     }
 
+    leaveSchema.parseAsync(result);
+
     return result;
 }
 
@@ -120,8 +122,9 @@ const createLeaveLogData = (data, changed_by_nik) => {
         changed_by_nik: changed_by_nik,
         changed_at: new Date(),
         balances_used: [],
-
     }
+
+    leaveLogSchema.parseAsync(result)
 
     return result
 }
@@ -135,6 +138,8 @@ const modifyBalanceData = (data) => {
         expired_date: expired,
         NIK: data.NIK
     }
+
+    balanceSchema.parseAsync(result);
 
     return result
 }
@@ -150,6 +155,8 @@ const modifyUserData = (data) => {
         status_active: data.status_active,
         join_date: new Date(data.join_date)
     }
+
+    userSchema.parseAsync(result)
 
     return result;
 }
