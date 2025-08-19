@@ -99,6 +99,10 @@
                                         <i className="bi bi-window-plus text-xl w-6 text-center" />
                                         <span className="ml-3">Amount Leave</span>
                                     </Link>
+                                    <Link href="/admin/`add-amount-history" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/add-amount-hisrory')}`}>
+                                        <i className="bi bi-window-plus text-xl w-6 text-center" />
+                                        <span className="ml-3">Add Amount History</span>
+                                    </Link>
                                     <Link href="/admin/information" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/information')}`}>
                                         <i className="bi bi-info-circle text-xl w-6 text-center" />
                                         <span className="ml-3">Information</span>
@@ -131,6 +135,10 @@
                                     <span className="text-[10px] leading-tight mt-1">Mandatory</span>
                                 </Link>
                                 <Link href="/admin/amount-leave" className={`flex flex-col items-center text-center h-full pt-2 px-3 min-w-[85px] ${isBottomActive('/admin/amount-leave')}`}>
+                                    <i className="bi bi-window-plus text-xl" />
+                                    <span className="text-[10px] leading-tight mt-1">Amount Leave</span>
+                                </Link>
+                                <Link href="/admin/add-amount-history" className={`flex flex-col items-center text-center h-full pt-2 px-3 min-w-[85px] ${isBottomActive('/admin/add-amount-history')}`}>
                                     <i className="bi bi-window-plus text-xl" />
                                     <span className="text-[10px] leading-tight mt-1">Amount Leave</span>
                                 </Link>
@@ -168,6 +176,10 @@
                                         <i className="bi bi-archive-fill text-xl w-6 text-center" />
                                         <span className="ml-3">Mandatory</span>
                                     </Link>
+                                    <Link href="/add-amount-history" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/add-amount-history')}`}>
+                                        <i className="bi bi-archive-fill text-xl w-6 text-center" />
+                                        <span className="ml-3">Add Amount History</span>
+                                    </Link>
                                     <Link href="/information" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/information')}`}>
                                         <i className="bi bi-info-circle text-xl w-6 text-center" />
                                         <span className="ml-3">Information</span>
@@ -187,6 +199,10 @@
                             <Link href="/mandatory" className={`flex flex-col items-center text-xs ${isBottomActive('/mandatory')}`}>
                                 <i className={`bi bi-archive-fill text-xl`} />
                                 <span>Mandatory</span>
+                            </Link>
+                            <Link href="/add-amount-history" className={`flex flex-col items-center text-xs ${isBottomActive('/add-amount-history')}`}>
+                                <i className={`bi bi-archive-fill text-xl`} />
+                                <span>Add Amount History</span>
                             </Link>
                             <Link href="/information" className={`flex flex-col items-center text-xs ${isBottomActive('/information')}`}>
                                 <i className={`bi bi-info-circle text-xl`} />

@@ -351,7 +351,7 @@ export function ApplyLeave() {
                                 ) : 'Confirm'}
                             </Button>
                         </DialogFooter>
-                    </form>
+                    </form> 
                 </DialogContent>
 
                 {/* Confirmation Modal */}
