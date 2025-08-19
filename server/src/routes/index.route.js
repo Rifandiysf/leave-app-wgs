@@ -7,6 +7,7 @@ import userRoutes from './user.route.js';
 import { validateRole } from '../middlewares/validateRole.middleware.js';
 import settingRoutes from './setting.route.js';
 import uploadRoutes from './upload.route.js';
+import dashboardRoutes from './dashboard.route.js';
 
 const router = express.Router();
 
@@ -15,5 +16,6 @@ router.use('/users', isAuthenticated, userRoutes);
 router.use('/leaves', isAuthenticated, validateRole('super_admin', 'admin'), leaveRoutes);
 router.use('/setting', isAuthenticated, settingRoutes)
 router.use('/uploads', isAuthenticated, validateRole('super_admin'), uploadRoutes)
+router.use('/dashboard', isAuthenticated, dashboardRoutes);
 
 export default router;
