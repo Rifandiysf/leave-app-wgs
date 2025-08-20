@@ -92,14 +92,15 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
             })
 
             const result = await res.json()
+            console.table(res)
 
             if (!res.ok) {
-                setGeneralError("Failed to add data. Please try again.");
+                setGeneralError(result.message || "Failed to add data. Please try again.");
+            } else {
+                onFormSubmit()
+                setGeneralSuccess(result.message || "Mandatory leave added successfully!");
+                setIsDialogOpen(false);
             }
-
-            onFormSubmit()
-            setGeneralSuccess(result.message || "Mandatory leave added successfully!");
-            setIsDialogOpen(false);
         } catch (error) {
             console.error("Error adding data:", error);
             setGeneralError("Failed to add data. Check your network or server response.");
