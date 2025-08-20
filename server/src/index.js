@@ -6,13 +6,13 @@ import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import responseTime from 'response-time';
 import morgan from 'morgan'
-import timeout from 'connect-timeout';
 import errorHandler from './middlewares/errorHandler.middleware.js';
 import './jobs/leaveScheduler.js';
 import './jobs/autoMandatoryLeave.js';
+import { timeouthandle } from './middlewares/requestTimeout.middleware.js';
 
 const app = express()
-app.use(timeout('5s'));
+app.use(timeouthandle)
 app.use(morgan('dev'));
 app.use(responseTime());
 app.use(express.json());
@@ -33,6 +33,6 @@ app.use('/api/v1/', routes);
 app.use(errorHandler);
 
 
-app.listen(PORT, HOSTNAME, () => {
-    console.log(`Server running at http://${HOSTNAME}:${PORT}`);
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
 });

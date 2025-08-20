@@ -45,9 +45,9 @@ export const createLeave = async (data) => {
         while (count < duration - 1) {
             tempDate.setUTCDate(tempDate.getUTCDate() + 1);
             const day = tempDate.getUTCDay();
-            if (day !== 0 && day !== 6) {
-                count++;
-            }
+            // if (day !== 0 && day !== 6) {
+            count++;
+            // }
         }
 
         end_date = tempDate;
@@ -84,13 +84,83 @@ export const createLeave = async (data) => {
             finalReason = data.reason || "mandatory leave created";
         }
 
-        const startDate = mandatoryLeave.start_date;
-        const endDate = mandatoryLeave.end_date;
+        const getDatesInRange = (start, end) => {
+            let arr = [];
+            let dt = new Date(start);
+            while (dt <= end) {
+                const day = dt.getDay();
+                if (day !== 0 && day !== 6) {
+                    arr.push(new Date(dt));
+                }
+                dt.setDate(dt.getDate() + 1);
+            }
+            return arr;
+        };
 
-        total_days = calculateMandatoryLeaveDays(
-            createDateFromString(startDate),
-            createDateFromString(endDate)
-        );
+        const startDate = createDateFromString(mandatoryLeave.start_date);
+        const endDate = createDateFromString(mandatoryLeave.end_date);
+        let newMandatoryDates = getDatesInRange(startDate, endDate);
+
+        const existingMandatory = await prisma.tb_leave.findMany({
+            where: {
+                NIK,
+                leave_type: "mandatory_leave",
+                status: "approved"
+            },
+            select: { start_date: true, end_date: true }
+        });
+
+        let existingMandatoryDates = [];
+        for (let m of existingMandatory) {
+            existingMandatoryDates.push(...getDatesInRange(m.start_date, m.end_date));
+        }
+
+        const existingPersonal = await prisma.tb_leave.findMany({
+            where: {
+                NIK,
+                leave_type: "personal_leave",
+                status: "approved"
+            },
+            select: { start_date: true, end_date: true }
+        });
+
+        let existingPersonalDates = [];
+        for (let p of existingPersonal) {
+            existingPersonalDates.push(...getDatesInRange(p.start_date, p.end_date));
+        }
+
+        const uniqueDates = newMandatoryDates.filter(date => {
+            const dateStr = date.toISOString().split("T")[0];
+            const inMandatory = existingMandatoryDates.some(d => d.toISOString().split("T")[0] === dateStr);
+            const inPersonal = existingPersonalDates.some(d => d.toISOString().split("T")[0] === dateStr);
+            return !inMandatory && !inPersonal;
+        });
+
+        const total_days = uniqueDates.length;
+
+        const leaveYear = startDate.getFullYear();
+        const startOfYear = new Date(leaveYear, 0, 1);
+        const endOfYear = new Date(leaveYear, 11, 31, 23, 59, 59, 999);
+
+        const existingLeave = await prisma.tb_leave.findFirst({
+            where: {
+                id_mandatory,
+                NIK,
+                start_date: {
+                    gte: startOfYear,
+                    lte: endOfYear
+                }
+            },
+        });
+
+        if (existingLeave) {
+            return await updateLeave(
+                existingLeave.id_leave,
+                status,
+                finalReason,
+                NIK
+            );
+        }
 
         const createdLeave = await prisma.tb_leave.create({
             data: {
@@ -102,25 +172,18 @@ export const createLeave = async (data) => {
                 NIK,
                 total_days,
                 id_mandatory,
-                status: status 
+                status: 'pending'
             }
         });
 
-
         if (status !== 'pending') {
             try {
-                await prisma.tb_leave.update({
-                    where: { id_leave: createdLeave.id_leave },
-                    data: { status: 'pending' }
-                });
-
                 const updatedLeave = await updateLeave(
                     createdLeave.id_leave,
                     status,
                     finalReason,
                     NIK
                 );
-                
                 return updatedLeave;
             } catch (error) {
                 await prisma.tb_leave.delete({
@@ -423,7 +486,8 @@ export const getAllUsers = async (page, limit, search = '', gender = '', status 
             this_year_leave: current,
             leave_total: last + current,
             role: user.role,
-            status: user.status_active
+            status: user.status_active,
+            join_date: user.join_date
         };
     });
 
@@ -447,6 +511,7 @@ export const getUserByNIK = async (nik) => {
     try {
         const currentDate = new Date();
         const currentDateFirstMonth = new Date(new Date().getFullYear(), 0, 1);
+        const currentDateLastMonth = new Date(new Date().getFullYear(), 11, 31);
 
         const user = await prisma.tb_users.findUnique({
             omit: {
@@ -487,7 +552,6 @@ export const getUserByNIK = async (nik) => {
         const pending_request = await prisma.tb_leave.count({
             where: {
                 created_at: {
-                    gte: currentDateFirstMonth,
                     lte: currentDate
                 },
                 NIK: nik,
@@ -503,9 +567,9 @@ export const getUserByNIK = async (nik) => {
                 total_days: true
             },
             where: {
-                end_date: {
+                start_date: {
                     gte: currentDateFirstMonth,
-                    lte: currentDate,
+                    lte: currentDateLastMonth,
                 },
                 NIK: NIK,
                 status: "approved",
@@ -525,7 +589,7 @@ export const getUserByNIK = async (nik) => {
                 total_amount: currentBalance + lastYearBalance || 0,
                 current_amount: currentBalance,
                 carried_amount: lastYearBalance,
-                days_used: approved_request._sum.total_days || 0,
+                used_days: approved_request._sum.total_days || 0,
                 pending_request: pending_request || 0,
             }
         }
@@ -712,12 +776,16 @@ export const getAllMandatoryLeavesService = async (page = 1, limit = 10, req) =>
     }
 
     const data = rawData.map(item => {
-        const formattedDate = createDateFromString(item.start_date);
-        const tanggalFormatted = formatDateIndonesia(formattedDate);
+        const startDate = createDateFromString(item.start_date);
+
+        const confirmBefore = new Date(startDate);
+        confirmBefore.setDate(confirmBefore.getDate() - 6);
+
+        const tanggalFormatted = formatDateIndonesia(confirmBefore);
         const message = `konfimasi cuti sebelum tanggal ${tanggalFormatted}`;
 
         const status = leaveMap[item.id_mandatory];
-        let taken = false;
+        let taken = true;
 
         if (status === 'approved') {
             taken = true;
@@ -731,3 +799,72 @@ export const getAllMandatoryLeavesService = async (page = 1, limit = 10, req) =>
     const totalPages = Math.ceil(total / limit);
     return { data, total, totalPages, page };
 };
+
+export const getLeaveTrendByNik = async (nik) => {
+    const user = await prisma.tb_users.findUnique({
+        where: { NIK: nik },
+        select: { join_date: true }
+
+    })
+
+    if (!user) {
+        return {
+            message: `User with NIK ${nik} not found`,
+            trend: {}
+
+        }
+    }
+
+    const joinYear = user.join_date.getFullYear()
+    const currentYear = new Date().getFullYear()
+
+
+    const leaves = await prisma.tb_leave.findMany({
+        where: {
+            NIK: nik,
+            status: 'approved',
+            start_date: {
+                gte: user.join_date
+            }
+        },
+        orderBy: {
+            start_date: 'asc'
+
+        }
+    })
+
+    if (leaves.length === 0) {
+        return {
+            message: `There is no leave data for NIK ${nik} since joining in ${joinYear}`,
+            trend: {}
+
+        }
+    }
+
+    const trend = {}
+    for (let year = joinYear; year <= currentYear; year++) {
+        trend[year] = {
+            mandatory_leave: 0,
+            special_leave: 0,
+            personal_leave: 0
+        }
+    }
+
+
+    leaves.forEach((leave) => {
+        const year = leave.start_date.getFullYear()
+        const leaveType = leave.leave_type?.toLowerCase()
+
+        if (!leaveType) {
+            throw new Error(`Unknown leave type ${leaveType}`);
+            return;
+        }
+
+        trend[year][leaveType] += 1
+    })
+
+    return {
+        message: `Successfully get leave data trends for NIK ${nik}`,
+        trend
+    }
+}

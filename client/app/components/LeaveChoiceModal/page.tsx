@@ -12,7 +12,7 @@ export const LeaveChoiceModal = ({ isOpen, onSelectMode }: LeaveChoiceModalProps
 
     return (
         <div className="fixed inset-0 bg-black/40  backdrop-blur-sm flex justify-center items-center z-50">
-            <div className="bg-white p-12 rounded-2xl shadow-lg w-full max-w-4xl mx-4">
+            <div className="bg-background p-12 rounded-2xl shadow-lg w-full max-w-4xl mx-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                     <button
                         onClick={() => onSelectMode('requests')}
@@ -29,7 +29,7 @@ export const LeaveChoiceModal = ({ isOpen, onSelectMode }: LeaveChoiceModalProps
                     >
                         <i className="bi bi-folder2-open text-7xl mb-5"></i>
                         <span className="text-3xl font-semibold">History Leave</span>
-                         <p className="text-lg text-gray-600 mt-2">View all leave history</p>
+                        <p className="text-lg text-gray-600 mt-2">View all leave history</p>
                     </button>
                 </div>
             </div>

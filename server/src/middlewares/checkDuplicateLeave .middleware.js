@@ -12,7 +12,7 @@ export const checkDuplicateLeave = async (req, res, next) => {
         const user = await decodeToken(token);
         const { start_date, end_date, leave_type } = req.body;
 
-        if (leave_type === "mandatory_leave") {
+        if (leave_type !== "personal_leave") {
             return next();
         }
 
@@ -35,7 +35,7 @@ export const checkDuplicateLeave = async (req, res, next) => {
                     },
                 ],
                 status: {
-                    in: ["approved", "pending", "expired"]
+                    in: ["rejected", "approved", "pending", "expired"]
                 },
             },
         });

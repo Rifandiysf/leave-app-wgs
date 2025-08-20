@@ -1,9 +1,15 @@
+import { request } from "http"
+import timeout from 'connect-timeout';
+
 export const timeouthandle = async (req, res, next) => {
-        if (req.timedout && err.timeout === 5000) {
-        const error = new Error("Request time out");
-        error.statusCode = 408;
-        next(error);
+    try {
+        if (req.path.includes('/api/v1/leaves/import')) {
+            return next()
+        } else{
+            return timeout('60s')(req, res, next);
+        }
+    } catch (error) {
+        next(error)
     }
-    
-    next();
+
 }

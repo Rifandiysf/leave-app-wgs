@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 })
 
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/svg+xml']
     if (allowedTypes.includes(file.mimetype)) {
         cb(null, true)
     } else {
@@ -31,4 +31,4 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter })
 
-export const uploadLogo = upload.single('logo')
+export const uploadLogo = upload.single('imageUrl')

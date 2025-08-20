@@ -12,9 +12,11 @@ import {
   updateMandatoryLeaveService,
   getSearchSpecialLeaveService,
   getSearchMandatoryLeaveService,
+  getSpecialLeaveServiceAdmin,
 } from "../services/leave.service.js"
 import { responsePagination } from "../utils/responsePagination.utils.js";
 import { decodeToken } from "../utils/jwt.js";
+
 
 export const updateLeaveById = async (req, res, next) => {
   const { id } = req.params;
@@ -117,6 +119,21 @@ export const getSpecialLeave = async (req, res, next) => {
     const gender = req.user.gender === 'male' ? 'm' : 'f'
 
     const result = await getSpecialLeaveService(gender, page, limit);
+
+    const paginationResponse = responsePagination("All special leave was successfully taken", result, limit);
+
+    res.status(200).json(paginationResponse);
+  } catch (error) {
+    next(error)
+  }
+};
+
+export const getSpecialLeaveAdmin = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const result = await getSpecialLeaveServiceAdmin(page, limit);
 
     const paginationResponse = responsePagination("All special leave was successfully taken", result, limit);
 

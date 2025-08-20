@@ -1,5 +1,5 @@
 import express from "express";
-import { createMandatoryLeave, createSpecialLeave, getAllLeaves, getLeavesByFilter, getMandatoryLeaves, getSearchMandatoryLeave, getSearchSpecialLeave, getSpecialLeave, historyLeave, historyLeaveSearch, updateLeaveById, updateMandatoryLeave, updateSpecialLeave } from '../controllers/leave.controller.js';
+import { createMandatoryLeave, createSpecialLeave, getAllLeaves, getLeavesByFilter, getMandatoryLeaves, getSearchMandatoryLeave, getSearchSpecialLeave, getSpecialLeave, getSpecialLeaveAdmin, historyLeave, historyLeaveSearch, updateLeaveById, updateMandatoryLeave, updateSpecialLeave } from '../controllers/leave.controller.js';
 import { validate } from '../middlewares/validate.js';
 import { validateRole } from '../middlewares/validateRole.middleware.js';
 import updateLeaveRequestSchema from "../validators/updateLeave.validator.js";
@@ -15,7 +15,7 @@ leaveRoutes.get('/search', getLeavesByFilter)
 leaveRoutes.get('/logs', validateRole('super_admin', 'admin'), historyLeave);
 leaveRoutes.get('/logs/search', validateRole('super_admin', 'admin'), historyLeaveSearch);
 
-leaveRoutes.get('/special', getSpecialLeave)
+leaveRoutes.get('/special', getSpecialLeaveAdmin)
 leaveRoutes.get('/special/search', getSearchSpecialLeave)
 leaveRoutes.post('/special', validate(specialLeaveForm), createSpecialLeave)
 leaveRoutes.patch('/special/:id', validate(specialLeaveFormUpdate), updateSpecialLeave)

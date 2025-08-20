@@ -105,8 +105,23 @@ model tb_jwt_token {
 
 model tb_settings {
   id    String @id @default(uuid())
-  logo  String? 
-  color String? 
+  imageUrl  String 
+  light_background String
+  light_foreground String
+  light_card String
+  light_cardForeground String
+  light_primary String
+  light_primaryForeground String
+  light_secondary String
+  light_secondaryForground String
+  dark_background String
+  dark_foreground String
+  dark_card String
+  dark_cardForeground String
+  dark_primary String
+  dark_primaryForeground String
+  dark_secondary String
+  dark_secondaryForground String
 }
 
 enum applicable_gender {

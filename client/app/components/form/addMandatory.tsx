@@ -14,6 +14,7 @@ import {
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
 import { DatePickerField } from "../date-picker/datePicker"
+import { DateRange } from 'react-day-picker';
 
 export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
     const [title, setTitle] = useState("")
@@ -110,8 +111,8 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
     return (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-                <Button variant="default" className="text-black">
-                    <i className="bi bi-plus-circle-fill text-lg text-slate-600"></i> Add Mandatory Leave
+                <Button variant="default" className="text-foreground">
+                    <i className="bi bi-plus-circle-fill text-lg text-foreground"></i> Add Mandatory Leave
                 </Button>
             </DialogTrigger>
 
@@ -150,9 +151,19 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
                             )}
                         </div>
                         <div className="grid gap-3">
-                            <div className="grid grid-cols-2 gap-2">
-                                <DatePickerField label="Start Leave" value={startDate} onChange={(value) => { setStartDate(value) }} className={dateError ? 'border-red-400' : ''}/>
-                                <DatePickerField label="End Leave" value={endDate} onChange={(value) => { setEndDate(value) }} className={dateError ? 'border-red-400' : ''}/>
+                            <div className="grid grid-cols-1 gap-2">
+                                <DatePickerField
+                                    label="Leave Date"
+                                    mode="range"
+                                    disablePastAndWeekends={false}
+                                    value={startDate && endDate ? { from: startDate, to: endDate } : undefined}
+                                    onChange={(range: DateRange | undefined) => {
+                                        setStartDate(range?.from)
+                                        setEndDate(range?.to)
+                                        if (dateError) setDateError("")
+                                    }}
+                                    className={dateError ? 'border-red-400' : ''}
+                                />
                             </div>
                             {dateError && (
                                 <p className="text-sm text-red-600 mt-1">{dateError}</p>
@@ -168,7 +179,7 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
                                     if (descriptionError) setDescriptionError("");
                                 }}
                                 placeholder="Type the information"
-                                className={`border-[1.5px] border-[#0000001f] ${descriptionError ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
+                                className={`border-[1.5px] border-border bg-accent ${descriptionError ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
                             />
                             {descriptionError && (
                                 <p className="text-sm text-red-600 mt-1">{descriptionError}</p>
