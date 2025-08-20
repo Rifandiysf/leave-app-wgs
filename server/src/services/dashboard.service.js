@@ -1,5 +1,6 @@
 import { gte } from "zod/v4";
 import prisma from "../utils/client.js";
+import { role } from "../../generated/prisma/index.js";
 
 export const statisticDashboard = async () => {
     const today = new Date()
@@ -165,19 +166,64 @@ export const leaveLeaderboard = async (order = "desc") => {
             NIK: user.NIK,
             name: user.fullname,
             role: user.role,
-            tahun_ini: currentBalance ? currentBalance.amount : 0,
-            tahun_lalu: lastYearBalance ? lastYearBalance.amount : 0,
-            sisa_cuti: remainingLeave,
-            rerata_cuti: avgFormatted 
+            this_year: currentBalance ? currentBalance.amount : 0,
+            last_year: lastYearBalance ? lastYearBalance.amount : 0,
+            remaining_leave: remainingLeave,
+            average_leave: avgFormatted 
         };
     });
 
     // urutkan berdasarkan sisa cuti
     leaderboard.sort((a, b) => {
         return order === "asc"
-            ? a.sisa_cuti - b.sisa_cuti
-            : b.sisa_cuti - a.sisa_cuti;
+            ? a.remaining_leave - b.remaining_leave
+            : b.remaining_leave - a.remaining_leave;
     });
 
     return leaderboard;
 };
+
+export const pendingLeaves = async () => {
+    const leaves = await prisma.tb_leave.findMany({
+        where : {
+            status: 'pending'
+        },
+        include : {
+            tb_users: {
+                select : {
+                    fullname: true,
+                    NIK : true,
+                    role: true
+                }
+            }
+        },
+        orderBy : {
+            start_date : 'asc'
+        }
+    })
+
+    const formatted = leaves.map(leave => {
+        const startDate = new Date(leave.start_date)
+        const endDate = new Date(leave.end_date)
+
+        const options = {day: "numeric", month: "long", year: "numeric"} 
+        const startStr = startDate.toLocaleDateString("id-ID", options)
+        const endStr = endDate.toLocaleDateString("id-ID", options)
+
+        return {
+            NIK: leave.tb_users.NIK,
+            name: leave.tb_users.fullname,
+            type: leave.leave_type.replace(/_/g, " "),
+            start_date: startStr,
+            end_date: endStr,
+            duration: `${leave.total_days} days`,
+            status: leave.status
+        }
+    })
+
+    const totalPending = new Set(formatted.map(f => f.NIK))
+    return {
+        total_employee: totalPending.size,
+        data: formatted
+    }
+}

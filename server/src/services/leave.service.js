@@ -550,6 +550,12 @@ export const updateMandatoryLeaveService = async (id, data) => {
 };
 
 export const updateLeaveBalance = async (user) => {
+    function formatDateLocal(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
     const today = new Date();
     const joinDate = new Date(user.join_date);
 
@@ -561,6 +567,26 @@ export const updateLeaveBalance = async (user) => {
     const currentYear = today.getFullYear();
 
     if (user.role === 'karyawan_tetap' || user.role === 'admin' || user.role === 'super_admin') {
+        const todayStr = formatDateLocal(today)
+        const joinEffective = new Date(joinDate)
+        if(joinDate.getDate() > 20) {
+            joinEffective.setMonth(joinEffective.getMonth() + 1)
+        }
+        joinEffective.setDate(1)
+
+        const eligibleDate = new Date(joinEffective)
+        eligibleDate.setMonth(eligibleDate.getMonth() + 3)
+        eligibleDate.setDate(1)
+
+        const eligibleStr = formatDateLocal(eligibleDate)
+
+        console.log(`[DEBUG] NIK: ${user.NIK}, join: ${joinDate.toISOString().split("T")[0]}, joinEffective: ${joinEffective.toISOString().split("T")[0]}, eligible: ${eligibleStr}`);
+
+        if(todayStr < eligibleStr) {
+            console.log(`[SKIP] NIK: ${user.NIK} - not yet received leave rights (hari ini: ${todayStr})`);
+            return;
+        }
+
         const alreadyGiven = await prisma.tb_balance.findFirst({
             where: {
                 NIK: user.NIK,
@@ -572,6 +598,30 @@ export const updateLeaveBalance = async (user) => {
         });
 
         if (!alreadyGiven) {
+            const thirdMonth = new Date(joinEffective)
+            thirdMonth.setMonth(thirdMonth.getMonth() + 3)
+
+            const mandatoryLeave = await prisma.tb_leave.findMany({
+                where: {
+                    NIK: user.NIK,
+                    leave_type: 'mandatory_leave',
+                    status: 'approved',
+                    start_date: {
+                        gte: joinEffective,
+                        lte: thirdMonth
+                    }
+                },
+                select: {
+                    total_days: true
+                }
+            })
+            const totalMandatory = mandatoryLeave.reduce((sum, l) => sum + l.total_days, 0)
+
+            console.log(`[DEBUG] NIK: ${user.NIK}, mandatory leaves count: ${mandatoryLeave.length}, total days: ${totalMandatory}`)
+
+            let leaveAmount = 12 - totalMandatory
+            if (leaveAmount < 0) leaveAmount = 0
+
             const receiveDate = new Date();
             receiveDate.setHours(12, 0, 0, 0);
 
@@ -582,7 +632,7 @@ export const updateLeaveBalance = async (user) => {
                 prisma.tb_balance.create({
                     data: {
                         NIK: user.NIK,
-                        amount: 12,
+                        amount: leaveAmount,
                         receive_date: receiveDate,
                         expired_date: expiredDate
                     }
@@ -590,22 +640,20 @@ export const updateLeaveBalance = async (user) => {
                 prisma.tb_balance_adjustment.create({
                     data: {
                         NIK: user.NIK,
-                        adjustment_value: 12,
-                        notes: 'get 12 days of leave',
+                        adjustment_value: leaveAmount,
+                        notes: `get ${leaveAmount} days of leave (deducted ${totalMandatory} mandatory leave)`,
                         created_at: new Date(),
                         actor: 'system'
                     }
                 })
             ]);
 
-            console.log(`[Balance Created] NIK: ${user.NIK}, amount: 12`);
+            console.log(`[Balance Created] NIK: ${user.NIK}, amount: ${leaveAmount}`);
         } else {
-            //console.log(`[SKIP] NIK: ${user.NIK} - Balance for ${currentYear} already exists`);
+            console.log(`[SKIP] NIK: ${user.NIK} - Balance for ${currentYear} already exists`);
         }
 
     } else if (user.role === 'karyawan_kontrak') {
-        //console.log(`[DEBUG] Processing kontrak employee NIK: ${user.NIK}, today: ${today.toISOString()}`);
-        
         // Hitung effective join date
         const joinEffective = new Date(joinDate);
         if (joinDate.getDate() > 20) {
