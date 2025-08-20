@@ -733,7 +733,9 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
                 notes,
                 actor: actor.role,
                 NIK: nik,
-                created_at: new Date()
+                created_at: new Date(),
+                id_balance: balance.id_balance,
+                balance_year: balance.receive_date.getFullYear()
             }
         })
     ]);

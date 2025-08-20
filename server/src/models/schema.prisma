@@ -9,12 +9,13 @@ datasource db {
 }
 
 model tb_balance {
-  id_balance   String   @id @default(uuid()) @db.VarChar(50)
-  amount       Int      @db.SmallInt
-  receive_date DateTime @db.Date
-  expired_date DateTime @db.Date
-  NIK          String   @db.VarChar(16)
-  tb_users     tb_users @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
+  id_balance            String                  @id @default(uuid()) @db.VarChar(50)
+  amount                Int                     @db.SmallInt
+  receive_date          DateTime                @db.Date
+  expired_date          DateTime                @db.Date
+  NIK                   String                  @db.VarChar(16)
+  tb_users              tb_users                @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
+  tb_balance_adjustment tb_balance_adjustment[]
 }
 
 model tb_leave {
@@ -73,13 +74,16 @@ model tb_users {
 }
 
 model tb_balance_adjustment {
-  id_adjustment    String   @id @default(uuid()) @db.VarChar(50)
-  adjustment_value Int      @db.SmallInt
+  id_adjustment    String     @id @default(uuid()) @db.VarChar(50)
+  adjustment_value Int        @db.SmallInt
   notes            String
-  created_at       DateTime @db.Timestamptz(0)
-  actor            String   @db.VarChar(50)
-  NIK              String   @db.VarChar(16)
-  tb_users         tb_users @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
+  created_at       DateTime   @db.Timestamptz(0)
+  actor            String     @db.VarChar(50)
+  NIK              String     @db.VarChar(16)
+  tb_users         tb_users   @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
+  balance_year     Int
+  tb_balance       tb_balance @relation(fields: [id_balance], references: [id_balance], onDelete: NoAction, onUpdate: NoAction, map: "id_balance")
+  id_balance       String
 }
 
 model tb_leave_log {

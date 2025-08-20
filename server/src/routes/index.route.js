@@ -9,6 +9,7 @@ import settingRoutes from './setting.route.js';
 import { getApiEmployee } from '../utils/getApiEmployee.utils.js';
 import uploadRoutes from './upload.route.js';
 import dashboardRoutes from './dashboard.route.js';
+import balanceRoutes from './balance.route.js';
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.use('/leaves', isAuthenticated, validateRole('super_admin', 'admin'), lea
 router.use('/setting', isAuthenticated, settingRoutes)
 router.use('/uploads', isAuthenticated, validateRole('super_admin'), uploadRoutes)
 router.use('/dashboard', isAuthenticated, dashboardRoutes);
+router.use('/balances', isAuthenticated, balanceRoutes)
 
 export default router;

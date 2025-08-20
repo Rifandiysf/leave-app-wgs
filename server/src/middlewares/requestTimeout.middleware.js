@@ -6,7 +6,7 @@ export const timeouthandle = async (req, res, next) => {
         if (req.path.includes('/api/v1/leaves/import')) {
             return next()
         } else{
-            return timeout('60s')(req, res, next);
+            return timeout('6s')(req, res, next);
         }
     } catch (error) {
         next(error)
