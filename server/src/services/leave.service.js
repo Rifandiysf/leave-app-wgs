@@ -83,7 +83,8 @@ export const updateLeave = async (id, status, reason, nik) => {
         const currentYear = new Date().getFullYear();
         const currentDate = new Date()
         const currentDateFirstMonth = new Date(currentYear, 0, 1)
-        const currentYearLastMonth = new Date(currentDate, 11, 31);
+        const currentYearLastMonth = new Date(currentYear, 11, 31, 23, 59, 59);
+        console.log(currentYearLastMonth)
 
         const data = await prisma.tb_leave.findUnique({
             where: {
