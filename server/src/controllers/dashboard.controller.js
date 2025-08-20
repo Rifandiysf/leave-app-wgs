@@ -1,4 +1,4 @@
-import {statisticDashboard, trendDashboard, leaveLeaderboard} from "../services/dashboard.service.js";
+import {statisticDashboard, trendDashboard, leaveLeaderboard, pendingLeaves} from "../services/dashboard.service.js";
 
 export const getStatistics = async (req, res) => {
     try {
@@ -59,5 +59,20 @@ export const getLeaderboard = async (req, res, next) => {
             message: "Failed to fetch leave leaderboard",
             detail: error.message
         });
+    }
+}
+
+export const getPendingLeaves = async (req, res, next) => {
+    try {
+        const leaves = await pendingLeaves();
+        res.status(200).json({
+            message: 'Successfully get pending leave data',
+            leaves
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Failed get pending leave data',
+            detail: error.message
+        })
     }
 }
