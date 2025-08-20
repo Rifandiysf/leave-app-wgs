@@ -99,9 +99,9 @@
                                         <i className="bi bi-window-plus text-xl w-6 text-center" />
                                         <span className="ml-3">Amount Leave</span>
                                     </Link>
-                                    <Link href="/admin/`add-amount-history" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/add-amount-hisrory')}`}>
-                                        <i className="bi bi-window-plus text-xl w-6 text-center" />
-                                        <span className="ml-3">Add Amount History</span>
+                                    <Link href="/admin/`adjust-history" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/addjust-hisrory')}`}>
+                                        <i className="bi bi-journal-bookmark text-xl w-6 text-center" />
+                                        <span className="ml-3">Adjust History</span>
                                     </Link>
                                     <Link href="/admin/information" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/information')}`}>
                                         <i className="bi bi-info-circle text-xl w-6 text-center" />
@@ -111,8 +111,8 @@
                             </nav>
                         </aside>
 
-                     {/* === BOTTOM BAR ADMIN === */}
-                        <nav className="fixed bottom-0 left-0 w-full bg-card border-t z-50 overflow-x-auto lg:hidden">
+                     {/*  BOTTOM BAR ADMIN  */}
+                        <nav className="fixed bottom-0 left-0 w-full bg-white border-t z-50 overflow-x-auto lg:hidden">
                             <div className="flex flex-nowrap items-start px-2">
                                 <Link href="/admin/dashboard" className={`flex flex-col items-center text-center h-full pt-2 px-3 min-w-[85px] ${isBottomActive('/admin/dashboard')}`}>
                                     <i className="bi bi-person-workspace text-xl" />
@@ -138,9 +138,9 @@
                                     <i className="bi bi-window-plus text-xl" />
                                     <span className="text-[10px] leading-tight mt-1">Amount Leave</span>
                                 </Link>
-                                <Link href="/admin/add-amount-history" className={`flex flex-col items-center text-center h-full pt-2 px-3 min-w-[85px] ${isBottomActive('/admin/add-amount-history')}`}>
-                                    <i className="bi bi-window-plus text-xl" />
-                                    <span className="text-[10px] leading-tight mt-1">Amount Leave</span>
+                                <Link href="/admin/adjust-history" className={`flex flex-col items-center text-center h-full pt-2 px-3 min-w-[85px] ${isBottomActive('/admin/addjust-history')}`}>
+                                    <i className="bi bi-journal-bookmark text-xl" />
+                                    <span className="text-[10px] leading-tight mt-1">Adjust History</span>
                                 </Link>
                                 <Link href="/admin/information" className={`flex flex-col items-center text-center h-full pt-2 px-3 min-w-[85px] ${isBottomActive('/admin/information')}`}>
                                     <i className="bi bi-info-circle text-xl" />
@@ -151,7 +151,7 @@
                     </>
                 ) : (
                     <>
-                        {/* Sidebar & Bottom Bar User */}
+                        {/* Sidebar User */}
                         <aside className="w-64 flex-col hidden lg:flex bg-background h-full fixed lg:relative z-50">
                             <div className="bg-background p-7 pb-3">
                                 <div className="flex items-center justify-between">
@@ -176,9 +176,9 @@
                                         <i className="bi bi-archive-fill text-xl w-6 text-center" />
                                         <span className="ml-3">Mandatory</span>
                                     </Link>
-                                    <Link href="/add-amount-history" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/add-amount-history')}`}>
-                                        <i className="bi bi-archive-fill text-xl w-6 text-center" />
-                                        <span className="ml-3">Add Amount History</span>
+                                    <Link href="/adjust-history" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/adjust-history')}`}>
+                                        <i className="bi bi-journal-bookmark text-xl w-6 text-center" />
+                                        <span className="ml-3">Adjust History</span>
                                     </Link>
                                     <Link href="/information" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/information')}`}>
                                         <i className="bi bi-info-circle text-xl w-6 text-center" />
@@ -187,7 +187,10 @@
                                 </div>
                             </nav>
                         </aside>
-                        <nav className="fixed bottom-0 left-0 w-full bg-card border-t z-50 flex justify-around items-center py-2 lg:hidden">
+
+
+                        {/* Bottombar User */}
+                        <nav className="fixed bottom-0 left-0 w-full bg-white border-t z-50 flex justify-around items-center py-2 lg:hidden">
                             <Link href="/" className={`flex flex-col items-center text-xs ${isBottomActive('/')}`}>
                                 <i className={`bi bi-person-workspace text-xl`} />
                                 <span>Dashboard</span>
@@ -200,9 +203,9 @@
                                 <i className={`bi bi-archive-fill text-xl`} />
                                 <span>Mandatory</span>
                             </Link>
-                            <Link href="/add-amount-history" className={`flex flex-col items-center text-xs ${isBottomActive('/add-amount-history')}`}>
-                                <i className={`bi bi-archive-fill text-xl`} />
-                                <span>Add Amount History</span>
+                            <Link href="/adjust-history" className={`flex flex-col items-center text-xs ${isBottomActive('/addjust-history')}`}>
+                                <i className={`bi bi-journal-bookmark text-xl`} />
+                                <span>Adjust History</span>
                             </Link>
                             <Link href="/information" className={`flex flex-col items-center text-xs ${isBottomActive('/information')}`}>
                                 <i className={`bi bi-info-circle text-xl`} />
