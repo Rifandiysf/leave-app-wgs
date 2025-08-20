@@ -40,8 +40,25 @@ export const checkDuplicateLeave = async (req, res, next) => {
             },
         });
 
+        const existingMandatory = await prisma.tb_mandatory_leave.findFirst({
+            where: {
+                OR: [
+                    {
+                        start_date: { lte: start_date },
+                        end_date: { gte: end_date },
+                    },
+                ],
+            }
+        })
+
+        if (existingMandatory) {
+            const error = new Error(`There is mandatory request on ${existingMandatory.start_date.toDateString().slice(3)} until ${existingMandatory.end_date.toDateString().slice(3)}`);
+            error.statusCode = 400;
+            return next(error);
+        }
+
         if (existing) {
-            const error = new Error("You already have a leave request during this period.");
+            const error = new Error(`You already have a leave request on ${existing.start_date.toDateString().slice(3)} until ${existing.end_date.toDateString().slice(3)}`);
             error.statusCode = 400;
             return next(error);
         }
