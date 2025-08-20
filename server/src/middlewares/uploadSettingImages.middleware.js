@@ -31,4 +31,7 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter })
 
-export const uploadLogo = upload.single('imageUrl')
+export const uploadSettingImages = upload.fields([
+    { name: 'light_image', maxCount: 1 },
+    { name: 'dark_image', maxCount: 1 }
+])

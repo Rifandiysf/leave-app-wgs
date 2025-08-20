@@ -27,7 +27,7 @@ model tb_leave {
   reason             String
   status             status              @default(pending)
   created_at         DateTime            @default(now()) @db.Timestamptz(0)
-  NIK                String              @db.VarChar(50)                        
+  NIK                String              @db.VarChar(50)
   id_special         String?             @db.VarChar(50)
   id_mandatory       String?             @db.VarChar(50)
   tb_users           tb_users            @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
@@ -90,7 +90,7 @@ model tb_leave_log {
   changed_at     DateTime @db.Timestamptz(0)
   changed_by_nik String   @db.VarChar(16)
   id_leave       String   @db.VarChar(50)
-  balances_used   Json    @default("[]")
+  balances_used  Json     @default("[]")
   tb_users       tb_users @relation(fields: [changed_by_nik], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
   tb_leave       tb_leave @relation(fields: [id_leave], references: [id_leave], onDelete: NoAction, onUpdate: NoAction, map: "id_leave")
 }
@@ -104,24 +104,25 @@ model tb_jwt_token {
 }
 
 model tb_settings {
-  id    String @id @default(uuid())
-  imageUrl  String 
-  light_background String
-  light_foreground String
-  light_card String
-  light_cardForeground String
-  light_primary String
-  light_primaryForeground String
-  light_secondary String
+  id                       String @id @default(uuid())
+  light_image              String
+  light_background         String
+  light_foreground         String
+  light_card               String
+  light_cardForeground     String
+  light_primary            String
+  light_primaryForeground  String
+  light_secondary          String
   light_secondaryForground String
-  dark_background String
-  dark_foreground String
-  dark_card String
-  dark_cardForeground String
-  dark_primary String
-  dark_primaryForeground String
-  dark_secondary String
-  dark_secondaryForground String
+  dark_image               String
+  dark_background          String
+  dark_foreground          String
+  dark_card                String
+  dark_cardForeground      String
+  dark_primary             String
+  dark_primaryForeground   String
+  dark_secondary           String
+  dark_secondaryForground  String
 }
 
 enum applicable_gender {
