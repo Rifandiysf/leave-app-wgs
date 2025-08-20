@@ -4,7 +4,6 @@ import { formatSettingResponse } from "../utils/formatSettingResponse.utils.js"
 export const createSeeting = async (req, res, next) => {
     try {
         const {
-            imageUrl,
             light_background,
             light_foreground,
             light_card,
@@ -23,11 +22,15 @@ export const createSeeting = async (req, res, next) => {
             dark_secondaryForground
         } = req.body
 
-        const logo = req.file ? req.file.filename : null
-        const image_url = logo ? `${req.protocol}://${req.get('host')}/uploads/${logo}` : null
+        const lightFile = req.files['light_image'] ? req.files['light_image'][0].filename : null
+        const darkFile = req.files['dark_image'] ? req.files['dark_image'][0].filename : null
+
+        const light_image = lightFile ? `${req.protocol}://${req.get('host')}/uploads/${lightFile}` : null
+        const dark_image = darkFile ? `${req.protocol}://${req.get('host')}/uploads/${darkFile}` : null
 
         const data = {
-            imageUrl: image_url,
+            light_image,
+            dark_image,
             light_background,
             light_foreground,
             light_card,
@@ -46,7 +49,6 @@ export const createSeeting = async (req, res, next) => {
             dark_secondaryForground
         }
 
-
         const settings = await serviceCreateSetting(data)
 
         res.status(201).json({
@@ -57,6 +59,8 @@ export const createSeeting = async (req, res, next) => {
         next(error)
     }
 }
+
+
 
 export const getSetting = async (req, res, next) => {
     try {
@@ -75,7 +79,6 @@ export const getSetting = async (req, res, next) => {
 
 export const updateSetting = async (req, res, next) => {
     const {
-        imageUrl,
         light_background,
         light_foreground,
         light_card,
@@ -94,11 +97,15 @@ export const updateSetting = async (req, res, next) => {
         dark_secondaryForground
     } = req.body
 
-    const logo = req.file ? req.file.filename : null
-    const image_url = logo ? `${req.protocol}://${req.get('host')}/uploads/${logo}` : null
+    const lightFile = req.files['light_image'] ? req.files['light_image'][0].filename : null
+    const darkFile = req.files['dark_image'] ? req.files['dark_image'][0].filename : null
+
+    const light_image = lightFile ? `${req.protocol}://${req.get('host')}/uploads/${lightFile}` : null
+    const dark_image = darkFile ? `${req.protocol}://${req.get('host')}/uploads/${darkFile}` : null
 
     const data = {
-        imageUrl: image_url,
+        light_image,
+        dark_image,
         light_background,
         light_foreground,
         light_card,

@@ -6,6 +6,7 @@ import { validate } from '../middlewares/validate.js';
 import userRoutes from './user.route.js';
 import { validateRole } from '../middlewares/validateRole.middleware.js';
 import settingRoutes from './setting.route.js';
+import { getApiEmployee } from '../utils/getApiEmployee.utils.js';
 import uploadRoutes from './upload.route.js';
 import dashboardRoutes from './dashboard.route.js';
 
