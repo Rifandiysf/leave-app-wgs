@@ -1,16 +1,20 @@
 import { getAllBalanceAdjustment, getAllBalanceAdjustmentByNIK } from "../services/balance.service.js"
 import { decodeToken } from "../utils/jwt.js"
+import { createDateFromString } from "../utils/leaves.utils.js"
 import { responsePagination } from "../utils/responsePagination.utils.js"
 
 export const getHistoryBalanceAdjustment = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1
         const limit = parseInt(req.query.limit) || 10
-        const year = parseInt(req.query.year)
+        const startDate = req.query.start ? createDateFromString(req.query.start) : undefined
+        const endDate = req.query.end ? createDateFromString(req.query.end) : undefined
+        const balanceYear = parseInt(req.query.year)
+        const searchValue = req.query.value
 
-        console.log(typeof page);
+        endDate?.setUTCHours(23, 59, 59);
 
-        const logs = await getAllBalanceAdjustment(page, limit, year)
+        const logs = await getAllBalanceAdjustment(page, limit, startDate, endDate, balanceYear, searchValue)
 
         const result = responsePagination("Balance Adjustment logs retrieved successfully", logs, limit)
 
@@ -24,14 +28,19 @@ export const getHistoryBalanceAdjustmenByNIK = async (req, res, next) => {
      try {
         const page = parseInt(req.query.page) || 1
         const limit = parseInt(req.query.limit) || 10
-        const year = parseInt(req.query.year)
-        const user = await decodeToken(req.cookies["Authorization"]);
+        const user = await decodeToken(req.cookies["Authorization"])
+        const startDate = req.query.start ? createDateFromString(req.query.start) :  undefined
+        const endDate = req.query.end ? createDateFromString(req.query.end) : undefined
+        const balanceYear = parseInt(req.query.year)
+        const searchValue = req.query.value
 
-        const logs = await getAllBalanceAdjustmentByNIK(page, limit, user.NIK)
+        endDate?.setUTCHours(23, 59, 59);
+
+        const logs = await getAllBalanceAdjustmentByNIK(page, limit, user.NIK, searchValue, startDate, endDate, balanceYear)
 
         const result = responsePagination("Balance Adjustment logs retrieved successfully", logs, limit)
 
-        res.status(200).json({result})
+        res.status(200).json(result)
     } catch (error) {
         next(error)
     }

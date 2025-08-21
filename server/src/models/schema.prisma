@@ -15,6 +15,7 @@ model tb_balance {
   expired_date          DateTime                @db.Date
   NIK                   String                  @db.VarChar(16)
   tb_users              tb_users                @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
+  created_at            DateTime                @default(now()) @db.Timestamptz(0)
   tb_balance_adjustment tb_balance_adjustment[]
 }
 
@@ -44,6 +45,7 @@ model tb_mandatory_leave {
   description  String
   start_date   DateTime   @default(dbgenerated("(CURRENT_DATE + '14 days'::interval)")) @db.Date
   end_date     DateTime   @default(dbgenerated("(CURRENT_DATE + '16 days'::interval)")) @db.Date
+  created_at   DateTime   @default(now()) @db.Timestamptz(0)
   tb_leave     tb_leave[]
 }
 
@@ -54,6 +56,7 @@ model tb_special_leave {
   duration          Int               @db.SmallInt
   is_active         Boolean           @default(true)
   description       String
+  created_at        DateTime          @default(now()) @db.Timestamptz(0)
   tb_leave          tb_leave[]
 }
 
@@ -66,6 +69,7 @@ model tb_users {
   role                  role
   status_active         status_active           @default(active)
   join_date             DateTime                @db.Date
+  created_at            DateTime                @default(now()) @db.Timestamptz(0)
   tb_balance            tb_balance[]
   tb_balance_adjustment tb_balance_adjustment[]
   tb_jwt_token          tb_jwt_token[]
@@ -75,11 +79,11 @@ model tb_users {
 
 model tb_balance_adjustment {
   id_adjustment    String     @id @default(uuid()) @db.VarChar(50)
+  NIK              String     @db.VarChar(16)
   adjustment_value Int        @db.SmallInt
   notes            String
-  created_at       DateTime   @db.Timestamptz(0)
+  created_at       DateTime   @default(now()) @db.Timestamptz(0)
   actor            String     @db.VarChar(50)
-  NIK              String     @db.VarChar(16)
   tb_users         tb_users   @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
   balance_year     Int
   tb_balance       tb_balance @relation(fields: [id_balance], references: [id_balance], onDelete: NoAction, onUpdate: NoAction, map: "id_balance")
@@ -91,7 +95,7 @@ model tb_leave_log {
   old_status     status
   new_status     status
   reason         String
-  changed_at     DateTime @db.Timestamptz(0)
+  changed_at     DateTime @default(now()) @db.Timestamptz(0)
   changed_by_nik String   @db.VarChar(16)
   id_leave       String   @db.VarChar(50)
   balances_used  Json     @default("[]")
@@ -104,11 +108,12 @@ model tb_jwt_token {
   NIK          String   @db.VarChar(16)
   device_id    String   @unique @db.VarChar(255)
   device_info  String   @db.VarChar(255)
+  created_at   DateTime @default(now()) @db.Timestamptz(0)
   tb_users     tb_users @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
 }
 
 model tb_settings {
-  id                       String @id @default(uuid())
+  id                       String   @id @default(uuid())
   light_image              String
   light_background         String
   light_foreground         String
@@ -127,6 +132,7 @@ model tb_settings {
   dark_primaryForeground   String
   dark_secondary           String
   dark_secondaryForground  String
+  created_at               DateTime @default(now()) @db.Timestamptz(0)
 }
 
 enum applicable_gender {

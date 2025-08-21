@@ -709,7 +709,7 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
                 data: {
                     adjustment_value,
                     notes,
-                    actor: actor.role,
+                    actor: actor.name,
                     NIK: nik,
                     created_at: new Date()
                 }
@@ -731,7 +731,7 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
             data: {
                 adjustment_value,
                 notes,
-                actor: actor.role,
+                actor: actor.name,
                 NIK: nik,
                 created_at: new Date(),
                 id_balance: balance.id_balance,

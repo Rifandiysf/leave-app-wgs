@@ -1,28 +1,64 @@
+import { Prisma } from "../../generated/prisma/index.js";
 import prisma from "../utils/client.js"
-import { createDateFromString } from "../utils/leaves.utils.js"
+import { createDateFromString, formatDateIndonesia } from "../utils/leaves.utils.js"
 
-export const getAllBalanceAdjustment = async (page = 1, limit = 10) => {
- try {
+export const getAllBalanceAdjustment = async (page, limit, startDate, endDate, balanceYear, searchValue) => {
+    try {
         const offset = (page - 1) * limit
         const totalLogs = await prisma.tb_balance_adjustment.count();
 
+        console.log('test', searchValue);
         const logs = await prisma.tb_balance_adjustment.findMany({
             skip: offset,
             take: limit,
             omit: {
                 id_adjustment: true
             },
+            where: {
+                created_at: {
+                    gte: startDate || undefined,
+                    lte: endDate || undefined
+                },
+                balance_year: balanceYear || undefined,
+                OR: [
+                    {
+                        tb_users: {
+                            fullname: {
+                                contains: searchValue || undefined,
+                                mode: "insensitive"
+                            }
+                        }
+                    },
+                    {
+                        NIK: {
+                            contains: searchValue || undefined,
+                            mode: "insensitive"
+                        }
+                    },
+                    {
+                        actor: {
+                            contains: searchValue || undefined,
+                            mode: "insensitive"
+                        }
+                    }
+                ]
+            },
+            orderBy: {
+                created_at: 'desc'
+            },
             include: {
                 tb_users: true
             }
         })
 
-        const logsModified = logs.map((log) => ({
+        const logsModified = logs.map((log) =>
+        ({
             NIK: log.NIK,
             name: log.tb_users.fullname,
             adjustment_value: log.adjustment_value,
-            balance_year: log.balance_year,
-            created_at: createDateFromString(log.created_at),
+            balance_year: log.balance_year.toString(),
+            date: formatDateIndonesia(createDateFromString(log.created_at)),
+            time: log.created_at.toLocaleTimeString().slice(0, 5).replace('.', ':'),
             actor: log.actor,
             notes: log.notes
         }))
@@ -40,31 +76,64 @@ export const getAllBalanceAdjustment = async (page = 1, limit = 10) => {
     }
 }
 
-export const getAllBalanceAdjustmentByNIK = async (page = 1, limit = 10, nik) => {
+export const getAllBalanceAdjustmentByNIK = async (page, limit, nik, searchValue, startDate, endDate, balanceYear) => {
     try {
         const offset = (page - 1) * limit
         const totalLogs = await prisma.tb_balance_adjustment.count();
 
+        console.log('test', searchValue);
         const logs = await prisma.tb_balance_adjustment.findMany({
             skip: offset,
             take: limit,
-            where: {
-                NIK: nik
-            },
             omit: {
                 id_adjustment: true
+            },
+            where: {
+                NIK: nik,
+                created_at: {
+                    gte: startDate || undefined,
+                    lte: endDate || undefined
+                },
+                balance_year: balanceYear || undefined,
+                OR: [
+                    {
+                        tb_users: {
+                            fullname: {
+                                contains: searchValue || undefined,
+                                mode: "insensitive"
+                            }
+                        }
+                    },
+                    {
+                        NIK: {
+                            contains: searchValue || undefined,
+                            mode: "insensitive"
+                        }
+                    },
+                    {
+                        actor: {
+                            contains: searchValue || undefined,
+                            mode: "insensitive"
+                        }
+                    }
+                ]
+            },
+            orderBy: {
+                created_at: 'desc'
             },
             include: {
                 tb_users: true
             }
         })
 
-        const logsModified = logs.map((log) => ({
+        const logsModified = logs.map((log) =>
+        ({
             NIK: log.NIK,
             name: log.tb_users.fullname,
-            balance_year: log.balance_year,
             adjustment_value: log.adjustment_value,
-            created_at: createDateFromString(log.created_at),
+            balance_year: log.balance_year.toString(),
+            date: formatDateIndonesia(createDateFromString(log.created_at)),
+            time: log.created_at.toLocaleTimeString().slice(0, 5).replace('.', ':'),
             actor: log.actor,
             notes: log.notes
         }))
