@@ -1,30 +1,26 @@
 'use client'
 
 import { useState, useEffect, useCallback } from "react";
-// Tambahkan Legend ke dalam import dari recharts
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
-// --- Type Definitions (Disesuaikan dengan Semua API Response) ---
-
-// Tipe untuk Leaderboard, disesuaikan kembali dengan API (kunci Bhs. Indonesia)
 type LeaderboardUserType = {
     nik: string;
     name: string;
     role: string;
-    sisa_cuti: number;
-    tahun_ini: number;
-    tahun_lalu: number;
-    rerata_cuti: string;
+    remaining_leave: number;
+    this_year: number;
+    last_year: number;
+    average_leave: string;
 };
 
-type PendingLeaveType = {
-    id_leave: string;
+type PendingLeaveRequestType = {
+    NIK: string;
     name: string;
-    nik: string;
-    leave_type: string;
+    role?: string; 
+    type: string;
     start_date: string;
     end_date: string;
-    total_days: number;
+    duration: string;
     status: string;
 };
 
@@ -39,6 +35,7 @@ const DashboardPage = () => {
     const [stats, setStats] = useState<any>({});
     const [leaderboard, setLeaderboard] = useState<{ top: LeaderboardUserType[]; bottom: LeaderboardUserType[] }>({ top: [], bottom: [] });
     const [trendData, setTrendData] = useState<MonthlyTrendType[]>([]);
+    const [pendingLeaveRequests, setPendingLeaveRequests] = useState<PendingLeaveRequestType[]>([]);
     const [availableYears, setAvailableYears] = useState<number[]>([new Date().getFullYear()]);
     
     const [isLoading, setIsLoading] = useState(true);
@@ -47,24 +44,27 @@ const DashboardPage = () => {
     const fetchDashboardData = useCallback(async (year: number) => {
         setIsLoading(true);
         try {
-            const [statsRes, trendRes, leaderboardRes] = await Promise.all([
+            const [statsRes, trendRes, leaderboardRes, pendingLeaveRes] = await Promise.all([
                 fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/statistics`, { credentials: 'include' }),
                 fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/trend?year=${year}`, { credentials: 'include' }),
-                fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/leaderboard`, { credentials: 'include' })
+                fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/leaderboard`, { credentials: 'include' }),
+                fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/pending-leave`, { credentials: 'include' })
             ]);
 
-            if (!statsRes.ok || !trendRes.ok || !leaderboardRes.ok) {
-                console.error("Failed to fetch dashboard data.", {
+            if (!statsRes.ok || !trendRes.ok || !leaderboardRes.ok || !pendingLeaveRes.ok) {
+                console.error("Gagal mengambil data dasbor.", {
                     stats: statsRes.status,
                     trend: trendRes.status,
                     leaderboard: leaderboardRes.status,
+                    pendingLeave: pendingLeaveRes.status,
                 });
-                throw new Error('One or more API requests failed');
+                throw new Error('Satu atau lebih permintaan API gagal');
             }
 
             const statsJson = await statsRes.json();
             const trendJson = await trendRes.json();
             const leaderboardJson = await leaderboardRes.json();
+            const pendingLeaveJson = await pendingLeaveRes.json();
 
             setStats(statsJson.data || {});
             setTrendData(trendJson.data?.trend || []);
@@ -73,6 +73,7 @@ const DashboardPage = () => {
                 top: leaderboardJson.data?.most_used || [],
                 bottom: leaderboardJson.data?.least_used || []
             });
+            setPendingLeaveRequests(pendingLeaveJson.data?.pendingLeaveList?.data || []);
             
             const yearsFromServer = statsJson.data?.availableYears;
             if (yearsFromServer && yearsFromServer.length > 0) {
@@ -88,10 +89,11 @@ const DashboardPage = () => {
             }
 
         } catch (error) {
-            console.error("An error occurred while fetching dashboard data:", error);
+            console.error("Terjadi kesalahan saat mengambil data dasbor:", error);
             setStats({});
             setTrendData([]);
             setLeaderboard({ top: [], bottom: [] });
+            setPendingLeaveRequests([]); 
         } finally {
             setIsLoading(false);
         }
@@ -129,6 +131,7 @@ const DashboardPage = () => {
                             </div>
                         ))}
                     </div>
+                    <div className="h-96 bg-gray-200 dark:bg-gray-500 rounded-2xl mb-8"></div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                         <div className="h-96 bg-gray-200 dark:bg-gray-500 rounded-2xl"></div>
                         <div className="h-96 bg-gray-200 dark:bg-gray-500 rounded-2xl"></div>
@@ -139,72 +142,82 @@ const DashboardPage = () => {
     }
 
     return (
+        // STATISTIK
         <div className="min-h-screen p-6 bg-background">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard Admin</h1>
-                <p className="text-muted-foreground">Ringkasan informasi dan statistik karyawan</p>
+                <p className="text-muted-foreground">Summary of employee information and statistics</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <StatCard 
-                    title="Total Karyawan" 
+                    title="Total Employee" 
                     value={stats.totalEmployees?.total || 0} 
                     subtitle={`${stats.totalEmployees?.activeEmployees || 0} aktif, ${stats.totalEmployees?.resignEmployees || 0} tidak aktif`} 
                     icon="bi-people-fill" 
                     color="blue" 
                 />
                 <StatCard 
-                    title="Total Cuti Tahun Ini" 
+                    title="Total Leave This Year" 
                     value={stats.thisYearLeave || 0} 
-                    subtitle={`Approved di ${new Date().getFullYear()}`} 
+                    subtitle={`Approved at ${new Date().getFullYear()}`} 
                     icon="bi-calendar-check-fill" 
                     color="green" 
                 />
                 <StatCard 
-                    title="Karyawan Cuti Mingguan" 
-                    value={`${stats.weeklyLeave || 0} orang`} 
-                    subtitle="Cuti dalam 7 hari terakhir" 
+                    title="Employees on Weekly Leave" 
+                    value={`${stats.weeklyLeave || 0} Employee`} 
+                    subtitle="Leave in the last 7 days" 
                     icon="bi-person-dash-fill" 
                     color="orange" 
                 />
                 <StatCard 
-                    title="Cuti Pending" 
-                    value={`${stats.pendingLeaves || 0} orang`} 
-                    subtitle={`Menunggu persetujuan`} 
+                    title="Pending Leave Requests" 
+                    value={`${stats.pendingLeaves || 0} `} 
+                    subtitle={`Waiting for approval`} 
                     icon="bi-clock-history" 
                     color="yellow" 
                 />
             </div>
 
-            {stats.pendingLeaveList && stats.pendingLeaveList.length > 0 && (
-                <div className="dark:bg-card rounded-2xl p-6 shadow-sm border border-border mb-8">
+            {/* CUTI PENDING */}
+            {pendingLeaveRequests && pendingLeaveRequests.length > 0 && (
+                <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border mb-8">
                     <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
                         <i className="bi bi-clock-history text-yellow-500"></i>
-                        Karyawan dengan Cuti Pending ({stats.pendingLeaves} Pending)
+                        Employees on Pending Leave ({pendingLeaveRequests.length} request)
                     </h3>
-                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${stats.pendingLeaveList.length > 9 ? 'max-h-[400px] overflow-y-auto pr-2' : ''}`}>
-                        {stats.pendingLeaveList.map((leave: PendingLeaveType, index: number) => (
-                            <div key={`${leave.id_leave}-${index}`} className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h4 className="font-medium text-gray-800">{leave.name}</h4>
-                                    <span className="px-2 py-1 bg-yellow-200 text-yellow-800 rounded-full text-xs font-medium">Pending</span>
+                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${pendingLeaveRequests.length > 3 ? 'max-h-[400px] overflow-y-auto pr-2' : ''}`}>
+                        {pendingLeaveRequests.map((leave, index) => (
+                            <div key={`${leave.NIK}-${index}`} className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800/30 text-gray-800 dark:text-gray-200">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <p className="font-bold">{leave.name}</p>
+                                        <p className="text-sm capitalize text-gray-600 dark:text-gray-400">{leave.type}</p>
+                                    </div>
+                                    <span className="px-2 py-1 bg-yellow-200 text-yellow-800 rounded-full text-xs font-medium">{leave.status}</span>
                                 </div>
-                                <p className="text-sm text-gray-600 mb-1">Tipe: {leave.leave_type?.replace(/_/g, ' ')}</p>
-                                <p className="text-sm text-gray-600 mb-1">Tanggal mulai: {new Date(leave.start_date).toLocaleDateString('id-ID', dateOptions)}</p>
-                                <p className="text-sm text-gray-600 mb-1">Tanggal Selesai: {new Date(leave.end_date).toLocaleDateString('id-ID', dateOptions)}</p>
-                                <p className="text-sm text-gray-600">Durasi: {leave.total_days} Hari</p>
+                                <div className="mt-3 text-sm space-y-1 text-gray-700 dark:text-gray-300">
+                                    <p>
+                                        Start Date :{new Date(leave.start_date).toLocaleDateString('id-ID', dateOptions)} 
+                                    </p>
+                                    <p>
+                                         End Date : {new Date(leave.end_date).toLocaleDateString('id-ID', dateOptions)}
+                                    </p>
+                                    <p className="font-medium"> Duration : {leave.duration.replace('days', 'Hari')}</p>
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
             )}
 
-            <div className="grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div className="dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
+       <div className="grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
                             <i className="bi bi-graph-up text-blue-500"></i>
-                            Trend Cuti Bulanan
+                            Monthly Leave Trends
                         </h3>
                         <select
                             value={selectedYear}
@@ -236,11 +249,13 @@ const DashboardPage = () => {
                 </div>
             </div>
 
+
+            {/* Leaderboard */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div className="dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
+                <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
                     <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
                         <i className="bi bi-arrow-up-circle text-green-500"></i>
-                        User Dengan Sisa Cuti Terbanyak
+                        Users With the Most Remaining Leave
                     </h3>
                     <div className="space-y-3">
                         {leaderboard.top.map((user: LeaderboardUserType, index: number) => (
@@ -255,21 +270,21 @@ const DashboardPage = () => {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-bold text-green-600">{user.sisa_cuti || 0} hari</p>
+                                    <p className="font-bold text-green-600">{user.remaining_leave || 0} hari</p>
                                     <p className="text-xs text-gray-500">
-                                        Tahun ini: {user.tahun_ini || 0} | Tahun lalu: {user.tahun_lalu || 0}
+                                        This Year: {user.this_year || 0} | Last Year: {user.last_year || 0}
                                     </p>
-                                    <p className="text-xs text-gray-500 mt-1">Rerata Cuti: <b>{user.rerata_cuti}</b></p>
+                                    <p className="text-xs text-gray-500 mt-1">Average Leave: <b>{user.average_leave}</b></p>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <div className="dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
+                <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
                     <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
                         <i className="bi bi-arrow-down-circle text-red-500"></i>
-                        User Dengan Sisa Cuti Terendah
+                        Users With the Lowest Remaining Leave
                     </h3>
                     <div className="space-y-3">
                         {leaderboard.bottom.map((user: LeaderboardUserType, index: number) => (
@@ -284,11 +299,11 @@ const DashboardPage = () => {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-bold text-red-600">{user.sisa_cuti || 0} hari</p>
+                                    <p className="font-bold text-red-600">{user.remaining_leave || 0} hari</p>
                                     <p className="text-xs text-gray-500">
-                                        Tahun ini: {user.tahun_ini || 0} | Tahun lalu: {user.tahun_lalu || 0}
+                                         This Year: {user.this_year || 0} | Last Year: {user.last_year || 0}
                                     </p>
-                                    <p className="text-xs text-gray-500 mt-1">Rerata Cuti: <b>{user.rerata_cuti}</b></p>
+                                    <p className="text-xs text-gray-500 mt-1">Average Leave: <b>{user.average_leave}</b></p>
                                 </div>
                             </div>
                         ))}

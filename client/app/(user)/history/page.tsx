@@ -12,7 +12,7 @@ import {
 } from "../../components/ui/pagination"
 import Modal from "@/app/components/Modal/Modal"
 import { formatDate, formatUppercase } from "@/lib/format"
-import { Label } from "@/app/components/ui/label"
+import { Label } from "@/app/components/ui/label"   
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/app/components/ui/select"
 
 type LeaveHistoryType = {
@@ -189,46 +189,99 @@ const HistoryPage = () => {
         }
     }
 
-    return (
+  return (
         <section className="flex flex-col relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
-            <div className='flex justify-end items-center gap-3 mb-4'>
-                <div className="flex max-sm:w-full">
-                    <input
-                        type="text"
-                        placeholder="Search By Title..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
+            {/* Desktop Layout */}
+            <div className='hidden sm:flex justify-between items-center gap-3 mb-4'>
+                <div className="flex items-center">
+                    <h1 className="text-2xl sm:text-3xl md:text-3xl  font-bold text-foreground  truncate">History</h1>
                 </div>
-                <Select onValueChange={(value) => setStatus(value === 'all' ? null : value)}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectGroup>
-                            <SelectLabel>Status Leave</SelectLabel>
-                            <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="approved">Approved</SelectItem>
-                            <SelectItem value="rejected">Rejected</SelectItem>
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
-                <Select onValueChange={(value) => setLeaveType(value === 'all' ? null : value)}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Type leave" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectGroup>
-                            <SelectLabel>Type Leave</SelectLabel>
-                            <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="personal">Personal</SelectItem>
-                            <SelectItem value="mandatory">Mandatory</SelectItem>
-                            <SelectItem value="special">Special</SelectItem>
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
+
+                <div className="flex items-center gap-3">
+                    <div className="flex">
+                        <input
+                            type="text"
+                            placeholder="Search By Title..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                    </div>
+                    <Select onValueChange={(value) => setStatus(value === 'all' ? null : value)}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectLabel>Status Leave</SelectLabel>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="approved">Approved</SelectItem>
+                                <SelectItem value="rejected">Rejected</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                    <Select onValueChange={(value) => setLeaveType(value === 'all' ? null : value)}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Type leave" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectLabel>Type Leave</SelectLabel>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="personal">Personal</SelectItem>
+                                <SelectItem value="mandatory">Mandatory</SelectItem>
+                                <SelectItem value="special">Special</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+
+            {/* Mobile Layout */}
+            <div className='flex flex-col gap-3 mb-4 sm:hidden'>
+                <div className="flex items-center justify-center">
+                    <h1 className="text-xl font-semibold text-foreground">History</h1>
+                </div>
+                <div className="flex gap-2">
+                    <div className="flex flex-1">
+                        <input
+                            type="text"
+                            placeholder="Search By Title..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                    </div>
+                    <Select onValueChange={(value) => setStatus(value === 'all' ? null : value)}>
+                        <SelectTrigger className="min-w-[100px]">
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectLabel>Status Leave</SelectLabel>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="approved">Approved</SelectItem>
+                                <SelectItem value="rejected">Rejected</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                    <Select onValueChange={(value) => setLeaveType(value === 'all' ? null : value)}>
+                        <SelectTrigger className="min-w-[100px]">
+                            <SelectValue placeholder="Type leave" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectLabel>Type Leave</SelectLabel>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="personal">Personal</SelectItem>
+                                <SelectItem value="mandatory">Mandatory</SelectItem>
+                                <SelectItem value="special">Special</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
 
             <div className="w-full border-border rounded-md overflow-hidden">
