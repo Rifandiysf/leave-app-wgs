@@ -13,9 +13,8 @@ import {
     PaginationPrevious
 } from "@/app/components/ui/pagination"; 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/app/components/ui/select"; // Pastikan path ini benar
-import Modal from "@/app/components/Modal/Modal"; 
+import Modal from "@/app/components/Modal/Modal";
 import { Label } from "@/app/components/ui/label"; 
-
 
 type HistoryLog = {
     NIK: string;
@@ -26,7 +25,7 @@ type HistoryLog = {
     time: string;
     actor: string;
     notes: string;
-    id?: string; 
+    id?: string;
 };
 
 type PaginationInfo = {
@@ -71,7 +70,7 @@ const getVisiblePages = (current: number, total: number, maxVisible: number = 5)
 };
 
 
-const AdjustHistoryPage = () => {
+const AdjustHistoryUserPage = () => {
     const [history, setHistory] = useState<HistoryLog[]>([]);
     const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
         current_page: 1,
@@ -81,13 +80,25 @@ const AdjustHistoryPage = () => {
     });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
     const [currentPage, setCurrentPage] = useState(1);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
-    const [yearFilter, setYearFilter] = useState<string | null>(null);
 
+    const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [yearFilter, setYearFilter] = useState<string | null>(null); 
+
+    // --- Debounce search
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchTerm);
+        }, 500);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchTerm]);
+
+
+    // fetch data
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         setError(null);
@@ -96,21 +107,22 @@ const AdjustHistoryPage = () => {
             params.append('page', currentPage.toString());
             params.append('limit', itemPerPage.toString());
 
-            if (searchTerm) params.append('value', searchTerm);
-            if (startDate) params.append('start', startDate);
-            if (endDate) params.append('end', endDate);
-            if (yearFilter) params.append('year', yearFilter);
+            if (debouncedSearch) {
+                params.append('value', debouncedSearch);
+            }
+            if (yearFilter) {
+                params.append('year', yearFilter);
+            }
             
-            const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/balances/logs?${params.toString()}`;
+            const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/balances/logs/me?${params.toString()}`;
             
             const response = await fetch(url, {
                 method: 'GET',
                 credentials: 'include',
             });
 
-
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ message: 'Failed to fetch adjustment history' }));
+                const errorData = await response.json().catch(() => ({ message: 'Failed to fetch your adjustment history' }));
                 throw new Error(errorData.message);
             }
 
@@ -130,18 +142,15 @@ const AdjustHistoryPage = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [currentPage, searchTerm, startDate, endDate, yearFilter]);
-
-    const debouncedFetchData = useCallback(debounce(fetchData, 500), [fetchData]);
-
-    useEffect(() => {
-        debouncedFetchData();
-        return () => debouncedFetchData.cancel();
-    }, [debouncedFetchData]);
-
+    }, [currentPage, debouncedSearch, yearFilter]); 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, startDate, endDate, yearFilter]);
+    }, [debouncedSearch, yearFilter]);
+    
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
 
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= paginationInfo.last_visible_page) {
@@ -153,21 +162,21 @@ const AdjustHistoryPage = () => {
 
     return (
         <section className="flex flex-col relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
-            {/* --- Header and Filters --- */}
+            {/* --- Header dengan Search dan Filter Tahun --- */}
             <div className='flex justify-between items-center gap-3 mb-4'>
-                <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate">Adjust History</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate">My Adjust History</h1>
                 <div className="flex items-center gap-3">
                     <input
                         type="text"
-                        placeholder="Search..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search..."
                         className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
-                   
-                    {/* Year Filter */}
                     <Select onValueChange={(value) => setYearFilter(value === 'all' ? null : value)}>
-                        <SelectTrigger className="min-w-[120px]"><SelectValue placeholder="Year" /></SelectTrigger>
+                        <SelectTrigger className="min-w-[120px]">
+                            <SelectValue placeholder="Year" />
+                        </SelectTrigger>
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Balance Year</SelectLabel>
@@ -269,4 +278,4 @@ const AdjustHistoryPage = () => {
     );
 };
 
-export default AdjustHistoryPage;
+export default AdjustHistoryUserPage;

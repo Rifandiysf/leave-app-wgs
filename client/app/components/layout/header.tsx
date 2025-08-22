@@ -71,7 +71,7 @@ export default function Header() {
         }
     }
 
-    const isUserDashboard = pathname === '/' || pathname === '/history' || pathname === '/mandatory' || pathname === '/information';
+    const isUserDashboard = pathname === '/' || pathname === '/history' || pathname === '/mandatory' || pathname === '/adjust-history' ||pathname === '/information';
     const isAdminPage = pathname.startsWith('/admin')
 
     if (isLoading) {

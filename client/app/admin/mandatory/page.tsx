@@ -189,42 +189,45 @@ const MandatoryLeavePage = () => {
 
     return (
         <section className="relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
-            <div className='flex justify-end items-center gap-3 mb-4'>
-                <div className="flex max-sm:w-full">
-                    <input
-                        type="text"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search..."
-                        className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                </div>
-                <div className="flex gap-3">
-                    <AddMandatory onFormSubmit={handleFormSubmitSuccess} />
+            <div className='flex justify-between items-center gap-3 mb-4'>
+                <h1 className="text-2xl font-bold text-foreground">Mandatory Leave</h1>
+                <div className="flex items-center gap-3">
+                    <div className="flex">
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="Search..."
+                            className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                    </div>
+                    <div className="flex">
+                        <AddMandatory onFormSubmit={handleFormSubmitSuccess} />
+                    </div>
                 </div>
             </div>
 
             <div className="rounded-md overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full table-auto rounded-t-2xl">
-                        <thead className="border-b-[1.5px] border-[#0000001f] bg-[#f0f4f9] dark:bg-card rounded-2xl shadow-lg">
-                            <tr>
-                                <th className="p-3 text-[18px] font-semibold tracking-wide">No</th>
-                                <th className="p-3 text-[18px] font-semibold tracking-wide">Leave Title</th>
-                                <th className="p-3 text-[18px] font-semibold tracking-wide">Information</th>
-                                <th className="p-3 text-[18px] font-semibold tracking-wide">Start Date</th>
-                                <th className="p-3 text-[18px] font-semibold tracking-wide">End Date</th>
-                                <th className="p-3 text-[18px] font-semibold tracking-wide">Action</th>
+                    <table className="w-full min-w-max text-base text-center">
+                        <thead className="text-foreground bg-[#F0f4f9] dark:bg-card">
+                            <tr className="text-base">
+                                <th className="p-3 font-semibold">No</th>
+                                <th className="p-3 font-semibold">Leave Title</th>
+                                <th className="p-3 font-semibold">Information</th>
+                                <th className="p-3 font-semibold">Start Date</th>
+                                <th className="p-3 font-semibold">End Date</th>
+                                <th className="p-3 font-semibold">Action</th>
                             </tr>
                         </thead>
                         <tbody className="cursor-pointer">
                             {isLoading ? (
-                                Array.from({ length: paginationInfo.item.per_page }).map((_, rowIdx) => (
-                                    <tr key={rowIdx} className="animate-pulse bg-gray-200 dark:bg-gray-600">
+                                Array.from({ length: itemPerPage }).map((_, rowIdx) => (
+                                    <tr key={rowIdx} className="animate-pulse">
                                         {Array.from({ length: 6 }).map((_, colIdx) => (
-                                            <th key={colIdx} className="p-3">
-                                                <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4 mx-auto" />
-                                            </th>
+                                            <td key={colIdx} className="p-4">
+                                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto" />
+                                            </td>
                                         ))}
                                     </tr>
                                 ))
@@ -237,19 +240,19 @@ const MandatoryLeavePage = () => {
                             ) : (
                                 dataMandatoryLeave.map((data, idx) => (
                                     <tr key={data.id_mandatory} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] odd:dark:bg-card/30 even:dark:bg-card/70 transition-colors duration-300">
-                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
+                                        <td className="p-3 border-b border-gray-200">
                                             {(paginationInfo.current_page - 1) * itemPerPage + idx + 1}
-                                        </th>
-                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.title}</th>
-                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{data.description}</th>
-                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{formatDate(data.start_date)}</th>
-                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">{formatDate(data.end_date)}</th>
-                                        <th className="p-2 text-[14px] font-medium border-b-[1.5px] border-[#0000001f]">
+                                        </td>
+                                        <td className="p-3 border-b border-gray-200">{data.title}</td>
+                                        <td className="p-3 border-b border-gray-200">{data.description}</td>
+                                        <td className="p-3 border-b border-gray-200">{formatDate(data.start_date)}</td>
+                                        <td className="p-3 border-b border-gray-200">{formatDate(data.end_date)}</td>
+                                        <td className="p-3 border-b border-gray-200">
                                             <div className="flex justify-center items-center gap-2">
                                                 <EditMandatory initialData={data} onFormSubmit={handleFormSubmitSuccess} />
                                                 <Switch checked={data.is_active} onClick={() => handleSwitchClick(data.id_mandatory, data.is_active)} />
                                             </div>
-                                        </th>
+                                        </td>
                                     </tr>
                                 ))
                             )}
@@ -276,7 +279,7 @@ const MandatoryLeavePage = () => {
                                     ) : (
                                         <PaginationLink
                                             isActive={currentPage === page}
-                                            onClick={() => handlePageChange(page)}
+                                            onClick={() => handlePageChange(page as number)}
                                             className="cursor-pointer"
                                         >
                                             {page}

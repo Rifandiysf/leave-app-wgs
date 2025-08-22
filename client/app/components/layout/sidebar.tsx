@@ -99,7 +99,7 @@
                                         <i className="bi bi-window-plus text-xl w-6 text-center" />
                                         <span className="ml-3">Amount Leave</span>
                                     </Link>
-                                    <Link href="/admin/`adjust-history" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/addjust-hisrory')}`}>
+                                    <Link href="/admin/adjust-history" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/adjust-history')}`}>
                                         <i className="bi bi-journal-bookmark text-xl w-6 text-center" />
                                         <span className="ml-3">Adjust History</span>
                                     </Link>
@@ -138,7 +138,7 @@
                                     <i className="bi bi-window-plus text-xl" />
                                     <span className="text-[10px] leading-tight mt-1">Amount Leave</span>
                                 </Link>
-                                <Link href="/admin/adjust-history" className={`flex flex-col items-center text-center h-full pt-2 px-3 min-w-[85px] ${isBottomActive('/admin/addjust-history')}`}>
+                                <Link href="/admin/adjust-history" className={`flex flex-col items-center text-center h-full pt-2 px-3 min-w-[85px] ${isBottomActive('/admin/adjust-history')}`}>
                                     <i className="bi bi-journal-bookmark text-xl" />
                                     <span className="text-[10px] leading-tight mt-1">Adjust History</span>
                                 </Link>
@@ -216,4 +216,4 @@
                 )}
             </>
         )
-    }
+    }   

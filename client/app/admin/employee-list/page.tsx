@@ -190,18 +190,17 @@ const EmployeeListContent = () => {
 
     return (
         <>
-        
             <SuccessAlert
                 isOpen={showSuccess}
                 onClose={handleCloseSuccessAlert}
                 title="Leave data added successfully"
             />
             
-
-            <section className="flex justify-end items-center p-5 border-b-[1.5px] border-border">
-                <div className="flex justify-end items-center gap-3 mb-4 max-sm:flex-col">
-
-                    <div className="flex max-sm:w-full">
+            {/* ### PERUBAHAN DI SINI: Class border-b dan border-border dihapus ### */}
+            <section className="flex justify-between items-center p-5">
+                <h1 className="text-2xl font-bold text-foreground">Employee List</h1>
+                <div className="flex items-center gap-3">
+                    <div className="flex">
                         <input
                             type="text"
                             value={searchTerm}
@@ -233,7 +232,7 @@ const EmployeeListContent = () => {
                     </div>
                 </div>
             </section>
-
+            
             <section className="relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
                 <div className="rounded-md overflow-hidden">
                     <div className="overflow-x-auto">
@@ -310,7 +309,7 @@ const EmployeeListContent = () => {
                                     ) : (
                                         <PaginationLink
                                             isActive={currentPage === page}
-                                            onClick={() => handlePageChange(page)}
+                                            onClick={() => handlePageChange(page as number)}
                                             className="cursor-pointer"
                                         >
                                             {page}
@@ -334,7 +333,6 @@ const EmployeeListContent = () => {
         </>
     );
 }
-
 const EmployeeListPage = () => (
     <Suspense fallback={<div>Loading page...</div>}>
         <EmployeeListContent />

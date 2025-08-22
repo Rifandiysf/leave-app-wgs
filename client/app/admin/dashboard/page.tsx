@@ -166,10 +166,10 @@ const DashboardPage = () => {
                 />
                 <StatCard 
                     title="Employees on Weekly Leave" 
-                    value={`${stats.weeklyLeave || 0} Employee`} 
+                    value={`${stats.weeklyLeave || 0} `} 
                     subtitle="Leave in the last 7 days" 
                     icon="bi-person-dash-fill" 
-                    color="orange" 
+                    color="green" 
                 />
                 <StatCard 
                     title="Pending Leave Requests" 
