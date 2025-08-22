@@ -48,8 +48,8 @@ export const getLeaderboard = async (req, res, next) => {
         res.status(200).json({
             message: 'Successfully fetched leave leaderboard',
             data : {
-                most_used : leaderboardDesc.slice(0, 5),
-                least_used : leaderboardAsc.slice(0, 5)
+                most_used : leaderboardAsc.slice(0, 5),
+                least_used : leaderboardDesc.slice(0, 5)
             }
         })
     } catch (error) {
