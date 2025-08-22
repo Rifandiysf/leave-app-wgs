@@ -1,4 +1,4 @@
-import { gte } from "zod/v4";
+import { gte, number } from "zod/v4";
 import prisma from "../utils/client.js";
 import { role } from "../../generated/prisma/index.js";
 
@@ -117,6 +117,11 @@ export const trendDashboard = async (year) => {
 
 export const leaveLeaderboard = async (order = "desc") => {
     const users = await prisma.tb_users.findMany({
+        where : {
+            NOT : {
+                role: 'magang'
+            }
+        },
         include: {
             tb_balance: true,
             tb_leave: {
@@ -126,9 +131,11 @@ export const leaveLeaderboard = async (order = "desc") => {
                 select: {
                     total_days: true,
                     start_date: true,
-                    end_date: true
+                    end_date: true,
+                    leave_type: true
                 }
-            }
+            },
+            tb_balance_adjustment: true
         }
     });
 
@@ -136,8 +143,65 @@ export const leaveLeaderboard = async (order = "desc") => {
     const currentYear = today.getFullYear();
 
     const leaderboard = users.map(user => {
-        const joinYear = new Date(user.join_date).getFullYear();
-        const yearCount = Math.max(1, (currentYear - joinYear) + 1); // minimal 1 tahun
+        const joinDate = new Date(user.join_date);
+
+        //bulan pertama bekerja
+        let effectiveJoin = new Date(joinDate)
+        if(joinDate.getDate() > 20) {
+            effectiveJoin.setMonth(effectiveJoin.getMonth() + 1)
+        }
+        effectiveJoin.setDate(1)
+
+        //bulan mendapatkan hak cuti (setelah 3 bulan kerja)
+        let  eligibleDate = new Date(effectiveJoin)
+        eligibleDate.setMonth(eligibleDate.getMonth() + 3)
+        eligibleDate.setDate(1)
+
+        let joinMonthDiff = (today.getFullYear() - effectiveJoin.getFullYear()) * 12 +
+                        (today.getMonth() - effectiveJoin.getMonth());
+        if (today.getDate() >= effectiveJoin.getDate()) {
+            joinMonthDiff += 1
+        }
+
+        //ambil 12 bulan kebelakang
+        let fromDate
+        if (joinMonthDiff >= 16) {
+            fromDate = new Date(today)
+            fromDate.setMonth(fromDate.getMonth() - 12)
+        } else {
+            fromDate = new Date(effectiveJoin)
+        }
+
+        //ambil 12 bulan ke depan
+        let toDate = new Date(today)
+        toDate.setMonth(toDate.getMonth() + 12)
+
+        //total cuti yg sudah diberikan dalam periode 24 bulan terakhir
+        const givenLeave = user.tb_balance_adjustment.filter(adj => {
+            const created = new Date(adj.created_at);
+            return created >= fromDate && created <= toDate;
+        })
+        .reduce((sum, adj) => sum + (adj.adjustment_value || 0), 0);
+
+        //total cuti terpakai 
+        const usedLeave = user.tb_leave.filter(l => {
+            const start = new Date(l.start_date);
+
+            if(l.leave_type === 'mandatory_leave') {
+                return start >= fromDate && start <= toDate
+            } else {
+                return start >= fromDate && start <= toDate && start >= eligibleDate
+            }
+        })
+        .reduce((sum, l) => sum + (l.total_days || 0), 0);
+
+        //sisa cuti
+        const remainingLeave = givenLeave - usedLeave
+
+        //average leave range (0-1)
+        const averageLeave = givenLeave > 0
+            ? remainingLeave/givenLeave
+            : 0;
 
         // Jatah cuti tahun ini
         const currentBalance = user.tb_balance.find(
@@ -149,35 +213,28 @@ export const leaveLeaderboard = async (order = "desc") => {
             b => new Date(b.receive_date).getFullYear() === currentYear - 1
         );
 
-        // Total cuti terpakai
-        const usedLeave = user.tb_leave.reduce((sum, l) => sum + (l.total_days || 0), 0);
-
-        // Sisa cuti
-        const remainingLeave = (lastYearBalance ? lastYearBalance.amount : 0) +
-                                (currentBalance ? currentBalance.amount : 0);
-
-        // Rata-rata cuti dipakai per tahun sejak join
-        const avgUsed = usedLeave / yearCount;
-        const avgFormatted = Number.isInteger(avgUsed)
-            ? `${avgUsed} hari/tahun`
-            : `${avgUsed.toFixed(2)} hari/tahun`;
-
         return {
             NIK: user.NIK,
             name: user.fullname,
             role: user.role,
             this_year: currentBalance ? currentBalance.amount : 0,
             last_year: lastYearBalance ? lastYearBalance.amount : 0,
+            given_leave: givenLeave,
+            used_leave: usedLeave,
             remaining_leave: remainingLeave,
-            average_leave: avgFormatted 
+            average_leave: Number(averageLeave.toFixed(2)),
+            summary: `Tersisa ${remainingLeave} hari cuti dari ${givenLeave} hari yang sudah diberikan`,
+            eligible_since: eligibleDate.toISOString().split("T")[0],
+            period_from: fromDate.toISOString().split("T")[0],
+            period_to: toDate.toISOString().split("T")[0]
         };
     });
 
     // urutkan berdasarkan sisa cuti
     leaderboard.sort((a, b) => {
         return order === "asc"
-            ? a.remaining_leave - b.remaining_leave
-            : b.remaining_leave - a.remaining_leave;
+            ? a.average_leave - b.average_leave
+            : b.average_leave - a.average_leave;
     });
 
     return leaderboard;
