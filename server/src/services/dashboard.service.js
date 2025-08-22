@@ -203,19 +203,12 @@ export const pendingLeaves = async () => {
     })
 
     const formatted = leaves.map(leave => {
-        const startDate = new Date(leave.start_date)
-        const endDate = new Date(leave.end_date)
-
-        const options = {day: "numeric", month: "long", year: "numeric"} 
-        const startStr = startDate.toLocaleDateString("id-ID", options)
-        const endStr = endDate.toLocaleDateString("id-ID", options)
-
         return {
             NIK: leave.tb_users.NIK,
             name: leave.tb_users.fullname,
             type: leave.leave_type.replace(/_/g, " "),
-            start_date: startStr,
-            end_date: endStr,
+            start_date: leave.start_date, // kirim raw Date (ISO)
+            end_date: leave.end_date,     // kirim raw Date (ISO)
             duration: `${leave.total_days} days`,
             status: leave.status
         }

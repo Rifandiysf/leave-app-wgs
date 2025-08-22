@@ -64,10 +64,12 @@ export const getLeaderboard = async (req, res, next) => {
 
 export const getPendingLeaves = async (req, res, next) => {
     try {
-        const leaves = await pendingLeaves();
+        const leaveList  = await pendingLeaves();
         res.status(200).json({
             message: 'Successfully get pending leave data',
-            leaves
+            data: {
+                pendingLeaveList: leaveList
+            }
         })
     } catch (error) {
         res.status(500).json({
