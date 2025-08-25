@@ -213,20 +213,19 @@ export const leaveLeaderboard = async (order = "desc") => {
             b => new Date(b.receive_date).getFullYear() === currentYear - 1
         );
 
+        const thisYearAmount = currentBalance ? currentBalance.amount : 0;
+        const lastYearAmount = lastYearBalance ? lastYearBalance.amount : 0;
+
         return {
             NIK: user.NIK,
             name: user.fullname,
             role: user.role,
-            this_year: currentBalance ? currentBalance.amount : 0,
-            last_year: lastYearBalance ? lastYearBalance.amount : 0,
+            this_year: thisYearAmount,
+            last_year: lastYearAmount,
+            total_amount: lastYearAmount + thisYearAmount,
             given_leave: givenLeave,
             used_leave: usedLeave,
-            remaining_leave: remainingLeave,
-            average_leave: Number(averageLeave.toFixed(2)),
-            summary: `Tersisa ${remainingLeave} hari cuti dari ${givenLeave} hari yang sudah diberikan`,
-            eligible_since: eligibleDate.toISOString().split("T")[0],
-            period_from: fromDate.toISOString().split("T")[0],
-            period_to: toDate.toISOString().split("T")[0]
+            average_leave: Number(averageLeave.toFixed(2))
         };
     });
 
