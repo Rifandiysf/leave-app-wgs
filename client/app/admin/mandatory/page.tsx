@@ -189,7 +189,8 @@ const MandatoryLeavePage = () => {
 
     return (
         <section className="relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
-            <div className='flex justify-between items-center gap-3 mb-4'>
+            {/* Desktop Header */}
+            <div className='hidden md:flex justify-between items-center gap-3 mb-4'>
                 <h1 className="text-2xl font-bold text-foreground">Mandatory Leave</h1>
                 <div className="flex items-center gap-3">
                     <div className="flex">
@@ -200,6 +201,28 @@ const MandatoryLeavePage = () => {
                             placeholder="Search..."
                             className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
+                    </div>
+                    <div className="flex">
+                        <AddMandatory onFormSubmit={handleFormSubmitSuccess} />
+                    </div>
+                </div>
+            </div>
+
+            <div className='md:hidden flex flex-col gap-4 mb-4'>
+                <h1 className="text-2xl font-bold text-foreground text-center">Mandatory Leave</h1>
+                
+                <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                        <div className="relative">
+                            <i className="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Search..."
+                                className="w-full pl-10 pr-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                        </div>
                     </div>
                     <div className="flex">
                         <AddMandatory onFormSubmit={handleFormSubmitSuccess} />

@@ -62,32 +62,35 @@ export function Notification({
     if (!show) return null;
 
     const displayMessage = typeof message === 'function' ? message() : message;
-    const config = modeConfig[mode];
+    const currentMode = typeof mode === 'function' ? mode() : mode;
+    const config = modeConfig[currentMode];
 
     return (
-        <div className="fixed top-6 z-50 animate-in slide-in-from-top-2 duration-300">
-            <div className={`${config.bg} border ${config.border} rounded-lg p-4 shadow-lg max-w-sm`}>
-                <div className="flex items-start">
-                    <div className="flex-shrink-0">
-                        <i className={`bi ${config.icon} ${config.iconColor}`}></i>
-                    </div>
-                    <div className="ml-3">
-                        <p className={`text-xl font-medium ${config.textColor}`}>{config.title}</p>
-                        <p className={`text-base ${config.descColor} mt-1`}>{displayMessage}</p>
-                    </div>
-                    <div className="ml-auto pl-3">
-                        <button
-                            className={`inline-flex ${config.closeColor} focus:outline-none`}
-                            onClick={onClose}
-                        >
-                            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    fillRule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clipRule="evenodd"
-                                />
-                            </svg>
-                        </button>
+        <div className="fixed inset-0 z-50 pointer-events-none">
+            <div className="flex items-start justify-center min-h-screen pt-6 px-4">
+                <div className={`${config.bg} border ${config.border} rounded-lg p-4 shadow-lg w-full max-w-sm pointer-events-auto animate-in slide-in-from-top-2 duration-300`}>
+                    <div className="flex items-start">
+                        <div className="flex-shrink-0">
+                            <i className={`bi ${config.icon} ${config.iconColor}`}></i>
+                        </div>
+                        <div className="ml-3 flex-1">
+                            <p className={`text-xl font-medium ${config.textColor}`}>{config.title}</p>
+                            <p className={`text-base ${config.descColor} mt-1`}>{displayMessage}</p>
+                        </div>
+                        <div className="ml-auto pl-3 flex-shrink-0">
+                            <button
+                                className={`inline-flex ${config.closeColor} focus:outline-none`}
+                                onClick={onClose}
+                            >
+                                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

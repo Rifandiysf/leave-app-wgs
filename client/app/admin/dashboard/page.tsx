@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Card } from "../../components/ui/card";
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 type LeaderboardUserType = {
     nik: string;
@@ -30,6 +32,27 @@ type MonthlyTrendType = {
     special_leave: number;
     personal_leave: number;
 };
+
+const DashboardSkeleton = () => (
+    <>
+        <div className="flex flex-col mb-4">
+            <div className="h-8 bg-white-200 dark:bg-gray-600 rounded w-1/4 mb-2 animate-pulse"></div>
+            <div className="h-4 bg-white-200 dark:bg-gray-600 rounded w-1/2 animate-pulse"></div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-8">
+            {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-36 bg-gray-200 dark:bg-gray-600 rounded-lg sm:rounded-2xl animate-pulse"></div>
+            ))}
+        </div>
+        <div className="space-y-6 pb-24">
+            <div className="h-48 bg-gray-200 dark:bg-gray-600 rounded-lg sm:rounded-2xl animate-pulse"></div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="h-96 bg-white-200 dark:bg-gray-600 rounded-lg sm:rounded-2xl animate-pulse"></div>
+                <div className="h-96 bg-white-200 dark:bg-gray-600 rounded-lg sm:rounded-2xl animate-pulse"></div>
+            </div>
+        </div>
+    </>
+);
 
 const DashboardPage = () => {
     const [stats, setStats] = useState<any>({});
@@ -103,214 +126,248 @@ const DashboardPage = () => {
         fetchDashboardData(selectedYear);
     }, [selectedYear, fetchDashboardData]);
 
-    const StatCard = ({ title, value, subtitle, icon, color = "blue" }: any) => (
-        <div className="bg-white dark:bg-card rounded-2xl p-6 border hover:shadow-md transition-all duration-200">
-            <div className="flex items-start justify-between">
-                <div>
-                    <p className="text-sm font-medium text-foreground mb-1">{title}</p>
-                    <p className={`text-3xl font-bold text-${color}-600 mb-1`}>{value}</p>
-                    {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
-                </div>
-                <div className={`p-3 bg-${color}-100 rounded-xl`}>
-                    <i className={`bi ${icon} text-2xl text-${color}-600`}></i>
-                </div>
-            </div>
-        </div>
-    );
     const dateOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen p-6">
-                <div className="animate-pulse">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        {[...Array(4)].map((_, i) => (
-                            <div key={i} className="rounded-2xl p-6 h-32 bg-gray-200 dark:bg-gray-500">
-                                <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/2 mb-4"></div>
-                                <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="h-96 bg-gray-200 dark:bg-gray-500 rounded-2xl mb-8"></div>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                        <div className="h-96 bg-gray-200 dark:bg-gray-500 rounded-2xl"></div>
-                        <div className="h-96 bg-gray-200 dark:bg-gray-500 rounded-2xl"></div>
+        return <DashboardSkeleton />;
+    }
+
+    const summaryCards = [
+        {
+            count: stats.totalEmployees?.total || 0,
+            label: "Total Employee",
+            subtitle: `${stats.totalEmployees?.activeEmployees || 0} active, ${stats.totalEmployees?.resignEmployees || 0} resign`,
+            icon: "bi-people-fill",
+            color: "blue"
+        },
+        {
+            count: stats.thisYearLeave || 0,
+            label: "Total Leave This Year", 
+            subtitle: `Approved in ${new Date().getFullYear()}`,
+            icon: "bi-calendar-check-fill",
+            color: "green"
+        },
+        {
+            count: `${stats.weeklyLeave || 0}`,
+            label: "Employees on Weekly Leave",
+            subtitle: "Leave in the last 7 days",
+            icon: "bi-person-dash-fill", 
+            color: "orange"
+        },
+        {
+            count: `${stats.pendingLeaves || 0}`,
+            label: "Pending Leave Requests",
+            subtitle: "Waiting for approval",
+            icon: "bi-clock-history",
+            color: "yellow"
+        }
+    ];
+
+    const getColorClasses = (color: string) => {
+        const colors: { [key: string]: { bg: string; text: string; line: string } } = {
+            blue: { bg: "bg-blue-600", text: "text-blue-600", line: "bg-blue-600" },
+            green: { bg: "bg-green-600", text: "text-green-600", line: "bg-green-600" },
+            orange: { bg: "bg-orange-600", text: "text-orange-600", line: "bg-orange-600" },
+            yellow: { bg: "bg-yellow-600", text: "text-yellow-600", line: "bg-yellow-600" }
+        };
+        return colors[color] || colors.blue;
+    };
+
+    return (
+        <>
+            <div className="flex flex-col mb-4">
+                <div className="sm:hidden w-full bg-background pb-4 sticky top-[-1rem] z-10">
+                    <h1 className="text-2xl font-bold text-foreground mt-5">Dashboard Admin</h1>
+                    <p className="text-muted-foreground text-sm mt-2">
+                        Summary of employee information and statistics
+                    </p>
+                </div>
+
+                <div className="hidden sm:flex items-center space-x-4 flex-1">
+                    <div className="flex-1 min-w-0">
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 truncate">
+                            Dashboard Admin
+                        </h1>
+                        <p className="text-muted-foreground text-sm sm:text-base">
+                            Summary of employee information and statistics
+                        </p>
                     </div>
                 </div>
             </div>
-        );
-    }
 
-    return (
-        // STATISTIK
-        <div className="min-h-screen p-6 bg-background">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard Admin</h1>
-                <p className="text-muted-foreground">Summary of employee information and statistics</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <StatCard 
-                    title="Total Employee" 
-                    value={stats.totalEmployees?.total || 0} 
-                    subtitle={`${stats.totalEmployees?.activeEmployees || 0} aktif, ${stats.totalEmployees?.resignEmployees || 0} tidak aktif`} 
-                    icon="bi-people-fill" 
-                    color="blue" 
-                />
-                <StatCard 
-                    title="Total Leave This Year" 
-                    value={stats.thisYearLeave || 0} 
-                    subtitle={`Approved at ${new Date().getFullYear()}`} 
-                    icon="bi-calendar-check-fill" 
-                    color="green" 
-                />
-                <StatCard 
-                    title="Employees on Weekly Leave" 
-                    value={`${stats.weeklyLeave || 0} `} 
-                    subtitle="Leave in the last 7 days" 
-                    icon="bi-person-dash-fill" 
-                    color="green" 
-                />
-                <StatCard 
-                    title="Pending Leave Requests" 
-                    value={`${stats.pendingLeaves || 0} `} 
-                    subtitle={`Waiting for approval`} 
-                    icon="bi-clock-history" 
-                    color="yellow" 
-                />
+            {/* Statistics Cards Mobile */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-8">
+                {summaryCards.map((item, idx) => {
+                    const colorClasses = getColorClasses(item.color);
+                    return (
+                        <Card
+                            key={idx}
+                            className="group hover:shadow-lg transition-all duration-300 bg-white dark:bg-white border border-gray-200 dark:border-gray-200 overflow-hidden relative rounded-lg sm:rounded-2xl p-2 sm:p-3"
+                        >
+                            <div className="relative p-1 sm:p-2">
+                                <div className="flex items-center justify-between mb-2 sm:mb-4">
+                                    <div className={`w-8 h-8 sm:w-12 sm:h-12 ${colorClasses.bg} rounded-xl flex items-center justify-center`}>
+                                        <i className={`bi ${item.icon} text-white text-base sm:text-xl`} />
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-2xl sm:text-3xl md:text-5xl font-bold text-gray-900 mb-0.5 sm:mb-1">
+                                            {item.count}
+                                        </div>
+                                        <div className={`h-1 ${colorClasses.line} rounded-full ml-auto sm:hidden ${String(item.count).length >= 2 ? 'w-8' : 'w-6'}`}></div>
+                                        <div className={`h-1 ${colorClasses.line} rounded-full ml-auto hidden sm:block ${String(item.count).length >= 2 ? 'w-16' : 'w-12'}`}></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 className="text-xs sm:text-sm md:text-base font-semibold text-gray-900 mb-0.5 sm:mb-1 leading-tight">
+                                        {item.label}
+                                    </h3>
+                                    <p className="text-gray-600 text-xs sm:text-xs leading-tight">{item.subtitle}</p>
+                                </div>
+                            </div>
+                        </Card>
+                    );
+                })}
             </div>
 
             {/* CUTI PENDING */}
             {pendingLeaveRequests && pendingLeaveRequests.length > 0 && (
-                <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border mb-8">
-                    <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
-                        <i className="bi bi-clock-history text-yellow-500"></i>
-                        Employees on Pending Leave ({pendingLeaveRequests.length} request)
-                    </h3>
-                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${pendingLeaveRequests.length > 3 ? 'max-h-[400px] overflow-y-auto pr-2' : ''}`}>
-                        {pendingLeaveRequests.map((leave, index) => (
-                            <div key={`${leave.NIK}-${index}`} className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800/30 text-gray-800 dark:text-gray-200">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <p className="font-bold">{leave.name}</p>
-                                        <p className="text-sm capitalize text-gray-600 dark:text-gray-400">{leave.type}</p>
+                <Card className="bg-white dark:bg-white border border-gray-200 dark:border-gray-200 overflow-hidden relative rounded-lg sm:rounded-2xl p-4 sm:p-6 mb-8">
+                    <div className="relative">
+                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <i className="bi bi-clock-history text-yellow-500"></i>
+                           Employees on Pending Leave ({pendingLeaveRequests.length} request)
+                        </h3>
+                        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${pendingLeaveRequests.length > 3 ? 'max-h-[400px] overflow-y-auto pr-2' : ''}`}>
+                            {pendingLeaveRequests.map((leave, index) => (
+                                <div key={`${leave.NIK}-${index}`} className="bg-yellow-50 rounded-lg p-4 border border-yellow-200 text-gray-800">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <p className="font-bold">{leave.name}</p>
+                                            <p className="text-sm capitalize text-gray-600">{leave.type}</p>
+                                        </div>
+                                        <span className="px-2 py-1 bg-yellow-200 text-yellow-800 rounded-full text-xs font-medium">{leave.status}</span>
                                     </div>
-                                    <span className="px-2 py-1 bg-yellow-200 text-yellow-800 rounded-full text-xs font-medium">{leave.status}</span>
+                                    <div className="mt-3 text-sm space-y-1 text-gray-700">
+                                        <p>
+                                            Start Date: {new Date(leave.start_date).toLocaleDateString('id-ID', dateOptions)} 
+                                        </p>
+                                        <p>
+                                            End Date : {new Date(leave.end_date).toLocaleDateString('id-ID', dateOptions)}
+                                        </p>
+                                        <p className="font-medium">Duration: {leave.duration.replace('days', 'Hari')}</p>
+                                    </div>
                                 </div>
-                                <div className="mt-3 text-sm space-y-1 text-gray-700 dark:text-gray-300">
-                                    <p>
-                                        Start Date :{new Date(leave.start_date).toLocaleDateString('id-ID', dateOptions)} 
-                                    </p>
-                                    <p>
-                                         End Date : {new Date(leave.end_date).toLocaleDateString('id-ID', dateOptions)}
-                                    </p>
-                                    <p className="font-medium"> Duration : {leave.duration.replace('days', 'Hari')}</p>
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
+                </Card>
             )}
 
-       <div className="grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
-                            <i className="bi bi-graph-up text-blue-500"></i>
-                            Monthly Leave Trends
-                        </h3>
-                        <select
-                            value={selectedYear}
-                            onChange={(e) => setSelectedYear(Number(e.target.value))}
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2"
-                            aria-label="Pilih tahun untuk tren cuti"
-                        >
-                            {availableYears.map(year => (
-                                <option key={year} value={year}>
-                                    {year}
-                                </option>
-                            ))}
-                        </select>
+            <div className="space-y-6 pb-24">
+                {/* Trend Chart */}
+                <Card className="bg-white dark:bg-white border border-gray-200 dark:border-gray-200 overflow-hidden relative rounded-lg sm:rounded-2xl p-4 sm:p-6">
+                    <div className="relative">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
+                                <i className="bi bi-graph-up text-blue-500"></i>
+                                Monthly Leave Trends
+                            </h3>
+                            <select
+                                value={selectedYear}
+                                onChange={(e) => setSelectedYear(Number(e.target.value))}
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2"
+                                aria-label="Pilih tahun untuk tren cuti"
+                            >
+                                {availableYears.map(year => (
+                                    <option key={year} value={year}>
+                                        {year}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="h-80">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={trendData}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                    <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
+                                    <YAxis stroke="#6b7280" fontSize={12} />
+                                    <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                    <Legend />
+                                    <Line type="monotone" dataKey="mandatory_leave" name="Mandatory Leave" stroke="var(--chart-1)" strokeWidth={2} activeDot={{ r: 6 }} />
+                                    <Line type="monotone" dataKey="special_leave" name="Special Leave" stroke="var(--chart-2)" strokeWidth={2} activeDot={{ r: 6 }} />
+                                    <Line type="monotone" dataKey="personal_leave" name="Personal Leave" stroke="var(--chart-3)" strokeWidth={2} activeDot={{ r: 6 }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
-                    <div className="h-80">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={trendData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                                <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
-                                <YAxis stroke="#6b7280" fontSize={12} />
-                                <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                                <Legend />
-                                <Line type="monotone" dataKey="mandatory_leave" name="Mandatory Leave" stroke="var(--chart-1)" strokeWidth={2} activeDot={{ r: 6 }} />
-                                <Line type="monotone" dataKey="special_leave" name="Special Leave" stroke="var(--chart-2)" strokeWidth={2} activeDot={{ r: 6 }} />
-                                <Line type="monotone" dataKey="personal_leave" name="Personal Leave" stroke="var(--chart-3)" strokeWidth={2} activeDot={{ r: 6 }} />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
+                </Card>
+
+                {/* Leaderboard */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card className="bg-white dark:bg-white border border-gray-200 dark:border-gray-200 overflow-hidden relative rounded-lg sm:rounded-2xl p-4 sm:p-6">
+                        <div className="relative">
+                            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <i className="bi bi-arrow-up-circle text-green-500"></i>
+                               Users With the Most Remaining Leave
+                            </h3>
+                            <div className="space-y-3">
+                                {leaderboard.top.map((user: LeaderboardUserType, index: number) => (
+                                    <div key={`${user.nik}-${index}`} className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${index === 0 ? 'bg-green-500' : index === 1 ? 'bg-green-400' : 'bg-green-300'}`}>
+                                                {index + 1}
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-gray-800">{user.name}</p>
+                                                <p className="text-sm text-gray-500">{user.nik} • {(user.role || '').replace(/_/g, ' ')}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="font-bold text-green-600">{user.remaining_leave || 0} Day</p>
+                                            <p className="text-xs text-gray-500">
+                                                This Year: {user.this_year || 0} | Last Year : {user.last_year || 0}
+                                            </p>
+                                            <p className="text-xs text-gray-500 mt-1">Average Leave : <b>{user.average_leave}</b></p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </Card>
+
+                    <Card className="bg-white dark:bg-white border border-gray-200 dark:border-gray-200 overflow-hidden relative rounded-lg sm:rounded-2xl p-4 sm:p-6">
+                        <div className="relative">
+                            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <i className="bi bi-arrow-down-circle text-red-500"></i>
+                                Users With the Lowest Remaining Leave
+                            </h3>
+                            <div className="space-y-3">
+                                {leaderboard.bottom.map((user: LeaderboardUserType, index: number) => (
+                                    <div key={`${user.nik}-${index}`} className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-100">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${index === 0 ? 'bg-red-500' : index === 1 ? 'bg-red-400' : 'bg-red-300'}`}>
+                                                {index + 1}
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-gray-800">{user.name}</p>
+                                                <p className="text-sm text-gray-500">{user.nik} • {(user.role || '').replace(/_/g, ' ')}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="font-bold text-red-600">{user.remaining_leave || 0} Day</p>
+                                            <p className="text-xs text-gray-500">
+                                                This Year: {user.this_year || 0} | Last Year : {user.last_year || 0}
+                                            </p>
+                                            <p className="text-xs text-gray-500 mt-1">Average Leave : <b>{user.average_leave}</b></p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </Card>
                 </div>
             </div>
-
-
-            {/* Leaderboard */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
-                    <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
-                        <i className="bi bi-arrow-up-circle text-green-500"></i>
-                        Users With the Most Remaining Leave
-                    </h3>
-                    <div className="space-y-3">
-                        {leaderboard.top.map((user: LeaderboardUserType, index: number) => (
-                             <div key={`${user.nik}-${index}`} className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${index === 0 ? 'bg-green-500' : index === 1 ? 'bg-green-400' : 'bg-green-300'}`}>
-                                        {index + 1}
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-800">{user.name}</p>
-                                        <p className="text-sm text-gray-500">{user.nik} • {(user.role || '').replace(/_/g, ' ')}</p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className="font-bold text-green-600">{user.remaining_leave || 0} hari</p>
-                                    <p className="text-xs text-gray-500">
-                                        This Year: {user.this_year || 0} | Last Year: {user.last_year || 0}
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-1">Average Leave: <b>{user.average_leave}</b></p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-border">
-                    <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
-                        <i className="bi bi-arrow-down-circle text-red-500"></i>
-                        Users With the Lowest Remaining Leave
-                    </h3>
-                    <div className="space-y-3">
-                        {leaderboard.bottom.map((user: LeaderboardUserType, index: number) => (
-                           <div key={`${user.nik}-${index}`} className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-100">
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${index === 0 ? 'bg-red-500' : index === 1 ? 'bg-red-400' : 'bg-red-300'}`}>
-                                        {index + 1}
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-800">{user.name}</p>
-                                        <p className="text-sm text-gray-500">{user.nik} • {(user.role || '').replace(/_/g, ' ')}</p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className="font-bold text-red-600">{user.remaining_leave || 0} hari</p>
-                                    <p className="text-xs text-gray-500">
-                                         This Year: {user.this_year || 0} | Last Year: {user.last_year || 0}
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-1">Average Leave: <b>{user.average_leave}</b></p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
+        </>
     );
 };
 
