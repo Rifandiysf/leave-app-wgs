@@ -195,7 +195,8 @@ const EmployeeListContent = () => {
                 onClose={handleCloseSuccessAlert}
                 title="Leave data added successfully"
             />
-            {/* Header Section  */}
+            
+            {/* Header Section - Responsive Layout */}
             <section className="p-5">
                 {/* Desktop Layout */}
                 <div className="hidden sm:flex justify-between items-center">
@@ -240,7 +241,6 @@ const EmployeeListContent = () => {
                     <div className="text-center mb-4">
                         <h1 className="text-2xl font-bold text-foreground">Employee List</h1>
                     </div>
-                    
                     {/* Filters */}
                     <div className="space-y-3">
                         {/* Search Input */}
@@ -255,7 +255,7 @@ const EmployeeListContent = () => {
                         </div>
                         
                         {/* Filter Dropdowns */}
-                        <div className="flex gap-7">
+                        <div className="flex gap-2">
                             <div className="flex-1">
                                 <SelectDemo placeholder="Gender" onValueChange={(value) => setGenderFilter(value === 'all' ? null : value)}>
                                     <SelectLabel>Gender</SelectLabel>
@@ -272,7 +272,7 @@ const EmployeeListContent = () => {
                                     <SelectItem value="resign">Resign</SelectItem>
                                 </SelectDemo>
                             </div>
-                            <div className="flex-1">
+                            <div className="flex-1 h-2">
                                 <SelectDemo placeholder="Role" onValueChange={(value) => setRoleFilter(value === 'all' ? null : value)}>
                                     <SelectLabel>Role</SelectLabel>
                                     <SelectItem value="all">All</SelectItem>
