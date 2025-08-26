@@ -8,6 +8,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import Modal from '@/app/components/Modal/Modal';
 import Cookies from 'js-cookie';
 import SettingModal from '../Modal/Setting'
+import { useSetting } from '@/lib/context/SettingContext'
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,6 +17,59 @@ export default function Header() {
 
     const pathname = usePathname()
     const router = useRouter()
+    const { images } = useSetting()
+    const [logoSrc, setLogoSrc] = useState("/images/logo-wgs.svg");
+    const [isDarkMode, setIsDarkMode] = useState(false);
+
+    useEffect(() => {
+        if (!images) return;
+
+        const updateLogo = () => {
+            const currentTheme = localStorage.getItem("theme") as "light" | "dark" | "system" | null;
+            let darkMode = false;
+
+            if (currentTheme === "dark") darkMode = true;
+            else if (currentTheme === "light") darkMode = false;
+            else darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+            setIsDarkMode(darkMode);
+            setLogoSrc(darkMode ? images.dark_image ?? "/images/logo-wgs.svg" : images.light_image ?? "/images/logo-wgs.svg");
+        };
+
+        // update langsung saat mount
+        updateLogo();
+
+        // listener system theme change
+        const darkMedia = window.matchMedia("(prefers-color-scheme: dark)");
+        const listener = (e: MediaQueryListEvent) => {
+            const currentTheme = localStorage.getItem("theme");
+            if (!currentTheme || currentTheme === "system") {
+                updateLogo();
+            }
+        };
+        darkMedia.addEventListener("change", listener);
+
+        // listener localStorage theme change (jika theme diubah di tempat lain)
+        const storageListener = (e: StorageEvent) => {
+            if (e.key === "theme") updateLogo();
+        };
+        window.addEventListener("storage", storageListener);
+
+        return () => {
+            darkMedia.removeEventListener("change", listener);
+            window.removeEventListener("storage", storageListener);
+        };
+    }, [images]);
+
+
+    const getLogoSrc = () => {
+        if (!images) return "/images/logo-wgs.svg";
+        return isDarkMode ? (images.dark_image ?? "/images/logo-wgs.svg") : (images.light_image ?? "/images/logo-wgs.svg");
+    };
+
+    useEffect(() => {
+        setLogoSrc(getLogoSrc());
+    }, [images, isDarkMode]);
 
     useEffect(() => {
         setIsMenuOpen(false)
@@ -81,7 +135,7 @@ export default function Header() {
     return (
         <header className="flex items-center justify-between lg:bg-transparent lg:p-0">
             <div className="lg:hidden">
-                <Image src="/images/logo-wgs.svg" alt="Logo WGS" width={140} height={38} priority />
+                <Image src={logoSrc} alt="Logo WGS" width={90} height={90} priority />
                 <h2 className="text-xl font-medium text-foreground truncate mt-1">Welcome {user.fullname}</h2>
             </div>
 

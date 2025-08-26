@@ -2,6 +2,7 @@ import express, { urlencoded } from 'express';
 import { PORT, HOSTNAME} from './config/env.js';
 import routes from './routes/index.route.js';
 import cors from 'cors'
+import path from 'path'
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import responseTime from 'response-time';
@@ -33,6 +34,7 @@ app.use(cors({
 app.use('/api/v1/', routes);
 app.use(errorHandler);
 
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")))
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);

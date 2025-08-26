@@ -11,7 +11,7 @@ export const createSeeting = async (req, res, next) => {
             light_primary,
             light_primaryForeground,
             light_secondary,
-            light_secondaryForground,
+            light_secondaryForeground,
             dark_background,
             dark_foreground,
             dark_card,
@@ -19,7 +19,7 @@ export const createSeeting = async (req, res, next) => {
             dark_primary,
             dark_primaryForeground,
             dark_secondary,
-            dark_secondaryForground
+            dark_secondaryForeground
         } = req.body
 
         const lightFile = req.files['light_image'] ? req.files['light_image'][0].filename : null
@@ -38,7 +38,7 @@ export const createSeeting = async (req, res, next) => {
             light_primary,
             light_primaryForeground,
             light_secondary,
-            light_secondaryForground,
+            light_secondaryForeground,
             dark_background,
             dark_foreground,
             dark_card,
@@ -46,7 +46,7 @@ export const createSeeting = async (req, res, next) => {
             dark_primary,
             dark_primaryForeground,
             dark_secondary,
-            dark_secondaryForground
+            dark_secondaryForeground
         }
 
         const settings = await serviceCreateSetting(data)
@@ -86,7 +86,7 @@ export const updateSetting = async (req, res, next) => {
         light_primary,
         light_primaryForeground,
         light_secondary,
-        light_secondaryForground,
+        light_secondaryForeground,
         dark_background,
         dark_foreground,
         dark_card,
@@ -94,7 +94,7 @@ export const updateSetting = async (req, res, next) => {
         dark_primary,
         dark_primaryForeground,
         dark_secondary,
-        dark_secondaryForground
+        dark_secondaryForeground
     } = req.body
 
     const lightFile = req.files['light_image'] ? req.files['light_image'][0].filename : null
@@ -113,7 +113,7 @@ export const updateSetting = async (req, res, next) => {
         light_primary,
         light_primaryForeground,
         light_secondary,
-        light_secondaryForground,
+        light_secondaryForeground,
         dark_background,
         dark_foreground,
         dark_card,
@@ -121,7 +121,7 @@ export const updateSetting = async (req, res, next) => {
         dark_primary,
         dark_primaryForeground,
         dark_secondary,
-        dark_secondaryForground
+        dark_secondaryForeground
     }
     const { id } = req.params
 
