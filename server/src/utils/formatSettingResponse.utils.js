@@ -17,7 +17,7 @@ export const formatSettingResponse = (settings) => {
             },
             secondaryColor: {
                 secondary: settings.light_secondary,
-                secondaryForground: settings.light_secondaryForground
+                secondaryForeground: settings.light_secondaryForeground
             }
         },
         dark_color: {
@@ -36,7 +36,7 @@ export const formatSettingResponse = (settings) => {
             },
             secondaryColor: {
                 secondary: settings.dark_secondary,
-                secondaryForground: settings.dark_secondaryForground
+                secondaryForeground: settings.dark_secondaryForeground
             }
         }
     }

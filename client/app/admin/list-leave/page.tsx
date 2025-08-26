@@ -265,51 +265,24 @@ const ListOfLeavePage = () => {
 
             {!isChoiceModalOpen && viewMode && (
                 <>
-                    <section className="flex justify-between items-center p-5 border-b-[1.5px] border-border">
-                        <h1 className="text-2xl font-bold text-foreground">
+                    <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-5 border-b-[1.5px] border-border gap-4">
+                        <h1 className="text-2xl font-bold text-foreground text-center sm:text-left">
                             {viewMode === 'requests' ? 'Leave Requests' : 'Leave History'}
                         </h1>
-                        <div className="flex justify-end items-center gap-3">
-                            <div className="flex max-sm:w-full">
-                                <input
-                                    type="text"
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="Search by name..."
-                                    className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                />
-                            </div>
-                            {viewMode === 'requests' ? (
-                                <Select onValueChange={(value) => setLeaveType(value === 'all' ? null : value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Type leave" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectLabel>Type Leave</SelectLabel>
-                                            <SelectItem value="all">All</SelectItem>
-                                            <SelectItem value="personal_leave">Personal</SelectItem>
-                                            <SelectItem value="special_leave">Special</SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                            ) : (
-                                <>
-                                    <Select onValueChange={(value) => setStatus(value === 'all' ? null : value)}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Status" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                <SelectLabel>Type Leave</SelectLabel>
-                                                <SelectItem value="all">All</SelectItem>
-                                                <SelectItem value="approved">Approved</SelectItem>
-                                                <SelectItem value="rejected">Rejected</SelectItem>
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
+                        
+                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Search by name..."
+                                className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                            
+                            <div className="flex gap-2 w-full sm:w-auto">
+                                {viewMode === 'requests' ? (
                                     <Select onValueChange={(value) => setLeaveType(value === 'all' ? null : value)}>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="w-full sm:w-[180px]">
                                             <SelectValue placeholder="Type leave" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -321,10 +294,40 @@ const ListOfLeavePage = () => {
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
-                                </>
-                            )}
+                                ) : (
+                                    <>
+                                        <Select onValueChange={(value) => setStatus(value === 'all' ? null : value)}>
+                                            <SelectTrigger className="flex-1 sm:w-[180px]">
+                                                <SelectValue placeholder="Status" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    <SelectLabel>Status</SelectLabel>
+                                                    <SelectItem value="all">All</SelectItem>
+                                                    <SelectItem value="approved">Approved</SelectItem>
+                                                    <SelectItem value="rejected">Rejected</SelectItem>
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                        <Select onValueChange={(value) => setLeaveType(value === 'all' ? null : value)}>
+                                            <SelectTrigger className="flex-1 sm:w-[180px]">
+                                                <SelectValue placeholder="Type leave" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    <SelectLabel>Type Leave</SelectLabel>
+                                                    <SelectItem value="all">All</SelectItem>
+                                                    <SelectItem value="personal_leave">Personal</SelectItem>
+                                                    <SelectItem value="special_leave">Special</SelectItem>
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </section>
+                    
                     <section className="relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
                         <div className='rounded-md overflow-hidden'>
                             <div className='overflow-x-auto'>
@@ -614,4 +617,4 @@ const ListOfLeavePage = () => {
     );
 }
 
-export default ListOfLeavePage
+export default ListOfLeavePage;

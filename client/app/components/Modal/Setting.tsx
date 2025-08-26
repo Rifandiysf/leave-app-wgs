@@ -9,17 +9,54 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/ta
 import { useDropzone } from 'react-dropzone'
 import { useCallback, useEffect, useState } from 'react'
 import axiosInstance from '@/lib/api/axiosInstance';
-import { cn } from '@/lib/utils';
+import { applyThemeFromConfig, cn } from '@/lib/utils';
+import Image from 'next/image';
+import EditConfig from '../form/editConfig';
 
 type SettingProps = {
     role: string
     className?: string
 }
 
+type ColorVariant = {
+    background: string;
+    foreground: string;
+};
+
+type CardVariant = {
+    card: string;
+    cardForeground: string;
+};
+
+type PrimaryVariant = {
+    primary: string;
+    primaryForeground: string;
+};
+
+type SecondaryVariant = {
+    secondary: string;
+    secondaryForeground: string;
+};
+
+type ThemeConfig = {
+    image: string;
+    baseColor: ColorVariant;
+    cardColor: CardVariant;
+    primaryColor: PrimaryVariant;
+    secondaryColor: SecondaryVariant;
+};
+
+export type SettingData = {
+    id: string;
+    light_color: ThemeConfig;
+    dark_color: ThemeConfig;
+};
+
 const SettingModal = ({ role, className }: SettingProps) => {
     const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light');
     const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [configData, setConfigData] = useState<SettingData | null>(null)
 
     const [isLoading, setIsLoading] = useState(false);
     const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -34,14 +71,18 @@ const SettingModal = ({ role, className }: SettingProps) => {
             setUploadSuccess(false)
             setUploadError(false)
         }
-    },[isDialogOpen])
+    }, [isDialogOpen])
 
     useEffect(() => {
         const savedTheme = localStorage.getItem("theme") as 'light' | 'dark' | 'system' | null;
         if (savedTheme) applyTheme(savedTheme);
     }, []);
 
-    // Terapkan theme
+    const reloadTheme = () => {
+        window.location.reload();
+    };
+
+    // Penerapan theme
     const applyTheme = (mode: 'light' | 'dark' | 'system') => {
         setTheme(mode);
         localStorage.setItem("theme", mode);
@@ -57,6 +98,10 @@ const SettingModal = ({ role, className }: SettingProps) => {
             } else {
                 document.documentElement.classList.remove("dark");
             }
+        }
+
+        if (configData) {
+            applyThemeFromConfig(configData, mode)
         }
     };
 
@@ -102,6 +147,21 @@ const SettingModal = ({ role, className }: SettingProps) => {
         multiple: false
     });
 
+    const fetchConfig = async () => {
+        if (configData) return
+        try {
+            const res = await axiosInstance.get(`/setting`)
+            setConfigData(res.data.data)
+            console.log(res.data.data.light_color.image)
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    useEffect(() => {
+        fetchConfig()
+    }, [])
+
     return (
         <>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -121,7 +181,10 @@ const SettingModal = ({ role, className }: SettingProps) => {
                             <TabsList>
                                 <TabsTrigger value="appearance">Appearance</TabsTrigger>
                                 {role === 'super_admin' && (
-                                    <TabsTrigger value="inject">Inject</TabsTrigger>
+                                    <>
+                                        <TabsTrigger value="inject">Inject</TabsTrigger>
+                                        <TabsTrigger value="config">Config</TabsTrigger>
+                                    </>
                                 )}
                             </TabsList>
 
@@ -153,7 +216,7 @@ const SettingModal = ({ role, className }: SettingProps) => {
                                 </Card>
                                 <div className='flex justify-end items-center mt-3'>
                                     <DialogClose asChild>
-                                        <Button variant="ghost" className="text-green-500 bg-green-100 hover:bg-green-200 hover:text-green-600 px-3 cursor-pointer">
+                                        <Button variant="ghost" onClick={reloadTheme} className="text-green-500 bg-green-100 hover:bg-green-200 hover:text-green-600 px-3 cursor-pointer">
                                             Apply Theme
                                         </Button>
                                     </DialogClose>
@@ -211,6 +274,182 @@ const SettingModal = ({ role, className }: SettingProps) => {
                                                             </>
                                                         )}
                                                     </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+
+                            <TabsContent value='config'>
+                                <Card className='relative w-full h-96 shadow-none border-none rounded-lg p-3 gap-1 overflow-y-scroll'>
+                                    <CardHeader className='px-1'>
+                                        <CardTitle>Config</CardTitle>
+                                        <CardDescription>Customize your website.</CardDescription>
+                                    </CardHeader>
+                                    {configData && (
+                                        <EditConfig initialData={configData} onFormSubmit={fetchConfig} />
+                                    )}
+                                     <CardContent className='flex gap-4 p-0'>
+                                        <Card className='w-full shadow-none border-none rounded-lg dark:bg-card'>
+                                            <CardContent className='grid grid-cols-2 gap-4 p-0'>
+                                                <div className='bg-background p-3 rounded-md'>
+                                                    <Label className='block text-base font-semibold mb-3 text-foreground'>Light theme logo</Label>
+                                                    {configData?.light_color?.image && (
+                                                        <Image src={configData.light_color.image} alt='Website Light Theme Logo' width={140} height={140} />
+                                                    )}
+                                                </div>
+                                                <div className='bg-background p-3 rounded-md'>
+                                                    <Label className='block text-base font-semibold mb-3 text-foreground'>Dark theme logo</Label>
+                                                    {configData?.dark_color?.image && (
+                                                        <Image src={configData.dark_color.image} alt='Website Dark Theme Logo' width={140} height={140} />
+                                                    )}
+                                                </div>
+                                                <div className='bg-background p-3 rounded-md col-span-2'>
+                                                    <Label className='block text-base font-semibold mb-3 text-foreground'>Website Color</Label>
+                                                    <Tabs defaultValue='light'>
+                                                        <TabsList className='mb-2.5'>
+                                                            <TabsTrigger value='light'>Light mode</TabsTrigger>
+                                                            <TabsTrigger value='dark'>Dark mode</TabsTrigger>
+                                                        </TabsList>
+                                                        <TabsContent value='light'>
+                                                            <div className='grid grid-cols-4 gap-2.5 justify-center items-center'>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Background</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.light_color.baseColor.background }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.light_color.baseColor.background}</p>
+                                                                </div>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Foreground</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.light_color.baseColor.foreground }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.light_color.baseColor.foreground}</p>
+                                                                </div>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Card</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.light_color.cardColor.card }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.light_color.cardColor.card}</p>
+                                                                </div>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Card Foreground</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.light_color.cardColor.cardForeground }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.light_color.cardColor.cardForeground}</p>
+                                                                </div>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Primary</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.light_color.primaryColor.primary }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.light_color.primaryColor.primary}</p>
+                                                                </div>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Primary Foreground</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.light_color.primaryColor.primaryForeground }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.light_color.primaryColor.primaryForeground}</p>
+                                                                </div>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Secondary</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.light_color.secondaryColor.secondary }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.light_color.secondaryColor.secondary}</p>
+                                                                </div>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Secondary Foreground</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.light_color.secondaryColor.secondaryForeground }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.light_color.secondaryColor.secondaryForeground}</p>
+                                                                </div>
+                                                            </div>
+                                                        </TabsContent>
+
+                                                        <TabsContent value='dark'>
+                                                            <div className='grid grid-cols-4 gap-2.5 justify-center items-center'>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Background</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.dark_color.baseColor.background }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.dark_color.baseColor.background}</p>
+                                                                </div>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Foreground</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.dark_color.baseColor.foreground }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.dark_color.baseColor.foreground}</p>
+                                                                </div>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Card</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.dark_color.cardColor.card }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.dark_color.cardColor.card}</p>
+                                                                </div>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Card Foreground</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.dark_color.cardColor.cardForeground }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.dark_color.cardColor.cardForeground}</p>
+                                                                </div>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Primary</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.dark_color.primaryColor.primary }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.dark_color.primaryColor.primary}</p>
+                                                                </div>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Primary Foreground</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.dark_color.primaryColor.primaryForeground }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.dark_color.primaryColor.primaryForeground}</p>
+                                                                </div>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Secondary</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.dark_color.secondaryColor.secondary }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.dark_color.secondaryColor.secondary}</p>
+                                                                </div>
+                                                                <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Secondary Foreground</p>
+                                                                    <div
+                                                                        className="w-9 h-9 rounded-full border-[0.5px] border-border"
+                                                                        style={{ backgroundColor: configData?.dark_color.secondaryColor.secondaryForeground }}
+                                                                    />
+                                                                    <p className='text-xs font-semibold'>{configData?.dark_color.secondaryColor.secondaryForeground}</p>
+                                                                </div>
+                                                            </div>
+                                                        </TabsContent>
+                                                    </Tabs>
                                                 </div>
                                             </CardContent>
                                         </Card>

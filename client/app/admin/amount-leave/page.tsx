@@ -5,12 +5,20 @@ import { useRouter } from "next/navigation";
 import Modal from '@/app/components/Modal/Modal';
 import axiosInstance from "@/lib/api/axiosInstance";
 import { Button } from "@/app/components/ui/button";
+import { jwtDecode } from "jwt-decode";
 
 type UserSearchResult = {
   nik: string;
   name: string;
   this_year_leave: number;
   last_year_leave: number;
+};
+
+type JwtPayload = {
+  nik: string;
+  name?: string;
+  role?: string;
+  exp?: number;
 };
 
 const AmountLeavePage = () => {
@@ -36,7 +44,20 @@ const AmountLeavePage = () => {
   const [showSelfEditNotification, setShowSelfEditNotification] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState<string | null>(null);
 
-  const currentAdminNik = "01415678"; // Replace this with actual auth context if needed
+  const [currentAdminNik, setCurrentAdminNik] = useState<string | null>(null);
+
+ 
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem("token"); 
+      if (token) {
+        const decoded: JwtPayload = jwtDecode(token);
+        setCurrentAdminNik(decoded.nik);
+      }
+    } catch (error) {
+      console.error("Failed to decode JWT:", error);
+    }
+  }, []);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -136,26 +157,24 @@ const AmountLeavePage = () => {
     const yearType = selectedYear === lastYear.toString() ? "last year" : "this year";
     return `Are you sure you want to add ${amountToAdd} leaves from ${yearType} (${selectedYear}) for ${nik} - ${selectedUserName}?`;
   };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-background rounded-xl shadow-lg py-2 px-8 w-full max-w-2xl relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-2">
+      <div className="bg-background rounded-lg shadow-lg py-3 px-4 w-full max-w-lg relative max-h-[95vh] overflow-y-auto">
 
-        <div className="text-center mb-6">
-          <h2 className="text-xl font-bold inline-block px-4 py-1 rounded">
+        <div className="text-center mb-4">
+          <h2 className="text-lg font-bold inline-block px-3 py-1 rounded">
             Add Amount Leave
           </h2>
         </div>
 
-        {/* Error Notification (Styled like Figma) */}
         {(showSelfEditNotification || showErrorMessage) && (
-          <div className="bg-red-500 text-white p-3 rounded-lg mb-6 flex items-center gap-2">
-            <div className="bg-white text-red-500 rounded-full p-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-red-500 text-white p-2 rounded-lg mb-4 flex items-center gap-2">
+            <div className="bg-white text-red-500 rounded-full p-0.5">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <span className="text-sm">
+            <span className="text-xs">
               {showSelfEditNotification
                 ? "You are not allowed to add your own leave balance"
                 : showErrorMessage}
@@ -163,19 +182,19 @@ const AmountLeavePage = () => {
           </div>
         )}
 
-        <div className="space-y-5">
+        <div className="space-y-3">
           {/* Search NIK */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Search NIK</label>
+            <label className="block text-xs font-medium text-foreground mb-1">Search NIK</label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="w-5 h-5 text-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                <svg className="w-4 h-4 text-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                 </svg>
               </div>
               <input
                 type="text"
-                className="w-full border border-border bg-accent px-3 py-2 rounded-lg pl-10 text-foreground"
+                className="w-full border border-border bg-accent px-2 py-1.5 rounded-lg pl-8 text-foreground text-sm"
                 placeholder="Ketik NIK untuk mencari..."
                 value={nik}
                 onChange={(e) => {
@@ -193,35 +212,35 @@ const AmountLeavePage = () => {
                 autoComplete="off"
               />
               {debouncedSearch && !userWasSelected && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-card border border-border rounded-lg shadow-lg max-h-40 overflow-y-auto">
                   {isSearching ? (
-                    <div className="p-3 text-center text-muted-foreground">Mencari...</div>
+                    <div className="p-2 text-center text-muted-foreground text-xs">Mencari...</div>
                   ) : searchResults.length > 0 ? (
                     searchResults.map((user) => (
-                      <div key={user.nik} className="p-3 hover:bg-muted-foreground/20 hover:dark:bg-muted-foreground cursor-pointer" onClick={() => handleUserSelect(user)}>
+                      <div key={user.nik} className="p-2 hover:bg-muted-foreground/20 hover:dark:bg-muted-foreground cursor-pointer text-sm" onClick={() => handleUserSelect(user)}>
                         {user.nik} - {user.name}
                       </div>
                     ))
                   ) : (
-                    <div className="p-3 text-center text-muted-foreground">Pengguna tidak ditemukan.</div>
+                    <div className="p-2 text-center text-muted-foreground text-xs">Pengguna tidak ditemukan.</div>
                   )}
                 </div>
               )}
             </div>
             {selectedUserName && (
-              <p className="text-sm text-foreground mt-2">
+              <p className="text-xs text-foreground mt-1">
                 Nama: <span className="font-semibold">{selectedUserName}</span>
               </p>
             )}
           </div>
              {/* Select Year */}
             <div>
-              <label className="block text-sm font-medium text-foreground mb-3">Select Year</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <label className="block text-xs font-medium text-foreground mb-2">Select Year</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {[lastYear.toString(), thisYear.toString()].map((year) => (
                   <label 
                     key={year} 
-                    className={`flex items-center cursor-pointer border-[1.5px] border-border rounded-lg px-4 py-3 transition-colors ${
+                    className={`flex items-center cursor-pointer border-[1.5px] border-border rounded-lg px-3 py-2 transition-colors ${
                       selectedYear === year 
                         ? 'border-blue-500 bg-blue-500/50' 
                         : 'border-border bg-accent'
@@ -233,22 +252,22 @@ const AmountLeavePage = () => {
                       value={year}
                       checked={selectedYear === year}
                       onChange={(e) => setSelectedYear(e.target.value)}
-                      className="w-4 h-4 border-gray-300 focus:ring-blue-500 text-foreground flex-shrink-0"
+                      className="w-3 h-3 border-gray-300 focus:ring-blue-500 text-foreground flex-shrink-0"
                     />
-                    <span className="ml-3 text-sm text-foreground font-medium">{getYearLabel(year)}</span>
+                    <span className="ml-2 text-xs text-foreground font-medium">{getYearLabel(year)}</span>
                   </label>
                 ))}
               </div>
             </div>
 
           {/* Add & Balance */}
-          <div className="flex flex-col md:flex-row gap-6">
+          <div className="flex flex-col md:flex-row gap-3">
             <div className="w-full md:w-1/2">
-              <label className="block text-sm font-medium text-foreground mb-1">Add How Much</label>
+              <label className="block text-xs font-medium text-foreground mb-1">Add How Much</label>
               <input
                 type="number"
                 min="0"
-                className="w-full border border-border bg-accent text-foreground px-3 py-2 rounded-lg"
+                className="w-full border border-border bg-accent text-foreground px-2 py-1.5 rounded-lg text-sm"
                 value={amountToAdd}
                 onChange={(e) => {
                   const numVal = Number(e.target.value);
@@ -257,10 +276,10 @@ const AmountLeavePage = () => {
               />
             </div>
             <div className="w-full md:w-1/2">
-              <label className="block text-sm font-medium text-foreground mb-1">Current Balance</label>
+              <label className="block text-xs font-medium text-foreground mb-1">Current Balance</label>
               <input
                 type="text"
-                className="w-full border border-border px-3 py-2 rounded-lg bg-muted-foreground/40 text-foreground"
+                className="w-full border border-border px-2 py-1.5 rounded-lg bg-muted-foreground/40 text-foreground text-sm"
                 readOnly
                 value={currentBalance}
               />
@@ -269,10 +288,10 @@ const AmountLeavePage = () => {
 
           {/* Total */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Total</label>
+            <label className="block text-xs font-medium text-foreground mb-1">Total</label>
             <input
               type="text"
-              className="w-full border border-border px-3 py-2 rounded-lg bg-muted-foreground/40 text-foreground"
+              className="w-full border border-border px-2 py-1.5 rounded-lg bg-muted-foreground/40 text-foreground text-sm"
               readOnly
               value={total}
             />
@@ -280,10 +299,10 @@ const AmountLeavePage = () => {
 
           {/* Information */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Information</label>
+            <label className="block text-xs font-medium text-foreground mb-1">Information</label>
             <textarea
-              rows={4}
-              className="w-full border border-border px-3 py-2 rounded-lg bg-accent"
+              rows={3}
+              className="w-full border border-border px-2 py-1.5 rounded-lg bg-accent text-sm"
               placeholder="Information..."
               value={information}
               onChange={(e) => setInformation(e.target.value)}
@@ -291,15 +310,15 @@ const AmountLeavePage = () => {
           </div>
 
           {/* Buttons */}
-          <div className="flex justify-between items-center mt-8">
+          <div className="flex justify-between items-center mt-6">
             {isDirty ? (
               <Modal
                 mode="confirm"
                 title="Do you want to discard the changes?"
                 onConfirm={() => router.back()}
                 triggerLabel={
-                  <div className="flex items-center gap-2 text-foreground hover:text-gray-800 font-semibold cursor-pointer">
-                    <i className="bi bi-box-arrow-in-left text-xl"></i>
+                  <div className="flex items-center gap-1 text-foreground hover:text-gray-800 font-medium cursor-pointer text-sm">
+                    <i className="bi bi-box-arrow-in-left text-lg"></i>
                     Back
                   </div>
                 }
@@ -308,10 +327,10 @@ const AmountLeavePage = () => {
               <Button
                 type="button"
                 variant={'default'}
-                className="flex items-center gap-2 text-foreground hover:text-gray-800 font-semibold"
+                className="flex items-center gap-1 text-foreground hover:text-gray-800 font-medium text-sm"
                 onClick={() => router.back()}
               >
-                <i className="bi bi-box-arrow-in-left text-xl"></i>
+                <i className="bi bi-box-arrow-in-left text-lg"></i>
                 Back
               </Button>
             )}
@@ -323,18 +342,18 @@ const AmountLeavePage = () => {
                 onConfirm={handleConfirmSubmit}
                 triggerLabel={isSubmitting ? 'Submitting...' : 'Confirm'}
                 variant="default"
-                triggerClassName="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-semibold shadow-md"
+                triggerClassName="bg-blue-500 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 font-medium shadow-md text-sm"
               />
             ) : (
               <button
                 type="button"
-                className="bg-blue-300 text-white px-5 py-1.5 rounded-lg text-base font-semibold shadow-md cursor-not-allowed"
+                className="bg-blue-300 text-white px-4 py-1.5 rounded-lg text-sm font-medium shadow-md cursor-not-allowed"
                 disabled
               >
                 Confirm
               </button>
             )}
-          </div>
+          </div>  
         </div>
       </div>
     </div>

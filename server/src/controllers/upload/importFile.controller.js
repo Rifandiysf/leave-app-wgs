@@ -1,9 +1,11 @@
 import fs from 'fs'
 import { importFileServices } from "../../services/upload/importFile.service.js";
+import { decodeToken } from '../../utils/jwt.js';
 
 export const importFile = async (req, res, next) => {
   try {
-    const process = await importFileServices(`./src/temp/${req.file.originalname}`)
+    const user = await decodeToken(req.cookies["Authorization"])
+    const process = await importFileServices(`./src/temp/${req.file.originalname}`, user.NIK)
     if (process) {
       fs.unlink(`./src/temp/${req.file.originalname}`, (err) => {
         if (err) {

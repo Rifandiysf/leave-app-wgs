@@ -1,20 +1,21 @@
 'use client'
 
+import React from 'react'
 import Sidebar from '@/app/components/layout/sidebar'
-import Header from '../components/layout/header'
+import Header from '@/app/components/layout/header'
 
-export default function UserLayout({
-    children,
-}: Readonly<{
-    children: React.ReactNode
-}>) {
-    return (
-        <section className="flex h-screen bg-background relative overflow-hidden">
-            <Sidebar role='user'/>
-            <main className="flex-1 p-4 md:p-6 lg:p-10 overflow-y-auto w-full lg:w-auto">
-                <Header />
-                {children}
-            </main>
-        </section>
-    )
+interface UserLayoutProps {
+  children: React.ReactNode;
+}
+
+export default function UserLayout({ children }: UserLayoutProps) {
+  return (
+    <section className="flex min-h-screen">
+      <Sidebar /> 
+      <main className="flex-1 p-4 md:p-6 lg:p-10 overflow-y-auto w-full lg:w-auto">
+        <Header />
+        {children}
+      </main>
+    </section>
+  )
 }

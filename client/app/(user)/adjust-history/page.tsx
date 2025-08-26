@@ -161,35 +161,63 @@ const AdjustHistoryUserPage = () => {
     const paginationPages = getVisiblePages(currentPage, paginationInfo.last_visible_page);
 
     return (
-        <section className="flex flex-col relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
-            {/* --- Header dengan Search dan Filter Tahun --- */}
-            <div className='flex justify-between items-center gap-3 mb-4'>
-                <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate">My Adjust History</h1>
-                <div className="flex items-center gap-3">
-                    <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search..."
-                        className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <Select onValueChange={(value) => setYearFilter(value === 'all' ? null : value)}>
-                        <SelectTrigger className="min-w-[120px]">
-                            <SelectValue placeholder="Year" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                <SelectLabel>Balance Year</SelectLabel>
-                                <SelectItem value="all">All</SelectItem>
-                                <SelectItem value="2026">2026</SelectItem>
-                                <SelectItem value="2025">2025</SelectItem>
-                                <SelectItem value="2024">2024</SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
-
+            <section className="flex flex-col relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
+                   {/* --- Header and Filters --- */}
+                  <div className='hidden md:flex justify-between items-center gap-3 mb-4'>
+                       <h1 className="text-2xl font-bold text-foreground">Adjust Hisory</h1>
+                       <div className="flex items-center gap-3">
+                           <input
+                               type="text"
+                               placeholder="Search..."
+                               value={searchTerm}
+                               onChange={(e) => setSearchTerm(e.target.value)}
+                               className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                           />
+                          
+                           {/* Year Filter */}
+                           <Select onValueChange={(value) => setYearFilter(value === 'all' ? null : value)}>
+                               <SelectTrigger className="min-w-[120px]"><SelectValue placeholder="Year" /></SelectTrigger>
+                               <SelectContent>
+                                   <SelectGroup>
+                                       <SelectLabel>Balance Year</SelectLabel>
+                                       <SelectItem value="all">All</SelectItem>
+                                       <SelectItem value="2026">2026</SelectItem>
+                                       <SelectItem value="2025">2025</SelectItem>
+                                       <SelectItem value="2024">2024</SelectItem>
+                                   </SelectGroup>
+                               </SelectContent>
+                           </Select>
+                       </div>
+                   </div>
+       
+       
+                 <div className='md:hidden flex flex-col gap-4 mb-4'>
+                       <h1 className="text-2xl font-bold text-foreground text-center">Adjust History </h1>
+                       <div className="flex items-center gap-3">
+                           <input
+                               type="text"
+                               placeholder="Search..."
+                               value={searchTerm}
+                               onChange={(e) => setSearchTerm(e.target.value)}
+                               className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                           />
+                          
+                           {/* Year Filter */}
+                           <Select onValueChange={(value) => setYearFilter(value === 'all' ? null : value)}>
+                               <SelectTrigger className="min-w-[120px]"><SelectValue placeholder="Year" /></SelectTrigger>
+                               <SelectContent>
+                                   <SelectGroup>
+                                       <SelectLabel>Balance Year</SelectLabel>
+                                       <SelectItem value="all">All</SelectItem>
+                                       <SelectItem value="2026">2026</SelectItem>
+                                       <SelectItem value="2025">2025</SelectItem>
+                                       <SelectItem value="2024">2024</SelectItem>
+                                   </SelectGroup>
+                               </SelectContent>
+                           </Select>
+                       </div>
+                   </div>
+       
             {/* --- Table --- */}
             <div className="w-full border-border rounded-md overflow-hidden">
                 <div className="overflow-x-auto">
@@ -231,18 +259,48 @@ const AdjustHistoryUserPage = () => {
                                         <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{log.actor}</td>
                                         <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">
                                             <Modal
-                                                mode="info" size="icon" variant="ghost" title="Adjustment Detail"
-                                                triggerLabel={<i className="bi bi-exclamation-circle text-2xl cursor-pointer"></i>}
+                                                mode='info'
+                                                size='icon'
+                                                variant='ghost'
+                                                title='Adjusment Detail'
+                                                description={"Detailed Information about Adjusment Detail"}
+                                                triggerLabel={<i className="bi bi-info-circle text-xl text-blue-500 hover:text-blue-700"></i>}
+                                                triggerClassName='hover:bg-blue-50'
                                                 showFooter={false}
                                             >
-                                                <div className="flex flex-col gap-4 text-left">
-                                                    <div className="flex flex-col"><Label className="font-bold text-gray-500">NIK</Label><h1>{log.NIK}</h1></div>
-                                                    <div className="flex flex-col"><Label className="font-bold text-gray-500">Name</Label><h1>{log.name}</h1></div>
-                                                    <div className="flex flex-col"><Label className="font-bold text-gray-500">Adjustment</Label><h1>{log.adjustment_value} Day(s)</h1></div>
-                                                    <div className="flex flex-col"><Label className="font-bold text-gray-500">Balance Year</Label><h1>{log.balance_year}</h1></div>
-                                                    <div className="flex flex-col"><Label className="font-bold text-gray-500">Time</Label><h1>{log.date} at {log.time}</h1></div>
-                                                    <div className="flex flex-col"><Label className="font-bold text-gray-500">Actor</Label><h1>{log.actor}</h1></div>
-                                                    <div className="flex flex-col"><Label className="font-bold text-gray-500">Notes</Label><p className="p-2 bg-gray-100 rounded-md">{log.notes || '-'}</p></div>
+                                                <div className="grid grid-cols-2 grid-rows-1 gap-3">
+                                                    <div className="flex flex-col gap-5">
+                                                        <div className="flex flex-col gap-0.5">
+                                                            <Label className="font-bold text-gray-500">NIK</Label>
+                                                            <h1>{log.NIK}</h1>
+                                                        </div>
+                                                        <div className="flex flex-col gap-0.5">
+                                                            <Label className="font-bold text-gray-500">Name</Label>
+                                                            <h1>{log.name}</h1>
+                                                        </div>
+                                                        <div className="flex flex-col gap-0.5">
+                                                            <Label className="font-bold text-gray-500">Adjusment</Label>
+                                                            <h1>{log.adjustment_value} Days (s)</h1>
+                                                        </div>
+                                                            <div className="flex flex-col gap-0.5">
+                                                            <Label className="font-bold text-gray-500">Notes</Label>
+                                                            <h1>{log.notes || '-'}</h1>
+                                                        </div>
+                                                    </div>  
+                                                    <div className="flex flex-col gap-5">
+                                                        <div className="flex flex-col gap-0.5">
+                                                            <Label className="font-bold text-gray-500">Balance Year</Label>
+                                                            <h1>{log.balance_year}</h1>
+                                                        </div>
+                                                        <div className="flex flex-col gap-0.5">
+                                                            <Label className="font-bold text-gray-500">Time</Label>
+                                                            <h1>{log.date} at {log.time}</h1>
+                                                        </div>
+                                                        <div className="flex flex-col gap-0.5">
+                                                            <Label className="font-bold text-gray-500">Actor</Label>
+                                                            <h1>{log.actor}</h1>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </Modal>
                                         </td>
