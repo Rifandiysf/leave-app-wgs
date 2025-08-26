@@ -202,7 +202,7 @@ const DashboardPage = () => {
                     return (
                         <Card
                             key={idx}
-                            className="group hover:shadow-lg transition-all duration-300 bg-white dark:bg-white border border-gray-200 dark:border-gray-200 overflow-hidden relative rounded-lg sm:rounded-2xl p-2 sm:p-3"
+                            className="group hover:shadow-lg transition-all duration-300 bg-white dark:bg-card border border-border overflow-hidden relative rounded-lg sm:rounded-2xl p-2 sm:p-3"
                         >
                             <div className="relative p-1 sm:p-2">
                                 <div className="flex items-center justify-between mb-2 sm:mb-4">
@@ -210,7 +210,7 @@ const DashboardPage = () => {
                                         <i className={`bi ${item.icon} text-white text-base sm:text-xl`} />
                                     </div>
                                     <div className="text-right">
-                                        <div className="text-2xl sm:text-3xl md:text-5xl font-bold text-gray-900 mb-0.5 sm:mb-1">
+                                        <div className="text-2xl sm:text-3xl md:text-5xl font-bold text-foreground mb-0.5 sm:mb-1">
                                             {item.count}
                                         </div>
                                         <div className={`h-1 ${colorClasses.line} rounded-full ml-auto sm:hidden ${String(item.count).length >= 2 ? 'w-8' : 'w-6'}`}></div>
@@ -218,10 +218,10 @@ const DashboardPage = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 className="text-xs sm:text-sm md:text-base font-semibold text-gray-900 mb-0.5 sm:mb-1 leading-tight">
+                                    <h3 className="text-xs sm:text-sm md:text-base font-semibold text-foreground mb-0.5 sm:mb-1 leading-tight">
                                         {item.label}
                                     </h3>
-                                    <p className="text-gray-600 text-xs sm:text-xs leading-tight">{item.subtitle}</p>
+                                    <p className="text-muted-foreground text-xs sm:text-xs leading-tight">{item.subtitle}</p>
                                 </div>
                             </div>
                         </Card>
@@ -231,9 +231,9 @@ const DashboardPage = () => {
 
             {/* CUTI PENDING */}
             {pendingLeaveRequests && pendingLeaveRequests.length > 0 && (
-                <Card className="bg-white dark:bg-white border border-gray-200 dark:border-gray-200 overflow-hidden relative rounded-lg sm:rounded-2xl p-4 sm:p-6 mb-8">
+                <Card className="bg-white dark:bg-card border border-border overflow-hidden relative rounded-lg sm:rounded-2xl p-4 sm:p-6 mb-8">
                     <div className="relative">
-                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
                             <i className="bi bi-clock-history text-yellow-500"></i>
                            Employees on Pending Leave ({pendingLeaveRequests.length} request)
                         </h3>
@@ -265,17 +265,17 @@ const DashboardPage = () => {
 
             <div className="space-y-6 pb-24">
                 {/* Trend Chart */}
-                <Card className="bg-white dark:bg-white border border-gray-200 dark:border-gray-200 overflow-hidden relative rounded-lg sm:rounded-2xl p-4 sm:p-6">
+                <Card className="bg-white dark:bg-card border border-border overflow-hidden relative rounded-lg sm:rounded-2xl p-4 sm:p-6">
                     <div className="relative">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center gap-2">
+                            <h3 className="text-lg sm:text-xl font-semibold text-foreground flex items-center gap-2">
                                 <i className="bi bi-graph-up text-blue-500"></i>
                                 Monthly Leave Trends
                             </h3>
                             <select
                                 value={selectedYear}
                                 onChange={(e) => setSelectedYear(Number(e.target.value))}
-                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2"
+                                className="bg-gray-50 border border-border text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2"
                                 aria-label="Pilih tahun untuk tren cuti"
                             >
                                 {availableYears.map(year => (
@@ -291,7 +291,7 @@ const DashboardPage = () => {
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                     <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
                                     <YAxis stroke="#6b7280" fontSize={12} />
-                                    <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                    <Tooltip contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
                                     <Legend />
                                     <Line type="monotone" dataKey="mandatory_leave" name="Mandatory Leave" stroke="var(--chart-1)" strokeWidth={2} activeDot={{ r: 6 }} />
                                     <Line type="monotone" dataKey="special_leave" name="Special Leave" stroke="var(--chart-2)" strokeWidth={2} activeDot={{ r: 6 }} />
@@ -304,9 +304,9 @@ const DashboardPage = () => {
 
                 {/* Leaderboard */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <Card className="bg-white dark:bg-white border border-gray-200 dark:border-gray-200 overflow-hidden relative rounded-lg sm:rounded-2xl p-4 sm:p-6">
+                    <Card className="bg-white dark:bg-card border border-border overflow-hidden relative rounded-lg sm:rounded-2xl p-4 sm:p-6">
                         <div className="relative">
-                            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
                                 <i className="bi bi-arrow-up-circle text-green-500"></i>
                                Users With the Most Remaining Leave
                             </h3>
@@ -335,7 +335,7 @@ const DashboardPage = () => {
                         </div>
                     </Card>
 
-                    <Card className="bg-white dark:bg-white border border-gray-200 dark:border-gray-200 overflow-hidden relative rounded-lg sm:rounded-2xl p-4 sm:p-6">
+                    <Card className="bg-white dark:bg-card border border-border overflow-hidden relative rounded-lg sm:rounded-2xl p-4 sm:p-6">
                         <div className="relative">
                             <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
                                 <i className="bi bi-arrow-down-circle text-red-500"></i>
