@@ -1,4 +1,3 @@
-// app/components/Header.tsx (atau lokasi file Anda)
 
 'use client'
 
@@ -121,7 +120,7 @@ export default function Header() {
         <header className="flex items-center justify-between lg:bg-transparent lg:p-0">
             <div className="lg:hidden">
                 <Image src={logoSrc} alt="Logo WGS" width={90} height={90} priority />
-                <h2 className="text-xl font-medium text-foreground truncate mt-1">Welcome {user.fullname}</h2>
+                <h2 className="text-xl font-medium text-foreground truncate mt-1">Welcome {user?.fullname}</h2>
             </div>
 
             <div className="flex-1 hidden lg:block"></div>

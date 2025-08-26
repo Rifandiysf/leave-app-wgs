@@ -3,8 +3,8 @@
 import React from 'react';
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
-import { UserProvider } from '@/app/context/UserContext'
-import { SettingProvider } from '@/lib/context/SettingContext'
+import { UserProvider } from '@/app/context/UserContext' 
+import { SettingProvider } from '@/lib/context/SettingContext' 
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -51,12 +51,12 @@ export default function RootLayout({
           <script dangerouslySetInnerHTML={{ __html: scriptContent }} />
         </head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
-        <UserProvider>
+          <UserProvider>
             <SettingProvider>
-          {children}
-        </UserProvider>
-          </SettingProvider>
-      </body>
+              {children}
+            </SettingProvider>
+          </UserProvider>
+        </body>
       </html>
     )
-}
+} 
