@@ -26,7 +26,15 @@ export const login = async (req, res, next) => {
             NIK: user.NIK,
             email: user.email,
             fullname: user.fullname,
-            role: user.role,
+            role: {
+                id: user.role.id,
+                name: user.role.name,
+                slug: user.role.slug
+            },
+            status: {
+                id: user.status.id,
+                name: user.status.name
+            },
             gender: user.gender
         }
 
@@ -58,7 +66,11 @@ export const login = async (req, res, next) => {
             data: {
                 nik: user.NIK,
                 name: user.fullname,
-                role: user.role
+                role: {
+                    id: user.role.id,
+                    name: user.role.name,
+                    slug: user.role.slug
+                }
             }
         });
     } catch (error) {

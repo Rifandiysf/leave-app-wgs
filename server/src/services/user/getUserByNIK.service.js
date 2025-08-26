@@ -14,10 +14,14 @@ export const getUserByNIK = async (nik) => {
             where: {
                 NIK: nik,
                 NOT: {
-                    role: "magang"
+                    role: {
+                        slug: "magang"
+                    }
                 }
             },
             include: {
+                role: true, // Include role data
+                status: true, // Include status data
                 tb_balance: {
                     take: 2,
                     where: {
@@ -38,7 +42,7 @@ export const getUserByNIK = async (nik) => {
             throw error;
         }
 
-        const { tb_balance, NIK, fullname, gender, status_active } = user;
+        const { tb_balance, NIK, fullname, gender } = user;
         const currentBalance = tb_balance.filter((bal) => new Date().getFullYear() === bal.receive_date.getFullYear())?.[0]?.amount ?? 0;
         const lastYearBalance = tb_balance.filter((bal) => new Date().getFullYear() !== bal.receive_date.getFullYear())?.[0]?.amount ?? 0;
 
@@ -76,8 +80,14 @@ export const getUserByNIK = async (nik) => {
             NIK: NIK,
             fullname: fullname,
             gender: gender,
-            status_active: status_active,
-            role: user.role,
+            status: {
+                id: user.status.id,
+                name: user.status.name
+            },
+            role: {
+                id: user.role.id,
+                name: user.role.name
+            },
             balance: {
                 total_amount: currentBalance + lastYearBalance || 0,
                 current_amount: currentBalance,

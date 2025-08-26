@@ -5,6 +5,10 @@ export const fetchUserData = async (params, uniqueId) => {
         const user = await prisma.tb_users.findUnique({
             where: {
                 [params]: uniqueId,
+            },
+            include: {
+                role: true, // Include role data
+                status: true // Include status data
             }
         })
 

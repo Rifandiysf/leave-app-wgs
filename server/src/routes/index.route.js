@@ -10,6 +10,8 @@ import { getApiEmployee } from '../utils/getApiEmployee.utils.js';
 import uploadRoutes from './upload.route.js';
 import dashboardRoutes from './dashboard.route.js';
 import balanceRoutes from './balance.route.js';
+import roleRoutes from './role.route.js'; // Import new role route
+import statusRoutes from './status.route.js'; // Import new status route
 
 const router = express.Router();
 
@@ -20,5 +22,9 @@ router.use('/setting', isAuthenticated, settingRoutes)
 router.use('/uploads', isAuthenticated, validateRole('super_admin'), uploadRoutes)
 router.use('/dashboard', isAuthenticated, dashboardRoutes);
 router.use('/balances', isAuthenticated, balanceRoutes)
+
+// New routes for roles and statuses
+router.use('/roles', isAuthenticated, validateRole('super_admin', 'admin'), roleRoutes);
+router.use('/statuses', isAuthenticated, validateRole('super_admin', 'admin'), statusRoutes);
 
 export default router;

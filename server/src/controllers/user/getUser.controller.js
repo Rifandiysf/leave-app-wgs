@@ -3,10 +3,12 @@ import { decodeToken } from "../../utils/jwt.js";
 
 export const getUser = async (req, res, next) => {
     try {
-        const decode = await decodeToken(req.cookies["Authorization"]);
-        const { role, NIK } = decode;
+        const decodedToken = await decodeToken(req.cookies["Authorization"]);
+        const { role, NIK } = decodedToken;
         const { nik } = req.params;
-        const isAdmin = ["admin", "super_admin"].includes(role);
+        
+        // Check if role and role.slug exist before accessing
+        const isAdmin = role && role.slug && ["admin", "super_admin"].includes(role.slug);
 
         if (!isAdmin) {
             if (NIK !== nik) {
@@ -22,7 +24,7 @@ export const getUser = async (req, res, next) => {
             success: true,
             message: `Data retrieve successfully`,
             requested_by: {
-                role: role,
+                role: role.slug, // Use role.slug for consistency
                 nik: NIK
             },
             data: user

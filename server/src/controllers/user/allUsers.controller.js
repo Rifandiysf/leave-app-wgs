@@ -7,10 +7,10 @@ export const allUsers = async (req, res, next) => {
         const limit = parseInt(req.query.limit) || 10;
         const search = req.query.search || ''
         const gender = req.query.gender || ''
-        const status = req.query.status || ''
-        const role = req.query.role || ''
+        const statusName = req.query.status || '' // Changed from status
+        const roleSlug = req.query.role || ''     // Changed from role
 
-        const dataUsers = await getAllUsers(page, limit, search, gender, status, role);
+        const dataUsers = await getAllUsers(page, limit, search, gender, statusName, roleSlug);
 
         const response = responsePagination("Successfully retrieved user data", dataUsers, limit);
         res.status(200).json(response);

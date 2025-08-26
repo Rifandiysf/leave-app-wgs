@@ -1,4 +1,3 @@
-import { status, status_active } from '../../generated/prisma/index.js';
 import prisma from '../utils/client.js';
 
 async function manualSeed() {
@@ -12,6 +11,64 @@ async function manualSeed() {
     await tx.tb_special_leave.deleteMany();
     await tx.tb_mandatory_leave.deleteMany();
 
+    // Delete existing roles and statuses to prevent conflicts on re-seed
+    await tx.tb_roles.deleteMany();
+    await tx.tb_statuses.deleteMany();
+    await tx.tb_settings.deleteMany(); // Add this line to clear settings
+
+    // Seed Settings
+    await tx.tb_settings.create({
+      data: {
+        light_image: "/uploads/default_light.png",
+        light_background: "#FFFFFF",
+        light_foreground: "#000000",
+        light_card: "#F5F5F5",
+        light_cardForeground: "#000000",
+        light_primary: "#007BFF",
+        light_primaryForeground: "#FFFFFF",
+        light_secondary: "#6C757D",
+        light_secondaryForeground: "#FFFFFF",
+        dark_image: "/uploads/default_dark.png",
+        dark_background: "#121212",
+        dark_foreground: "#FFFFFF",
+        dark_card: "#1E1E1E",
+        dark_cardForeground: "#FFFFFF",
+        dark_primary: "#6A0DAD",
+        dark_primaryForeground: "#FFFFFF",
+        dark_secondary: "#BB86FC",
+        dark_secondaryForeground: "#000000",
+      },
+    });
+
+    // Seed Roles
+    const rolesData = [
+      { name: 'Super Admin', slug: 'super_admin', description: 'Full administrative access' },
+      { name: 'Admin', slug: 'admin', description: 'Administrative access with some limitations' },
+      { name: 'Karyawan Tetap', slug: 'karyawan_tetap', description: 'Permanent employee' },
+      { name: 'Karyawan Kontrak', slug: 'karyawan_kontrak', description: 'Contract employee' },
+      { name: 'Magang', slug: 'magang', description: 'Intern' },
+    ];
+
+    const createdRoles = {};
+    for (const role of rolesData) {
+      const newRole = await tx.tb_roles.create({ data: role });
+      createdRoles[role.slug] = newRole.id;
+    }
+
+    // Seed Statuses
+    const statusesData = [
+      { name: 'Active' },
+      { name: 'Resign' },
+      { name: 'Kontrak' },
+      { name: 'Tetap' },
+    ];
+
+    const createdStatuses = {};
+    for (const status of statusesData) {
+      const newStatus = await tx.tb_statuses.create({ data: status });
+      createdStatuses[status.name] = newStatus.id;
+    }
+
     const users = [
       {
         NIK: '1',
@@ -19,8 +76,8 @@ async function manualSeed() {
         email: 'system@perusahaan.com',
         password: 'System123!',
         gender: 'male',
-        role: 'super_admin',
-        status: 'active',
+        roleSlug: 'super_admin',
+        statusName: 'Active',
         join_date: new Date('2024-01-15'),
       }
     ];
@@ -34,8 +91,8 @@ async function manualSeed() {
           email: user.email,
           password: user.password,
           gender: user.gender,
-          role: user.role,
-          status_active: user.status,
+          role_id: createdRoles[user.roleSlug],
+          status_id: createdStatuses[user.statusName],
           join_date: user.join_date,
         },
       });

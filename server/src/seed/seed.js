@@ -1,4 +1,3 @@
-import { status, status_active } from '../../generated/prisma/index.js';
 import prisma from '../utils/client.js';
 
 async function manualSeed() {
@@ -12,6 +11,64 @@ async function manualSeed() {
     await tx.tb_special_leave.deleteMany();
     await tx.tb_mandatory_leave.deleteMany();
 
+    // Delete existing roles and statuses to prevent conflicts on re-seed
+    await tx.tb_roles.deleteMany();
+    await tx.tb_statuses.deleteMany();
+    await tx.tb_settings.deleteMany(); // Add this line to clear settings
+
+    // Seed Settings
+    await tx.tb_settings.create({
+      data: {
+        light_image: "http://localhost:3001/uploads/putih.png",
+        light_background: "#FFFFFF",
+        light_foreground: "#000000",
+        light_card: "#F5F5F5",
+        light_cardForeground: "#000000",
+        light_primary: "#007BFF",
+        light_primaryForeground: "#FFFFFF",
+        light_secondary: "#6C757D",
+        light_secondaryForeground: "#FFFFFF",
+        dark_image: "http://localhost:3001/uploads/hitam.png",
+        dark_background: "#121212",
+        dark_foreground: "#FFFFFF",
+        dark_card: "#1E1E1E",
+        dark_cardForeground: "#FFFFFF",
+        dark_primary: "#6A0DAD",
+        dark_primaryForeground: "#FFFFFF",
+        dark_secondary: "#BB86FC",
+        dark_secondaryForeground: "#000000",
+      },
+    });
+
+    // Seed Roles
+    const rolesData = [
+      { name: 'Super Admin', slug: 'super_admin', description: 'Full administrative access' },
+      { name: 'Admin', slug: 'admin', description: 'Administrative access with some limitations' },
+      { name: 'Karyawan Tetap', slug: 'karyawan_tetap', description: 'Permanent employee' },
+      { name: 'Karyawan Kontrak', slug: 'karyawan_kontrak', description: 'Contract employee' },
+      { name: 'Magang', slug: 'magang', description: 'Intern' },
+    ];
+
+    const createdRoles = {};
+    for (const role of rolesData) {
+      const newRole = await tx.tb_roles.create({ data: role });
+      createdRoles[role.slug] = newRole.id;
+    }
+
+    // Seed Statuses
+    const statusesData = [
+      { name: 'Active' },
+      { name: 'Resign' },
+      { name: 'Kontrak' },
+      { name: 'Tetap' },
+    ];
+
+    const createdStatuses = {};
+    for (const status of statusesData) {
+      const newStatus = await tx.tb_statuses.create({ data: status });
+      createdStatuses[status.name] = newStatus.id;
+    }
+
     const users = [
       {
         NIK: '100001',
@@ -19,8 +76,8 @@ async function manualSeed() {
         email: 'rani.kontrak@perusahaan.com',
         password: 'Rani1234!',
         gender: 'female',
-        role: 'karyawan_kontrak',
-        status: 'active',
+        roleSlug: 'karyawan_kontrak',
+        statusName: 'Active',
         join_date: new Date('2024-01-15'),
       },
       {
@@ -29,8 +86,8 @@ async function manualSeed() {
         email: 'budi.tetap@perusahaan.com',
         password: 'Budi1234!',
         gender: 'male',
-        role: 'karyawan_tetap',
-        status: 'active',
+        roleSlug: 'karyawan_tetap',
+        statusName: 'Active',
         join_date: new Date('2023-11-01'),
       },
       {
@@ -39,8 +96,8 @@ async function manualSeed() {
         email: 'tina.magang@perusahaan.com',
         password: 'Tina1234!',
         gender: 'female',
-        role: 'magang',
-        status: 'active',
+        roleSlug: 'magang',
+        statusName: 'Active',
         join_date: new Date('2025-06-01'),
       },
       {
@@ -49,8 +106,8 @@ async function manualSeed() {
         email: 'andi.admin@perusahaan.com',
         password: 'Admin123!',
         gender: 'male',
-        role: 'admin',
-        status: 'active',
+        roleSlug: 'admin',
+        statusName: 'Active',
         join_date: new Date('2024-09-15'),
       },
       {
@@ -59,8 +116,8 @@ async function manualSeed() {
         email: 'sari.super@perusahaan.com',
         password: 'Super123!',
         gender: 'female',
-        role: 'super_admin',
-        status: 'active',
+        roleSlug: 'super_admin',
+        statusName: 'Active',
         join_date: new Date('2023-01-10'),
       },
       {
@@ -69,8 +126,8 @@ async function manualSeed() {
         email: 'tati.kontrak@perusahaan.com',
         password: 'Tati123!',
         gender: 'female',
-        role: 'karyawan_kontrak',
-        status: 'active',
+        roleSlug: 'karyawan_kontrak',
+        statusName: 'Active',
         join_date: new Date('2015-10-24'),
       },
       {
@@ -79,8 +136,8 @@ async function manualSeed() {
         email: 'bondan.admin@perusahaan.com',
         password: 'Bondan123!',
         gender: 'male',
-        role: 'admin',
-        status: 'resign',
+        roleSlug: 'admin',
+        statusName: 'Resign',
         join_date: new Date('2017-03-15'),
       },
       {
@@ -89,8 +146,8 @@ async function manualSeed() {
         email: 'santi.kontrak@perusahaan.com',
         password: 'Santi123!',
         gender: 'female',
-        role: 'karyawan_kontrak',
-        status: 'resign',
+        roleSlug: 'karyawan_kontrak',
+        statusName: 'Resign',
         join_date: new Date('2018-07-09'),
       },
       {
@@ -99,8 +156,8 @@ async function manualSeed() {
         email: 'andi.magang@perusahaan.com',
         password: 'Andi123!',
         gender: 'male',
-        role: 'magang',
-        status: 'resign',
+        roleSlug: 'magang',
+        statusName: 'Resign',
         join_date: new Date('2020-01-20'),
       },
       {
@@ -109,8 +166,8 @@ async function manualSeed() {
         email: 'rina.tetap@perusahaan.com',
         password: 'Rina123!',
         gender: 'female',
-        role: 'karyawan_tetap',
-        status: 'resign',
+        roleSlug: 'karyawan_tetap',
+        statusName: 'Resign',
         join_date: new Date('2016-05-12'),
       },
     ];
@@ -124,8 +181,8 @@ async function manualSeed() {
           email: user.email,
           password: user.password,
           gender: user.gender,
-          role: user.role,
-          status_active: user.status,
+          role_id: createdRoles[user.roleSlug],
+          status_id: createdStatuses[user.statusName],
           join_date: user.join_date,
         },
       });
@@ -332,4 +389,4 @@ manualSeed()
     console.error('❌ Seed gagal:', error);
     await prisma.$disconnect();
     process.exit(1);
-  });
+});

@@ -1,6 +1,6 @@
 import prisma from "../../utils/client.js";
 
-export const getAllUsers = async (page, limit, search = '', gender = '', status = '', role = '') => {
+export const getAllUsers = async (page, limit, search = '', gender = '', statusName = '', roleSlug = '') => {
     const currentYear = new Date().getFullYear();
     const lastYear = currentYear - 1;
 
@@ -13,11 +13,13 @@ export const getAllUsers = async (page, limit, search = '', gender = '', status 
                 ]
             },
             ...(gender ? [{ gender: gender }] : []),
-            ...(status ? [{ status_active: status }] : []),
-            ...(role ? [{ role: role }] : [])
+            ...(statusName ? { status: { name: statusName } } : []),
+            ...(roleSlug ? { role: { slug: roleSlug } } : []),
         ],
         NOT: {
-            role: "magang"
+            role: {
+                slug: "magang"
+            }
         }
     };
 
@@ -25,6 +27,10 @@ export const getAllUsers = async (page, limit, search = '', gender = '', status 
         where: filterCondition,
         orderBy: {
             fullname: 'asc'
+        },
+        include: {
+            role: true, // Include role data
+            status: true // Include status data
         }
     });
 
@@ -45,7 +51,7 @@ export const getAllUsers = async (page, limit, search = '', gender = '', status 
         let current = 0;
         let last = 0;
 
-        if (user.role === 'karyawan_kontrak') {
+        if (user.role.slug === 'karyawan_kontrak') {
             // Karyawan kontrak: jumlahkan seluruh amount berdasarkan tahun
             current = userLeaveAmount
                 .filter(b => b.receive_date.getFullYear() === currentYear)
@@ -65,14 +71,22 @@ export const getAllUsers = async (page, limit, search = '', gender = '', status 
 
         return {
             nik: user.NIK,
-            name: user.fullname,
-            gender: user.gender,
+            fullname: user.fullname,
+            emailKantor: user.email,
+            tanggalMasukKerja: user.join_date,
+            isActive: user.status.name === 'Active',
+            isMale: user.gender === 'male',
+            role: {
+                id: user.role.id,
+                name: user.role.name
+            },
+            status: {
+                id: user.status.id,
+                name: user.status.name
+            },
             last_year_leave: last,
             this_year_leave: current,
             leave_total: last + current,
-            role: user.role,
-            status: user.status_active,
-            join_date: user.join_date
         };
     });
 
@@ -82,9 +96,14 @@ export const getAllUsers = async (page, limit, search = '', gender = '', status 
     const paginatedResult = result.slice(start, start + limit);
 
     return {
-        data: paginatedResult,
-        total,
-        totalPages,
-        page,
+        data: {
+            employees: paginatedResult,
+            pagination: {
+                total: total,
+                totalPages: totalPages,
+                currentPage: page,
+                limit: limit
+            }
+        }
     };
 };

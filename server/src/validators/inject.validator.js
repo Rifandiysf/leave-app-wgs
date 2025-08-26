@@ -3,8 +3,6 @@ import { z } from 'zod/v4';
 const leave_type = ['personal_leave', 'mandatory_leave', 'special_leave']
 const status = ['approved', 'pending', 'rejected', 'expired']
 const gender = ['female', 'male']
-const role = ['karyawan_tetap', 'karyawan_kontrak', 'magang', 'admin', 'super_admin']
-const status_active = ['resign', 'active']
 
 export const leaveSchema = z.object({
     id_leave: z.string(),
@@ -25,8 +23,8 @@ export const userSchema = z.object({
     email: z.email(),
     password: z.string("password must be string"),
     gender: z.enum(gender),
-    role: z.enum(role),
-    status_active: z.enum(status_active),
+    role_id: z.number(), // Changed from role: z.enum(role)
+    status_id: z.number(), // Changed from status_active: z.enum(status_active)
     join_date: z.date().min(new Date("1900-01-01"), { error: "start_date is too far behind" })
 })
 
