@@ -272,7 +272,7 @@ const EmployeeListContent = () => {
                                     <SelectItem value="resign">Resign</SelectItem>
                                 </SelectDemo>
                             </div>
-                            <div className="flex-1 h-2">
+                            <div className="flex-1 ">
                                 <SelectDemo placeholder="Role" onValueChange={(value) => setRoleFilter(value === 'all' ? null : value)}>
                                     <SelectLabel>Role</SelectLabel>
                                     <SelectItem value="all">All</SelectItem>

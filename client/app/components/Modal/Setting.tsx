@@ -290,7 +290,7 @@ const SettingModal = ({ role, className }: SettingProps) => {
                                     {configData && (
                                         <EditConfig initialData={configData} onFormSubmit={fetchConfig} />
                                     )}
-                                    <CardContent className='flex gap-4 p-0'>
+                                     <CardContent className='flex gap-4 p-0'>
                                         <Card className='w-full shadow-none border-none rounded-lg dark:bg-card'>
                                             <CardContent className='grid grid-cols-2 gap-4 p-0'>
                                                 <div className='bg-background p-3 rounded-md'>

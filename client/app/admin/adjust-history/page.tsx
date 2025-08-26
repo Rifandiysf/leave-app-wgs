@@ -249,51 +249,51 @@ const AdjustHistoryPage = () => {
                                         <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{log.time}</td>
                                         <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{log.actor}</td>
                                         <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">
-                                            <Modal
-                                                mode='info'
-                                                size='icon'
-                                                variant='ghost'
-                                                title='Adjusment Detail'
-                                                description={"Detailed Information about Adjusment Detail"}
-                                                triggerLabel={<i className="bi bi-info-circle text-xl text-blue-500 hover:text-blue-700"></i>}
-                                                triggerClassName='hover:bg-blue-50'
-                                                showFooter={false}
-                                            >
-                                                <div className="grid grid-cols-2 grid-rows-1 gap-3">
-                                                    <div className="flex flex-col gap-5">
+                                        <Modal
+                                            mode='info'
+                                            size='icon'
+                                            variant='ghost'
+                                            title='Adjusment Detail'
+                                            description={"Detailed Information about Adjusment Detail"}
+                                            triggerLabel={<i className="bi bi-info-circle text-xl text-blue-500 hover:text-blue-700"></i>}
+                                            triggerClassName='hover:bg-blue-50'
+                                            showFooter={false}
+                                        >
+                                            <div className="grid grid-cols-2 grid-rows-1 gap-3">
+                                                <div className="flex flex-col gap-5">
+                                                    <div className="flex flex-col gap-0.5">
+                                                        <Label className="font-bold text-gray-500">NIK</Label>
+                                                        <h1>{log.NIK}</h1>
+                                                    </div>
+                                                    <div className="flex flex-col gap-0.5">
+                                                        <Label className="font-bold text-gray-500">Name</Label>
+                                                        <h1>{log.name}</h1>
+                                                    </div>
+                                                    <div className="flex flex-col gap-0.5">
+                                                        <Label className="font-bold text-gray-500">Adjusment</Label>
+                                                        <h1>{log.adjustment_value} Days (s)</h1>
+                                                    </div>
                                                         <div className="flex flex-col gap-0.5">
-                                                            <Label className="font-bold text-gray-500">NIK</Label>
-                                                            <h1>{log.NIK}</h1>
-                                                        </div>
-                                                        <div className="flex flex-col gap-0.5">
-                                                            <Label className="font-bold text-gray-500">Name</Label>
-                                                            <h1>{log.name}</h1>
-                                                        </div>
-                                                        <div className="flex flex-col gap-0.5">
-                                                            <Label className="font-bold text-gray-500">Adjusment</Label>
-                                                            <h1>{log.adjustment_value} Days (s)</h1>
-                                                        </div>
-                                                           <div className="flex flex-col gap-0.5">
-                                                            <Label className="font-bold text-gray-500">Notes</Label>
-                                                            <h1>{log.notes || '-'}</h1>
-                                                        </div>
-                                                    </div>  
-                                                    <div className="flex flex-col gap-5">
-                                                        <div className="flex flex-col gap-0.5">
-                                                            <Label className="font-bold text-gray-500">Balance Year</Label>
-                                                            <h1>{log.balance_year}</h1>
-                                                        </div>
-                                                        <div className="flex flex-col gap-0.5">
-                                                            <Label className="font-bold text-gray-500">Time</Label>
-                                                            <h1>{log.date} at {log.time}</h1>
-                                                        </div>
-                                                        <div className="flex flex-col gap-0.5">
-                                                            <Label className="font-bold text-gray-500">Actor</Label>
-                                                            <h1>{log.actor}</h1>
-                                                        </div>
+                                                        <Label className="font-bold text-gray-500">Notes</Label>
+                                                        <h1>{log.notes || '-'}</h1>
+                                                    </div>
+                                                </div>  
+                                                <div className="flex flex-col gap-5">
+                                                    <div className="flex flex-col gap-0.5">
+                                                        <Label className="font-bold text-gray-500">Balance Year</Label>
+                                                        <h1>{log.balance_year}</h1>
+                                                    </div>
+                                                    <div className="flex flex-col gap-0.5">
+                                                        <Label className="font-bold text-gray-500">Time</Label>
+                                                        <h1>{log.date} at {log.time}</h1>
+                                                    </div>
+                                                    <div className="flex flex-col gap-0.5">
+                                                        <Label className="font-bold text-gray-500">Actor</Label>
+                                                        <h1>{log.actor}</h1>
                                                     </div>
                                                 </div>
-                                            </Modal>
+                                            </div>
+                                        </Modal>
                                         </td>
                                     </tr>
                                 ))

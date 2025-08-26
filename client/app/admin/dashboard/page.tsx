@@ -9,7 +9,7 @@ type LeaderboardUserType = {
     nik: string;
     name: string;
     role: string;
-    remaining_leave: number;
+    total_amount: number;
     this_year: number;
     last_year: number;
     average_leave: string;
@@ -323,7 +323,7 @@ const DashboardPage = () => {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-bold text-green-600">{user.remaining_leave || 0} Day</p>
+                                            <p className="font-bold text-green-600">{user.total_amount || 0} Day</p>
                                             <p className="text-xs text-gray-500">
                                                 This Year: {user.this_year || 0} | Last Year : {user.last_year || 0}
                                             </p>
@@ -354,7 +354,7 @@ const DashboardPage = () => {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-bold text-red-600">{user.remaining_leave || 0} Day</p>
+                                            <p className="font-bold text-red-600">{user.total_amount || 0} Day</p>
                                             <p className="text-xs text-gray-500">
                                                 This Year: {user.this_year || 0} | Last Year : {user.last_year || 0}
                                             </p>

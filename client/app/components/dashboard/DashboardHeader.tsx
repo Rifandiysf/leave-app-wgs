@@ -14,7 +14,7 @@ export const DashboardHeader = ({ fullname }: DashboardHeaderProps) => (
     <div className="hidden sm:flex items-center space-x-4 flex-1">
       <div className="flex-1 min-w-0">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 truncate">
-          Dashboard Admin 
+          Dashboard 
         </h1>
         <p className="text-muted-foreground text-sm sm:text-base">
           Manage your leave requests and track your remaining days

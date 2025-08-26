@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useContext, ReactNode, useCallback } from 'react';
 import { getMe, UserData } from '@/lib/api/service/user';
 import axiosInstance from "@/lib/api/axiosInstance";
 
@@ -32,7 +32,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const [settingImages, setSettingImages] = useState<ThemeImages | null>(null);
 
     // Fetch User Data
-    const fetchUserData = async () => {
+    const fetchUserData = useCallback(async () => {
         setIsUserLoading(true);
         try {
             const userData = await getMe();
@@ -45,10 +45,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         } finally {
             setIsUserLoading(false);
         }
-    };
+    }, []);
 
     // Fetch Setting Data
-    const fetchSetting = async () => {
+    const fetchSetting = useCallback(async () => {
         try {
             const res = await axiosInstance.get("/setting");
             if (res?.data?.data?.light_color && res?.data?.data?.dark_color) {
@@ -57,19 +57,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                     dark_image: res.data.data.dark_color.image,
                 });
             } else {
-                setSettingImages({
-                    light_image: "/images/logo-wgs.svg",
-                    dark_image: "/images/logo-wgs.svg",
-                });
+                setSettingImages({ light_image: "/images/logo-wgs.svg", dark_image: "/images/logo-wgs.svg" });
             }
         } catch (error) {
             console.error("Failed to fetch setting:", error);
-            setSettingImages({
-                light_image: "/images/logo-wgs.svg",
-                dark_image: "/images/logo-wgs.svg",
-            });
+            setSettingImages({ light_image: "/images/logo-wgs.svg", dark_image: "/images/logo-wgs.svg" });
         }
-    };
+    }, []);
+
+    // !! PERUBAHAN UTAMA: useEffect untuk fetch data awal !!
+    // Provider ini sekarang secara proaktif mengambil data saat pertama kali dimuat.
+    useEffect(() => {
+        fetchUserData();
+        fetchSetting();
+    }, [fetchUserData, fetchSetting]);
 
     const value = {
         user,
