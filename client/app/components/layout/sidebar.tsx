@@ -5,7 +5,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import 'bootstrap-icons/font/bootstrap-icons.css'
-import { useUser } from '@/app/context/UserContext' 
+import { useEffect, useState } from 'react'
+import { useAppContext } from '@/lib/context/AppContext'
 
 const SidebarSkeleton = () => (
   <aside className="w-64 flex-col hidden lg:flex bg-background h-full fixed lg:relative z-50 animate-pulse">
@@ -28,7 +29,59 @@ const SidebarSkeleton = () => (
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const { user, isLoading } = useUser();
+  const { user, isUserLoading, settingImages } = useAppContext();
+  const [logoSrc, setLogoSrc] = useState("/images/logo-wgs.svg");
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    if (!settingImages) return;
+
+    const updateLogo = () => {
+      const currentTheme = localStorage.getItem("theme") as "light" | "dark" | "system" | null;
+      let darkMode = false;
+
+      if (currentTheme === "dark") darkMode = true;
+      else if (currentTheme === "light") darkMode = false;
+      else darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+      setIsDarkMode(darkMode);
+      setLogoSrc(darkMode ? settingImages.dark_image ?? "/images/logo-wgs.svg" : settingImages.light_image ?? "/images/logo-wgs.svg");
+    };
+
+    // update langsung saat mount
+    updateLogo();
+
+    // listener system theme change
+    const darkMedia = window.matchMedia("(prefers-color-scheme: dark)");
+    const listener = (e: MediaQueryListEvent) => {
+      const currentTheme = localStorage.getItem("theme");
+      if (!currentTheme || currentTheme === "system") {
+        updateLogo();
+      }
+    };
+    darkMedia.addEventListener("change", listener);
+
+    // listener localStorage theme change (jika theme diubah di tempat lain)
+    const storageListener = (e: StorageEvent) => {
+      if (e.key === "theme") updateLogo();
+    };
+    window.addEventListener("storage", storageListener);
+
+    return () => {
+      darkMedia.removeEventListener("change", listener);
+      window.removeEventListener("storage", storageListener);
+    };
+  }, [settingImages]);
+
+
+  const getLogoSrc = () => {
+    if (!settingImages) return "/images/logo-wgs.svg";
+    return isDarkMode ? (settingImages.dark_image ?? "/images/logo-wgs.svg") : (settingImages.light_image ?? "/images/logo-wgs.svg");
+  };
+
+  useEffect(() => {
+    setLogoSrc(getLogoSrc());
+  }, [settingImages, isDarkMode]);
 
   const isActive = (path: string) => pathname === path ? 'bg-background shadow-sm' : 'hover:bg-blue-200 hover:dark:bg-blue-900'
   const isBottomActive = (path: string) => pathname === path ? 'text-blue-700' : 'text-gray-500'
@@ -37,8 +90,8 @@ export default function Sidebar() {
     window.dispatchEvent(new CustomEvent('resetLeaveView'));
   };
 
-  if (isLoading) {
-    return <SidebarSkeleton />; 
+  if (isUserLoading) {
+    return <SidebarSkeleton />;
   }
 
   const welcomeText = `Welcome, ${user?.fullname || 'Guest'}`;
@@ -54,7 +107,7 @@ export default function Sidebar() {
             <div className="bg-background p-7 pb-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <Image src="/images/logo-wgs.svg" alt="Logo WGS" width={120} height={40} priority />
+                  <Image src={logoSrc} alt="Logo WGS" width={90} height={90} priority />
                   <h2 className="text-2xl font-medium text-foreground mt-2 truncate">{welcomeText}</h2>
                 </div>
               </div>
@@ -99,7 +152,7 @@ export default function Sidebar() {
           </aside>
 
           {/* BOTTOM BAR ADMIN  */}
-          <nav className="fixed bottom-0 left-0 w-full bg-white border-t z-50 overflow-x-auto lg:hidden">
+          <nav className="fixed bottom-0 left-0 w-full bg-white dark:bg-card border-t z-50 overflow-x-auto lg:hidden">
             <div className="flex flex-nowrap items-start px-2">
               <Link href="/admin/dashboard" className={`flex flex-col items-center text-center h-full pt-2 px-3 min-w-[85px] ${isBottomActive('/admin/dashboard')}`}>
                 <i className="bi bi-person-workspace text-xl" />
@@ -143,7 +196,7 @@ export default function Sidebar() {
             <div className="bg-background p-7 pb-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <Image src="/images/logo-wgs.svg" alt="Logo WGS" width={120} height={40} priority />
+                  <Image src={logoSrc} alt="Logo WGS" width={90} height={90} priority />
                   <h2 className="text-2xl font-medium text-foreground mt-2 truncate">{welcomeText}</h2>
                 </div>
               </div>
@@ -175,9 +228,8 @@ export default function Sidebar() {
             </nav>
           </aside>
 
-
           {/* Bottombar User */}
-          <nav className="fixed bottom-0 left-0 w-full bg-white border-t z-50 flex justify-around items-center py-2 lg:hidden">
+          <nav className="fixed bottom-0 left-0 w-full bg-white dark:bg-card border-t z-50 flex justify-around items-center py-2 lg:hidden">
             <Link href="/" className={`flex flex-col items-center text-xs ${isBottomActive('/')}`}>
               <i className={`bi bi-person-workspace text-xl`} />
               <span>Dashboard</span>

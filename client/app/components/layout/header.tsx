@@ -9,23 +9,21 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import Modal from '@/app/components/Modal/Modal'
 import Cookies from 'js-cookie'
 import SettingModal from '../Modal/Setting'
-import { useSetting } from '@/lib/context/SettingContext'
-import { useUser } from '../../context/UserContext' 
 import { logoutUser } from '@/lib/api/service/user'
+import { useAppContext } from '@/lib/context/AppContext'
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    const { user, isLoading } = useUser(); 
+    const { user, isUserLoading, settingImages } = useAppContext(); 
 
     const pathname = usePathname()
     const router = useRouter()
-    const { images } = useSetting()
     const [logoSrc, setLogoSrc] = useState("/images/logo-wgs.svg");
     const [isDarkMode, setIsDarkMode] = useState(false);
 
     useEffect(() => {
-        if (!images) return;
+        if (!settingImages) return;
 
         const updateLogo = () => {
             const currentTheme = localStorage.getItem("theme") as "light" | "dark" | "system" | null;
@@ -36,7 +34,7 @@ export default function Header() {
             else darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
             setIsDarkMode(darkMode);
-            setLogoSrc(darkMode ? images.dark_image ?? "/images/logo-wgs.svg" : images.light_image ?? "/images/logo-wgs.svg");
+            setLogoSrc(darkMode ? settingImages.dark_image ?? "/images/logo-wgs.svg" : settingImages.light_image ?? "/images/logo-wgs.svg");
         };
 
         // update langsung saat mount
@@ -62,17 +60,17 @@ export default function Header() {
             darkMedia.removeEventListener("change", listener);
             window.removeEventListener("storage", storageListener);
         };
-    }, [images]);
+    }, [settingImages]);
 
 
     const getLogoSrc = () => {
-        if (!images) return "/images/logo-wgs.svg";
-        return isDarkMode ? (images.dark_image ?? "/images/logo-wgs.svg") : (images.light_image ?? "/images/logo-wgs.svg");
+        if (!settingImages) return "/images/logo-wgs.svg";
+        return isDarkMode ? (settingImages.dark_image ?? "/images/logo-wgs.svg") : (settingImages.light_image ?? "/images/logo-wgs.svg");
     };
 
     useEffect(() => {
         setLogoSrc(getLogoSrc());
-    }, [images, isDarkMode]);
+    }, [settingImages, isDarkMode]);
 
     useEffect(() => {
         setIsMenuOpen(false)
@@ -95,7 +93,7 @@ export default function Header() {
     const isUserDashboard = pathname === '/' || pathname === '/history' || pathname === '/mandatory' || pathname === '/adjust-history' || pathname === '/information';
     const isAdminPage = pathname.startsWith('/admin')
 
-    if (isLoading) {
+    if (isUserLoading) {
         // Tampilkan skeleton loading sederhana saat data user sedang diambil oleh context
         return (
             <header className="flex items-center justify-between lg:bg-transparent lg:p-0">
@@ -120,7 +118,7 @@ export default function Header() {
         <header className="flex items-center justify-between lg:bg-transparent lg:p-0">
             <div className="lg:hidden">
                 <Image src={logoSrc} alt="Logo WGS" width={90} height={90} priority />
-                <h2 className="text-xl font-medium text-foreground truncate mt-1">Welcome {user?.fullname}</h2>
+                <h2 className="text-xl font-medium text-foreground truncate mt-1">Welcome {fullname}</h2>
             </div>
 
             <div className="flex-1 hidden lg:block"></div>
