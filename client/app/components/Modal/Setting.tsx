@@ -315,68 +315,68 @@ const SettingModal = ({ role, className }: SettingProps) => {
                                                         <TabsContent value='light'>
                                                             <div className='grid grid-cols-4 gap-2.5 justify-center items-center'>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Background</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.light_color.baseColor.background }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.light_color.baseColor.background}</p>
-                                                                    <p className='text-xs font-bold'>Background</p>
                                                                 </div>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Foreground</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.light_color.baseColor.foreground }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.light_color.baseColor.foreground}</p>
-                                                                    <p className='text-xs font-bold'>Foreground</p>
                                                                 </div>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Card</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.light_color.cardColor.card }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.light_color.cardColor.card}</p>
-                                                                    <p className='text-xs font-bold'>Card</p>
                                                                 </div>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Card Foreground</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.light_color.cardColor.cardForeground }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.light_color.cardColor.cardForeground}</p>
-                                                                    <p className='text-xs font-bold'>Card Foreground</p>
                                                                 </div>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Primary</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.light_color.primaryColor.primary }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.light_color.primaryColor.primary}</p>
-                                                                    <p className='text-xs font-bold'>Primary</p>
                                                                 </div>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Primary Foreground</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.light_color.primaryColor.primaryForeground }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.light_color.primaryColor.primaryForeground}</p>
-                                                                    <p className='text-xs font-bold'>Primary Foreground</p>
                                                                 </div>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Secondary</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.light_color.secondaryColor.secondary }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.light_color.secondaryColor.secondary}</p>
-                                                                    <p className='text-xs font-bold'>Secondary</p>
                                                                 </div>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Secondary Foreground</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.light_color.secondaryColor.secondaryForeground }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.light_color.secondaryColor.secondaryForeground}</p>
-                                                                    <p className='text-xs font-bold'>Secondary Foreground</p>
                                                                 </div>
                                                             </div>
                                                         </TabsContent>
@@ -384,68 +384,68 @@ const SettingModal = ({ role, className }: SettingProps) => {
                                                         <TabsContent value='dark'>
                                                             <div className='grid grid-cols-4 gap-2.5 justify-center items-center'>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Background</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.dark_color.baseColor.background }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.dark_color.baseColor.background}</p>
-                                                                    <p className='text-xs font-bold'>Background</p>
                                                                 </div>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Foreground</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.dark_color.baseColor.foreground }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.dark_color.baseColor.foreground}</p>
-                                                                    <p className='text-xs font-bold'>Foreground</p>
                                                                 </div>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Card</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.dark_color.cardColor.card }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.dark_color.cardColor.card}</p>
-                                                                    <p className='text-xs font-bold'>Card</p>
                                                                 </div>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Card Foreground</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.dark_color.cardColor.cardForeground }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.dark_color.cardColor.cardForeground}</p>
-                                                                    <p className='text-xs font-bold'>Card Foreground</p>
                                                                 </div>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Primary</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.dark_color.primaryColor.primary }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.dark_color.primaryColor.primary}</p>
-                                                                    <p className='text-xs font-bold'>Primary</p>
                                                                 </div>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Primary Foreground</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.dark_color.primaryColor.primaryForeground }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.dark_color.primaryColor.primaryForeground}</p>
-                                                                    <p className='text-xs font-bold'>Primary Foreground</p>
                                                                 </div>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Secondary</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.dark_color.secondaryColor.secondary }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.dark_color.secondaryColor.secondary}</p>
-                                                                    <p className='text-xs font-bold'>Secondary</p>
                                                                 </div>
                                                                 <div className='flex flex-col justify-center items-center gap-1'>
+                                                                    <p className='text-xs font-bold'>Secondary Foreground</p>
                                                                     <div
                                                                         className="w-9 h-9 rounded-full border-[0.5px] border-border"
                                                                         style={{ backgroundColor: configData?.dark_color.secondaryColor.secondaryForeground }}
                                                                     />
                                                                     <p className='text-xs font-semibold'>{configData?.dark_color.secondaryColor.secondaryForeground}</p>
-                                                                    <p className='text-xs font-bold'>Secondary Foreground</p>
                                                                 </div>
                                                             </div>
                                                         </TabsContent>
