@@ -7,7 +7,7 @@ import { processData } from "../utils/inject.utils.js";
 export const importFileServices = async (path, requestNIK) => {
 
     //config
-    const CHUNK_BASE = 100
+    const CHUNK_BASE = 10
 
     let data = []
     let chunkCount = 0

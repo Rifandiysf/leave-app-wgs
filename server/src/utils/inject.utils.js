@@ -84,7 +84,6 @@ export const processData = async (data, number, tx, CHUNK_BASE, requestNIK) => {
     } catch (error) {
         error.statusCode = 400;
 
-        let detail = '';
         let startLine = (number - CHUNK_BASE) < 0 ? 0 : number - CHUNK_BASE;
         let endLine = number + 1;
 
@@ -96,7 +95,6 @@ export const processData = async (data, number, tx, CHUNK_BASE, requestNIK) => {
 
         error.cause = {
             lines_between: `${startLine}-${endLine}`,
-            reason: detail
         }
 
         throw error
