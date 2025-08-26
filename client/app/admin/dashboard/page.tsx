@@ -337,7 +337,7 @@ const DashboardPage = () => {
 
                     <Card className="bg-white dark:bg-card border border-border overflow-hidden relative rounded-lg sm:rounded-2xl p-4 sm:p-6">
                         <div className="relative">
-                            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
                                 <i className="bi bi-arrow-down-circle text-red-500"></i>
                                 Users With the Lowest Remaining Leave
                             </h3>

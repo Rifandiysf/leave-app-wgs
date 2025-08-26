@@ -16,6 +16,7 @@ interface AppContextType {
     userError: string | null;
     settingImages: ThemeImages | null;
     fetchSetting: () => Promise<void>;
+    fetchUserData: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -31,20 +32,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const [settingImages, setSettingImages] = useState<ThemeImages | null>(null);
 
     // Fetch User Data
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const userData = await getMe();
-                setUser(userData);
-            } catch (err: any) {
-                setUserError(err.message);
-                console.error("User context fetch error:", err);
-            } finally {
-                setIsUserLoading(false);
-            }
-        };
-        fetchUser();
-    }, []);
+    const fetchUserData = async () => {
+        setIsUserLoading(true);
+        try {
+            const userData = await getMe();
+            setUser(userData);
+            setUserError(null);
+        } catch (err: any) {
+            setUser(null);
+            setUserError(err.message);
+            console.error("User context fetch error:", err);
+        } finally {
+            setIsUserLoading(false);
+        }
+    };
 
     // Fetch Setting Data
     const fetchSetting = async () => {
@@ -70,15 +71,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    useEffect(() => {
-        fetchSetting();
-    }, []);
-
     const value = {
         user,
         isUserLoading,
         userError,
         settingImages,
+        fetchUserData,
         fetchSetting,
     };
 
