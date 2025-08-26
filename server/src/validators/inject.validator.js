@@ -31,7 +31,7 @@ export const userSchema = z.object({
 })
 
 export const balanceSchema = z.object({
-    amount: z.number(),
+    amount: z.number("amount_balance must be number"),
     receive_date: z.date().min(new Date("1900-01-01"), { error: "start_date is too far behind" }),
     expired_date: z.date().min(new Date("1900-01-01"), { error: "start_date is too far behind" }),
     NIK: z.string()
