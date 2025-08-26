@@ -1,5 +1,8 @@
 import express from 'express';
-import { getStatistics, getTrend, getLeaderboard, getPendingLeaves} from '../controllers/dashboard.controller.js';
+import { getStatistics } from '../controllers/dashboard/getStatistics.controller.js';
+import { getTrend } from '../controllers/dashboard/getTrend.controller.js';
+import { getLeaderboard } from '../controllers/dashboard/getLeaderboard.controller.js';
+import { getPendingLeaves } from '../controllers/dashboard/getPendingLeaves.controller.js';
 import { validate } from "../middlewares/validate.js";
 import { validateRole } from '../middlewares/validateRole.middleware.js';
 

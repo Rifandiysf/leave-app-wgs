@@ -1,4 +1,4 @@
-import { fetchUserData } from "../services/auth.service.js";
+import { fetchUserData } from "../services/auth/fetchUserData.service.js";
 import bcrypt from 'bcrypt';
 import { decodeToken } from "../utils/jwt.js";
 

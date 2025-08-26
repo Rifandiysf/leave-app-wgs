@@ -1,6 +1,7 @@
 import cron from 'node-cron';
 import prisma from "../utils/client.js";
-import { updateLeaveBalance, expiredLeave } from '../services/leave.service.js';
+import { updateLeaveBalance } from '../services/leave/updateLeaveBalance.service.js';
+import { expiredLeave } from '../services/leave/expiredLeave.service.js';
 
 // Menjalankan setiap tanggal 1 pukul 00:00 pagi
 cron.schedule('0 0 1 * *', async () => {

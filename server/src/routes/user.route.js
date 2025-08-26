@@ -1,16 +1,27 @@
 import express from "express";
-import { createLeaveRequest, getLeaveRequestsById, getLeavesByFilter, allUsers, getUser, updateUser, deleteUser, getLeaveRequests, modifyAmount, getUserMe, getAllMandatoryLeaves, leaveTrend} from "../controllers/user.controller.js";
+import { createLeaveRequest } from "../controllers/user-leave/createLeaveRequest.controller.js";
+import { getLeaveRequests } from "../controllers/user-leave/getLeaveRequests.controller.js";
+import { getLeavesByFilter } from "../controllers/user-leave/getLeavesByFilter.controller.js";
+import { getLeaveRequestsById } from "../controllers/user-leave/getLeaveRequestsById.controller.js";
+import { getAllMandatoryLeaves } from "../controllers/user-leave/getAllMandatoryLeaves.controller.js";
+import { leaveTrend } from "../controllers/user-leave/leaveTrend.controller.js";
+import { allUsers } from "../controllers/user/allUsers.controller.js";
+import { getUser } from "../controllers/user/getUser.controller.js";
+import { getUserMe } from "../controllers/user/getUserMe.controller.js";
+import { updateUser } from "../controllers/user/updateUser.controller.js";
+import { deleteUser } from "../controllers/user/deleteUser.controller.js";
+import { modifyAmount } from "../controllers/user-balance/modifyAmount.controller.js";
 import { validate } from "../middlewares/validate.js";
 import leaveRequestSchema from "../validators/leave.validator.js";
 import { isAuthenticated } from "../middlewares/isAuthenticated.middleware.js";
 import { validateRole } from "../middlewares/validateRole.middleware.js";
-import { getAllUsers } from "../services/user.service.js";
+
 import { validateLeaveBalance } from "../middlewares/validateLeaveBalance.middleware.js";
 import { validateSpecialLeaveNotWeekend } from "../middlewares/validateSpecialLeaveNotWeekend.js";
 import { checkDuplicateLeave } from "../middlewares/checkDuplicateLeave .middleware.js";
 import { validateStartDate } from "../middlewares/validateStartDate.middleware.js";
 import { validateLeaveDateRange } from "../middlewares/validateLeaveDateRange.middleware.js";
-import { getSpecialLeave } from "../controllers/leave.controller.js";
+import { getSpecialLeave } from "../controllers/special-leave/getSpecialLeave.controller.js";
 
 const userRoutes = express.Router();
 

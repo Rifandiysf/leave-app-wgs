@@ -52,67 +52,10 @@ export const calculateTotalDays = (startDate, endDate) => {
     ) + 1;
 };
 
-export const getUserLeaveBalance = async (NIK) => {
-    const currentDate = new Date();
-
-    const activeBalance = await prisma.tb_balance.aggregate({
-        _sum: {
-            amount: true
-        },
-        where: {
-            NIK: NIK,
-            expired_date: {
-                gte: currentDate
-            }
-        }
-    });
-
-    return activeBalance._sum.amount || 0;
-};
-
-export const getUserCurrentYearLeaveBalance = async (NIK) => {
-    const currentDate = new Date();
-
-    const latestBalance = await prisma.tb_balance.findFirst({
-        where: {
-            NIK: NIK,
-            expired_date: {
-                gte: currentDate
-            }
-        },
-        orderBy: {
-            expired_date: "desc"
-        }
-    });
-
-    return latestBalance?.amount || 0;
-};
 
 
-export const getPendingLeaveDays = async (NIK) => {
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentDateFirstMonth = new Date(currentYear, 0, 1);
 
-    const pendingRequest = await prisma.tb_leave.aggregate({
-        _sum: {
-            total_days: true
-        },
-        where: {
-            created_at: {
-                gte: currentDateFirstMonth,
-                lte: currentDate
-            },
-            NIK: NIK,
-            status: "pending",
-            leave_type: {
-                in: ["personal_leave", "mandatory_leave"]
-            }
-        },
-    });
 
-    return pendingRequest._sum.total_days || 0;
-};
 
 export const getUsedLeaveDays = async (NIK) => {
     const currentDate = new Date();

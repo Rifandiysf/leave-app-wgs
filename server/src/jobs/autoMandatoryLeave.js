@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import prisma from '../utils/client.js';
-import { createLeave } from '../services/user.service.js';
+import { createLeave } from '../services/user-leave/createLeave.service.js';
 
 
 cron.schedule('0 0 * * *', async () => {
