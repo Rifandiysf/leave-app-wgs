@@ -11,7 +11,7 @@
   },
   "prisma": {
     "schema": "./src/models/schema.prisma",
-    "seed": "node ./src/seed/seed.js"
+    "seed": "node ./src/seed/inject.seed.js"
   },
   "dependencies": {
     "@prisma/client": "^6.11.1",

@@ -86,8 +86,8 @@ model tb_balance_adjustment {
   actor            String     @db.VarChar(50)
   tb_users         tb_users   @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
   balance_year     Int
-  tb_balance       tb_balance @relation(fields: [id_balance], references: [id_balance], onDelete: NoAction, onUpdate: NoAction, map: "id_balance")
-  id_balance       String
+  id_balance       String?
+  tb_balance       tb_balance? @relation(fields: [id_balance], references: [id_balance], onDelete: NoAction, onUpdate: NoAction, map: "id_balance")
 }
 
 model tb_leave_log {
