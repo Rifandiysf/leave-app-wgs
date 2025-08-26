@@ -161,35 +161,63 @@ const AdjustHistoryUserPage = () => {
     const paginationPages = getVisiblePages(currentPage, paginationInfo.last_visible_page);
 
     return (
-        <section className="flex flex-col relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
-            {/* --- Header dengan Search dan Filter Tahun --- */}
-            <div className='flex justify-between items-center gap-3 mb-4'>
-                <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate">My Adjust History</h1>
-                <div className="flex items-center gap-3">
-                    <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search..."
-                        className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <Select onValueChange={(value) => setYearFilter(value === 'all' ? null : value)}>
-                        <SelectTrigger className="min-w-[120px]">
-                            <SelectValue placeholder="Year" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                <SelectLabel>Balance Year</SelectLabel>
-                                <SelectItem value="all">All</SelectItem>
-                                <SelectItem value="2026">2026</SelectItem>
-                                <SelectItem value="2025">2025</SelectItem>
-                                <SelectItem value="2024">2024</SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
-
+            <section className="flex flex-col relative p-3 min-h-[calc(100dvh-137px)] max-sm:mb-14">
+                   {/* --- Header and Filters --- */}
+                  <div className='hidden md:flex justify-between items-center gap-3 mb-4'>
+                       <h1 className="text-2xl font-bold text-foreground">Adjust Hisory</h1>
+                       <div className="flex items-center gap-3">
+                           <input
+                               type="text"
+                               placeholder="Search..."
+                               value={searchTerm}
+                               onChange={(e) => setSearchTerm(e.target.value)}
+                               className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                           />
+                          
+                           {/* Year Filter */}
+                           <Select onValueChange={(value) => setYearFilter(value === 'all' ? null : value)}>
+                               <SelectTrigger className="min-w-[120px]"><SelectValue placeholder="Year" /></SelectTrigger>
+                               <SelectContent>
+                                   <SelectGroup>
+                                       <SelectLabel>Balance Year</SelectLabel>
+                                       <SelectItem value="all">All</SelectItem>
+                                       <SelectItem value="2026">2026</SelectItem>
+                                       <SelectItem value="2025">2025</SelectItem>
+                                       <SelectItem value="2024">2024</SelectItem>
+                                   </SelectGroup>
+                               </SelectContent>
+                           </Select>
+                       </div>
+                   </div>
+       
+       
+                 <div className='md:hidden flex flex-col gap-4 mb-4'>
+                       <h1 className="text-2xl font-bold text-foreground text-center">Adjust History </h1>
+                       <div className="flex items-center gap-3">
+                           <input
+                               type="text"
+                               placeholder="Search..."
+                               value={searchTerm}
+                               onChange={(e) => setSearchTerm(e.target.value)}
+                               className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-foreground dark:bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                           />
+                          
+                           {/* Year Filter */}
+                           <Select onValueChange={(value) => setYearFilter(value === 'all' ? null : value)}>
+                               <SelectTrigger className="min-w-[120px]"><SelectValue placeholder="Year" /></SelectTrigger>
+                               <SelectContent>
+                                   <SelectGroup>
+                                       <SelectLabel>Balance Year</SelectLabel>
+                                       <SelectItem value="all">All</SelectItem>
+                                       <SelectItem value="2026">2026</SelectItem>
+                                       <SelectItem value="2025">2025</SelectItem>
+                                       <SelectItem value="2024">2024</SelectItem>
+                                   </SelectGroup>
+                               </SelectContent>
+                           </Select>
+                       </div>
+                   </div>
+       
             {/* --- Table --- */}
             <div className="w-full border-border rounded-md overflow-hidden">
                 <div className="overflow-x-auto">

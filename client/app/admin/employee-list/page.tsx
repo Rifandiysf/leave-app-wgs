@@ -196,39 +196,92 @@ const EmployeeListContent = () => {
                 title="Leave data added successfully"
             />
             
-            {/* ### PERUBAHAN DI SINI: Class border-b dan border-border dihapus ### */}
-            <section className="flex justify-between items-center p-5">
-                <h1 className="text-2xl font-bold text-foreground">Employee List</h1>
-                <div className="flex items-center gap-3">
-                    <div className="flex">
-                        <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search..."
-                            className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        />
+            {/* Header Section - Responsive Layout */}
+            <section className="p-5">
+                {/* Desktop Layout */}
+                <div className="hidden sm:flex justify-between items-center">
+                    <h1 className="text-2xl font-bold text-foreground">Employee List</h1>
+                    <div className="flex items-center gap-3">
+                        <div className="flex">
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Search..."
+                                className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                        </div>
+                        <div className="flex gap-3">
+                            <SelectDemo placeholder="Gender" onValueChange={(value) => setGenderFilter(value === 'all' ? null : value)}>
+                                <SelectLabel>Gender</SelectLabel>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="male">Male</SelectItem>
+                                <SelectItem value="female">Female</SelectItem>
+                            </SelectDemo>
+                            <SelectDemo placeholder="Status" onValueChange={(value) => setStatusFilter(value === 'all' ? null : value)}>
+                                <SelectLabel>Status</SelectLabel>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="resign">Resign</SelectItem>
+                            </SelectDemo>
+                            <SelectDemo placeholder="Role" onValueChange={(value) => setRoleFilter(value === 'all' ? null : value)}>
+                                <SelectLabel>Role</SelectLabel>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="karyawan_kontrak">Karyawan Kontrak</SelectItem>
+                                <SelectItem value="karyawan_tetap">Karyawan Tetap</SelectItem>
+                                <SelectItem value="magang">Magang</SelectItem>
+                            </SelectDemo>
+                        </div>
                     </div>
-                    <div className="flex gap-3">
-                        <SelectDemo placeholder="Gender" onValueChange={(value) => setGenderFilter(value === 'all' ? null : value)}>
-                            <SelectLabel>Gender</SelectLabel>
-                            <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="male">Male</SelectItem>
-                            <SelectItem value="female">Female</SelectItem>
-                        </SelectDemo>
-                        <SelectDemo placeholder="Status" onValueChange={(value) => setStatusFilter(value === 'all' ? null : value)}>
-                            <SelectLabel>Status</SelectLabel>
-                            <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="resign">Resign</SelectItem>
-                        </SelectDemo>
-                        <SelectDemo placeholder="Role" onValueChange={(value) => setRoleFilter(value === 'all' ? null : value)}>
-                            <SelectLabel>Role</SelectLabel>
-                            <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="karyawan_kontrak">Karyawan Kontrak</SelectItem>
-                            <SelectItem value="karyawan_tetap">Karyawan Tetap</SelectItem>
-                            <SelectItem value="magang">Magang</SelectItem>
-                        </SelectDemo>
+                </div>
+
+                {/* Mobile Layout */}
+                <div className="sm:hidden">
+                    {/* Title */}
+                    <div className="text-center mb-4">
+                        <h1 className="text-2xl font-bold text-foreground">Employee List</h1>
+                    </div>
+                    {/* Filters */}
+                    <div className="space-y-3">
+                        {/* Search Input */}
+                        <div className="w-full">
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Search..."
+                                className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                        </div>
+                        
+                        {/* Filter Dropdowns */}
+                        <div className="flex gap-2">
+                            <div className="flex-1">
+                                <SelectDemo placeholder="Gender" onValueChange={(value) => setGenderFilter(value === 'all' ? null : value)}>
+                                    <SelectLabel>Gender</SelectLabel>
+                                    <SelectItem value="all">All</SelectItem>
+                                    <SelectItem value="male">Male</SelectItem>
+                                    <SelectItem value="female">Female</SelectItem>
+                                </SelectDemo>
+                            </div>
+                            <div className="flex-1">
+                                <SelectDemo placeholder="Status" onValueChange={(value) => setStatusFilter(value === 'all' ? null : value)}>
+                                    <SelectLabel>Status</SelectLabel>
+                                    <SelectItem value="all">All</SelectItem>
+                                    <SelectItem value="active">Active</SelectItem>
+                                    <SelectItem value="resign">Resign</SelectItem>
+                                </SelectDemo>
+                            </div>
+                            <div className="flex-1 h-2">
+                                <SelectDemo placeholder="Role" onValueChange={(value) => setRoleFilter(value === 'all' ? null : value)}>
+                                    <SelectLabel>Role</SelectLabel>
+                                    <SelectItem value="all">All</SelectItem>
+                                    <SelectItem value="karyawan_kontrak">Karyawan Kontrak</SelectItem>
+                                    <SelectItem value="karyawan_tetap">Karyawan Tetap</SelectItem>
+                                    <SelectItem value="magang">Magang</SelectItem>
+                                </SelectDemo>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

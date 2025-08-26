@@ -4,10 +4,10 @@ import { parse, format } from 'fast-csv';
 import { pipeline, Transform } from "stream";
 import { processData } from "../utils/inject.utils.js";
 
-export const importFileServices = async (path) => {
+export const importFileServices = async (path, requestNIK) => {
 
     //config
-    const CHUNK_BASE = 10
+    const CHUNK_BASE = 100
 
     let data = []
     let chunkCount = 0
@@ -28,7 +28,7 @@ export const importFileServices = async (path) => {
                         data.push(chunk)
                         if (data.length === CHUNK_BASE) {
 
-                            await processData(data, chunkCount, tx, CHUNK_BASE)
+                            await processData(data, chunkCount, tx, CHUNK_BASE, requestNIK)
 
                             data = []
                         }
@@ -44,7 +44,7 @@ export const importFileServices = async (path) => {
                         console.log("Flushing remaining data...")
                         if (data.length > 0) {
 
-                            await processData(data, chunkCount, tx, CHUNK_BASE)
+                            await processData(data, chunkCount, tx, CHUNK_BASE, requestNIK)
 
                             data = []
                         }

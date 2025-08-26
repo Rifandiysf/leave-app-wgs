@@ -58,7 +58,7 @@ export const getAllBalanceAdjustment = async (page, limit, startDate, endDate, b
             adjustment_value: log.adjustment_value,
             balance_year: log.balance_year.toString(),
             date: formatDateIndonesia(createDateFromString(log.created_at)),
-            time: log.created_at.toLocaleTimeString().slice(0, 5).replace('.', ':'),
+            time: log.created_at.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: undefined }).replace('.', ':'),
             actor: log.actor,
             notes: log.notes
         }))
@@ -133,7 +133,7 @@ export const getAllBalanceAdjustmentByNIK = async (page, limit, nik, searchValue
             adjustment_value: log.adjustment_value,
             balance_year: log.balance_year.toString(),
             date: formatDateIndonesia(createDateFromString(log.created_at)),
-            time: log.created_at.toLocaleTimeString().slice(0, 5).replace('.', ':'),
+            time: log.created_at.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: undefined }).replace('.', ':'),
             actor: log.actor,
             notes: log.notes
         }))

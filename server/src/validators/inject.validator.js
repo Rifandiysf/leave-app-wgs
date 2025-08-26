@@ -38,7 +38,7 @@ export const balanceSchema = z.object({
 })
 
 export const leaveLogSchema = z.object({
-    id_leave: z.uuid(),
+    id_leave: z.string(),
     old_status: z.enum(status),
     new_status: z.enum(status),
     reason: z.string('reason must be string'),
@@ -46,3 +46,24 @@ export const leaveLogSchema = z.object({
     changed_at: z.date().min(new Date("1900-01-01"), { error: "start_date is too far behind" }),
     balances_used: z.array(),
 })
+
+export const balanceAdjustmentSchema = z.object({
+    id_adjustment: z.string("id_adjustment must be string"),
+    adjustment_value: z.number("adjustment_value must be number"),
+    notes: z.string("notes must be string"),
+    actor: z.string("actor must be string"),
+    NIK: z.string("NIK must be string"),
+    balance_year: z.number("balance_year must be number")
+})
+
+export const validateInjectDataType = (schema, data) => {
+    try {
+        const result = schema.safeParse(data)
+        if (!result.success) {
+            console.log(result.error.issues);
+            throw result.error.issues?.[0]
+        }
+    } catch (error) {
+        throw error
+    }
+} 

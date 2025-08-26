@@ -1,3 +1,5 @@
+// app/components/Header.tsx (atau lokasi file Anda)
+
 'use client'
 
 import Image from 'next/image'
@@ -5,15 +7,17 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import 'bootstrap-icons/font/bootstrap-icons.css'
-import Modal from '@/app/components/Modal/Modal';
-import Cookies from 'js-cookie';
+import Modal from '@/app/components/Modal/Modal'
+import Cookies from 'js-cookie'
 import SettingModal from '../Modal/Setting'
 import { useSetting } from '@/lib/context/SettingContext'
+import { useUser } from '../../context/UserContext' 
+import { logoutUser } from '@/lib/api/service/user'
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [user, setUser] = useState({ fullname: 'Guest', isAdmin: false, role: '' });
-    const [isLoading, setIsLoading] = useState(true);
+
+    const { user, isLoading } = useUser(); 
 
     const pathname = usePathname()
     const router = useRouter()
@@ -75,62 +79,43 @@ export default function Header() {
         setIsMenuOpen(false)
     }, [pathname])
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            setIsLoading(true);
-            try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/me`, {
-                    method: 'GET',
-                    credentials: 'include',
-                });
-
-                if (res.ok) {
-                    const result = await res.json();
-                    const userData = result.user_data;
-                    setUser({
-                        fullname: userData.fullname,
-                        isAdmin: userData.role === 'admin' || userData.role === 'super_admin',
-                        role: userData.role
-                    });
-                } else {
-                    setUser({ fullname: 'Guest', isAdmin: false });
-                }
-            } catch (error) {
-                console.error("Failed to fetch user data:", error);
-                setUser({ fullname: 'Guest', isAdmin: false });
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchUserData();
-    }, []);
-
     const handleLogout = async () => {
-
         try {
-            await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/logout`, {
-                method: 'GET',
-                credentials: 'include',
-            })
-
-            Cookies.remove('Authorization', { path: '/' });
-            Cookies.remove('device-id', { path: '/' });
-            router.push('/auth/login');
+            // 4. Gunakan service logout yang terpusat
+            await logoutUser();
         } catch (err) {
-            console.error('Logout failed', err)
+            console.error('Logout API call failed, but proceeding with client-side logout.', err)
+        } finally {
+            // Selalu hapus cookies dan redirect, apapun hasil API call
             Cookies.remove('Authorization', { path: '/' });
             Cookies.remove('device-id', { path: '/' });
             router.push('/auth/login');
         }
     }
 
-    const isUserDashboard = pathname === '/' || pathname === '/history' || pathname === '/mandatory' || pathname === '/adjust-history' ||pathname === '/information';
+    const isUserDashboard = pathname === '/' || pathname === '/history' || pathname === '/mandatory' || pathname === '/adjust-history' || pathname === '/information';
     const isAdminPage = pathname.startsWith('/admin')
 
     if (isLoading) {
-        return null;
+        // Tampilkan skeleton loading sederhana saat data user sedang diambil oleh context
+        return (
+            <header className="flex items-center justify-between lg:bg-transparent lg:p-0">
+                <div className="lg:hidden">
+                    <div className="w-36 h-9 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1"></div>
+                    <div className="w-48 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                </div>
+                <div className="flex-1 hidden lg:block"></div>
+                <div className="hidden lg:flex items-center space-x-6">
+                    <div className="w-24 h-8 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse"></div>
+                    <div className="w-24 h-8 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse"></div>
+                </div>
+            </header>
+        );
     }
+
+    const fullname = user?.fullname || 'Guest';
+    const userRole = user?.role || '';
+    const isAdmin = userRole === 'admin' || userRole === 'super_admin';
 
     return (
         <header className="flex items-center justify-between lg:bg-transparent lg:p-0">
@@ -158,20 +143,20 @@ export default function Header() {
                         </div>
                         <div className="h-px bg-gray-500 mb-4" />
                         <nav className="flex flex-col">
-                            {user.isAdmin && isAdminPage && (
+                            {isAdmin && isAdminPage && (
                                 <Link href="/" className="flex items-center space-x-3 p-2 rounded-lg dark:hover:bg-foreground/20 transition-colors">
                                     <i className="bi bi-box-arrow-in-left text-[24px] ml-[2px]" />
                                     <span className="font-medium text-foreground">Employee Side</span>
                                 </Link>
                             )}
-                            {user.isAdmin && isUserDashboard && (
+                            {isAdmin && isUserDashboard && (
                                 <Link href="/admin/dashboard" className="flex items-center space-x-4 p-2 rounded-lg dark:hover:bg-foreground/20 transition-colors">
                                     <i className="bi bi-person-workspace text-xl" />
                                     <span className="font-medium text-foreground">Admin Side</span>
                                 </Link>
                             )}
 
-                            <SettingModal role={user.role} className='justify-start space-x-2.5 pl-2.5'/>
+                            <SettingModal role={userRole} className='justify-start space-x-2.5 pl-2.5' />
 
                             <Modal
                                 mode="confirm"
@@ -192,19 +177,19 @@ export default function Header() {
             )}
 
             <div className="hidden lg:flex items-center space-x-6">
-                {user.isAdmin && isUserDashboard && (
+                {isAdmin && isUserDashboard && (
                     <Link href="/admin/dashboard" className="flex items-center space-x-2 p-1.5 py-1 rounded-md cursor-pointer hover:text-blue-900 dark:hover:bg-foreground/20 transition-colors">
                         <i className="bi bi-person-workspace text-xl w-6 text-center" />
                         <span className="text-sm font-medium">Admin Side</span>
                     </Link>
                 )}
-                {user.isAdmin && isAdminPage && (
+                {isAdmin && isAdminPage && (
                     <Link href="/" className="flex items-center space-x-2 p-1.5 py-1 rounded-md cursor-pointer hover:text-blue-900 dark:hover:bg-foreground/20 transition-colors">
                         <i className="bi bi-box-arrow-in-left  w-6 text-center text-2xl" />
                         <span className="text-sm font-medium">Employee Side</span>
                     </Link>
                 )}
-                <SettingModal role={user.role}/>
+                <SettingModal role={userRole} />
 
                 <Modal
                     mode="confirm"
