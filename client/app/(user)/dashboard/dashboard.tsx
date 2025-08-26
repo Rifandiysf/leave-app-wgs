@@ -36,12 +36,10 @@ const UserDashboard = () => {
   const { user: globalUser, isUserLoading, userError } = useAppContext();
   const { dashboardData, isLoading: isLoadingDashboard, error: dashboardError } = useUserDashboardData(globalUser);
 
-  // Menggabungkan state loading dari context dan hook kustom
   if (isUserLoading || isLoadingDashboard) {
     return <DashboardSkeleton />;
   }
 
-  // Menangani state error
   if (userError) {
     return <div className="text-center text-red-500 p-8">Error: {userError}</div>;
   }
