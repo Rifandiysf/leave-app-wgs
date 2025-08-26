@@ -10,7 +10,12 @@ cron.schedule('0 0 * * *', async () => {
         const endOfYear = new Date(`${targetYear}-12-31`);
 
         const users = await prisma.tb_users.findMany({
-            select: { NIK: true }
+            select: { NIK: true },
+            where: {
+                NOT : {
+                    role: 'magang'
+                }
+            }
         });
 
         for (const user of users) {
@@ -38,18 +43,25 @@ cron.schedule('0 0 * * *', async () => {
                     expired_date: new Date(`${targetYear + 2}-01-01`),
                 };
 
-                const [newBalance, adjustmentLog] = await prisma.$transaction([
-                    prisma.tb_balance.create({ data: newBalanceData }),
-                    prisma.tb_balance_adjustment.create({
+                const result = await prisma.$transaction(async (tx) => {
+                    const newBalance = await tx.tb_balance.create({
+                        data: newBalanceData
+                    });
+
+                    const adjustmentLog = await tx.tb_balance_adjustment.create({
                         data: {
                             adjustment_value,
                             notes,
                             actor,
                             NIK: nik,
+                            balance_year: targetYear,
+                            id_balance: newBalance.id_balance, // relasi balance yang dibuat di atas
                             created_at: new Date()
                         }
                     })
-                ]);
+
+                    return { newBalance, adjustmentLog };
+                });
 
                 console.log(`✅ Balance baru dibuat untuk NIK: ${nik}`);
             } else {
