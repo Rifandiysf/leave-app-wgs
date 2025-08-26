@@ -3,8 +3,7 @@
 import React from 'react';
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
-import { UserProvider } from '@/app/context/UserContext'
-import { SettingProvider } from '@/lib/context/SettingContext'
+import { AppProvider } from '@/lib/context/AppContext';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -26,7 +25,7 @@ const initializeTheme = () => {
     root.classList.toggle('dark', newTheme === 'dark');
 
     const colors = localStorage.getItem('themeColors');
-    
+
     if (colors) {
       const parsedColors: Record<string, string> = JSON.parse(colors);
       Object.entries(parsedColors).forEach(([key, value]) => {
@@ -41,22 +40,20 @@ const initializeTheme = () => {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode 
+  children: React.ReactNode
 }>) {
   const scriptContent = `(${initializeTheme.toString()})()`
 
   return (
-      <html lang="en" suppressHydrationWarning>
-        <head>
-          <script dangerouslySetInnerHTML={{ __html: scriptContent }} />
-        </head>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
-        <UserProvider>
-            <SettingProvider>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: scriptContent }} />
+      </head>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
+        <AppProvider>
           {children}
-        </UserProvider>
-          </SettingProvider>
+        </AppProvider>
       </body>
-      </html>
-    )
+    </html>
+  )
 }

@@ -2,12 +2,12 @@
 
 import React from "react";
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import { useUser } from "@/app/context/UserContext"; 
 import { useUserDashboardData } from "@/app/hooks/UseUserDashboardData";  
 import { DashboardHeader } from "@/app/components/dashboard/DashboardHeader";
 import { SummaryCards } from "@/app/components/dashboard/SummaryCards";
 import { Card } from "@/app/components/ui/card";
 import { ApplyLeave } from "@/app/components/form/applyLeave";
+import { useAppContext } from "@/lib/context/AppContext";
 
 
 const DashboardSkeleton = () => (
@@ -33,7 +33,7 @@ const DashboardSkeleton = () => (
 
 
 const UserDashboard = () => {
-  const { user: globalUser, isLoading: isUserLoading, error: userError } = useUser();
+  const { user: globalUser, isUserLoading, userError } = useAppContext();
   const { dashboardData, isLoading: isLoadingDashboard, error: dashboardError } = useUserDashboardData(globalUser);
 
   // Menggabungkan state loading dari context dan hook kustom
