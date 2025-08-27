@@ -27,8 +27,14 @@ const SidebarSkeleton = () => (
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const { fetchUserData, fetchSetting } = useAppContext();
     const { user, isUserLoading, settingImages } = useAppContext();
     const [logoSrc, setLogoSrc] = useState("/images/logo-wgs.svg");
+
+    useEffect(() => {
+        fetchSetting();
+        fetchUserData();
+    },[])
 
     const updateLogo = useCallback(() => {
         if (!settingImages) {
