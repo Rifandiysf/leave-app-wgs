@@ -17,7 +17,7 @@ export const getHistoryBalanceAdjustmenByNIK = async (req, res, next) => {
 
         const logs = await getAllBalanceAdjustmentByNIK(page, limit, user.NIK, searchValue, startDate, endDate, balanceYear)
 
-        const result = responsePagination("Balance Adjustment logs retrieved successfully", logs, limit)
+        const result = responsePagination("Balance Adjustment logs retrieved successfully", logs)
 
         res.status(200).json(result)
     } catch (error) {

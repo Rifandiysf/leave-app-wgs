@@ -62,15 +62,18 @@ export const getAllBalanceAdjustment = async (page, limit, startDate, endDate, b
             notes: log.notes
         }))
 
-        const result = {
-            data: logsModified,
-            total: totalLogs,
-            totalPages: Math.ceil(totalLogs / limit),
-            page: page
-        }
-
-        return result
+        return {
+            data: {
+                employees: logsModified, // Renamed 'data' to 'employees' for consistency
+                pagination: {
+                    total: totalLogs,
+                    totalPages: Math.ceil(totalLogs / limit),
+                    currentPage: page,
+                    limit: limit
+                }
+            }
+        };
     } catch (error) {
-        throw error
+        throw error;
     }
-}
+};

@@ -44,5 +44,15 @@ export const getLeavesByFilterService = async (type, value, page, limit) => {
     const total = await prisma.tb_leave.count({ where });
     const totalPages = Math.ceil(total / limit);
 
-    return { data, total, page, totalPages };
+    return {
+        data: {
+            employees: data, // Renamed 'data' to 'employees' for consistency
+            pagination: {
+                total: total,
+                totalPages: totalPages,
+                currentPage: page,
+                limit: limit
+            }
+        }
+    };
 };

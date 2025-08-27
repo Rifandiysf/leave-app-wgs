@@ -42,9 +42,14 @@ export const getLeavesByNIK = async (NIK, page, limit) => {
     });
 
     return {
-        data: transformedData,
-        total,
-        page,
-        totalPages: Math.ceil(total / limit),
+        data: {
+            employees: transformedData, // Renamed 'data' to 'employees' for consistency
+            pagination: {
+                total: total,
+                totalPages: Math.ceil(total / limit),
+                currentPage: page,
+                limit: limit
+            }
+        }
     };
 };

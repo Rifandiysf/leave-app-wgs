@@ -13,6 +13,8 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
     const totalPages = Math.ceil(total / limit);
 
     const leaves = await prisma.tb_leave.findMany({
+        skip: offset, // Add skip
+        take: limit,  // Add take
         where: {
             NOT: { status: 'pending' }
         },
@@ -73,18 +75,14 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
     });
 
     return {
-        success: true,
-        message: "Leave requests retrieved successfully",
-        pagination: {
-            current_page: page,
-            last_visible_page: totalPages,
-            has_next_page: page < totalPages,
-            item: {
-                count: formattedLeaves.length,
-                total,
-                per_page: limit
+        data: {
+            employees: formattedLeaves, // Renamed 'data' to 'employees' for consistency
+            pagination: {
+                total: total,
+                totalPages: totalPages,
+                currentPage: page,
+                limit: limit
             }
-        },
-        data: formattedLeaves
+        }
     };
 };

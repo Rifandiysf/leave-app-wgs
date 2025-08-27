@@ -7,7 +7,7 @@ export const getSearchSpecialLeave = async (req, res, next) => {
 
     const result = await getSearchSpecialLeaveService(value, parseInt(page), parseInt(limit));
 
-    const paginationResponse = responsePagination("Search special leave data retrieved successfully", result, limit);
+    const paginationResponse = responsePagination("Search special leave data retrieved successfully", result);
 
     res.status(200).json(paginationResponse);
   } catch (error) {

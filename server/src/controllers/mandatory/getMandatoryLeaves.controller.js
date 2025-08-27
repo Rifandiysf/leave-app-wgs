@@ -8,7 +8,7 @@ export const getMandatoryLeaves = async (req, res, next) => {
 
     const result = await getAllMandatoryLeavesService(page, limit);
 
-    const paginationResponse = responsePagination("All mandatory leave was successfully taken", result, limit);
+    const paginationResponse = responsePagination("All mandatory leave was successfully taken", result);
 
     res.status(200).json(paginationResponse);
   } catch (error) {

@@ -6,7 +6,7 @@ export const historyLeave = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
     const result = await getHistoryLeave(page, limit)
-    const paginationResponse = responsePagination("Leave history data retrieved successfully", result, limit);
+    const paginationResponse = responsePagination("Leave history data retrieved successfully", result);
     res.status(200).json(paginationResponse)
 
   } catch (error) {

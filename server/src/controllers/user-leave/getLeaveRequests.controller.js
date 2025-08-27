@@ -17,7 +17,7 @@ export const getLeaveRequests = async (req, res, next) => {
             })
         }
 
-        const pagination = responsePagination("Leave requests retrieved successfully", leaves, limit)
+        const pagination = responsePagination("Leave requests retrieved successfully", leaves)
 
         res.status(201).json(pagination)
     } catch (error) {

@@ -86,9 +86,14 @@ export const getLeavesByFilterService = async (NIK, type, status, value, page, l
     });
 
     return {
-        data: transformedData,
-        total,
-        page,
-        totalPages: Math.ceil(total / limit),
+        data: {
+            employees: transformedData, // Renamed 'data' to 'employees' for consistency
+            pagination: {
+                total: total,
+                totalPages: Math.ceil(total / limitNum), // Use limitNum
+                currentPage: pageNum, // Use pageNum
+                limit: limitNum // Use limitNum
+            }
+        }
     };
 };

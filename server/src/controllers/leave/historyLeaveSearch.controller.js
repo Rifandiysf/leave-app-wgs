@@ -15,7 +15,7 @@ export const historyLeaveSearch = async (req, res, next) => {
       limit: parseInt(limit)
     });
 
-    const paginationResponse = responsePagination("Filtered leave history data retrieved successfully", result, limit);
+    const paginationResponse = responsePagination("Filtered leave history data retrieved successfully", result);
     res.status(200).json(paginationResponse)
   } catch (error) {
     next(error)

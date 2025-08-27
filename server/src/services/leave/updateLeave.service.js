@@ -33,11 +33,7 @@ export const updateLeave = async (id, status, reason, nik) => {
         const start = createDateFromString(new Date(data.start_date));
         const end = createDateFromString(new Date(data.end_date));
 
-        if (data.NIK === nik && data.leave_type !== "mandatory_leave") {
-            const err = new Error("you cannot approve or reject your own leave");
-            err.statusCode = 400;
-            throw err;
-        }
+        1
 
         if (start <= currentDate && data.leave_type !== 'special_leave') {
             const err = new Error("The start date of the leave has passed the current date");

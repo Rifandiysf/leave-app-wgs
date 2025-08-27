@@ -7,7 +7,7 @@ export const getSearchMandatoryLeave = async (req, res, next) => {
 
     const result = await getSearchMandatoryLeaveService(value, parseInt(page), parseInt(limit));
 
-    const paginationResponse = responsePagination("Search mandatory leave data retrived succesfully", result, limit);
+    const paginationResponse = responsePagination("Search mandatory leave data retrived succesfully", result);
 
     res.status(200).json(paginationResponse);
   } catch (error) {

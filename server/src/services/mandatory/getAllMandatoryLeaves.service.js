@@ -14,5 +14,15 @@ export const getAllMandatoryLeavesService = async (page = 1, limit = 10) => {
 
     const totalPages = Math.ceil(total / limit);
 
-    return { data, total, totalPages, page };
+    return {
+        data: {
+            employees: data, // Renamed 'data' to 'employees' for consistency
+            pagination: {
+                total: total,
+                totalPages: totalPages,
+                currentPage: page,
+                limit: limit
+            }
+        }
+    };
 };

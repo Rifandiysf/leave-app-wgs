@@ -17,7 +17,7 @@ export const getAllLeavesService = async (page, limit) => {
         },
     });
 
-    const data = leaves.map(leave => ({
+    const mappedLeaves = leaves.map(leave => ({
         ...leave,
         name: leave.tb_users.fullname
     }))
@@ -25,5 +25,15 @@ export const getAllLeavesService = async (page, limit) => {
     const total = await prisma.tb_leave.count();
     const totalPages = Math.ceil(total / limit);
 
-    return { data, total, page, totalPages };
+    return {
+        data: {
+            employees: mappedLeaves, // Renamed 'data' to 'employees' for consistency with allUsers
+            pagination: {
+                total: total,
+                totalPages: totalPages,
+                currentPage: page,
+                limit: limit
+            }
+        }
+    };
 };

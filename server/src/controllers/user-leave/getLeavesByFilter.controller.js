@@ -17,7 +17,7 @@ export const getLeavesByFilter = async (req, res, next) => {
             })
         }
 
-        const result = responsePagination('Filtered leave data retrieved successfully', leaves, limit)
+        const result = responsePagination('Filtered leave data retrieved successfully', leaves)
         res.status(200).json(result);
     } catch (error) {
         next(error)

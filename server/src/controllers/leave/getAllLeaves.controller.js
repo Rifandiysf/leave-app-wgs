@@ -9,7 +9,7 @@ export const getAllLeaves = async (req, res, next) => {
 
     const leaves = await getAllLeavesService(page, limit)
 
-    const paginationResponse = responsePagination("Leave data retrieved successfully", leaves, limit);
+    const paginationResponse = responsePagination("Leave data retrieved successfully", leaves);
 
     res.status(200).json(paginationResponse);
 
