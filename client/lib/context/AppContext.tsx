@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useState, useEffect, useContext, ReactNode, useCallback } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useCallback } from 'react';
 import { getMe, UserData } from '@/lib/api/service/user';
 import axiosInstance from "@/lib/api/axiosInstance";
 
@@ -23,12 +23,10 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 // --- Provider Gabungan ---
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-    // State untuk User
     const [user, setUser] = useState<UserData | null>(null);
     const [isUserLoading, setIsUserLoading] = useState(true);
     const [userError, setUserError] = useState<string | null>(null);
 
-    // State untuk Setting
     const [settingImages, setSettingImages] = useState<ThemeImages | null>(null);
 
     // Fetch User Data
@@ -64,13 +62,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             setSettingImages({ light_image: "/images/logo-wgs.svg", dark_image: "/images/logo-wgs.svg" });
         }
     }, []);
-
-    // !! PERUBAHAN UTAMA: useEffect untuk fetch data awal !!
-    // Provider ini sekarang secara proaktif mengambil data saat pertama kali dimuat.
-    useEffect(() => {
-        fetchUserData();
-        fetchSetting();
-    }, [fetchUserData, fetchSetting]);
 
     const value = {
         user,
