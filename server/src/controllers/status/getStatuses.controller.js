@@ -5,13 +5,7 @@ export const getStatuses = async (req, res, next) => {
         const statuses = await getAllStatuses();
         res.status(200).json({
             status: "success",
-            data: statuses,
-            meta: {
-                totalItems: statuses.length,
-                itemsPerPage: statuses.length,
-                currentPage: 1,
-                totalPages: 1
-            }
+            data: statuses
         });
     } catch (error) {
         next(error);

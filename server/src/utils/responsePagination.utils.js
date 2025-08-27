@@ -1,20 +1,22 @@
-import { success } from "zod/v4";
+// import { success } from "zod/v4"; // This import seems unused, can be removed
 
-export const responsePagination = (message, result, limit) => {
+export const responsePagination = (message, serviceResult) => {
+    const { employees, pagination } = serviceResult.data;
+
     const response = {
         success: true,
         message: message,
         pagination: {
-            current_page: result.page,
-            last_visible_page: result.totalPages,
-            has_next_page: result.page < result.totalPages,
+            current_page: pagination.currentPage,
+            last_visible_page: pagination.totalPages,
+            has_next_page: pagination.currentPage < pagination.totalPages,
             item: {
-                count: result.data.length,
-                total: result.total,
-                per_page: parseInt(limit)
+                count: employees.length,
+                total: pagination.total,
+                per_page: pagination.limit
             }
         },
-        data: result.data,
+        data: employees,
     }
 
     return response;

@@ -21,15 +21,16 @@ export const deleteUserByNIK = async (nik) => {
         where: {
             NIK: nik,
             NOT: {
-                status_id: resignStatus.id // Use status_id instead of status_active
+                status_id: resignStatus.id
             }
         },
         data: {
-            status_id: resignStatus.id // Update status_id to 'Resign' status ID
+            status_id: resignStatus.id, // Update status_id to 'Resign' status ID
+            is_active: false // Set is_active to false
         },
         include: {
-            role: true,
-            status: true
+            tb_roles: true,
+            tb_statuses: true
         }
     })
 

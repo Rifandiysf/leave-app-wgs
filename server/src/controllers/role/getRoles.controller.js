@@ -5,13 +5,7 @@ export const getRoles = async (req, res, next) => {
         const roles = await getAllRoles();
         res.status(200).json({
             status: "success",
-            data: roles,
-            meta: {
-                totalItems: roles.length,
-                itemsPerPage: roles.length,
-                currentPage: 1,
-                totalPages: 1
-            }
+            data: roles
         });
     } catch (error) {
         next(error);

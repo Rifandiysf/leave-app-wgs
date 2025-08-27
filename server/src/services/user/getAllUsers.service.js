@@ -17,11 +17,15 @@ export const getAllUsers = async (page, limit, search = '', gender = '', statusN
             ...(roleSlug ? { role: { slug: roleSlug } } : []),
         ],
         NOT: {
-            role: {
+            tb_roles: {
                 slug: "magang"
             }
         }
     };
+
+    const totalUsers = await prisma.tb_users.count({
+        where: filterCondition
+    });
 
     const users = await prisma.tb_users.findMany({
         where: filterCondition,
@@ -29,9 +33,11 @@ export const getAllUsers = async (page, limit, search = '', gender = '', statusN
             fullname: 'asc'
         },
         include: {
-            role: true, // Include role data
-            status: true // Include status data
-        }
+            tb_roles: true, // Include role data
+            tb_statuses: true // Include status data
+        },
+        skip: (page - 1) * limit,
+        take: limit
     });
 
     const leaveAmount = await prisma.tb_balance.findMany({
@@ -51,7 +57,7 @@ export const getAllUsers = async (page, limit, search = '', gender = '', statusN
         let current = 0;
         let last = 0;
 
-        if (user.role.slug === 'karyawan_kontrak') {
+        if (user.tb_roles.slug === 'karyawan_kontrak') { // Use tb_roles.slug
             // Karyawan kontrak: jumlahkan seluruh amount berdasarkan tahun
             current = userLeaveAmount
                 .filter(b => b.receive_date.getFullYear() === currentYear)
@@ -74,15 +80,15 @@ export const getAllUsers = async (page, limit, search = '', gender = '', statusN
             fullname: user.fullname,
             emailKantor: user.email,
             tanggalMasukKerja: user.join_date,
-            isActive: user.status.name === 'Active',
+            isActive: user.tb_statuses.name === 'Active', // Use tb_statuses.name
             isMale: user.gender === 'male',
             role: {
-                id: user.role.id,
-                name: user.role.name
+                id: user.tb_roles.id, // Use tb_roles.id
+                name: user.tb_roles.name // Use tb_roles.name
             },
             status: {
-                id: user.status.id,
-                name: user.status.name
+                id: user.tb_statuses.id, // Use tb_statuses.id
+                name: user.tb_statuses.name // Use tb_statuses.name
             },
             last_year_leave: last,
             this_year_leave: current,
@@ -90,20 +96,17 @@ export const getAllUsers = async (page, limit, search = '', gender = '', statusN
         };
     });
 
-    const total = result.length;
-    const totalPages = Math.ceil(total / limit);
-    const start = (page - 1) * limit;
-    const paginatedResult = result.slice(start, start + limit);
+    const totalPages = Math.ceil(totalUsers / limit);
 
     return {
         data: {
-            employees: paginatedResult,
+            employees: result,
             pagination: {
-                total: total,
+                total: totalUsers,
                 totalPages: totalPages,
                 currentPage: page,
                 limit: limit
             }
         }
     };
-};
+}

@@ -7,21 +7,14 @@ export const getUserByNIK = async (nik) => {
         const currentDateLastMonth = new Date(new Date().getFullYear(), 11, 31);
 
         const user = await prisma.tb_users.findUnique({
-            omit: {
-                password: true,
-                email: true,
-            },
-            where: {
-                NIK: nik,
-                NOT: {
-                    role: {
-                        slug: "magang"
-                    }
-                }
-            },
-            include: {
-                role: true, // Include role data
-                status: true, // Include status data
+            select: {
+                NIK: true,
+                fullname: true,
+                email: true, // Include email as it's used in userCopy
+                gender: true,
+                join_date: true,
+                tb_roles: true, // Use tb_roles
+                tb_statuses: true, // Use tb_statuses
                 tb_balance: {
                     take: 2,
                     where: {
@@ -33,6 +26,14 @@ export const getUserByNIK = async (nik) => {
                         expired_date: "desc"
                     }
                 },
+            },
+            where: {
+                NIK: nik,
+                NOT: {
+                    tb_roles: {
+                        slug: "magang"
+                    }
+                }
             }
         });
 
@@ -81,12 +82,12 @@ export const getUserByNIK = async (nik) => {
             fullname: fullname,
             gender: gender,
             status: {
-                id: user.status.id,
-                name: user.status.name
+                id: user.tb_statuses.id,
+                name: user.tb_statuses.name
             },
             role: {
-                id: user.role.id,
-                name: user.role.name
+                id: user.tb_roles.id,
+                name: user.tb_roles.name
             },
             balance: {
                 total_amount: currentBalance + lastYearBalance || 0,

@@ -12,13 +12,13 @@ export const validateRole = (...allowedRoles) => {
 
         try {
             const decoded = jwt.decode(token);
-            if (!decoded || !decoded.role || !decoded.role.slug) {
+            if (!decoded || !decoded.tb_roles || !decoded.tb_roles.slug) {
                 return res.status(403).json({
                     message: "Access denied. Invalid token or role information missing."
                 });
             }
 
-            const userRoleSlug = decoded.role.slug;
+            const userRoleSlug = decoded.tb_roles.slug;
 
             if (!allowedRoles.includes(userRoleSlug)) {
                 return res.status(403).json({

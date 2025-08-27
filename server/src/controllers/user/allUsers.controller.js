@@ -12,7 +12,7 @@ export const allUsers = async (req, res, next) => {
 
         const dataUsers = await getAllUsers(page, limit, search, gender, statusName, roleSlug);
 
-        const response = responsePagination("Successfully retrieved user data", dataUsers, limit);
+        const response = responsePagination("Successfully retrieved user data", dataUsers);
         res.status(200).json(response);
 
     } catch (error) {

@@ -11,7 +11,7 @@ export const fetchUserData = async (params, uniqueId) => {
                 tb_statuses: true 
             }
         })
-        console.log(user)
+        console.log("Fetched user data:", user);
         return user;
     } catch (error) {
         throw error;

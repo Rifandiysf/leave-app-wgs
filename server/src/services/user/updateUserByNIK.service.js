@@ -17,8 +17,8 @@ export const updateUserByNIK = async (nik, data) => {
         },
         data: updateData,
         include: {
-            role: true,
-            status: true
+            tb_roles: true,
+            tb_statuses: true
         }
     })
 

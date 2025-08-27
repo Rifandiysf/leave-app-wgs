@@ -3,7 +3,7 @@ import { updateUserByNIK } from "../../services/user/updateUserByNIK.service.js"
 export const updateUser = async (req, res, next) => {
     const { nik } = req.params
     try {
-        const updatedUser = await updateUserByNIK(nik)
+        const updatedUser = await updateUserByNIK(nik, req.body) // Pass req.body as data
 
         res.status(201).json({
             status: "success",
