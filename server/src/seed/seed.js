@@ -1,4 +1,4 @@
-import { status, status_active } from '../../generated/prisma/index.js';
+
 import prisma from '../utils/client.js';
 
 async function manualSeed() {
@@ -11,6 +11,30 @@ async function manualSeed() {
     await tx.tb_users.deleteMany();
     await tx.tb_special_leave.deleteMany();
     await tx.tb_mandatory_leave.deleteMany();
+    await tx.tb_settings.deleteMany();
+
+    await tx.tb_settings.create({
+      data: {
+        light_image: `http://${process.env.HOSTNAME}:${process.env.PORT}/uploads/dark.svg`,
+        light_background: "#FFFFFF",
+        light_foreground: "#000000",
+        light_card: "#F5F5F5",
+        light_cardForeground: "#000000",
+        light_primary: "#007BFF",
+        light_primaryForeground: "#FFFFFF",
+        light_secondary: "#6C757D",
+        light_secondaryForeground: "#FFFFFF",
+        dark_image: `http://${process.env.HOSTNAME}:${process.env.PORT}/uploads/light.svg`,
+        dark_background: "#121212",
+        dark_foreground: "#FFFFFF",
+        dark_card: "#1E1E1E",
+        dark_cardForeground: "#FFFFFF",
+        dark_primary: "#6A0DAD",
+        dark_primaryForeground: "#FFFFFF",
+        dark_secondary: "#BB86FC",
+        dark_secondaryForeground: "#000000",
+      },
+    });
 
     const users = [
       {
