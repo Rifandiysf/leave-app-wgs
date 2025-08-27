@@ -82,13 +82,16 @@ model tb_users {
   gender                gender
   join_date             DateTime                @db.Date
   created_at            DateTime                @default(now()) @db.Timestamptz(0)
-  role_id               Int
-  status_id             Int
+  tb_roles              tb_roles                @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "roles_id")
+  tb_statuses           tb_statuses             @relation(fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "status_id")
   tb_balance            tb_balance[]
   tb_balance_adjustment tb_balance_adjustment[]
   tb_jwt_token          tb_jwt_token[]
   tb_leave              tb_leave[]
   tb_leave_log          tb_leave_log[]
+  is_active             Boolean                 @default(true)
+  role_id               Int
+  status_id             Int
 }
 
 model tb_balance_adjustment {
@@ -127,26 +130,26 @@ model tb_jwt_token {
 }
 
 model tb_settings {
-  id                       String   @id @default(uuid())
-  light_image              String
-  light_background         String
-  light_foreground         String
-  light_card               String
-  light_cardForeground     String
-  light_primary            String
-  light_primaryForeground  String
-  light_secondary          String
+  id                        String   @id @default(uuid())
+  light_image               String
+  light_background          String
+  light_foreground          String
+  light_card                String
+  light_cardForeground      String
+  light_primary             String
+  light_primaryForeground   String
+  light_secondary           String
   light_secondaryForeground String
-  dark_image               String
-  dark_background          String
-  dark_foreground          String
-  dark_card                String
-  dark_cardForeground      String
-  dark_primary             String
-  dark_primaryForeground   String
-  dark_secondary           String
+  dark_image                String
+  dark_background           String
+  dark_foreground           String
+  dark_card                 String
+  dark_cardForeground       String
+  dark_primary              String
+  dark_primaryForeground    String
+  dark_secondary            String
   dark_secondaryForeground  String
-  created_at               DateTime @default(now()) @db.Timestamptz(0)
+  created_at                DateTime @default(now()) @db.Timestamptz(0)
 }
 
 enum applicable_gender {

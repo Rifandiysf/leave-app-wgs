@@ -7,11 +7,11 @@ export const fetchUserData = async (params, uniqueId) => {
                 [params]: uniqueId,
             },
             include: {
-                role: true, // Include role data
-                status: true // Include status data
+                tb_roles: true, 
+                tb_statuses: true 
             }
         })
-
+        console.log(user)
         return user;
     } catch (error) {
         throw error;

@@ -13,6 +13,7 @@ export const login = async (req, res, next) => {
     try {
         const user = await fetchUserData("email", email.toLowerCase());
         const deviceInfo = await getDeviceInfo(req.get("user-agent"));
+        console.log(user)
 
         if (!user) {
             const error = new Error('user not found');
@@ -26,17 +27,18 @@ export const login = async (req, res, next) => {
             NIK: user.NIK,
             email: user.email,
             fullname: user.fullname,
-            role: {
-                id: user.role.id,
-                name: user.role.name,
-                slug: user.role.slug
+            tb_roles: {
+                id: user.tb_roles.id,
+                name: user.tb_roles.name,
+                slug: user.tb_roles.slug
             },
-            status: {
-                id: user.status.id,
-                name: user.status.name
+            tb_statuses: {
+                id: user.tb_statuses.id,
+                name: user.tb_statuses.name
             },
             gender: user.gender
         }
+
 
         const deviceData = {
             deviceInfo: deviceInfoData,
@@ -67,12 +69,17 @@ export const login = async (req, res, next) => {
                 nik: user.NIK,
                 name: user.fullname,
                 role: {
-                    id: user.role.id,
-                    name: user.role.name,
-                    slug: user.role.slug
+                    id: user.tb_roles.id,
+                    name: user.tb_roles.name,
+                    slug: user.tb_roles.slug
+                },
+                status: {
+                    id: user.tb_statuses.id,
+                    name: user.tb_statuses.name
                 }
             }
         });
+
     } catch (error) {
         next(error);
     }

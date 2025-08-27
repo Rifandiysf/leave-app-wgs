@@ -44,9 +44,7 @@ async function manualSeed() {
     const rolesData = [
       { name: 'Super Admin', slug: 'super_admin', description: 'Full administrative access' },
       { name: 'Admin', slug: 'admin', description: 'Administrative access with some limitations' },
-      { name: 'Karyawan Tetap', slug: 'karyawan_tetap', description: 'Permanent employee' },
-      { name: 'Karyawan Kontrak', slug: 'karyawan_kontrak', description: 'Contract employee' },
-      { name: 'Magang', slug: 'magang', description: 'Intern' },
+      { name: 'User', slug: 'user', description: 'user' },
     ];
 
     const createdRoles = {};
@@ -57,8 +55,7 @@ async function manualSeed() {
 
     // Seed Statuses
     const statusesData = [
-      { name: 'Active' },
-      { name: 'Resign' },
+      { name: 'Magang' },
       { name: 'Kontrak' },
       { name: 'Tetap' },
     ];
@@ -76,8 +73,8 @@ async function manualSeed() {
         email: 'rani.kontrak@perusahaan.com',
         password: 'Rani1234!',
         gender: 'female',
-        roleSlug: 'karyawan_kontrak',
-        statusName: 'Active',
+        roleSlug: 'user',
+        statusName: 'Kontrak',
         join_date: new Date('2024-01-15'),
       },
       {
@@ -86,8 +83,8 @@ async function manualSeed() {
         email: 'budi.tetap@perusahaan.com',
         password: 'Budi1234!',
         gender: 'male',
-        roleSlug: 'karyawan_tetap',
-        statusName: 'Active',
+        roleSlug: 'user',
+        statusName: 'Tetap',
         join_date: new Date('2023-11-01'),
       },
       {
@@ -96,8 +93,8 @@ async function manualSeed() {
         email: 'tina.magang@perusahaan.com',
         password: 'Tina1234!',
         gender: 'female',
-        roleSlug: 'magang',
-        statusName: 'Active',
+        roleSlug: 'user',
+        statusName: 'Magang',
         join_date: new Date('2025-06-01'),
       },
       {
@@ -107,7 +104,7 @@ async function manualSeed() {
         password: 'Admin123!',
         gender: 'male',
         roleSlug: 'admin',
-        statusName: 'Active',
+        statusName: 'Tetap',
         join_date: new Date('2024-09-15'),
       },
       {
@@ -117,7 +114,7 @@ async function manualSeed() {
         password: 'Super123!',
         gender: 'female',
         roleSlug: 'super_admin',
-        statusName: 'Active',
+        statusName: 'Tetap',
         join_date: new Date('2023-01-10'),
       },
       {
@@ -126,8 +123,8 @@ async function manualSeed() {
         email: 'tati.kontrak@perusahaan.com',
         password: 'Tati123!',
         gender: 'female',
-        roleSlug: 'karyawan_kontrak',
-        statusName: 'Active',
+        roleSlug: 'user',
+        statusName: 'Magang',
         join_date: new Date('2015-10-24'),
       },
       {
@@ -136,8 +133,9 @@ async function manualSeed() {
         email: 'bondan.admin@perusahaan.com',
         password: 'Bondan123!',
         gender: 'male',
+        is_active: false,
         roleSlug: 'admin',
-        statusName: 'Resign',
+        statusName: 'Tetap',
         join_date: new Date('2017-03-15'),
       },
       {
@@ -146,8 +144,9 @@ async function manualSeed() {
         email: 'santi.kontrak@perusahaan.com',
         password: 'Santi123!',
         gender: 'female',
-        roleSlug: 'karyawan_kontrak',
-        statusName: 'Resign',
+        is_active: false,
+        roleSlug: 'user',
+        statusName: 'Kontrak',
         join_date: new Date('2018-07-09'),
       },
       {
@@ -156,8 +155,9 @@ async function manualSeed() {
         email: 'andi.magang@perusahaan.com',
         password: 'Andi123!',
         gender: 'male',
-        roleSlug: 'magang',
-        statusName: 'Resign',
+        is_active: false,
+        roleSlug: 'user',
+        statusName: 'Magang',
         join_date: new Date('2020-01-20'),
       },
       {
@@ -166,8 +166,9 @@ async function manualSeed() {
         email: 'rina.tetap@perusahaan.com',
         password: 'Rina123!',
         gender: 'female',
-        roleSlug: 'karyawan_tetap',
-        statusName: 'Resign',
+        is_active: false,
+        roleSlug: 'user',
+        statusName: 'Tetap',
         join_date: new Date('2016-05-12'),
       },
     ];
@@ -184,6 +185,7 @@ async function manualSeed() {
           role_id: createdRoles[user.roleSlug],
           status_id: createdStatuses[user.statusName],
           join_date: user.join_date,
+          is_active: user.is_active
         },
       });
 
