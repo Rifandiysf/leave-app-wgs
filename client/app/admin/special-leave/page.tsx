@@ -11,8 +11,8 @@ import {
     PaginationPrevious
 } from '@/app/components/ui/pagination'
 import { Switch } from "@/app/components/ui/switch"
-import { AddSpecial } from '@/app/components/form/addSpecial'
-import { EditSpecial } from '@/app/components/form/editSpecial'
+import { AddSpecial } from '@/app/components/ui/form/addSpecial'
+import { EditSpecial } from '@/app/components/ui/form/editSpecial'
 import { formatUpperCase } from '@/lib/format'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/app/components/ui/dialog"
 import { Button } from "@/app/components/ui/button"

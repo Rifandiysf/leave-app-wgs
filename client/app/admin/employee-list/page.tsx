@@ -13,10 +13,10 @@ import {
     PaginationNext,
     PaginationPrevious
 } from "@/app/components/ui/pagination";
-import { SelectDemo } from "@/app/components/select/page";
+import { SelectDemo } from "@/app/components/ui/select/page";
 import { SelectItem, SelectLabel } from "@/app/components/ui/select";
-import SuccessAlert from "@/app/components/SuccesAlert/SuccesAlert";
-import Statistics from "@/app/components/Modal/Statistics";
+import SuccessAlert from "@/app/components/ui/SuccesAlert/SuccesAlert";
+import Statistics from "@/app/components/ui/Modal/Statistics";
 
 type dataLeaveType = {
     nik: string,

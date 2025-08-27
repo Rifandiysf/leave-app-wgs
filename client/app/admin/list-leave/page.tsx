@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/app/components/ui/pagination";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/app/components/ui/select";
-import Modal from '@/app/components/Modal/Modal';
+import Modal from '@/app/components/ui/Modal/Modal';
 import axiosInstance from '@/lib/api/axiosInstance';
-import { LeaveChoiceModal } from '@/app/components/LeaveChoiceModal/page';
-import { Notification } from '@/app/components/notification/Notification';
+import { LeaveChoiceModal } from '@/app/components/ui/LeaveChoiceModal/page';
+import { Notification } from '@/app/components/ui/notification/Notification';
 import { Label } from '@/app/components/ui/label';
 import { formatUppercase } from '@/lib/format';
 

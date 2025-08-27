@@ -1,9 +1,8 @@
-// app/components/history/PaginationControls.tsx
 
 'use client';
 
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/app/components/ui/pagination";
-import { PaginationInfo } from "@/app/hooks/UseHistoryData";
+import { PaginationInfo } from "@/app/hooks/UseHistoryData"; 
 
 type PageItem = number | 'ellipsis';
 
@@ -39,11 +38,13 @@ interface PaginationControlsProps {
 }
 
 export const PaginationControls = ({ paginationInfo, currentPage, onPageChange }: PaginationControlsProps) => {
-    if (!paginationInfo || paginationInfo.last_visible_page <= 1) {
+    if (!paginationInfo) {
         return null;
     }
 
     const pages = getVisiblePages(currentPage, paginationInfo.last_visible_page);
+    const isFirstPage = currentPage === 1;
+    const isLastPage = !paginationInfo.has_next_page && currentPage === paginationInfo.last_visible_page;
 
     return (
         <div className="flex justify-center items-center bg-background py-5">
@@ -52,10 +53,11 @@ export const PaginationControls = ({ paginationInfo, currentPage, onPageChange }
                     <PaginationItem>
                         <PaginationPrevious
                             onClick={() => onPageChange(currentPage - 1)}
-                            className={`${currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
+                            className={`${isFirstPage ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
                         />
                     </PaginationItem>
-                    {pages.map((page, idx) => (
+                    
+                    {paginationInfo.last_visible_page > 1 && pages.map((page, idx) => (
                         <PaginationItem key={idx}>
                             {page === 'ellipsis' ? (
                                 <span className="px-2 text-gray-500 select-none">…</span>
@@ -70,10 +72,17 @@ export const PaginationControls = ({ paginationInfo, currentPage, onPageChange }
                             )}
                         </PaginationItem>
                     ))}
+
+                    {paginationInfo.last_visible_page <= 1 && (
+                         <PaginationItem>
+                            <PaginationLink isActive>{currentPage}</PaginationLink>
+                        </PaginationItem>
+                    )}
+
                     <PaginationItem>
                         <PaginationNext
                             onClick={() => onPageChange(currentPage + 1)}
-                            className={`${!paginationInfo.has_next_page ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
+                            className={`${isLastPage ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
                         />
                     </PaginationItem>
                 </PaginationContent>
