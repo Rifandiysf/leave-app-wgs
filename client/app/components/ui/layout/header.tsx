@@ -15,62 +15,10 @@ import { useAppContext } from '@/lib/context/AppContext'
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    const { user, isUserLoading, settingImages } = useAppContext(); 
+    const { user, isUserLoading, settingImage } = useAppContext();
 
     const pathname = usePathname()
     const router = useRouter()
-    const [logoSrc, setLogoSrc] = useState("/images/logo-wgs.svg");
-    const [isDarkMode, setIsDarkMode] = useState(false);
-
-    useEffect(() => {
-        if (!settingImages) return;
-
-        const updateLogo = () => {
-            const currentTheme = localStorage.getItem("theme") as "light" | "dark" | "system" | null;
-            let darkMode = false;
-
-            if (currentTheme === "dark") darkMode = true;
-            else if (currentTheme === "light") darkMode = false;
-            else darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-            setIsDarkMode(darkMode);
-            setLogoSrc(darkMode ? settingImages.dark_image ?? "/images/logo-wgs.svg" : settingImages.light_image ?? "/images/logo-wgs.svg");
-        };
-
-        // update langsung saat mount
-        updateLogo();
-
-        // listener system theme change
-        const darkMedia = window.matchMedia("(prefers-color-scheme: dark)");
-        const listener = (e: MediaQueryListEvent) => {
-            const currentTheme = localStorage.getItem("theme");
-            if (!currentTheme || currentTheme === "system") {
-                updateLogo();
-            }
-        };
-        darkMedia.addEventListener("change", listener);
-
-        // listener localStorage theme change (jika theme diubah di tempat lain)
-        const storageListener = (e: StorageEvent) => {
-            if (e.key === "theme") updateLogo();
-        };
-        window.addEventListener("storage", storageListener);
-
-        return () => {
-            darkMedia.removeEventListener("change", listener);
-            window.removeEventListener("storage", storageListener);
-        };
-    }, [settingImages]);
-
-
-    const getLogoSrc = () => {
-        if (!settingImages) return "/images/logo-wgs.svg";
-        return isDarkMode ? (settingImages.dark_image ?? "/images/logo-wgs.svg") : (settingImages.light_image ?? "/images/logo-wgs.svg");
-    };
-
-    useEffect(() => {
-        setLogoSrc(getLogoSrc());
-    }, [settingImages, isDarkMode]);
 
     useEffect(() => {
         setIsMenuOpen(false)
@@ -117,7 +65,9 @@ export default function Header() {
     return (
         <header className="flex items-center justify-between lg:bg-transparent lg:p-0">
             <div className="lg:hidden">
-                <Image src={logoSrc} alt="Logo WGS" width={90} height={90} priority />
+                {settingImage && (
+                    <Image src={settingImage} alt="Logo WGS" width={90} height={90} priority />
+                )}
                 <h2 className="text-xl font-medium text-foreground truncate mt-1">Welcome {fullname}</h2>
             </div>
 

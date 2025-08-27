@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/ta
 import { useDropzone } from 'react-dropzone'
 import { useCallback, useEffect, useState } from 'react'
 import axiosInstance from '@/lib/api/axiosInstance';
-import { applyThemeFromConfig, cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import EditConfig from '../form/editConfig';
 
@@ -39,7 +39,8 @@ type SecondaryVariant = {
 };
 
 type ThemeConfig = {
-    image: string;
+    light_image: string;
+    dark_image: string;
     baseColor: ColorVariant;
     cardColor: CardVariant;
     primaryColor: PrimaryVariant;
@@ -53,7 +54,7 @@ export type SettingData = {
 };
 
 const SettingModal = ({ role, className }: SettingProps) => {
-    const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light');
+    const [selectedTheme, setSelectedTheme] = useState<'light' | 'dark' | 'system'>('light');
     const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [configData, setConfigData] = useState<SettingData | null>(null)
@@ -73,20 +74,13 @@ const SettingModal = ({ role, className }: SettingProps) => {
         }
     }, [isDialogOpen])
 
-    useEffect(() => {
-        const savedTheme = localStorage.getItem("theme") as 'light' | 'dark' | 'system' | null;
-        if (savedTheme) applyTheme(savedTheme);
-    }, []);
-
-    const reloadTheme = () => {
-        window.location.reload();
+    const saveTheme = (mode: 'light' | 'dark' | 'system') => {
+        localStorage.setItem("theme", mode);
+        setSelectedTheme(mode);
     };
 
     // Penerapan theme
     const applyTheme = (mode: 'light' | 'dark' | 'system') => {
-        setTheme(mode);
-        localStorage.setItem("theme", mode);
-
         if (mode === "dark") {
             document.documentElement.classList.add("dark");
         } else if (mode === "light") {
@@ -99,11 +93,15 @@ const SettingModal = ({ role, className }: SettingProps) => {
                 document.documentElement.classList.remove("dark");
             }
         }
-
-        if (configData) {
-            applyThemeFromConfig(configData, mode)
-        }
     };
+
+    useEffect(() => {
+        const savedTheme = localStorage.getItem("theme") as 'light' | 'dark' | 'system' | null;
+        if (savedTheme) {
+            setSelectedTheme(savedTheme);
+            applyTheme(savedTheme);
+        }
+    }, []);
 
     const handleImport = async (file: File) => {
         const formData = new FormData();
@@ -152,7 +150,6 @@ const SettingModal = ({ role, className }: SettingProps) => {
         try {
             const res = await axiosInstance.get(`/setting`)
             setConfigData(res.data.data)
-            console.log(res.data.data.light_color.image)
         } catch (error) {
             console.error(error)
         }
@@ -200,14 +197,14 @@ const SettingModal = ({ role, className }: SettingProps) => {
                                             <button
                                                 key={item}
                                                 type="button"
-                                                onClick={() => applyTheme(item as 'light' | 'dark' | 'system')}
-                                                className={`flex-1 bg-background rounded-lg p-3 flex flex-col items-center gap-2 transition-all ${theme === item ? 'border-blue-600 ring-2 ring-blue-200' : 'border-gray-300'}`}
+                                                onClick={() => setSelectedTheme(item as 'light' | 'dark' | 'system')}
+                                                className={`flex-1 bg-background rounded-lg p-3 flex flex-col items-center gap-2 transition-all ${selectedTheme === item ? 'border-blue-600 ring-2 ring-blue-200' : 'border-gray-300'}`}
                                             >
                                                 <div className={`w-full h-24 rounded-md ${item === 'light' ? 'bg-gray-100' : item === 'dark' ? 'bg-gray-800' : 'bg-gradient-to-r from-gray-100 from-50% to-gray-800 to-50%'} flex items-center justify-center`}>
                                                     <div className="w-10 h-6 rounded bg-white shadow-md"></div>
                                                 </div>
                                                 <div className="flex justify-center items-center gap-1 text-sm text-foreground font-semibold capitalize">
-                                                    {theme === item ? <i className='bi-check-circle-fill text-blue-600'></i> : <i className='bi-circle-fill text-gray-200'></i>}
+                                                    {selectedTheme === item ? <i className='bi-check-circle-fill text-blue-600'></i> : <i className='bi-circle-fill text-gray-200'></i>}
                                                     {item} Mode
                                                 </div>
                                             </button>
@@ -216,7 +213,10 @@ const SettingModal = ({ role, className }: SettingProps) => {
                                 </Card>
                                 <div className='flex justify-end items-center mt-3'>
                                     <DialogClose asChild>
-                                        <Button variant="ghost" onClick={reloadTheme} className="text-green-500 bg-green-100 hover:bg-green-200 hover:text-green-600 px-3 cursor-pointer">
+                                        <Button variant="ghost" onClick={() => {
+                                            saveTheme(selectedTheme);
+                                            window.location.reload()
+                                        }} className="text-green-500 bg-green-100 hover:bg-green-200 hover:text-green-600 px-3 cursor-pointer">
                                             Apply Theme
                                         </Button>
                                     </DialogClose>
@@ -290,19 +290,19 @@ const SettingModal = ({ role, className }: SettingProps) => {
                                     {configData && (
                                         <EditConfig initialData={configData} onFormSubmit={fetchConfig} />
                                     )}
-                                     <CardContent className='flex gap-4 p-0'>
+                                    <CardContent className='flex gap-4 p-0'>
                                         <Card className='w-full shadow-none border-none rounded-lg dark:bg-card'>
                                             <CardContent className='grid grid-cols-2 gap-4 p-0'>
                                                 <div className='bg-background p-3 rounded-md'>
                                                     <Label className='block text-base font-semibold mb-3 text-foreground'>Light theme logo</Label>
-                                                    {configData?.light_color?.image && (
-                                                        <Image src={configData.light_color.image} alt='Website Light Theme Logo' width={140} height={140} />
+                                                    {configData?.light_color?.light_image && (
+                                                        <Image src={configData.light_color.light_image} alt='Website Light Theme Logo' width={140} height={140} />
                                                     )}
                                                 </div>
                                                 <div className='bg-background p-3 rounded-md'>
                                                     <Label className='block text-base font-semibold mb-3 text-foreground'>Dark theme logo</Label>
-                                                    {configData?.dark_color?.image && (
-                                                        <Image src={configData.dark_color.image} alt='Website Dark Theme Logo' width={140} height={140} />
+                                                    {configData?.dark_color?.dark_image && (
+                                                        <Image src={configData.dark_color.dark_image} alt='Website Dark Theme Logo' width={140} height={140} />
                                                     )}
                                                 </div>
                                                 <div className='bg-background p-3 rounded-md col-span-2'>

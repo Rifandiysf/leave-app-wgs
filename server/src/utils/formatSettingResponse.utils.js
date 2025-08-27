@@ -2,7 +2,7 @@ export const formatSettingResponse = (settings) => {
     return {
         id: settings.id,
         light_color: {
-            image: settings.light_image,
+            light_image: settings.light_image,
             baseColor: {
                 background: settings.light_background,
                 foreground: settings.light_foreground
@@ -21,7 +21,7 @@ export const formatSettingResponse = (settings) => {
             }
         },
         dark_color: {
-            image: settings.dark_image,
+            dark_image: settings.dark_image,
             baseColor: {
                 background: settings.dark_background,
                 foreground: settings.dark_foreground
