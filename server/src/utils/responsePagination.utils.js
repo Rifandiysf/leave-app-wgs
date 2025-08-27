@@ -1,6 +1,7 @@
 // import { success } from "zod/v4"; // This import seems unused, can be removed
 
 export const responsePagination = (message, serviceResult) => {
+    console.log("serviceResult received by responsePagination:", serviceResult);
     const { employees, pagination } = serviceResult.data;
 
     const response = {
