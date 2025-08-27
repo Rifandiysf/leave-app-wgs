@@ -3,10 +3,10 @@
 import React from "react";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { useUserDashboardData } from "@/app/hooks/UseUserDashboardData";  
-import { DashboardHeader } from "@/app/components/dashboard/DashboardHeader";
-import { SummaryCards } from "@/app/components/dashboard/SummaryCards";
+import { DashboardHeader } from "@/app/components/user/dashboard/DashboardHeader";
+import { SummaryCards } from "@/app/components/user/dashboard/SummaryCards";
 import { Card } from "@/app/components/ui/card";
-import { ApplyLeave } from "@/app/components/form/applyLeave";
+import { ApplyLeave } from "@/app/components/ui/form/applyLeave";
 import { useAppContext } from "@/lib/context/AppContext";
 
 

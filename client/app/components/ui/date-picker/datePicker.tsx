@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/app/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { DateRange, SelectSingleEventHandler, SelectRangeEventHandler } from "react-day-picker"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../select"
 
 type DatePickerFieldProps = {
     label: string;
