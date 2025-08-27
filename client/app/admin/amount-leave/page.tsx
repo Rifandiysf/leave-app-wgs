@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Modal from '@/app/components/Modal/Modal';
+import Modal from '@/app/components/ui/Modal/Modal';
 import axiosInstance from "@/lib/api/axiosInstance";
 import { Button } from "@/app/components/ui/button";
 import { jwtDecode } from "jwt-decode";

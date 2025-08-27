@@ -1,14 +1,24 @@
+// app/hooks/useHistoryData.ts
 
 'use client';
 
 import { useReducer, useState, useEffect, useCallback } from 'react';
-import { getLeaveHistory } from '@/lib/api/service/user'; 
+import axiosInstance from '@/lib/api/axiosInstance';
 
+// --- Tipe Data (Pastikan semua di-export) ---
 export type LeaveHistoryType = { id_leave: string; leave_type: string; start_date: string; end_date: string; title: string; reason: string; status: string; total_days: number; tb_leave_log: { reason: string; tb_users: { fullname: string } } };
 export type PaginationInfo = { current_page: number; last_visible_page: number; has_next_page: boolean; item: { count: number; total: number; per_page: number } };
-export interface HistoryState { currentPage: number; search: string; debouncedSearch: string; status: string | null; leaveType: string | null; }
+
+export interface HistoryState {
+    currentPage: number;
+    search: string;
+    debouncedSearch: string;
+    status: string | null;
+    leaveType: string | null;
+}
 export type HistoryAction = | { type: 'SET_PAGE'; payload: number } | { type: 'SET_SEARCH'; payload: string } | { type: 'SET_DEBOUNCED_SEARCH'; payload: string } | { type: 'SET_STATUS'; payload: string | null } | { type: 'SET_LEAVE_TYPE'; payload: string | null };
 
+// --- Reducer ---
 const initialState: HistoryState = { currentPage: 1, search: "", debouncedSearch: "", status: null, leaveType: null, };
 function historyReducer(state: HistoryState, action: HistoryAction): HistoryState {
     switch (action.type) {
@@ -39,13 +49,15 @@ export function useHistoryData() {
     const fetchHistoryLeaves = useCallback(async () => {
         setIsLoading(true);
         try {
-            const result = await getLeaveHistory({
-                currentPage: state.currentPage,
-                limit: itemPerPage,
-                leaveType: state.leaveType,
-                status: state.status,
-                debouncedSearch: state.debouncedSearch
-            });
+            const params = new URLSearchParams();
+            params.append('page', String(state.currentPage));
+            params.append('limit', String(itemPerPage));
+            if (state.leaveType) params.append("type", state.leaveType);
+            if (state.status) params.append("status", state.status);
+            if (state.debouncedSearch) params.append('value', state.debouncedSearch);
+            
+            const res = await axiosInstance.get('/users/leave/search', { params });
+            const result = res.data; 
             
             setDataHistoryLeave(result.data || []);
             setPaginationInfo(result.pagination || null);

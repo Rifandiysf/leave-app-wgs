@@ -1,8 +1,8 @@
 "use client";
 
 import 'bootstrap-icons/font/bootstrap-icons.css'
-import { Button } from "../ui/button"
-import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
+import { Button } from "../button"
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../dialog"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card"
 import { Label } from "@/app/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs"

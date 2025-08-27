@@ -11,8 +11,8 @@ import {
     PaginationPrevious
 } from '@/app/components/ui/pagination'
 import { Switch } from "@/app/components/ui/switch"
-import { AddMandatory } from '@/app/components/form/addMandatory'
-import { EditMandatory } from '@/app/components/form/editMandatory'
+import { AddMandatory } from '@/app/components/ui/form/addMandatory'
+import { EditMandatory } from '@/app/components/ui/form/editMandatory'
 import { formatDate } from '@/lib/format'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/app/components/ui/dialog"
 import { Button } from "@/app/components/ui/button"

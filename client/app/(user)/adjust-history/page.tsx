@@ -13,7 +13,7 @@ import {
     PaginationPrevious
 } from "@/app/components/ui/pagination"; 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/app/components/ui/select"; // Pastikan path ini benar
-import Modal from "@/app/components/Modal/Modal";
+import Modal from "@/app/components/ui/Modal/Modal";
 import { Label } from "@/app/components/ui/label"; 
 
 type HistoryLog = {

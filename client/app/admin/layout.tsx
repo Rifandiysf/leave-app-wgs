@@ -1,7 +1,7 @@
 'use client'
 
-import Sidebar from '@/app/components/layout/sidebar'
-import Header from '../components/layout/header'
+import Sidebar from '@/app/components/ui/layout/sidebar'
+import Header from '../components/ui/layout/header'
 
 export default function AdminLayout({
     children,

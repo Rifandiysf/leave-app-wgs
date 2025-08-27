@@ -13,13 +13,26 @@ import {
 } from "@/app/components/ui/dialog"
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../select"
 
-export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
-    const [title, setTitle] = useState("")
-    const [gender, setGender] = useState("")
-    const [duration, setDuration] = useState(0)
-    const [description, setDescription] = useState("")
+type dataSpecialType = {
+    id_special: string
+    title: string
+    applicable_gender: string
+    duration: number
+    description: string
+}
+
+type Props = {
+    initialData: dataSpecialType
+    onFormSubmit: () => void
+}
+
+export function EditSpecial({ initialData, onFormSubmit }: Props) {
+    const [title, setTitle] = useState(initialData.title)
+    const [gender, setGender] = useState(initialData.applicable_gender)
+    const [duration, setDuration] = useState(initialData.duration)
+    const [description, setDescription] = useState(initialData.description)
 
     const [titleError, setTitleError] = useState("")
     const [descriptionError, setDescriptionError] = useState("")
@@ -31,21 +44,26 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
 
     useEffect(() => {
-        if (!isDialogOpen) {
-            setTitle("");
-            setGender("");
-            setDuration(0);
-            setDescription("");
-            setTitleError("");
-            setDescriptionError("");
-            setGenderError("");
-            setDurationError("");
-            setGeneralError("");
-            setGeneralSuccess("");
+        if (isDialogOpen) {
+            setTitle(initialData.title)
+            setGender(initialData.applicable_gender)
+            setDuration(initialData.duration)
+            setDescription(initialData.description)
+            setTitleError("")
+            setDescriptionError("")
+            setGenderError("")
+            setDurationError("")
+            setGeneralError("")
+            setGeneralSuccess("")
+        } else {
+            setTitle(initialData.title)
+            setGender(initialData.applicable_gender)
+            setDuration(initialData.duration)
+            setDescription(initialData.description)
         }
-    }, [isDialogOpen]);
+    }, [isDialogOpen, initialData])
 
-    const handleAddSpecial = async (e: React.FormEvent) => {
+    const handleEditSpecial = async (e: React.FormEvent) => {
         e.preventDefault()
 
         setGeneralError("")
@@ -55,7 +73,7 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
         setGenderError("")
         setDurationError("")
 
-        let hasError = false;
+        let hasError = false
         if (!title.trim()) {
             setTitleError("Title cannot be empty");
             hasError = true;
@@ -74,7 +92,7 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
         }
 
         if (hasError) {
-            return;
+            return
         }
 
         setIsLoading(true)
@@ -86,8 +104,8 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
         }
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/special`, {
-                method: 'POST',
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/special/${initialData.id_special}`, {
+                method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(payload),
@@ -96,32 +114,34 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
             const result = await res.json()
 
             if (!res.ok) {
-                setGeneralError("Failed to add data. Please try again.");
+                setGeneralError("Failed to update special leave")
+                return
             }
 
+            setGeneralSuccess(result.message || "Special leave updated successfully!")
             onFormSubmit()
-            setGeneralSuccess(result.message || "Special leave added successfully!");
-            setIsDialogOpen(false);
+            setIsDialogOpen(false)
+
         } catch (error) {
-            console.error("Error adding data:", error);
-            setGeneralError("Failed to add data. Check your network or server response.");
+            console.error("Error updating data:", error)
+            setGeneralError("Failed to update data. Check your network or server response.")
         } finally {
-            setIsLoading(false);
+            setIsLoading(false)
         }
     }
 
     return (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-                <Button variant="default" className="text-foreground dark:bg-secondary">
-                    <i className="bi bi-plus-circle-fill text-lg text-foreground"></i> Add Special Leave
+                <Button variant="ghost" size={'icon'}>
+                    <i className="bi bi-pencil-square text-lg"></i>
                 </Button>
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[550px]">
-                <form onSubmit={handleAddSpecial}>
+                <form onSubmit={handleEditSpecial}>
                     <DialogHeader className="flex flex-col justify-center items-center mb-3">
-                        <DialogTitle>Add Special Leave</DialogTitle>
+                        <DialogTitle>Edit Special Leave</DialogTitle>
                     </DialogHeader>
 
                     {generalError && (
@@ -134,6 +154,7 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
                             {generalSuccess}
                         </div>
                     )}
+
                     <div className="grid gap-4">
                         <div className="grid gap-3">
                             <Label htmlFor="title">Title</Label>
@@ -142,10 +163,10 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
                                 type="text"
                                 value={title}
                                 onChange={(e) => {
-                                    setTitle(e.target.value);
-                                    if (titleError) setTitleError("");
+                                    setTitle(e.target.value)
+                                    if (titleError) setTitleError("")
                                 }}
-                                placeholder="Type the new leave title"
+                                placeholder="Edit title"
                                 className={titleError ? 'border-red-400' : ''}
                             />
                             {titleError && (
@@ -154,8 +175,8 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="gender">Gender</Label>
-                            <Select onValueChange={(value) => setGender(value)}>
-                                <SelectTrigger className={`w-full ${genderError ? 'border-e-red-400' : ''}`}>
+                            <Select value={gender} onValueChange={(value) => setGender(value)} >
+                                <SelectTrigger className={`w-full ${genderError ? 'border-red-400' : ''}`}>
                                     <SelectValue placeholder="Select the gender" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -179,7 +200,7 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
                                 min={0}
                                 value={duration}
                                 onChange={(e) => setDuration(Number(e.target.value))}
-                                placeholder="Set amount in days"
+                                placeholder="Edit duration"
                                 className={durationError ? 'border-red-400' : ''}
                             />
                             {durationError && (
@@ -192,10 +213,10 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
                                 id="description"
                                 value={description}
                                 onChange={(e) => {
-                                    setDescription(e.target.value);
-                                    if (descriptionError) setDescriptionError("");
+                                    setDescription(e.target.value)
+                                    if (descriptionError) setDescriptionError("")
                                 }}
-                                placeholder="Type the description"
+                                placeholder="Edit description"
                                 className={`border-[1.5px] border-border bg-accent ${descriptionError ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
                             />
                             {descriptionError && (
@@ -215,9 +236,9 @@ export function AddSpecial({ onFormSubmit }: { onFormSubmit: () => void }) {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.37 0 0 5.37 0 12h4zm2 5.29A7.96 7.96 0 014 12H0c0 3.04 1.14 5.82 3 7.94l3-2.65z" />
                                     </svg>
-                                    Processing…
+                                    Saving…
                                 </>
-                            ) : 'Confirm'}
+                            ) : 'Save'}
                         </Button>
                     </DialogFooter>
                 </form>
