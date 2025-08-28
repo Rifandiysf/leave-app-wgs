@@ -176,13 +176,12 @@ async function manualSeed() {
 
 
     for (const user of users) {
-      const hashedPassword = await bcrypt.hash(user.password, 10); // Hash the password
       await tx.tb_users.create({
         data: {
           NIK: user.NIK,
           fullname: user.fullname,
           email: user.email,
-          password: hashedPassword, // Use the hashed password
+          password: user.password,
           gender: user.gender,
           role_id: createdRoles[user.roleSlug],
           status_id: createdStatuses[user.statusName],
