@@ -311,7 +311,7 @@ const DashboardPage = () => {
                                Users With the Most Remaining Leave
                             </h3>
                             <div className="space-y-3">
-                                {leaderboard.top.map((user: LeaderboardUserType, index: number) => (
+                                {leaderboard.bottom.map((user: LeaderboardUserType, index: number) => (
                                     <div key={`${user.nik}-${index}`} className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
                                         <div className="flex items-center gap-3">
                                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${index === 0 ? 'bg-green-500' : index === 1 ? 'bg-green-400' : 'bg-green-300'}`}>
@@ -342,7 +342,7 @@ const DashboardPage = () => {
                                 Users With the Lowest Remaining Leave
                             </h3>
                             <div className="space-y-3">
-                                {leaderboard.bottom.map((user: LeaderboardUserType, index: number) => (
+                                {leaderboard.top.map((user: LeaderboardUserType, index: number) => (
                                     <div key={`${user.nik}-${index}`} className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-100">
                                         <div className="flex items-center gap-3">
                                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${index === 0 ? 'bg-red-500' : index === 1 ? 'bg-red-400' : 'bg-red-300'}`}>

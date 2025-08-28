@@ -52,3 +52,24 @@ export const getLeaveHistory = async (params: HistoryParams) => {
     
     return response.data; 
 };
+
+interface AdjustHistoryParams {
+  currentPage: number;
+  limit: number;
+  debouncedSearch?: string;  
+  yearFilter: string | null;
+}
+
+export const getAdjustHistoryLogs = async (params: AdjustHistoryParams) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('page', String(params.currentPage));
+    queryParams.append('limit', String(params.limit));
+    if (params.debouncedSearch) queryParams.append('value', params.debouncedSearch);
+    if (params.yearFilter) queryParams.append('year', params.yearFilter);
+
+    const response = await axiosInstance.get('/balances/logs/me', {
+        params: queryParams
+    });
+    
+    return response.data;
+};
