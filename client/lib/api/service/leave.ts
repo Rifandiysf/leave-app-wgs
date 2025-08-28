@@ -1,3 +1,4 @@
+import { MandatoryType } from "@/lib/type";
 import axiosInstance from "../axiosInstance";
 
 
@@ -20,6 +21,21 @@ export async function applyLeave(payload: {
     return res.data;
 }
 
+export const applyMandatoryLeave = async (
+    id_mandatory: string,
+    status: "approved" | "rejected",
+    reason?: string
+) => {
+    const payload = {
+        id_mandatory,
+        leave_type: "mandatory_leave",
+        status,
+        ...(status === "rejected" ? { reason } : {}),
+    };
+
+    return axiosInstance.post("/users/leave", payload);
+};
+
 export const updateSpecialLeaveStatus = async (id: string, newStatus: boolean) => {
     const response = await axiosInstance.patch(`/leaves/special/${id}`, {
         is_active: newStatus
@@ -28,6 +44,11 @@ export const updateSpecialLeaveStatus = async (id: string, newStatus: boolean) =
     return response.data
 }
 
+export const getMandatoryLeave = async (): Promise<MandatoryType[]> => {
+    const res = await axiosInstance.get("/users/mandatory?limit=50");
+    return res.data.data;
+};
+
 export const updateMandatoryLeaveStatus = async (id: string, newStatus: boolean) => {
     const response = await axiosInstance.patch(`/leaves/mandatory/${id}`, {
         is_active: newStatus
@@ -35,3 +56,4 @@ export const updateMandatoryLeaveStatus = async (id: string, newStatus: boolean)
 
     return response.data
 }
+

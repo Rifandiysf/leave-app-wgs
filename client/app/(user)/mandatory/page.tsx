@@ -1,8 +1,6 @@
 "use client"
 
 import 'bootstrap-icons/font/bootstrap-icons.css'
-import { useEffect, useState } from 'react'
-import axiosInstance from '@/lib/api/axiosInstance'
 import { formatDate } from '@/lib/format'
 
 import { Card } from "@/app/components/ui/card"
@@ -18,17 +16,8 @@ import {
 } from "@/app/components/ui/dialog"
 import { Button } from "@/app/components/ui/button"
 import { Input } from '@/app/components/ui/input'
-
-type MandatoryType = {
-    id_mandatory: string
-    title: string
-    is_active: boolean
-    description: string
-    start_date: string
-    end_date: string
-    message: string
-    taken: boolean
-}
+import { isLeavePassed, isSameDay, isWithin6Days } from '@/lib/date'
+import { useMandatory } from '@/app/hooks/UseMandatory'
 
 const SkeletonCard = () => {
     return (
@@ -57,131 +46,21 @@ const SkeletonCard = () => {
 }
 
 const MandatoryPage = () => {
-    const [dataMandatory, setMandatory] = useState<MandatoryType[]>([])
-    const [loading, setLoading] = useState<boolean>(true)
-    const [appliedStatus, setAppliedStatus] = useState<Record<string, 'approved' | 'rejected' | undefined>>({})
-    const [selectedMandatory, setSelectedMandatory] = useState<MandatoryType | null>(null)
-    const [isApply, setIsApply] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
-    const [showConfirmModal, setShowConfirmModal] = useState(false)
-    const [cancelReason, setCancelReason] = useState("")
-    const [cancelReasonError, setCancelReasonError] = useState("")
-
-    useEffect(() => {
-        setCancelReasonError("")
-        setCancelReason("")
-    }, [showConfirmModal])
-
-    const fetchMandatoryData = async () => {
-        try {
-            const res = await axiosInstance.get('/users/mandatory?limit=50')
-            setMandatory(res.data.data)
-
-            const initialAppliedStatus: Record<string, 'approved' | 'rejected' | undefined> = {}
-            res.data.data.forEach((item: MandatoryType) => {
-                if (item.taken) {
-                    initialAppliedStatus[item.id_mandatory] = 'approved'
-                }
-            })
-            setAppliedStatus(initialAppliedStatus)
-
-        } catch (error) {
-            console.error('Error fetching data:', error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    useEffect(() => {
-        fetchMandatoryData()
-    }, [])
-
-    const isSameDay = (startDateStr: string, endDateStr: string) => {
-        const start = new Date(startDateStr)
-        const end = new Date(endDateStr)
-        return (
-            start.getFullYear() === end.getFullYear() &&
-            start.getMonth() === end.getMonth() &&
-            start.getDate() === end.getDate()
-        )
-    }
-
-    const isWithin6Days = (startDate: string) => {
-        const today = new Date()
-        const start = new Date(startDate)
-        today.setHours(0, 0, 0, 0);
-        start.setHours(0, 0, 0, 0);
-
-        const diffTime = start.getTime() - today.getTime()
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-        return diffDays <= 6 && diffDays >= 0;
-    }
-
-    const isLeavePassed = (endDateStr: string) => {
-        const today = new Date()
-        const endDate = new Date(endDateStr)
-        today.setHours(0, 0, 0, 0);
-        endDate.setHours(0, 0, 0, 0);
-        return endDate < today;
-    }
-
-    const handleToggleChange = (checked: boolean, item: MandatoryType) => {
-        setSelectedMandatory(item)
-        setIsApply(checked)
-        setCancelReason("")
-        setCancelReasonError("")
-        setShowConfirmModal(true)
-    }
-
-    const handleConfirmSubmit = async () => {
-        if (!selectedMandatory) return
-        setIsLoading(true)
-
-        let hasError: boolean = false;
-        if (!isApply) {
-            if (!cancelReason.trim()) {
-                setCancelReasonError("Reason cannot be empty");
-                hasError = true;
-            } else if (cancelReason.trim().length < 5) {
-                setCancelReasonError("Reason must be at least 5 characters");
-                hasError = true;
-            } else {
-                setCancelReasonError("");
-            }
-        }
-
-        if (hasError) {
-            return;
-        }
-
-        try {
-            const payload = {
-                id_mandatory: selectedMandatory.id_mandatory,
-                leave_type: "mandatory_leave",
-                status: isApply ? "approved" : "rejected",
-                ...(isApply ? {} : { reason: cancelReason.trim() }),
-            }
-
-            await axiosInstance.post('/users/leave', payload)
-            setMandatory(prevData =>
-                prevData.map(item =>
-                    item.id_mandatory === selectedMandatory.id_mandatory
-                        ? { ...item, taken: isApply }
-                        : item
-                )
-            )
-            setAppliedStatus(prev => ({
-                ...prev,
-                [selectedMandatory.id_mandatory]: isApply ? "approved" : "rejected"
-            }))
-
-            setShowConfirmModal(false)
-        } catch (err) {
-            console.error("Failed submit:", err)
-        } finally {
-            setIsLoading(false)
-        }
-    }
+    const {
+        dataMandatory,
+        loading,
+        appliedStatus,
+        selectedMandatory,
+        isApply,
+        isLoading,
+        showConfirmModal,
+        cancelReason,
+        cancelReasonError,
+        setCancelReason,
+        setShowConfirmModal,
+        handleToggleChange,
+        handleConfirmSubmit,
+    } = useMandatory();
 
     return (
         <section className="p-4">
