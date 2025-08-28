@@ -54,10 +54,10 @@ export const getLeaveHistory = async (params: HistoryParams) => {
 };
 
 interface AdjustHistoryParams {
-  currentPage: number;
-  limit: number;
-  debouncedSearch?: string;  
-  yearFilter: string | null;
+    currentPage: number;
+    limit: number;
+    debouncedSearch?: string;
+    yearFilter?: string | null;
 }
 
 export const getAdjustHistoryLogs = async (params: AdjustHistoryParams) => {

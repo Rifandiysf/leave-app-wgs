@@ -1,12 +1,13 @@
-
 'use client';
 
 import { useReducer, useState, useEffect, useCallback } from 'react';
 import { getAdjustHistoryLogs } from '@/lib/api/service/user';
 
+// --- Tipe Data ---
 export type HistoryLog = { NIK: string; name: string; adjustment_value: number; balance_year: string; date: string; time: string; actor: string; notes: string; id?: string; };
 export type PaginationInfo = { current_page: number; last_visible_page: number; has_next_page: boolean; item: { count: number; total: number; per_page: number; } };
 
+// --- State Management ---
 export interface AdjustHistoryState { currentPage: number; searchTerm: string; debouncedSearch: string; yearFilter: string | null; }
 export type AdjustHistoryAction = | { type: 'SET_PAGE'; payload: number } | { type: 'SET_SEARCH'; payload: string } | { type: 'SET_DEBOUNCED_SEARCH'; payload: string } | { type: 'SET_YEAR_FILTER'; payload: string | null };
 
@@ -22,7 +23,7 @@ function reducer(state: AdjustHistoryState, action: AdjustHistoryAction): Adjust
     }
 }
 
-const itemPerPage = 10;
+const itemPerPage = 7;
 
 export function useAdjustHistoryData() {
     const [state, dispatch] = useReducer(reducer, initialState);
@@ -41,6 +42,8 @@ export function useAdjustHistoryData() {
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         setError(null);
+        setHistory([]);
+        setPaginationInfo(null);
         try {
             const result = await getAdjustHistoryLogs({
                 currentPage: state.currentPage,
@@ -58,7 +61,6 @@ export function useAdjustHistoryData() {
         } catch (err: any) {
             console.error('Error fetching adjustment history:', err);
             setError(err.message);
-            setHistory([]);
         } finally {
             setIsLoading(false);
         }

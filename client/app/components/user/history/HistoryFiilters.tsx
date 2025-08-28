@@ -2,7 +2,7 @@
 'use client';
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/app/components/ui/select";
-import { HistoryState, HistoryAction } from "@/app/hooks/UseHistoryData";
+import { HistoryState, HistoryAction } from "@/app/hooks/user/UseHistoryData";
 
 interface HistoryFiltersProps {
     state: HistoryState;

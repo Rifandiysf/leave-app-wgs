@@ -1,7 +1,7 @@
 'use client';
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/app/components/ui/select";
-import { AdjustHistoryState, AdjustHistoryAction } from "@/app/hooks/useAdjustHistoryData";
+import { AdjustHistoryState, AdjustHistoryAction } from "@/app/hooks/user/useAdjustHistoryData";
 
 interface AdjustHistoryFiltersProps {
     state: AdjustHistoryState;
@@ -10,7 +10,6 @@ interface AdjustHistoryFiltersProps {
 
 export const AdjustHistoryFilters = ({ state, dispatch }: AdjustHistoryFiltersProps) => (
     <div className='mb-4'>
-        {/* Desktop */}
         <div className='hidden md:flex justify-between items-center gap-3'>
             <h1 className="text-2xl font-bold text-foreground">Adjust History</h1>
             <div className="flex items-center gap-3">
@@ -23,17 +22,20 @@ export const AdjustHistoryFilters = ({ state, dispatch }: AdjustHistoryFiltersPr
                 />
                 <Select onValueChange={(value) => dispatch({ type: 'SET_YEAR_FILTER', payload: value === 'all' ? null : value })}>
                     <SelectTrigger className="min-w-[120px]"><SelectValue placeholder="Year" /></SelectTrigger>
-                    <SelectContent><SelectGroup>
-                        <SelectLabel>Balance Year</SelectLabel>
-                        <SelectItem value="all">All</SelectItem>
-                        <SelectItem value="2026">2026</SelectItem>
-                        <SelectItem value="2025">2025</SelectItem>
-                        <SelectItem value="2024">2024</SelectItem>
-                    </SelectGroup></SelectContent>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectLabel>Balance Year</SelectLabel>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="2026">2026</SelectItem>
+                            <SelectItem value="2025">2025</SelectItem>
+                            <SelectItem value="2024">2024</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
                 </Select>
             </div>
         </div>
-        {/* Mobile */}
+
+        {/* Mobile Layout */}
         <div className='md:hidden flex flex-col gap-4'>
             <h1 className="text-2xl font-bold text-foreground text-center">Adjust History</h1>
             <div className="flex items-center gap-3">
@@ -46,13 +48,15 @@ export const AdjustHistoryFilters = ({ state, dispatch }: AdjustHistoryFiltersPr
                 />
                 <Select onValueChange={(value) => dispatch({ type: 'SET_YEAR_FILTER', payload: value === 'all' ? null : value })}>
                     <SelectTrigger className="min-w-[120px]"><SelectValue placeholder="Year" /></SelectTrigger>
-                    <SelectContent><SelectGroup>
-                        <SelectLabel>Balance Year</SelectLabel>
-                        <SelectItem value="all">All</SelectItem>
-                        <SelectItem value="2026">2026</SelectItem>
-                        <SelectItem value="2025">2025</SelectItem>
-                        <SelectItem value="2024">2024</SelectItem>
-                    </SelectGroup></SelectContent>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectLabel>Balance Year</SelectLabel>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="2026">2026</SelectItem>
+                            <SelectItem value="2025">2025</SelectItem>
+                            <SelectItem value="2024">2024</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
                 </Select>
             </div>
         </div>

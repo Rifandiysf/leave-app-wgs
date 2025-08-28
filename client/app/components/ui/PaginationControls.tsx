@@ -1,8 +1,24 @@
-
 'use client';
 
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/app/components/ui/pagination";
-import { PaginationInfo } from "@/app/hooks/UseHistoryData"; 
+import { 
+    Pagination, 
+    PaginationContent, 
+    PaginationItem, 
+    PaginationLink, 
+    PaginationNext, 
+    PaginationPrevious 
+} from "@/app/components/ui/pagination";
+
+export type PaginationInfo = {
+    current_page: number;
+    last_visible_page: number;
+    has_next_page: boolean;
+    item?: { 
+        count: number;
+        total: number;
+        per_page: number;
+    }
+};
 
 type PageItem = number | 'ellipsis';
 
@@ -38,7 +54,7 @@ interface PaginationControlsProps {
 }
 
 export const PaginationControls = ({ paginationInfo, currentPage, onPageChange }: PaginationControlsProps) => {
-    if (!paginationInfo) {
+    if (!paginationInfo || paginationInfo.last_visible_page <= 0) {
         return null;
     }
 
@@ -73,10 +89,10 @@ export const PaginationControls = ({ paginationInfo, currentPage, onPageChange }
                         </PaginationItem>
                     ))}
 
-                    {paginationInfo.last_visible_page <= 1 && (
+                    {paginationInfo.last_visible_page === 1 && (
                          <PaginationItem>
-                            <PaginationLink isActive>{currentPage}</PaginationLink>
-                        </PaginationItem>
+                             <PaginationLink isActive>{currentPage}</PaginationLink>
+                         </PaginationItem>
                     )}
 
                     <PaginationItem>

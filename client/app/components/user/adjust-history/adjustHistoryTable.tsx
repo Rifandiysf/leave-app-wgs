@@ -2,7 +2,7 @@
 
 'use client';
 
-import { HistoryLog } from "@/app/hooks/useAdjustHistoryData";
+import { HistoryLog } from "@/app/hooks/user/useAdjustHistoryData";
 import { Label } from "@/app/components/ui/label";
 import Modal from "@/app/components/ui/Modal/Modal";
 
@@ -23,8 +23,7 @@ export const AdjustHistoryTable = ({ isLoading, error, history, itemsPerPage }: 
                         <th className="p-3 font-semibold text-center">Name</th>
                         <th className="p-3 font-semibold text-center">Adjustment</th>
                         <th className="p-3 font-semibold text-center">Balance Year</th>
-                        <th className="p-3 font-semibold text-center">Date</th>
-                        <th className="p-3 font-semibold text-center">Time</th>
+                        <th className="p-3 font-semibold text-center">Date and Time</th>
                         <th className="p-3 font-semibold text-center">Actor</th>
                         <th className="p-3 font-semibold text-center">Detail</th>
                     </tr>
@@ -49,8 +48,7 @@ export const AdjustHistoryTable = ({ isLoading, error, history, itemsPerPage }: 
                                 <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{log.name}</td>
                                 <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{log.adjustment_value}</td>
                                 <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{log.balance_year}</td>
-                                <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{log.date}</td>
-                                <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{log.time}</td>
+                                <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{log.date} {log.time}</td>
                                 <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{log.actor}</td>
                                 <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">
                                     <Modal mode='info' size='icon' variant='ghost' title='Adjusment Detail' triggerLabel={<i className="bi bi-info-circle text-xl text-blue-500 hover:text-blue-700"></i>} showFooter={false}>

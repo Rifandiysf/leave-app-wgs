@@ -35,35 +35,34 @@ export default function AdminInformationPage() {
       icon: "bi-people",
       color: "bg-green-500",
       content: [
-        "Halaman ini menampilkan daftar seluruh karyawan beserta informasi statistik kunci per individu.",
-        "Statistik meliputi total cuti yang diajukan dan total yang disetujui.",
+        "Halaman ini menampilkan daftar seluruh karyawan beserta informasi statistik kunci per individu, seperti total cuti yang diajukan dan total yang disetujui.",
       ],
     },
     {
-      title: "List of Leave - Request Leave",
+      title: "List of Leave - Request Leave (Manajemen Permintaan)",
       icon: "bi-clipboard-check",
       color: "bg-purple-500",
       content: [
-        "Halaman kerja utama untuk memproses permintaan cuti.",
+        "Ini adalah halaman kerja utama Anda untuk memproses permintaan cuti.",
         "Status Pengajuan:",
-        "Pending: Menunggu tindakan Anda.",
-        "Approved: Disetujui.",
-        "Rejected: Ditolak.",
-        "Expired: Permintaan yang dibiarkan Pending hingga hari-H otomatis menjadi Expired.",
-        "Antisipasi Overlapping: Sistem memberi notifikasi jika permintaan berpotensi tumpang tindih.",
-        "Filter: Cari permintaan berdasarkan nama, departemen, atau tanggal.",
-        "Aturan Penting: Admin tidak dapat memproses (Approve/Reject) permintaan cuti miliknya sendiri.",
+        "Pending: Status awal, menunggu tindakan Anda.",
+        "Approved: disetujui.",
+        "Rejected: ditolak.",
+        "Expired: Permintaan yang dibiarkan Pending hingga hari-H akan otomatis berubah menjadi Expired dan tidak dapat diproses.",
+        "Antisipasi Overlapping: Sistem akan memberikan notifikasi jika permintaan yang Anda proses berpotensi tumpang tindih dengan jadwal tim.",
+        "Filter: Gunakan filter untuk mencari permintaan berdasarkan nama, departemen, atau tanggal.",
+        "Aturan Penting: Seorang Admin tidak dapat menyetujui (Approve) atau menolak (Reject) permintaan cuti yang diajukan oleh dirinya sendiri. Ini harus diproses oleh Admin lain.",
       ],
     },
     {
-      title: "List of Leave - History Leave",
+      title: "List of Leave - History Leave (Riwayat Cuti)",
       icon: "bi-list-ul",
       color: "bg-orange-500",
       content: [
-        "Arsip semua permintaan cuti di perusahaan.",
-        "Mengubah Status: Bisa mengubah Approved ↔ Rejected maksimal H-1 sebelum cuti dimulai.",
-        "Informasi Saldo: Lihat apakah cuti berasal dari jatah tahun ini atau tahun lalu.",
-        "Aturan Penting: Admin tidak dapat mengubah status untuk permintaan yang diajukannya sendiri.",
+        "Halaman ini berisi arsip semua permintaan cuti di perusahaan.",
+        "Mengubah Status: Anda dapat mengubah status dari Approved ke Rejected atau sebaliknya, namun ini hanya bisa dilakukan maksimal H-1 sebelum tanggal cuti dimulai. Pada hari-H, status terkunci.",
+        "Informasi Saldo: Di halaman detail, Anda dapat melihat apakah karyawan menggunakan jatah cuti tahun ini atau tahun lalu.",
+        "Aturan Penting: Admin tidak dapat mengubah status (Approved/Rejected) untuk permintaan yang diajukannya sendiri.",
       ],
     },
     {
@@ -71,10 +70,10 @@ export default function AdminInformationPage() {
       icon: "bi-book",
       color: "bg-pink-500",
       content: [
-        "Special Leave Management: Tambah, edit, atau nonaktifkan jenis-jenis Cuti Khusus.",
-        "Mandatory Leave Management: Tambah, edit, atau nonaktifkan jadwal Cuti Wajib (maksimal dibuat H-14 sebelum mulai).",
-        "Amount Leave: Tambah saldo cuti manual ke karyawan tertentu (tentukan tahun saldo).",
-        "Saldo tambahan mengikuti aturan kedaluwarsa dari kategorinya.",
+        "Special Leave Management: Di sini Anda dapat menambah, mengubah (edit), atau menonaktifkan (soft delete) jenis-jenis Cuti Khusus yang tersedia bagi karyawan.",
+        "Mandatory Leave Management: Di sini Anda dapat menambah, mengubah (edit), atau menonaktifkan (soft delete) jadwal Cuti Wajib untuk perusahaan. Mandatory dibuat maksimal h-14 dari hari mulainya mandatory.",
+        "Amount Leave (Penambahan Saldo Manual): Fitur untuk menambah saldo cuti ke karyawan tertentu. Anda bisa memilih karyawan, jumlah hari, dan menentukan apakah saldo ditambahkan ke jatah tahun ini atau tahun lalu. Saldo tambahan ini akan mengikuti aturan kedaluwarsa dari kategorinya.",
+        "Adjust History (Riwayat Penambahan Jatah Cuti): Riwayat penambahan semua karyawan dari hasil Amount Leave.",
       ],
     },
   ];
@@ -98,7 +97,7 @@ export default function AdminInformationPage() {
           >
             <CardHeader className="pb-4">
               <div className="flex items-center space-x-4">
-                <div className={`inline-flex items-center justify-center w-12 h-12 bg-blue-500 rounded-2xl shadow-lg mb-6" ${section.color} text-white shadow-sm`}>
+                <div className={`inline-flex items-center justify-center w-12 h-12 rounded-2xl shadow-lg ${section.color} text-white shadow-sm`}>
                   <i className={`bi ${section.icon} text-lg`}></i>
                 </div>
                 <CardTitle className="text-xl font-semibold text-foreground">
@@ -106,7 +105,6 @@ export default function AdminInformationPage() {
                 </CardTitle>
               </div>
             </CardHeader>
-
             <CardContent className="pt-0">
               <div className="space-y-3">
                 {section.content.map((point, i) => (

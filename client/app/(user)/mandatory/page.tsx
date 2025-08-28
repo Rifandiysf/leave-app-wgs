@@ -17,7 +17,7 @@ import {
 import { Button } from "@/app/components/ui/button"
 import { Input } from '@/app/components/ui/input'
 import { isLeavePassed, isSameDay, isWithin6Days } from '@/lib/date'
-import { useMandatory } from '@/app/hooks/UseMandatory'
+import { useMandatory } from '@/app/hooks/user/UseMandatory'
 
 const SkeletonCard = () => {
     return (
