@@ -17,7 +17,7 @@ export const updateLeaveBalance = async (user) => {
 
     const currentYear = today.getFullYear();
 
-    if (user.role === 'karyawan_tetap' || user.role === 'admin' || user.role === 'super_admin') {
+    if (user.tb_roles.slug === 'karyawan_tetap' || user.tb_roles.slug === 'admin' || user.tb_roles.slug === 'super_admin') {
         const todayStr = formatDateLocal(today)
         const joinEffective = new Date(joinDate)
         if(joinDate.getDate() > 20) {
@@ -103,7 +103,8 @@ export const updateLeaveBalance = async (user) => {
                                     adjustment_value: toBackfill,
                                     notes: `backfill ${toBackfill} days for year ${previousYear}`,
                                     created_at: new Date(),
-                                    actor: 'system'
+                                    actor: 'system',
+                                    balance_year: previousYear
                                 }
                             })
                         ]);
@@ -120,7 +121,8 @@ export const updateLeaveBalance = async (user) => {
                                     adjustment_value: toBackfill,
                                     notes: `backfill ${toBackfill} days for year ${previousYear}`,
                                     created_at: new Date(),
-                                    actor: 'system'
+                                    actor: 'system',
+                                    balance_year: previousYear
                                 }
                             })
                         ]);
@@ -183,7 +185,8 @@ export const updateLeaveBalance = async (user) => {
                             adjustment_value: leaveAmount,
                             notes: `get ${leaveAmount} days of leave`,
                             created_at: new Date(),
-                            actor: 'system'
+                            actor: 'system',
+                            balance_year: currentYear
                         }
                     })
                 ]);
@@ -205,7 +208,8 @@ export const updateLeaveBalance = async (user) => {
                             adjustment_value: leaveAmount,
                             notes: `get ${leaveAmount} days of leave`,
                             created_at: new Date(),
-                            actor: 'system'
+                            actor: 'system',
+                            balance_year: currentYear
                         }
                     })
                 ]);
@@ -215,7 +219,7 @@ export const updateLeaveBalance = async (user) => {
             console.log(`[SKIP] NIK: ${user.NIK} - Balance for ${currentYear} already exists`);
         }
 
-    } else if (user.role === 'karyawan_kontrak') {
+    } else if (user.tb_roles.slug === 'karyawan_kontrak') {
         //console.log(`[DEBUG] Processing kontrak employee NIK: ${user.NIK}, today: ${today.toISOString()}`);
 
         // Hitung effective join date
@@ -318,7 +322,8 @@ export const updateLeaveBalance = async (user) => {
                                     adjustment_value: toBackfill,
                                     notes: `backfill ${toBackfill} days for year ${previousYear}`,
                                     created_at: new Date(),
-                                    actor: 'system'
+                                    actor: 'system',
+                                    balance_year: previousYear
                                 }
                             })
                         ]);
@@ -339,7 +344,8 @@ export const updateLeaveBalance = async (user) => {
                                     adjustment_value: toBackfill,
                                     notes: `backfill ${toBackfill} days for year ${previousYear}`,
                                     created_at: new Date(),
-                                    actor: 'system'
+                                    actor: 'system',
+                                    balance_year: previousYear
                                 }
                             })
                         ]);
@@ -438,7 +444,8 @@ export const updateLeaveBalance = async (user) => {
                                 adjustment_value: toAdd,
                                 notes: `get ${toAdd} days of leave`,
                                 created_at: new Date(),
-                                actor: 'system'
+                                actor: 'system',
+                                balance_year: currentYear
                             }
                         })
                     ]);
@@ -460,7 +467,8 @@ export const updateLeaveBalance = async (user) => {
                                 adjustment_value: toAdd,
                                 notes: `add ${toAdd} days of leave`,
                                 created_at: new Date(),
-                                actor: 'system'
+                                actor: 'system',
+                                balance_year: currentYear
                             }
                         })
                     ]);
@@ -474,6 +482,6 @@ export const updateLeaveBalance = async (user) => {
         // }
 
     } else {
-        console.log(`[SKIP] NIK: ${user.NIK} role: magang`);
+        console.log(`[SKIP] NIK: ${user.NIK} role: ${user.tb_roles.slug}`);
     }
 };
