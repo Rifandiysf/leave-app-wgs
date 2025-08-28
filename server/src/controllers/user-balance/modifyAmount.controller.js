@@ -29,11 +29,11 @@ export const modifyAmount = async (req, res, next) => {
             throw error;
         }
 
-        const targetUser = await prisma.tb_users.findUnique({
+        const targetUser = await prisma.tb_users.findFirst({
             where: { NIK: nik,
-                status_active: 'active'
+                is_active: true
              },
-            select: { role: true }
+            select: { tb_roles: { select: { name: true } } }
         });
 
         if (!targetUser) {
@@ -42,7 +42,7 @@ export const modifyAmount = async (req, res, next) => {
             throw error;
         }
 
-        const targetRole = targetUser.role;
+        const targetRole = targetUser.tb_roles.name;
 
         const result = await adjustModifyAmount(
             nik,
