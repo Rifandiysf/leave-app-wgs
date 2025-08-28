@@ -79,7 +79,11 @@ export const getAllBalanceAdjustment = async (page, limit, startDate, endDate, b
 export const getAllBalanceAdjustmentByNIK = async (page, limit, nik, searchValue, startDate, endDate, balanceYear) => {
     try {
         const offset = (page - 1) * limit
-        const totalLogs = await prisma.tb_balance_adjustment.count();
+        const totalLogs = await prisma.tb_balance_adjustment.count({
+            where: {
+                NIK: nik
+            }
+        });
 
         console.log('test', searchValue);
         const logs = await prisma.tb_balance_adjustment.findMany({
