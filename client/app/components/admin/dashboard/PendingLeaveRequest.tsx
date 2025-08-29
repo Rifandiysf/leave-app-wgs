@@ -1,8 +1,6 @@
 'use client';
 
-import { Card } from "@/app/components/ui/card";
 import { PendingLeaveRequestType } from "@/app/hooks/admin/UseDashboardData";
-import 'bootstrap-icons/font/bootstrap-icons.css';
 
 interface PendingLeaveRequestsProps {
     requests: PendingLeaveRequestType[];
@@ -15,13 +13,23 @@ export const PendingLeaveRequests = ({ requests }: PendingLeaveRequestsProps) =>
         return null;
     }
 
+    const getScrollClasses = () => {
+        if (requests.length > 9) {
+            return 'max-h-[380px] md:max-h-[420px] overflow-y-auto';
+        }
+        if (requests.length > 3) {
+            return 'max-h-[380px] overflow-y-auto md:max-h-none md:overflow-visible';
+        }
+        return '';
+    };
+
     return (
-        <Card className="bg-white dark:bg-card border border-border overflow-hidden relative rounded-lg sm:rounded-2xl p-4 sm:p-6 mb-8">
+        <div className="bg-white dark:bg-card border border-border overflow-hidden relative rounded-lg sm:rounded-2xl p-4 sm:p-6 mb-8">
             <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
-                <i className="bi bi-clock-history text-yellow-500"></i>
-                Employees on Pending Leave ({requests.length} request)
+                
+                Employees on Pending Leave ({requests.length} request{requests.length !== 1 ? 's' : ''})
             </h3>
-            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${requests.length > 3 ? 'max-h-[400px] overflow-y-auto pr-2' : ''}`}>
+            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${getScrollClasses()}`}>
                 {requests.map((leave, index) => (
                     <div key={`${leave.NIK}-${index}`} className="bg-yellow-50 dark:bg-gray-800 rounded-lg p-4 border border-yellow-200 dark:border-yellow-900 text-gray-800 dark:text-gray-200">
                         <div className="flex justify-between items-start">
@@ -39,6 +47,7 @@ export const PendingLeaveRequests = ({ requests }: PendingLeaveRequestsProps) =>
                     </div>
                 ))}
             </div>
-        </Card>
+        </div>
     );
 };
+

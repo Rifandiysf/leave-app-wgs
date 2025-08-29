@@ -1,363 +1,123 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { useAmountLeaveForm } from '@/app/hooks/admin/UseAmountLeaveForm';
+import { Button } from '@/app/components/ui/button';
 import Modal from '@/app/components/ui/Modal/Modal';
-import axiosInstance from "@/lib/api/axiosInstance";
-import { Button } from "@/app/components/ui/button";
-import { jwtDecode } from "jwt-decode";
-
-type UserSearchResult = {
-  nik: string;
-  name: string;
-  this_year_leave: number;
-  last_year_leave: number;
-};
-
-type JwtPayload = {
-  nik: string;
-  name?: string;
-  role?: string;
-  exp?: number;
-};
+import { UserSearch } from '@/app/components/admin/amount-leave/UserSearch';
+import { YearSelector } from '@/app/components/admin/amount-leave/YearSelector';
+import { BalanceFields } from '@/app/components/admin/amount-leave/BalanceFields';
+import { Notification } from '@/app/components/ui/notification/Notification';
 
 const AmountLeavePage = () => {
-  const router = useRouter();
+    const { state, dispatch, handleUserSelect, handleSubmit, closeNotification } = useAmountLeaveForm();
+    const router = useRouter();
 
-  const thisYear = new Date().getFullYear();
-  const lastYear = thisYear - 1;
+    const isFormValid = state.selectedUser && state.amountToAdd > 0 && state.information.trim() !== '' && !state.isSelfEdit;
+    const isDirty = state.nik.trim() !== '' || state.amountToAdd > 0 || state.information.trim() !== '';
 
-  const [nik, setNik] = useState("");
-  const [currentBalance, setCurrentBalance] = useState(0);
-  const [amountToAdd, setAmountToAdd] = useState<number>(0);
-  const [total, setTotal] = useState(0);
-  const [information, setInformation] = useState("");
-  const [selectedYear, setSelectedYear] = useState(thisYear.toString());
-  const [thisYearBalance, setThisYearBalance] = useState(0);
-  const [lastYearBalance, setLastYearBalance] = useState(0);
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [selectedUserName, setSelectedUserName] = useState("");
-  const [userWasSelected, setUserWasSelected] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSelfEditNotification, setShowSelfEditNotification] = useState(false);
-  const [showErrorMessage, setShowErrorMessage] = useState<string | null>(null);
-
-  const [currentAdminNik, setCurrentAdminNik] = useState<string | null>(null);
-
- 
-  useEffect(() => {
-    try {
-      const token = localStorage.getItem("token"); 
-      if (token) {
-        const decoded: JwtPayload = jwtDecode(token);
-        setCurrentAdminNik(decoded.nik);
-      }
-    } catch (error) {
-      console.error("Failed to decode JWT:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(nik);
-    }, 500);
-    return () => clearTimeout(handler);
-  }, [nik]);
-
-  useEffect(() => {
-    if (userWasSelected || debouncedSearch.trim() === "") {
-      setSearchResults([]);
-      return;
-    }
-
-    const searchUsers = async () => {
-      setIsSearching(true);
-      try {
-        const response = await axiosInstance.get(`/users?search=${debouncedSearch}&limit=50&page=1`);
-        const allUsers: UserSearchResult[] = response.data?.data?.data || response.data?.data || [];
-        const filteredUsers = allUsers.filter(user => user.nik.includes(debouncedSearch));
-        setSearchResults(filteredUsers);
-      } catch (error) {
-        console.error("Failed to search users:", error);
-        setSearchResults([]);
-      } finally {
-        setIsSearching(false);
-      }
+    const getConfirmationMessage = () => {
+        if (!state.selectedUser) return "";
+        const thisYear = new Date().getFullYear();
+        const lastYear = thisYear - 1;
+        const yearType = state.selectedYear === lastYear.toString() ? "last year" : "this year";
+        return `Are you sure you want to add ${state.amountToAdd} leaves for ${yearType} (${state.selectedYear}) to ${state.selectedUser.nik} - ${state.selectedUser.name}?`;
     };
 
-    searchUsers();
-  }, [debouncedSearch, userWasSelected]);
+    const effectiveError = state.isSelfEdit ? "You are not allowed to add your own leave balance." : state.error;
 
-  useEffect(() => {
-    const newTotal = Number(currentBalance) + Number(amountToAdd);
-    setTotal(newTotal);
-  }, [currentBalance, amountToAdd]);
+    return (
+        <>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-2">
+                <div className="bg-background rounded-lg shadow-lg py-3 px-4 w-full max-w-lg relative max-h-[95vh] overflow-y-auto">
+                    <div className="text-center mb-4">
+                        <h2 className="text-lg font-bold">Add Amount Leave</h2>
+                    </div>
 
-  useEffect(() => {
-    if (!userWasSelected) return;
+                    {effectiveError && (
+                        <div className="bg-red-500 text-white p-2 rounded-lg mb-4 flex items-center gap-2">
+                            <div className="bg-white text-red-500 rounded-full p-0.5">
+                                <i className="bi bi-x-lg"></i>
+                            </div>
+                            <span className="text-xs">{effectiveError}</span>
+                        </div>
+                    )}
+                    
+                    <div className="space-y-3">
+                        <UserSearch state={state} dispatch={dispatch} onUserSelect={handleUserSelect} />
+                        <YearSelector state={state} dispatch={dispatch} />
+                        <BalanceFields state={state} dispatch={dispatch} />
+                        
+                        <div>
+                            <label className="block text-xs font-medium text-foreground mb-1">Information</label>
+                            <textarea
+                                rows={3}
+                                className="w-full border border-border px-2 py-1.5 rounded-lg bg-accent text-sm"
+                                placeholder="Information..."
+                                value={state.information}
+                                onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'information', payload: e.target.value })}
+                            ></textarea>
+                        </div>
+                        
+                        {/* Buttons */}
+                        <div className="flex justify-between items-center mt-6">
+                            {isDirty ? (
+                                <Modal
+                                    mode="confirm"
+                                    title="Do you want to discard the changes?"
+                                    onConfirm={() => router.back()}
+                                    triggerLabel={
+                                        <div className="flex items-center gap-1 text-foreground hover:text-gray-800 font-medium cursor-pointer text-sm p-2">
+                                            <i className="bi bi-box-arrow-in-left text-lg"></i>
+                                            Back
+                                        </div>
+                                    }
+                                />
+                            ) : (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    className="flex items-center gap-1 text-foreground hover:text-gray-800 font-medium text-sm p-2"
+                                    onClick={() => router.back()}
+                                >
+                                    <i className="bi bi-box-arrow-in-left text-lg"></i>
+                                    Back
+                                </Button>
+                            )}
 
-    if (selectedYear === lastYear.toString()) {
-      setCurrentBalance(lastYearBalance);
-    } else {
-      setCurrentBalance(thisYearBalance);
-    }
-  }, [selectedYear, userWasSelected, thisYearBalance, lastYearBalance, lastYear]);
-
-  const handleUserSelect = (user: UserSearchResult) => {
-    setUserWasSelected(true);
-    setNik(user.nik);
-    setSelectedUserName(user.name);
-
-    if (user.nik === currentAdminNik) {
-      setShowSelfEditNotification(true);
-    } else {
-      setShowSelfEditNotification(false);
-    }
-
-    const thisYearBal = user.this_year_leave || 0;
-    const lastYearBal = user.last_year_leave || 0;
-    setThisYearBalance(thisYearBal);
-    setLastYearBalance(lastYearBal);
-
-    setCurrentBalance(selectedYear === lastYear.toString() ? lastYearBal : thisYearBal);
-    setSearchResults([]);
-  };
-
-  const handleConfirmSubmit = async () => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-
-    const payload = {
-      adjustment_value: Number(amountToAdd),
-      notes: information.trim(),
-      leave_type: selectedYear === lastYear.toString() ? "last_year_leave" : "this_year_leave"
-    };
-
-    try {
-      await axiosInstance.patch(`/users/${nik}/balance`, payload);
-      router.push('/admin/employee-list?success=true');
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || "Terjadi kesalahan. Silakan coba lagi.";
-      setShowErrorMessage(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const isFormValid = nik && selectedUserName && amountToAdd > 0 && information.trim() !== '' && !showSelfEditNotification;
-  const isDirty = nik.trim() !== '' || amountToAdd > 0 || information.trim() !== '' || selectedYear !== thisYear.toString();
-
-  const getYearLabel = (year: string) => {
-    return year === lastYear.toString() ? `${lastYear} (Last Year)` : `${thisYear} (This Year)`;
-  };
-
-  const getConfirmationMessage = () => {
-    const yearType = selectedYear === lastYear.toString() ? "last year" : "this year";
-    return `Are you sure you want to add ${amountToAdd} leaves from ${yearType} (${selectedYear}) for ${nik} - ${selectedUserName}?`;
-  };
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-2">
-      <div className="bg-background rounded-lg shadow-lg py-3 px-4 w-full max-w-lg relative max-h-[95vh] overflow-y-auto">
-
-        <div className="text-center mb-4">
-          <h2 className="text-lg font-bold inline-block px-3 py-1 rounded">
-            Add Amount Leave
-          </h2>
-        </div>
-
-        {(showSelfEditNotification || showErrorMessage) && (
-          <div className="bg-red-500 text-white p-2 rounded-lg mb-4 flex items-center gap-2">
-            <div className="bg-white text-red-500 rounded-full p-0.5">
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </div>
-            <span className="text-xs">
-              {showSelfEditNotification
-                ? "You are not allowed to add your own leave balance"
-                : showErrorMessage}
-            </span>
-          </div>
-        )}
-
-        <div className="space-y-3">
-          {/* Search NIK */}
-          <div>
-            <label className="block text-xs font-medium text-foreground mb-1">Search NIK</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                <svg className="w-4 h-4 text-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                </svg>
-              </div>
-              <input
-                type="text"
-                className="w-full border border-border bg-accent px-2 py-1.5 rounded-lg pl-8 text-foreground text-sm"
-                placeholder="Ketik NIK untuk mencari..."
-                value={nik}
-                onChange={(e) => {
-                  setUserWasSelected(false);
-                  setNik(e.target.value);
-                  setShowErrorMessage(null); // clear error
-                  if (e.target.value !== nik) {
-                    setSelectedUserName("");
-                    setCurrentBalance(0);
-                    setThisYearBalance(0);
-                    setLastYearBalance(0);
-                    setShowSelfEditNotification(false);
-                  }
-                }}
-                autoComplete="off"
-              />
-              {debouncedSearch && !userWasSelected && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-card border border-border rounded-lg shadow-lg max-h-40 overflow-y-auto">
-                  {isSearching ? (
-                    <div className="p-2 text-center text-muted-foreground text-xs">Mencari...</div>
-                  ) : searchResults.length > 0 ? (
-                    searchResults.map((user) => (
-                      <div key={user.nik} className="p-2 hover:bg-muted-foreground/20 hover:dark:bg-muted-foreground cursor-pointer text-sm" onClick={() => handleUserSelect(user)}>
-                        {user.nik} - {user.name}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-2 text-center text-muted-foreground text-xs">Pengguna tidak ditemukan.</div>
-                  )}
+                            {isFormValid ? (
+                                <Modal
+                                    mode="confirm"
+                                    title={getConfirmationMessage()}
+                                    onConfirm={handleSubmit}
+                                    triggerLabel={state.isSubmitting ? 'Submitting...' : 'Confirm'}
+                                    variant="default"
+                                    triggerClassName="bg-blue-500 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 font-medium shadow-md text-sm"
+                                />
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="bg-blue-300 text-white px-4 py-1.5 rounded-lg text-sm font-medium shadow-md cursor-not-allowed"
+                                    disabled
+                                >
+                                    Confirm
+                                </button>
+                            )}
+                        </div>
+                    </div>
                 </div>
-              )}
-            </div>
-            {selectedUserName && (
-              <p className="text-xs text-foreground mt-1">
-                Nama: <span className="font-semibold">{selectedUserName}</span>
-              </p>
-            )}
-          </div>
-             {/* Select Year */}
-            <div>
-              <label className="block text-xs font-medium text-foreground mb-2">Select Year</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {[lastYear.toString(), thisYear.toString()].map((year) => (
-                  <label 
-                    key={year} 
-                    className={`flex items-center cursor-pointer border-[1.5px] border-border rounded-lg px-3 py-2 transition-colors ${
-                      selectedYear === year 
-                        ? 'border-blue-500 bg-blue-500/50' 
-                        : 'border-border bg-accent'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="year"
-                      value={year}
-                      checked={selectedYear === year}
-                      onChange={(e) => setSelectedYear(e.target.value)}
-                      className="w-3 h-3 border-gray-300 focus:ring-blue-500 text-foreground flex-shrink-0"
-                    />
-                    <span className="ml-2 text-xs text-foreground font-medium">{getYearLabel(year)}</span>
-                  </label>
-                ))}
-              </div>
             </div>
 
-          {/* Add & Balance */}
-          <div className="flex flex-col md:flex-row gap-3">
-            <div className="w-full md:w-1/2">
-              <label className="block text-xs font-medium text-foreground mb-1">Add How Much</label>
-              <input
-                type="number"
-                min="0"
-                className="w-full border border-border bg-accent text-foreground px-2 py-1.5 rounded-lg text-sm"
-                value={amountToAdd}
-                onChange={(e) => {
-                  const numVal = Number(e.target.value);
-                  setAmountToAdd(!isNaN(numVal) && numVal >= 0 ? numVal : 0);
-                }}
-              />
-            </div>
-            <div className="w-full md:w-1/2">
-              <label className="block text-xs font-medium text-foreground mb-1">Current Balance</label>
-              <input
-                type="text"
-                className="w-full border border-border px-2 py-1.5 rounded-lg bg-muted-foreground/40 text-foreground text-sm"
-                readOnly
-                value={currentBalance}
-              />
-            </div>
-          </div>
-
-          {/* Total */}
-          <div>
-            <label className="block text-xs font-medium text-foreground mb-1">Total</label>
-            <input
-              type="text"
-              className="w-full border border-border px-2 py-1.5 rounded-lg bg-muted-foreground/40 text-foreground text-sm"
-              readOnly
-              value={total}
+            <Notification
+                mode='success'
+                show={!!state.success}
+                message={state.success || ""}
+                onClose={closeNotification}
+                duration={3000}
             />
-          </div>
-
-          {/* Information */}
-          <div>
-            <label className="block text-xs font-medium text-foreground mb-1">Information</label>
-            <textarea
-              rows={3}
-              className="w-full border border-border px-2 py-1.5 rounded-lg bg-accent text-sm"
-              placeholder="Information..."
-              value={information}
-              onChange={(e) => setInformation(e.target.value)}
-            ></textarea>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex justify-between items-center mt-6">
-            {isDirty ? (
-              <Modal
-                mode="confirm"
-                title="Do you want to discard the changes?"
-                onConfirm={() => router.back()}
-                triggerLabel={
-                  <div className="flex items-center gap-1 text-foreground hover:text-gray-800 font-medium cursor-pointer text-sm">
-                    <i className="bi bi-box-arrow-in-left text-lg"></i>
-                    Back
-                  </div>
-                }
-              />
-            ) : (
-              <Button
-                type="button"
-                variant={'default'}
-                className="flex items-center gap-1 text-foreground hover:text-gray-800 font-medium text-sm"
-                onClick={() => router.back()}
-              >
-                <i className="bi bi-box-arrow-in-left text-lg"></i>
-                Back
-              </Button>
-            )}
-
-            {isFormValid ? (
-              <Modal
-                mode="confirm"
-                title={getConfirmationMessage()}
-                onConfirm={handleConfirmSubmit}
-                triggerLabel={isSubmitting ? 'Submitting...' : 'Confirm'}
-                variant="default"
-                triggerClassName="bg-blue-500 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 font-medium shadow-md text-sm"
-              />
-            ) : (
-              <button
-                type="button"
-                className="bg-blue-300 text-white px-4 py-1.5 rounded-lg text-sm font-medium shadow-md cursor-not-allowed"
-                disabled
-              >
-                Confirm
-              </button>
-            )}
-          </div>  
-        </div>
-      </div>
-    </div>
-  );
+        </>
+    );
 };
 
-export default AmountLeavePage
+export default AmountLeavePage;
