@@ -10,10 +10,12 @@ cron.schedule('0 0 * * *', async () => {
         const endOfYear = new Date(`${targetYear}-12-31`);
 
         const users = await prisma.tb_users.findMany({
-            select: { NIK: true }
+            include: { tb_statuses: true }
         });
 
-        for (const user of users) {
+        const filteredUsers = users.filter(user => user.tb_statuses.name !== 'Magang' && user.is_active === true);
+
+        for (const user of filteredUsers) {
             const nik = user.NIK;
 
             const balance = await prisma.tb_balance.findFirst({
@@ -35,7 +37,7 @@ cron.schedule('0 0 * * *', async () => {
                     NIK: nik,
                     amount: adjustment_value,
                     receive_date: startOfYear,
-                    expired_date: new Date(`${targetYear + 2}-01-01`)
+                    expired_date: new Date(`${targetYear + 1}-01-01`)
                 };
 
                 const [newBalance, adjustmentLog] = await prisma.$transaction([

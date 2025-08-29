@@ -11,7 +11,8 @@ cron.schedule('0 0 1 * *', async () => {
     const allUsers = await prisma.tb_users.findMany({
       orderBy: {fullname : 'asc'},
       include: {
-        tb_roles: true
+        tb_roles: true,
+        tb_statuses: true
       }
     });
     console.log(`👤 Total user: ${allUsers.length}`);
