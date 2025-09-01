@@ -35,7 +35,7 @@ cron.schedule('0 0 * * *', async () => {
 
             const allUsers = await prisma.tb_users.findMany({
                 where: {
-                    status_active: 'active'
+                    is_active: true,
                 },
                 select: {
                     NIK: true
