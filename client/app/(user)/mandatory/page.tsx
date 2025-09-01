@@ -17,7 +17,7 @@ import {
 import { Button } from "@/app/components/ui/button"
 import { Input } from '@/app/components/ui/input'
 import { isLeavePassed, isSameDay, isWithin6Days } from '@/lib/date'
-import { useMandatory } from '@/app/hooks/UseMandatory'
+import { useMandatoryUser } from '@/app/hooks/UseMandatoryUser'
 
 const SkeletonCard = () => {
     return (
@@ -60,7 +60,7 @@ const MandatoryPage = () => {
         setShowConfirmModal,
         handleToggleChange,
         handleConfirmSubmit,
-    } = useMandatory();
+    } = useMandatoryUser();
 
     return (
         <section className="p-4">
