@@ -1,4 +1,4 @@
-import { applyMandatoryLeave, getMandatoryLeave } from "@/lib/api/service/leave";
+import { applyMandatoryLeave, getMandatoryLeaveUsers } from "@/lib/api/service/leave";
 import { MandatoryType } from "@/lib/type"
 import { useEffect, useState } from "react"
 
@@ -22,7 +22,7 @@ export function useMandatory() {
 
     const fetchMandatoryData = async () => {
         try {
-            const data = await getMandatoryLeave();
+            const data = await getMandatoryLeaveUsers();
             setMandatory(data);
 
             const initialAppliedStatus: AppliedStatus = {};

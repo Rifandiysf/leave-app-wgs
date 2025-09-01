@@ -1,7 +1,7 @@
 
 'use client';
 
-import { MandatoryAction, MandatoryState } from "@/app/hooks/UseMandatoryAdmin";
+import { MandatoryAction, MandatoryState } from "@/app/hooks/admin/UseMandatory";
 import { AddMandatory } from "../../ui/form/addMandatory";
 
 interface MandatoryFilterProps {

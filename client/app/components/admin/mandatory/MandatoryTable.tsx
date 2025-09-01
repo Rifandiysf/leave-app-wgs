@@ -3,7 +3,7 @@
 
 import { formatDate } from "@/lib/format";
 import { EditMandatory } from "@/app/components/ui/form/editMandatory";
-import { MandatoryLeaveType } from "@/app/hooks/UseMandatoryAdmin";
+import { MandatoryLeaveType } from "@/app/hooks/admin/UseMandatory";
 import { Switch } from "../../ui/switch";
 
 interface MandatoryTableProps {

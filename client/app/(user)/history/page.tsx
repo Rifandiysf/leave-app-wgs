@@ -26,9 +26,8 @@ const HistoryPage = () => {
                 itemsPerPage={itemPerPage}
             />
             <PaginationControls
-                totalPages={paginationInfo?.last_visible_page || 0}
+                paginationInfo={paginationInfo}
                 currentPage={state.currentPage}
-                hasNextPage={paginationInfo?.has_next_page}
                 onPageChange={handlePageChange}
             />
         </section>
