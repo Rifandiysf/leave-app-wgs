@@ -6,7 +6,7 @@ export const getSpecialLeave = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
-    const gender = req.user.gender === 'male' ? 'm' : 'f'
+    const gender = req.user.isMale ? 'm' : 'f'
 
     const result = await getSpecialLeaveService(gender, page, limit);
 

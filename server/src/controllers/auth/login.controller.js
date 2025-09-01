@@ -37,7 +37,7 @@ export const login = async (req, res, next) => {
                 id: user.tb_statuses.id,
                 name: user.tb_statuses.name
             },
-            gender: user.gender
+            isMale: user.isMale
         }
 
 

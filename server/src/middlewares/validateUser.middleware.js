@@ -30,7 +30,7 @@ export const validateUser = async (req, res, next) => {
         }
 
         // Check user active status
-        if (!user.is_active) {
+        if (!user.isActive) {
             const error = new Error(`Account is no longer active.`);
             error.statusCode = 401;
             throw error;

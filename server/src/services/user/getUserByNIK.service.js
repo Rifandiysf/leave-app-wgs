@@ -10,11 +10,11 @@ export const getUserByNIK = async (nik) => {
             select: {
                 NIK: true,
                 fullname: true,
-                email: true, // Include email as it's used in userCopy
-                gender: true,
+                email: true,
+                isMale: true,
                 join_date: true,
-                tb_roles: true, // Use tb_roles
-                tb_statuses: true, // Use tb_statuses
+                tb_roles: true, 
+                tb_statuses: true, 
                 tb_balance: {
                     take: 2,
                     where: {
@@ -43,7 +43,7 @@ export const getUserByNIK = async (nik) => {
             throw error;
         }
 
-        const { tb_balance, NIK, fullname, gender } = user;
+        const { tb_balance, NIK, fullname, isMale } = user;
         const currentBalance = tb_balance.filter((bal) => new Date().getFullYear() === bal.receive_date.getFullYear())?.[0]?.amount ?? 0;
         const lastYearBalance = tb_balance.filter((bal) => new Date().getFullYear() !== bal.receive_date.getFullYear())?.[0]?.amount ?? 0;
 
@@ -80,7 +80,7 @@ export const getUserByNIK = async (nik) => {
         const userCopy = {
             NIK: NIK,
             fullname: fullname,
-            gender: gender,
+            isMale: isMale,
             status: {
                 id: user.tb_statuses.id,
                 name: user.tb_statuses.name

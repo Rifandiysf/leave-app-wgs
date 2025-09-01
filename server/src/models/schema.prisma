@@ -79,7 +79,7 @@ model tb_users {
   fullname              String                  @db.VarChar(50)
   email                 String                  @unique @db.VarChar(50)
   password              String                  @db.VarChar(20)
-  gender                gender
+  isMale                Boolean
   join_date             DateTime                @db.Date
   created_at            DateTime                @default(now()) @db.Timestamptz(0)
   tb_roles              tb_roles                @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "roles_id")
@@ -89,7 +89,7 @@ model tb_users {
   tb_jwt_token          tb_jwt_token[]
   tb_leave              tb_leave[]
   tb_leave_log          tb_leave_log[]
-  is_active             Boolean                 @default(true)
+  isActive              Boolean                 @default(true)
   role_id               Int
   status_id             Int
 }
@@ -158,10 +158,7 @@ enum applicable_gender {
   mf
 }
 
-enum gender {
-  male
-  female
-}
+
 
 enum leave_type {
   personal_leave  @map("personal leave")
