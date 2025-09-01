@@ -1,7 +1,8 @@
 import { v4 as uuid } from 'uuid'
-import { Prisma } from '../../generated/prisma/client.js';
+import { Prisma, status } from '../../generated/prisma/client.js';
 import { balanceAdjustmentSchema, balanceSchema, leaveLogSchema, leaveSchema, userSchema, validateInjectDataType } from '../validators/inject.validator.js';
 import { create } from 'domain';
+import prisma from './client.js';
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 export const processData = async (data, number, tx, CHUNK_BASE, requestNIK) => {
@@ -32,7 +33,7 @@ export const processData = async (data, number, tx, CHUNK_BASE, requestNIK) => {
                     break;
 
                 case 'user':
-                    const userData = modifyUserData(item)
+                    const userData = await modifyUserData(item)
                     dataUser.push(userData)
                     break;
                 case 'balance_adjustment' :
@@ -168,16 +169,36 @@ const modifyBalanceData = (data) => {
     }
 }
 
-const modifyUserData = (data) => {
+const modifyUserData = async (data) => {
     try {
+        const isMale = data.gender_user === "male";
+        const isActive = data.status_active_user === "active";
+        const role = await prisma.tb_roles.findFirst({
+            where: {
+                slug : {
+                    contains: data.role_user,
+                    mode: "insensitive"
+                }
+            }
+        })
+
+        const employee_status = await prisma.tb_statuses.findFirst({
+            where: {
+                name: {
+                    contains: data.employee_status_user,
+                    mode: "insensitive"
+                }
+            }
+        })
         const result = {
             NIK: data.NIK,
             fullname: data.fullname_user,
             email: data.email_user,
             password: data.password_user,
-            gender: data.gender_user,
-            role: data.role_user,
-            status_active: data.status_active_user,
+            isMale: isMale,
+            role_id: role.id,
+            status_id: status.id,
+            is_active: isActive,
             join_date: new Date(data.join_date_user)
         }
 
