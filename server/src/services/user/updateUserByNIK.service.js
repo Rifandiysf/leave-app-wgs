@@ -6,7 +6,7 @@ export const updateUserByNIK = async (nik, data) => {
     if (data.fullname) updateData.fullname = data.fullname;
     if (data.email) updateData.email = data.email;
     if (data.password) updateData.password = data.password;
-    if (data.gender) updateData.gender = data.gender;
+    if (data.isMale !== undefined) updateData.isMale = data.isMale;
     if (data.join_date) updateData.join_date = data.join_date;
     if (data.role_id) updateData.role_id = data.role_id;
     if (data.status_id) updateData.status_id = data.status_id;

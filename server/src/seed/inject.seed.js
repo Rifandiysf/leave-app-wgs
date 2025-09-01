@@ -75,7 +75,7 @@ async function manualSeed() {
         fullname: 'System',
         email: 'system@perusahaan.com',
         password: 'System123!',
-        gender: 'male',
+        isMale: true,
         roleSlug: 'super_admin',
         statusName: 'Active',
         join_date: new Date('2024-01-15'),
@@ -299,4 +299,4 @@ manualSeed()
     console.error('❌ Seed gagal:', error);
     await prisma.$disconnect();
     process.exit(1);
-});
+}););

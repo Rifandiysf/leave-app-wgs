@@ -175,7 +175,7 @@ const modifyUserData = (data) => {
             fullname: data.fullname_user,
             email: data.email_user,
             password: data.password_user,
-            gender: data.gender_user,
+            isMale: data.gender_user === 'male',
             role: data.role_user,
             status_active: data.status_active_user,
             join_date: new Date(data.join_date_user)

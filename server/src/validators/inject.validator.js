@@ -22,7 +22,7 @@ export const userSchema = z.object({
     fullname: z.string("fullname must be string"),
     email: z.email(),
     password: z.string("password must be string"),
-    gender: z.enum(gender),
+    isMale: z.boolean(),
     role_id: z.number(), // Changed from role: z.enum(role)
     status_id: z.number(), // Changed from status_active: z.enum(status_active)
     join_date: z.date().min(new Date("1900-01-01"), { error: "start_date is too far behind" })

@@ -81,7 +81,7 @@ export const getAllUsers = async (page, limit, search = '', gender = '', statusN
             emailKantor: user.email,
             tanggalMasukKerja: user.join_date,
             isActive: user.tb_statuses.name === 'Active', // Use tb_statuses.name
-            isMale: user.gender === 'male',
+            isMale: user.isMale,
             role: {
                 id: user.tb_roles.id, // Use tb_roles.id
                 name: user.tb_roles.name // Use tb_roles.name
