@@ -44,9 +44,28 @@ export const updateSpecialLeaveStatus = async (id: string, newStatus: boolean) =
     return response.data
 }
 
-export const getMandatoryLeave = async (): Promise<MandatoryType[]> => {
+export const getMandatoryLeaveUsers = async (): Promise<MandatoryType[]> => {
     const res = await axiosInstance.get("/users/mandatory?limit=50");
     return res.data.data;
+};
+
+export interface MandatoryParams {
+    currentPage: number;
+    limit: number;
+    debouncedSearch?: string;
+}
+
+export const getMandatoryLeaves = async (params: MandatoryParams) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append("page", String(params.currentPage));
+    queryParams.append("limit", String(params.limit));
+    if (params.debouncedSearch) queryParams.append("value", params.debouncedSearch);
+
+    const response = await axiosInstance.get("/leaves/mandatory/search", {
+        params: queryParams,
+    });
+
+    return response.data;
 };
 
 export const updateMandatoryLeaveStatus = async (id: string, newStatus: boolean) => {

@@ -1,7 +1,31 @@
+<<<<<<< HEAD
 
 'use client';
 
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/app/components/ui/pagination";
+=======
+'use client';
+
+import { 
+    Pagination, 
+    PaginationContent, 
+    PaginationItem, 
+    PaginationLink, 
+    PaginationNext, 
+    PaginationPrevious 
+} from "@/app/components/ui/pagination";
+
+export type PaginationInfo = {
+    current_page: number;
+    last_visible_page: number;
+    has_next_page: boolean;
+    item?: { 
+        count: number;
+        total: number;
+        per_page: number;
+    }
+};
+>>>>>>> f3b6e849a92fb7fad81f1428c4a0e427bdd5643f
 
 type PageItem = number | 'ellipsis';
 
@@ -31,6 +55,7 @@ const getVisiblePages = (current: number, total: number, maxVisible: number = 5)
 };
 
 interface PaginationControlsProps {
+<<<<<<< HEAD
     totalPages: number;
     currentPage: number;
     hasNextPage?: boolean;
@@ -45,6 +70,21 @@ export const PaginationControls = ({ totalPages, currentPage, hasNextPage, onPag
     const pages = getVisiblePages(currentPage, totalPages);
     const isFirstPage = currentPage === 1;
     const isLastPage = !hasNextPage && currentPage === totalPages;
+=======
+    paginationInfo: PaginationInfo | null;
+    currentPage: number;
+    onPageChange: (page: number) => void;
+}
+
+export const PaginationControls = ({ paginationInfo, currentPage, onPageChange }: PaginationControlsProps) => {
+    if (!paginationInfo || paginationInfo.last_visible_page <= 0) {
+        return null;
+    }
+
+    const pages = getVisiblePages(currentPage, paginationInfo.last_visible_page);
+    const isFirstPage = currentPage === 1;
+    const isLastPage = !paginationInfo.has_next_page && currentPage === paginationInfo.last_visible_page;
+>>>>>>> f3b6e849a92fb7fad81f1428c4a0e427bdd5643f
 
     return (
         <div className="flex justify-center items-center bg-background py-5">
@@ -56,8 +96,13 @@ export const PaginationControls = ({ totalPages, currentPage, hasNextPage, onPag
                             className={`${isFirstPage ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
                         />
                     </PaginationItem>
+<<<<<<< HEAD
 
                     {totalPages > 1 && pages.map((page, idx) => (
+=======
+                    
+                    {paginationInfo.last_visible_page > 1 && pages.map((page, idx) => (
+>>>>>>> f3b6e849a92fb7fad81f1428c4a0e427bdd5643f
                         <PaginationItem key={idx}>
                             {page === 'ellipsis' ? (
                                 <span className="px-2 text-gray-500 select-none">…</span>
@@ -73,10 +118,17 @@ export const PaginationControls = ({ totalPages, currentPage, hasNextPage, onPag
                         </PaginationItem>
                     ))}
 
+<<<<<<< HEAD
                     {totalPages <= 1 && (
                         <PaginationItem>
                             <PaginationLink isActive>{currentPage}</PaginationLink>
                         </PaginationItem>
+=======
+                    {paginationInfo.last_visible_page === 1 && (
+                         <PaginationItem>
+                             <PaginationLink isActive>{currentPage}</PaginationLink>
+                         </PaginationItem>
+>>>>>>> f3b6e849a92fb7fad81f1428c4a0e427bdd5643f
                     )}
 
                     <PaginationItem>
