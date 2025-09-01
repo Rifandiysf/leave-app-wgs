@@ -70,7 +70,7 @@ export const processData = async (data, number, tx, CHUNK_BASE, requestNIK) => {
                 data: dataLog
             })
         }
-
+ 
         if (dataBalance.length > 0) {
             await tx.tb_balance.createMany({
                 data: dataBalance
