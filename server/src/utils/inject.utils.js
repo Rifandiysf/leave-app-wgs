@@ -81,7 +81,7 @@ export const processData = async (data, number, tx, CHUNK_BASE, requestNIK) => {
             })
         }
 
-        console.log('TOTAL DATA RECEIVED: ', number);
+        console.log('TOTAL DATA RECEIVED: ', number + 1);
     } catch (error) {
         error.statusCode = 400;
 
@@ -173,6 +173,7 @@ const modifyUserData = async (data) => {
     try {
         const isMale = data.gender_user === "male";
         const isActive = data.status_active_user === "active";
+
         const role = await prisma.tb_roles.findFirst({
             where: {
                 slug : {
@@ -182,6 +183,12 @@ const modifyUserData = async (data) => {
             }
         })
 
+        if (!role) {
+            const error = new Error("Value for column role_user is invalid");
+            error.statusCode = 400;
+            throw error;
+        }
+        
         const employee_status = await prisma.tb_statuses.findFirst({
             where: {
                 name: {
@@ -190,6 +197,13 @@ const modifyUserData = async (data) => {
                 }
             }
         })
+
+        if (!employee_status) {
+            const error = new Error("Value for column role_user is invalid");
+            error.statusCode = 400;
+            throw error;
+        }
+
         const result = {
             NIK: data.NIK,
             fullname: data.fullname_user,
@@ -197,8 +211,8 @@ const modifyUserData = async (data) => {
             password: data.password_user,
             isMale: isMale,
             role_id: role.id,
-            status_id: status.id,
-            is_active: isActive,
+            status_id: employee_status.id,
+            isActive: isActive,
             join_date: new Date(data.join_date_user)
         }
 

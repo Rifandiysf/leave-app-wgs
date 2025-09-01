@@ -22,12 +22,12 @@ export const importFile = async (req, res, next) => {
     }
 
   } catch (error) {
-    
     fs.unlink(`./src/temp/${req.file.originalname}`, (err) => {
       if (err) {
-        throw err
+        next(error)
       }
     })
+    
     next(error)
   }
 }
