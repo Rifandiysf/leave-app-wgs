@@ -13,7 +13,7 @@ cron.schedule('0 0 * * *', async () => {
             include: { tb_statuses: true }
         });
 
-        const filteredUsers = users.filter(user => user.tb_statuses.name !== 'Magang' && user.is_active === true);
+        const filteredUsers = users.filter(user => user.tb_statuses.name !== 'Magang' && user.isActive === true);
 
         for (const user of filteredUsers) {
             const nik = user.NIK;

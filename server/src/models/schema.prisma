@@ -89,7 +89,7 @@ model tb_users {
   tb_jwt_token          tb_jwt_token[]
   tb_leave              tb_leave[]
   tb_leave_log          tb_leave_log[]
-  is_active             Boolean                 @default(true)
+  isActive              Boolean                 @default(true)
   role_id               Int
   status_id             Int
 }

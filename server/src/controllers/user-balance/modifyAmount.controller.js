@@ -31,7 +31,7 @@ export const modifyAmount = async (req, res, next) => {
 
         const targetUser = await prisma.tb_users.findFirst({
             where: { NIK: nik,
-                is_active: true
+                isActive: true
              },
             select: { tb_roles: { select: { name: true } } }
         });

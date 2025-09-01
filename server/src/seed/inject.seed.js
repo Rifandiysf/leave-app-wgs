@@ -90,10 +90,10 @@ async function manualSeed() {
           fullname: user.fullname,
           email: user.email,
           password: user.password,
-          gender: user.gender,
           role_id: createdRoles[user.roleSlug],
           status_id: createdStatuses[user.statusName],
           join_date: user.join_date,
+          isActive: user.isActive
         },
       });
 

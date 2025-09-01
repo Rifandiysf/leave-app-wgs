@@ -186,7 +186,7 @@ async function manualSeed() {
           role_id: createdRoles[user.roleSlug],
           status_id: createdStatuses[user.statusName],
           join_date: user.join_date,
-          is_active: user.is_active
+          isActive: user.isActive
         },
       });
 

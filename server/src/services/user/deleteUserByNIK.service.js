@@ -26,7 +26,7 @@ export const deleteUserByNIK = async (nik) => {
         },
         data: {
             status_id: resignStatus.id, // Update status_id to 'Resign' status ID
-            is_active: false // Set is_active to false
+            isActive: false // Set is_active to false
         },
         include: {
             tb_roles: true,
