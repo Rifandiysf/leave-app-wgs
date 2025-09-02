@@ -10,7 +10,7 @@ export const updateLeaveBalance = async (user) => {
     const today = new Date();
     const joinDate = new Date(user.join_date);
 
-    if (user.status_active === 'resign') {
+    if (user.isActive === false) {
         console.log(`[SKIP] NIK: ${user.NIK} status: RESIGN`);
         return;
     }
