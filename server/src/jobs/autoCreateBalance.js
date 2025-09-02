@@ -13,8 +13,13 @@ cron.schedule('0 0 * * *', async () => {
         console.log(endOfYear)
 
         const users = await prisma.tb_users.findMany({
-            select: { NIK: true }
+            include: {
+                tb_statuses: true,
+                tb_roles: true
+            }
         });
+
+        console.log(users)
 
         const filteredUsers = users.filter(user => user.tb_statuses.name !== 'Magang' && user.isActive === true);
 
@@ -54,7 +59,9 @@ cron.schedule('0 0 * * *', async () => {
                             notes,
                             actor,
                             NIK: nik,
-                            created_at: new Date()
+                            created_at: new Date(),
+                            balance_year: newBalance.receive_date.getFullYear(),
+                            id_balance: newBalance.id_balance
                         }
                     })
 

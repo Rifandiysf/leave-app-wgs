@@ -1,5 +1,6 @@
 import prisma from '../utils/client.js';
 import bcrypt from 'bcrypt';
+import { v4 as uuid } from 'uuid'
 
 async function manualSeed() {
   await prisma.$transaction(async (tx) => {
@@ -33,8 +34,8 @@ async function manualSeed() {
         dark_primaryForeground: "#dbeafe",
         dark_secondary: "#155dfc",
         dark_secondaryForeground: "#191B21",
-      },
-    });
+      },
+    });
 
     // Delete existing roles and statuses to prevent conflicts on re-seed
     await tx.tb_roles.deleteMany();
@@ -98,6 +99,7 @@ async function manualSeed() {
         email: 'rani.kontrak@perusahaan.com',
         password: 'Rani1234!',
         isMale: false,
+        isActive: true,
         roleSlug: 'user',
         statusName: 'Kontrak',
         join_date: new Date('2024-01-15'),
@@ -108,6 +110,7 @@ async function manualSeed() {
         email: 'budi.tetap@perusahaan.com',
         password: 'Budi1234!',
         isMale: true,
+        isActive: true,
         roleSlug: 'user',
         statusName: 'Tetap',
         join_date: new Date('2023-11-01'),
@@ -118,6 +121,7 @@ async function manualSeed() {
         email: 'tina.magang@perusahaan.com',
         password: 'Tina1234!',
         isMale: false,
+        isActive: true,
         roleSlug: 'user',
         statusName: 'Magang',
         join_date: new Date('2025-06-01'),
@@ -128,6 +132,7 @@ async function manualSeed() {
         email: 'andi.admin@perusahaan.com',
         password: 'Admin123!',
         isMale: true,
+        isActive: true,
         roleSlug: 'admin',
         statusName: 'Tetap',
         join_date: new Date('2024-09-15'),
@@ -138,6 +143,7 @@ async function manualSeed() {
         email: 'sari.super@perusahaan.com',
         password: 'Super123!',
         isMale: false,
+        isActive: true,
         roleSlug: 'super_admin',
         statusName: 'Tetap',
         join_date: new Date('2023-01-10'),
@@ -148,6 +154,7 @@ async function manualSeed() {
         email: 'tati.kontrak@perusahaan.com',
         password: 'Tati123!',
         isMale: false,
+        isActive: true,
         roleSlug: 'user',
         statusName: 'Magang',
         join_date: new Date('2015-10-24'),
@@ -158,7 +165,7 @@ async function manualSeed() {
         email: 'bondan.admin@perusahaan.com',
         password: 'Bondan123!',
         isMale: true,
-        is_active: false,
+        isActive: false,
         roleSlug: 'admin',
         statusName: 'Tetap',
         join_date: new Date('2017-03-15'),
@@ -169,7 +176,7 @@ async function manualSeed() {
         email: 'santi.kontrak@perusahaan.com',
         password: 'Santi123!',
         isMale: false,
-        is_active: false,
+        isActive: false,
         roleSlug: 'user',
         statusName: 'Kontrak',
         join_date: new Date('2018-07-09'),
@@ -180,7 +187,7 @@ async function manualSeed() {
         email: 'andi.magang@perusahaan.com',
         password: 'Andi123!',
         isMale: true,
-        is_active: false,
+        isActive: false,
         roleSlug: 'user',
         statusName: 'Magang',
         join_date: new Date('2020-01-20'),
@@ -191,7 +198,7 @@ async function manualSeed() {
         email: 'rina.tetap@perusahaan.com',
         password: 'Rina123!',
         isMale: false,
-        is_active: false,
+        isActive: false,
         roleSlug: 'user',
         statusName: 'Tetap',
         join_date: new Date('2016-05-12'),
@@ -214,23 +221,47 @@ async function manualSeed() {
         },
       });
 
-      await tx.tb_balance.create({
-        data: {
-          amount: 12,
-          receive_date: new Date('2024-01-01'),
-          expired_date: new Date('2026-01-01'),
-          NIK: user.NIK,
-        },
-      });
+      if (user.isActive && user.statusName !== "Magang") {
+        const balanceLastYear = await tx.tb_balance.create({
+          data: {
+            amount: 12,
+            receive_date: new Date('2024-01-01'),
+            expired_date: new Date('2026-01-01'),
+            NIK: user.NIK,
+          },
+        });
 
-      await tx.tb_balance.create({
-        data: {
-          amount: 12,
-          receive_date: new Date('2025-01-01'),
-          expired_date: new Date('2027-01-01'),
-          NIK: user.NIK,
-        },
-      });
+        await tx.tb_balance_adjustment.create({
+          data: {
+            actor: "system",
+            balance_year: balanceLastYear.receive_date.getFullYear(),
+            NIK: balanceLastYear.NIK,
+            notes: "Created balance",
+            id_balance: balanceLastYear.id_balance,
+            adjustment_value: balanceLastYear.amount
+          }
+        })
+
+        const balanceThisYear = await tx.tb_balance.create({
+          data: {
+            amount: 12,
+            receive_date: new Date('2025-01-01'),
+            expired_date: new Date('2027-01-01'),
+            NIK: user.NIK,
+          },
+        });
+
+        await tx.tb_balance_adjustment.create({
+          data: {
+            actor: "system",
+            balance_year: balanceThisYear.receive_date.getFullYear(),
+            NIK: balanceThisYear.NIK,
+            notes: "Created balance",
+            id_balance: balanceThisYear.id_balance,
+            adjustment_value: balanceThisYear.amount
+          }
+        })
+      }
     }
 
     const specialLeaves = [
