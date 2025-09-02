@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/app/components/ui/button"
 import {
     Dialog,
@@ -14,124 +14,33 @@ import {
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../select"
-
-type dataSpecialType = {
-    id_special: string
-    title: string
-    applicable_gender: string
-    duration: number
-    description: string
-}
+import { DataSpecialType, useEditSpecialLeave } from "@/app/hooks/admin/UseEditSpecial"
 
 type Props = {
-    initialData: dataSpecialType
+    initialData: DataSpecialType
     onFormSubmit: () => void
 }
 
 export function EditSpecial({ initialData, onFormSubmit }: Props) {
-    const [title, setTitle] = useState(initialData.title)
-    const [gender, setGender] = useState(initialData.applicable_gender)
-    const [duration, setDuration] = useState(initialData.duration)
-    const [description, setDescription] = useState(initialData.description)
-
-    const [titleError, setTitleError] = useState("")
-    const [descriptionError, setDescriptionError] = useState("")
-    const [genderError, setGenderError] = useState("")
-    const [durationError, setDurationError] = useState("")
-    const [generalError, setGeneralError] = useState('')
-    const [generalSuccess, setGeneralSuccess] = useState('')
-    const [isLoading, setIsLoading] = useState(false)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
+    const { state, dispatch, handleSubmit } = useEditSpecialLeave(initialData, () => {
+        onFormSubmit();
+        setIsDialogOpen(false)
+    })
 
-    useEffect(() => {
-        if (isDialogOpen) {
-            setTitle(initialData.title)
-            setGender(initialData.applicable_gender)
-            setDuration(initialData.duration)
-            setDescription(initialData.description)
-            setTitleError("")
-            setDescriptionError("")
-            setGenderError("")
-            setDurationError("")
-            setGeneralError("")
-            setGeneralSuccess("")
-        } else {
-            setTitle(initialData.title)
-            setGender(initialData.applicable_gender)
-            setDuration(initialData.duration)
-            setDescription(initialData.description)
-        }
-    }, [isDialogOpen, initialData])
-
-    const handleEditSpecial = async (e: React.FormEvent) => {
-        e.preventDefault()
-
-        setGeneralError("")
-        setGeneralSuccess("")
-        setTitleError("")
-        setDescriptionError("")
-        setGenderError("")
-        setDurationError("")
-
-        let hasError = false
-        if (!title.trim()) {
-            setTitleError("Title cannot be empty");
-            hasError = true;
-        }
-        if (!description.trim()) {
-            setDescriptionError("Description cannot be empty");
-            hasError = true;
-        }
-        if (duration <= 0) {
-            setDurationError("Amount cannot be 0 days");
-            hasError = true;
-        }
-        if (!gender.trim()) {
-            setGenderError("Gander cannot be empty");
-            hasError = true;
-        }
-
-        if (hasError) {
-            return
-        }
-
-        setIsLoading(true)
-        const payload = {
-            title,
-            applicable_gender: gender,
-            duration,
-            description,
-        }
-
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/special/${initialData.id_special}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify(payload),
-            })
-
-            const result = await res.json()
-
-            if (!res.ok) {
-                setGeneralError("Failed to update special leave")
-                return
-            }
-
-            setGeneralSuccess(result.message || "Special leave updated successfully!")
-            onFormSubmit()
-            setIsDialogOpen(false)
-
-        } catch (error) {
-            console.error("Error updating data:", error)
-            setGeneralError("Failed to update data. Check your network or server response.")
-        } finally {
-            setIsLoading(false)
-        }
-    }
+    const handleReset = () => {
+        dispatch({ type: "RESET", payload: initialData });
+    };
 
     return (
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog
+            open={isDialogOpen}
+            onOpenChange={(open) => {
+                setIsDialogOpen(open)
+                if (!open) {
+                    handleReset();
+                }
+            }}>
             <DialogTrigger asChild>
                 <Button variant="ghost" size={'icon'}>
                     <i className="bi bi-pencil-square text-lg"></i>
@@ -139,19 +48,19 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[550px]">
-                <form onSubmit={handleEditSpecial}>
+                <form onSubmit={handleSubmit}>
                     <DialogHeader className="flex flex-col justify-center items-center mb-3">
                         <DialogTitle>Edit Special Leave</DialogTitle>
                     </DialogHeader>
 
-                    {generalError && (
+                    {state.errors.general && (
                         <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm">
-                            {generalError}
+                            {state.errors.general}
                         </div>
                     )}
-                    {generalSuccess && (
+                    {state.success && (
                         <div className="bg-green-100 text-green-700 px-4 py-2 rounded mb-4 text-sm">
-                            {generalSuccess}
+                            {state.success}
                         </div>
                     )}
 
@@ -161,22 +70,21 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
                             <Input
                                 id="title"
                                 type="text"
-                                value={title}
+                                value={state.title}
                                 onChange={(e) => {
-                                    setTitle(e.target.value)
-                                    if (titleError) setTitleError("")
+                                    dispatch({ type: "SET_FIELD", field: "title", value: e.target.value })
                                 }}
                                 placeholder="Edit title"
-                                className={titleError ? 'border-red-400' : ''}
+                                className={state.errors.title ? 'border-red-400' : ''}
                             />
-                            {titleError && (
-                                <p className="text-sm text-red-600 mt-1">{titleError}</p>
+                            {state.errors.title && (
+                                <p className="text-sm text-red-600 mt-1">{state.errors.title}</p>
                             )}
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="gender">Gender</Label>
-                            <Select value={gender} onValueChange={(value) => setGender(value)} >
-                                <SelectTrigger className={`w-full ${genderError ? 'border-red-400' : ''}`}>
+                            <Select value={state.gender} onValueChange={(value) => dispatch({ type: "SET_FIELD", field: "gender", value: value })} >
+                                <SelectTrigger className={`w-full ${state.errors.gender ? 'border-red-400' : ''}`}>
                                     <SelectValue placeholder="Select the gender" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -188,8 +96,8 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
-                            {genderError && (
-                                <p className="text-sm text-red-600 mt-1">{genderError}</p>
+                            {state.errors.gender && (
+                                <p className="text-sm text-red-600 mt-1">{state.errors.gender}</p>
                             )}
                         </div>
                         <div className="grid gap-3">
@@ -198,39 +106,38 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
                                 id="duration"
                                 type="number"
                                 min={0}
-                                value={duration}
-                                onChange={(e) => setDuration(Number(e.target.value))}
+                                value={state.duration}
+                                onChange={(e) => dispatch({ type: "SET_FIELD", field: "duration", value: Number(e.target.value) })}
                                 placeholder="Edit duration"
-                                className={durationError ? 'border-red-400' : ''}
+                                className={state.errors.duration ? 'border-red-400' : ''}
                             />
-                            {durationError && (
-                                <p className="text-sm text-red-600 mt-1">{durationError}</p>
+                            {state.errors.duration && (
+                                <p className="text-sm text-red-600 mt-1">{state.errors.duration}</p>
                             )}
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="description">Description</Label>
                             <textarea
                                 id="description"
-                                value={description}
+                                value={state.description}
                                 onChange={(e) => {
-                                    setDescription(e.target.value)
-                                    if (descriptionError) setDescriptionError("")
+                                    dispatch({ type: "SET_FIELD", field: "description", value: e.target.value })
                                 }}
                                 placeholder="Edit description"
-                                className={`border-[1.5px] border-border bg-accent ${descriptionError ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
+                                className={`border-[1.5px] border-border bg-accent ${state.errors.description ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
                             />
-                            {descriptionError && (
-                                <p className="text-sm text-red-600 mt-1">{descriptionError}</p>
+                            {state.errors.description && (
+                                <p className="text-sm text-red-600 mt-1">{state.errors.description}</p>
                             )}
                         </div>
                     </div>
 
                     <DialogFooter className="mt-5">
                         <DialogClose asChild>
-                            <Button type="button" variant="outline" disabled={isLoading}>Cancel</Button>
+                            <Button type="button" variant="outline" disabled={state.loading}>Cancel</Button>
                         </DialogClose>
-                        <Button type="submit" className="text-black" disabled={isLoading}>
-                            {isLoading ? (
+                        <Button type="submit" className="text-black" disabled={state.loading}>
+                            {state.loading ? (
                                 <>
                                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

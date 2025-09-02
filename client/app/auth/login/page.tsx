@@ -1,7 +1,6 @@
 'use client'
 
 import 'bootstrap-icons/font/bootstrap-icons.css'
-import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "../../components/ui/button"
 import {
@@ -15,62 +14,11 @@ import {
 import { Input } from "../../components/ui/input"
 import { Label } from "@/app/components/ui/label"
 import Image from "next/image"
+import { useLogin } from '@/app/hooks/auth/UseLogin'
 
 const LoginPage = () => {
     const router = useRouter()
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [showPassword, setShowPassword] = useState(false)
-    const [emailError, setEmailError] = useState('')
-    const [passwordError, setPasswordError] = useState('')
-    const [generalError, setGeneralError] = useState('')
-    const [isLoading, setIsLoading] = useState(false)
-
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setEmailError('')
-        setPasswordError('')
-        setGeneralError('')
-        let hasError = false
-
-        if (!email) {
-            setEmailError('Email wajib diisi')
-            hasError = true
-        }
-
-        if (!password) {
-            setPasswordError('Password wajib diisi')
-            hasError = true
-        }
-
-        if (hasError) return
-
-        setIsLoading(true)
-
-        try {
-            // const token = Cookies.get('Authorization')
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ email, password })
-            })
-
-            const result = await res.json()
-
-            if (!res.ok) {
-                setGeneralError(result.message)
-                setIsLoading(false)
-                return
-            }
-            router.push('/');
-        } catch (err) {
-            console.error("Login error:", err)
-            setGeneralError("Terjadi kesalahan, coba beberapa saat lagi")
-        } finally {
-            setIsLoading(false)
-        }
-    }
+    const { state, dispatch, handleLogin } = useLogin(() => router.push('/'))
 
     return (
         <div className="w-full h-full flex flex-col justify-center items-center gap-4 px-4">
@@ -84,9 +32,9 @@ const LoginPage = () => {
                 </CardHeader>
 
                 <CardContent>
-                    {generalError && (
+                    {state.generalError && (
                         <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm">
-                            {generalError}
+                            {state.generalError}
                         </div>
                     )}
                     <form onSubmit={handleLogin}>
@@ -98,11 +46,13 @@ const LoginPage = () => {
                                     type="email"
                                     placeholder="m@example.com"
                                     className="bg-accent border-[1.5px] border-[#0000001f] text-foreground"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    value={state.email}
+                                    onChange={(e) => {
+                                        dispatch({ type: "SET_EMAIL", payload: e.target.value })
+                                    }}
                                 />
-                                {emailError && (
-                                    <p className="text-sm text-red-600 mt-1">{emailError}</p>
+                                {state.emailError && (
+                                    <p className="text-sm text-red-600 mt-1">{state.emailError}</p>
                                 )}
                             </div>
 
@@ -111,34 +61,34 @@ const LoginPage = () => {
                                 <div className="relative">
                                     <Input
                                         id="password"
-                                        type={showPassword ? "text" : "password"}
+                                        type={state.showPassword ? "text" : "password"}
                                         className="bg-accent border-[1.5px] border-[#0000001f] pr-10 text-foreground"
-                                        value={password}
+                                        value={state.password}
                                         placeholder="Type your password"
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        onChange={(e) => dispatch({ type: "SET_PASSWORD", payload: e.target.value })}
                                     />
                                     <button
                                         type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
+                                        onClick={() => dispatch({ type: "TOGGLE_SHOW_PASSWORD" })}
                                         className="absolute inset-y-0 right-2 flex items-center text-gray-500 hover:text-gray-700 text-sm"
                                         tabIndex={-1}
                                     >
-                                        {showPassword ? (
+                                        {state.showPassword ? (
                                             <i className="bi bi-eye-slash-fill" />
                                         ) : (
                                             <i className="bi bi-eye-fill" />
                                         )}
                                     </button>
                                 </div>
-                                {passwordError && (
-                                    <p className="text-sm text-red-600 mt-1">{passwordError}</p>
+                                {state.passwordError && (
+                                    <p className="text-sm text-red-600 mt-1">{state.passwordError}</p>
                                 )}
                             </div>
                         </div>
 
                         <CardFooter className="flex-col gap-3 mt-6 px-0">
-                            <Button type="submit" className="w-full text-foreground dark:bg-secondary" disabled={isLoading}>
-                                {isLoading ? (
+                            <Button type="submit" className="w-full text-foreground dark:bg-secondary" disabled={state.isLoading}>
+                                {state.isLoading ? (
                                     <>
                                         <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

@@ -3,10 +3,10 @@ import { PaginationControls } from "@/app/components/ui/PaginationControls";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/app/components/ui/dialog";
 import { Button } from "@/app/components/ui/button";
-import { itemPerPage, useMandatoryLeaveData } from "@/app/hooks/admin/UseMandatory";
 import { updateMandatoryLeaveStatus } from "@/lib/api/service/leave";
 import { MandatoryLeaveTable } from "@/app/components/admin/mandatory/MandatoryTable";
 import { MandatoryFilters } from "@/app/components/admin/mandatory/MandatoryFilter";
+import { itemPerPage, useMandatoryLeaveData } from "@/app/hooks/admin/UseMandatory";
 
 const MandatoryLeavePage = () => {
     const { state, dispatch, isLoading, dataMandatoryLeave, paginationInfo } = useMandatoryLeaveData();

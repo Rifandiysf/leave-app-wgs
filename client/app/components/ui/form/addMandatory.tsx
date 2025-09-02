@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useEffect } from "react"
 import { Button } from "@/app/components/ui/button"
 import {
     Dialog,
@@ -15,102 +14,13 @@ import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
 import { DatePickerField } from "../date-picker/datePicker"
 import { DateRange } from 'react-day-picker';
+import { useAddMandatory } from "@/app/hooks/admin/UseAddMandatory"
 
 export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
-    const [title, setTitle] = useState("")
-    const [description, setDescription] = useState("")
-    const [startDate, setStartDate] = useState<Date>()
-    const [endDate, setEndDate] = useState<Date>()
-
-    const [titleError, setTitleError] = useState("")
-    const [descriptionError, setDescriptionError] = useState("")
-    const [dateError, setDateError] = useState("")
-    const [generalError, setGeneralError] = useState('')
-    const [generalSuccess, setGeneralSuccess] = useState('')
-    const [isLoading, setIsLoading] = useState(false)
-    const [isDialogOpen, setIsDialogOpen] = useState(false)
-
-    useEffect(() => {
-        if (!isDialogOpen) {
-            setTitle("");
-            setDescription("");
-            setStartDate(undefined);
-            setEndDate(undefined);
-
-            setTitleError("");
-            setDescriptionError("");
-            setDateError("")
-            setGeneralError("");
-            setGeneralSuccess("");
-        }
-    }, [isDialogOpen]);
-
-    const handleAddMandatory = async (e: React.FormEvent) => {
-        e.preventDefault()
-
-        setGeneralError("")
-        setGeneralSuccess("")
-        setTitleError("")
-        setDescription("")
-        setDateError("")
-
-        let hasError = false;
-        if (!title.trim()) {
-            setTitleError("Title cannot be empty");
-            hasError = true;
-        }
-        if (!description.trim()) {
-            setDescriptionError("Description cannot be empty");
-            hasError = true;
-        }
-        if (!startDate || !endDate) {
-            setDateError("Both start and end date are required.")
-            hasError = true
-        } else if (endDate < startDate) {
-            setDateError("End date cannot be before start date.")
-            hasError = true
-        }
-
-        if (hasError) {
-            return;
-        }
-
-        setIsLoading(true)
-        const payload = {
-            title,
-            description,
-            start_date: startDate?.toLocaleDateString('en-CA'),
-            end_date: endDate?.toLocaleDateString('en-CA'),
-        }
-
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/mandatory`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify(payload),
-            })
-
-            const result = await res.json()
-            console.table(res)
-
-            if (!res.ok) {
-                setGeneralError(result.message || "Failed to add data. Please try again.");
-            } else {
-                onFormSubmit()
-                setGeneralSuccess(result.message || "Mandatory leave added successfully!");
-                setIsDialogOpen(false);
-            }
-        } catch (error) {
-            console.error("Error adding data:", error);
-            setGeneralError("Failed to add data. Check your network or server response.");
-        } finally {
-            setIsLoading(false);
-        }
-    }
+    const { state, dispatch, submit } = useAddMandatory(onFormSubmit)
 
     return (
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog onOpenChange={(open) => open && dispatch({ type: "RESET" })}>
             <DialogTrigger asChild>
                 <Button variant="default" className="text-foreground">
                     <i className="bi bi-plus-circle-fill text-lg text-foreground"></i> Add Mandatory Leave
@@ -118,19 +28,19 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[550px]">
-                <form onSubmit={handleAddMandatory}>
+                <form onSubmit={(e) => { e.preventDefault(); submit(); }}>
                     <DialogHeader className="flex flex-col justify-center items-center mb-3">
                         <DialogTitle>Add Mandatory Leave</DialogTitle>
                     </DialogHeader>
 
-                    {generalError && (
+                    {state.errors.general && (
                         <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm">
-                            {generalError}
+                            {state.errors.general}
                         </div>
                     )}
-                    {generalSuccess && (
+                    {state.success && (
                         <div className="bg-green-100 text-green-700 px-4 py-2 rounded mb-4 text-sm">
-                            {generalSuccess}
+                            {state.success}
                         </div>
                     )}
                     <div className="grid gap-4">
@@ -139,16 +49,15 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
                             <Input
                                 id="title"
                                 type="text"
-                                value={title}
+                                value={state.title}
                                 onChange={(e) => {
-                                    setTitle(e.target.value);
-                                    if (titleError) setTitleError("");
+                                    dispatch({ type: "SET_FIELD", field: "title", value: e.target.value })
                                 }}
                                 placeholder="Type the new leave title"
-                                className={titleError ? 'border-red-400' : ''}
+                                className={state.errors.title ? 'border-red-400' : ''}
                             />
-                            {titleError && (
-                                <p className="text-sm text-red-600 mt-1">{titleError}</p>
+                            {state.errors.title && (
+                                <p className="text-sm text-red-600 mt-1">{state.errors.title}</p>
                             )}
                         </div>
                         <div className="grid gap-3">
@@ -157,43 +66,41 @@ export function AddMandatory({ onFormSubmit }: { onFormSubmit: () => void }) {
                                     label="Leave Date"
                                     mode="range"
                                     disablePastAndWeekends={false}
-                                    value={startDate && endDate ? { from: startDate, to: endDate } : undefined}
+                                    value={state.startDate && state.endDate ? { from: state.startDate, to: state.endDate } : undefined}
                                     onChange={(range: DateRange | undefined) => {
-                                        setStartDate(range?.from)
-                                        setEndDate(range?.to)
-                                        if (dateError) setDateError("")
+                                        dispatch({ type: "SET_FIELD", field: "startDate", value: range?.from });
+                                        dispatch({ type: "SET_FIELD", field: "endDate", value: range?.to });
                                     }}
-                                    className={dateError ? 'border-red-400' : ''}
+                                    className={state.errors.date ? 'border-red-400' : ''}
                                 />
                             </div>
-                            {dateError && (
-                                <p className="text-sm text-red-600 mt-1">{dateError}</p>
+                            {state.errors.date && (
+                                <p className="text-sm text-red-600 mt-1">{state.errors.date}</p>
                             )}
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="description">Description</Label>
                             <textarea
                                 id="description"
-                                value={description}
+                                value={state.description}
                                 onChange={(e) => {
-                                    setDescription(e.target.value);
-                                    if (descriptionError) setDescriptionError("");
+                                    dispatch({ type: "SET_FIELD", field: "description", value: e.target.value })
                                 }}
                                 placeholder="Type the information"
-                                className={`border-[1.5px] border-border bg-accent ${descriptionError ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
+                                className={`border-[1.5px] border-border bg-accent ${state.errors.description ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
                             />
-                            {descriptionError && (
-                                <p className="text-sm text-red-600 mt-1">{descriptionError}</p>
+                            {state.errors.description && (
+                                <p className="text-sm text-red-600 mt-1">{state.errors.description}</p>
                             )}
                         </div>
                     </div>
 
                     <DialogFooter className="mt-5">
                         <DialogClose asChild>
-                            <Button type="button" variant="outline" disabled={isLoading}>Cancel</Button>
+                            <Button type="button" variant="outline" disabled={state.isLoading}>Cancel</Button>
                         </DialogClose>
-                        <Button type="submit" className="text-black" disabled={isLoading}>
-                            {isLoading ? (
+                        <Button type="submit" className="text-black" disabled={state.isLoading}>
+                            {state.isLoading ? (
                                 <>
                                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

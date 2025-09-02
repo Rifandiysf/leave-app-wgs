@@ -3,8 +3,8 @@
 
 import { formatDate } from "@/lib/format";
 import { EditMandatory } from "@/app/components/ui/form/editMandatory";
-import { MandatoryLeaveType } from "@/app/hooks/admin/UseMandatory";
 import { Switch } from "../../ui/switch";
+import { MandatoryLeaveType } from "@/app/hooks/admin/UseMandatory";
 
 interface MandatoryTableProps {
     isLoading: boolean;
