@@ -1,4 +1,4 @@
-import { SettingData } from "@/app/components/Modal/Setting"
+import { SettingData } from '@/lib/api/service/setting';
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 

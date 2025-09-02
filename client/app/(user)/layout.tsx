@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import Sidebar from '@/app/components/layout/sidebar'
-import Header from '@/app/components/layout/header'
+import Sidebar from '@/app/components/ui/layout/sidebar'
+import Header from '@/app/components/ui/layout/header'
 
 interface UserLayoutProps {
   children: React.ReactNode;

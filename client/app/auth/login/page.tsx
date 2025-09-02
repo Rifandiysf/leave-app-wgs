@@ -15,11 +15,9 @@ import {
 import { Input } from "../../components/ui/input"
 import { Label } from "@/app/components/ui/label"
 import Image from "next/image"
-import { useAppContext } from '@/lib/context/AppContext'
 
 const LoginPage = () => {
     const router = useRouter()
-    const { fetchUserData, fetchSetting } = useAppContext();
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
@@ -65,8 +63,6 @@ const LoginPage = () => {
                 setIsLoading(false)
                 return
             }
-            await fetchUserData()
-            await fetchSetting()
             router.push('/');
         } catch (err) {
             console.error("Login error:", err)

@@ -1,15 +1,15 @@
 "use client"
 
-import { useCallback, useState } from "react"
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
-import { Button } from "../ui/button"
+import { useCallback, useEffect, useState } from "react"
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../dialog"
+import { Button } from "../button"
 import { Edit2 } from "lucide-react"
 import { DialogDescription } from "@radix-ui/react-dialog"
-import { Card, CardContent } from "../ui/card"
+import { Card, CardContent } from "../card"
 import { useDropzone } from "react-dropzone"
-import { Label } from "../ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
-import ColorPicker from "../ui/colorPicker"
+import { Label } from "../label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../tabs"
+import ColorPicker from "../colorPicker"
 import axiosInstance from "@/lib/api/axiosInstance"
 import Image from "next/image"
 
@@ -54,22 +54,29 @@ type EditConfigProps = {
 }
 
 const EditConfig = ({ initialData, onFormSubmit }: EditConfigProps) => {
-    const [openDialog, setOpenDialog] = useState(false)
-    const [uploadedFileNameLight, setUploadedFileNameLight] = useState<string | null>(null);
-    const [uploadedFileNameDark, setUploadedFileNameDark] = useState<string | null>(null);
-    const [previewLightLogo, setPreviewLightLogo] = useState<string | null>(null)
-    const [previewDarkLogo, setPreviewDarkLogo] = useState<string | null>(null)
-    const [isLoading, setIsLoading] = useState(false)
+    const [openDialog, setOpenDialog] = useState(false);
+    const [previewLightLogo, setPreviewLightLogo] = useState<string | null>(null);
+    const [previewDarkLogo, setPreviewDarkLogo] = useState<string | null>(null);
 
     const [lightLogo, setLightLogo] = useState<File | string>(initialData.light_color.light_image);
     const [darkLogo, setDarkLogo] = useState<File | string>(initialData.dark_color.dark_image);
-    const [lightColor, setLightColor] = useState<ThemeConfig>(initialData.light_color)
-    const [darkColor, setDarkColor] = useState<ThemeConfig>(initialData.dark_color)
+    const [lightColor, setLightColor] = useState<ThemeConfig>(initialData.light_color);
+    const [darkColor, setDarkColor] = useState<ThemeConfig>(initialData.dark_color);
+
+    const [generalError, setGeneralError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        if (!openDialog) {
+            setPreviewLightLogo(null)
+            setPreviewDarkLogo(null)
+            setGeneralError(null)
+        }
+    }, [openDialog])
 
     const onDropLight = useCallback((acceptedFiles: File[]) => {
         const file = acceptedFiles[0];
         if (file) {
-            setUploadedFileNameLight(file.name)
             setLightLogo(file);
             setPreviewLightLogo(URL.createObjectURL(file))
         }
@@ -78,7 +85,6 @@ const EditConfig = ({ initialData, onFormSubmit }: EditConfigProps) => {
     const onDropDark = useCallback((acceptedFiles: File[]) => {
         const file = acceptedFiles[0];
         if (file) {
-            setUploadedFileNameDark(file.name)
             setDarkLogo(file);
             setPreviewDarkLogo(URL.createObjectURL(file))
         }
@@ -108,19 +114,44 @@ const EditConfig = ({ initialData, onFormSubmit }: EditConfigProps) => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        setGeneralError(null)
+
         setIsLoading(true)
 
         try {
-            const formData = new FormData()
-            if (lightLogo) {
-                formData.append("light_image", lightLogo)
-            }
-            if (darkLogo) {
-                formData.append("dark_image", darkLogo)
+            const formData = new FormData();
+            if (lightLogo instanceof File) {
+                formData.append("light_image", lightLogo);
+            } else {
+                formData.append("light_image", lightLogo); // string URL dari backend
             }
 
-            formData.append("light_color", JSON.stringify(lightColor))
-            formData.append("dark_color", JSON.stringify(darkColor))
+            if (darkLogo instanceof File) {
+                formData.append("dark_image", darkLogo);
+            } else {
+                formData.append("dark_image", darkLogo);
+            }
+
+            //light color
+            formData.append("light_background", lightColor.baseColor.background);
+            formData.append("light_foreground", lightColor.baseColor.foreground);
+            formData.append("light_card", lightColor.cardColor.card);
+            formData.append("light_cardForeground", lightColor.cardColor.cardForeground);
+            formData.append("light_primary", lightColor.primaryColor.primary);
+            formData.append("light_primaryForeground", lightColor.primaryColor.primaryForeground);
+            formData.append("light_secondary", lightColor.secondaryColor.secondary);
+            formData.append("light_secondaryForeground", lightColor.secondaryColor.secondaryForeground);
+
+            //dark color
+            formData.append("dark_background", darkColor.baseColor.background);
+            formData.append("dark_foreground", darkColor.baseColor.foreground);
+            formData.append("dark_card", darkColor.cardColor.card);
+            formData.append("dark_cardForeground", darkColor.cardColor.cardForeground);
+            formData.append("dark_primary", darkColor.primaryColor.primary);
+            formData.append("dark_primaryForeground", darkColor.primaryColor.primaryForeground);
+            formData.append("dark_secondary", darkColor.secondaryColor.secondary);
+            formData.append("dark_secondaryForeground", darkColor.secondaryColor.secondaryForeground);
 
             await axiosInstance.patch(`/setting/${initialData.id}`, formData, {
                 headers: {
@@ -132,6 +163,7 @@ const EditConfig = ({ initialData, onFormSubmit }: EditConfigProps) => {
             setOpenDialog(false)
         } catch (error) {
             console.error("Failed Update Configuration", error)
+            setGeneralError('Failed Update Configuration')
         } finally {
             setIsLoading(false)
         }
@@ -150,6 +182,11 @@ const EditConfig = ({ initialData, onFormSubmit }: EditConfigProps) => {
                     </DialogHeader>
                     <Card className="shadow-none border-none rounded-lg w-full p-3 h-96 overflow-y-scroll">
                         <CardContent className="p-0">
+                            {generalError && (
+                                <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm">
+                                    {generalError}
+                                </div>
+                            )}
                             <div className="grid grid-cols-2 gap-2 mb-2">
                                 <div>
                                     <Label className='block text-sm font-medium mb-1'>Light theme logo</Label>
@@ -162,22 +199,25 @@ const EditConfig = ({ initialData, onFormSubmit }: EditConfigProps) => {
                                             <p className="text-blue-600">Lepaskan Logo Anda di sini...</p>
                                         ) : (
                                             <>
-                                                {previewLightLogo || typeof lightLogo === "string" ? (
+                                                {previewLightLogo ? (
                                                     <div className="flex flex-col justify-center items-center mt-1">
                                                         <Image
-                                                            src={previewLightLogo || (lightLogo as string)}
+                                                            src={previewLightLogo}
                                                             alt="Light Logo Preview"
                                                             width={120}
                                                             height={120}
                                                             className="rounded-md"
                                                         />
-                                                        <p className="text-sm text-foreground">{uploadedFileNameLight}</p>
                                                     </div>
                                                 ) : (
-                                                    <div>
+                                                    <div className="flex flex-col justify-center items-center">
                                                         <i className="bi bi-cloud-arrow-up-fill text-3xl text-gray-400 mb-2" />
-                                                        <p className="text-sm text-gray-500 text-center">Tarik & lepas Image di sini, atau klik untuk memilih file</p>
-                                                        <p className="text-xs text-gray-400 mt-1 text-center">Hanya file dengan format .jpeg, .jpg, .png, .svg, .webp yang diterima.</p>
+                                                        <p className="text-sm text-gray-500 text-center">
+                                                            Tarik & lepas Image di sini, atau klik untuk memilih file
+                                                        </p>
+                                                        <p className="text-xs text-gray-400 mt-1 text-center">
+                                                            Hanya file dengan format .jpeg, .jpg, .png, .svg, .webp yang diterima.
+                                                        </p>
                                                     </div>
                                                 )}
                                             </>
@@ -195,22 +235,25 @@ const EditConfig = ({ initialData, onFormSubmit }: EditConfigProps) => {
                                             <p className="text-blue-600">Lepaskan Logo Anda di sini...</p>
                                         ) : (
                                             <>
-                                                {previewDarkLogo || typeof darkLogo === "string" ? (
+                                                {previewDarkLogo ? (
                                                     <div className="flex flex-col justify-center items-center mt-1">
                                                         <Image
-                                                            src={previewDarkLogo || (darkLogo as string)}
-                                                            alt="Light Logo Preview"
+                                                            src={previewDarkLogo}
+                                                            alt="Dark Logo Preview"
                                                             width={120}
                                                             height={120}
                                                             className="rounded-md"
                                                         />
-                                                        <p className="text-sm text-foreground">{uploadedFileNameDark}</p>
                                                     </div>
                                                 ) : (
-                                                    <div>
+                                                    <div className="flex flex-col justify-center items-center">
                                                         <i className="bi bi-cloud-arrow-up-fill text-3xl text-gray-400 mb-2" />
-                                                        <p className="text-sm text-gray-500 text-center">Tarik & lepas Image di sini, atau klik untuk memilih file</p>
-                                                        <p className="text-xs text-gray-400 mt-1 text-center">Hanya file dengan format .jpeg, .jpg, .png, .svg, .webp yang diterima.</p>
+                                                        <p className="text-sm text-gray-500 text-center">
+                                                            Tarik & lepas Image di sini, atau klik untuk memilih file
+                                                        </p>
+                                                        <p className="text-xs text-gray-400 mt-1 text-center">
+                                                            Hanya file dengan format .jpeg, .jpg, .png, .svg, .webp yang diterima.
+                                                        </p>
                                                     </div>
                                                 )}
                                             </>
@@ -354,7 +397,7 @@ const EditConfig = ({ initialData, onFormSubmit }: EditConfigProps) => {
                         <DialogClose asChild>
                             <Button variant={'ghost'}>Cancel</Button>
                         </DialogClose>
-                        <Button type="submit" className="bg-green-100 text-green-500 font-semibold" disabled={isLoading}>
+                        <Button type="submit" onClick={() => window.location.reload()} className="bg-green-100 text-green-500 font-semibold" disabled={isLoading}>
                             {isLoading ? (
                                 <>
                                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

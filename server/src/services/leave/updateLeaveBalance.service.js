@@ -88,44 +88,54 @@ export const updateLeaveBalance = async (user) => {
                     const expiredDate = new Date(`${previousYear + 2}-01-01T00:00:00.000Z`);
 
                     if (!balancePrev) {
-                        await prisma.$transaction([
-                            prisma.tb_balance.create({
+                        const resultBackfill = await prisma.$transaction(async (tx) => {
+                            const balance = await tx.tb_balance.create({
                                 data: {
                                     NIK: user.NIK,
                                     amount: toBackfill,
                                     receive_date: receiveDate,
                                     expired_date: expiredDate
                                 }
-                            }),
-                            prisma.tb_balance_adjustment.create({
+                            });
+
+                            const logBalance = await tx.tb_balance_adjustment.create({
                                 data: {
                                     NIK: user.NIK,
                                     adjustment_value: toBackfill,
                                     notes: `backfill ${toBackfill} days for year ${previousYear}`,
                                     created_at: new Date(),
                                     actor: 'system',
-                                    balance_year: previousYear
+                                    balance_year: previousYear,
+                                    id_balance: balance.id_balance
                                 }
-                            })
-                        ]);
+                            });
+
+                            return { balance, logBalance };
+                        })
+                        
                         console.log(`[Balance Backfill Created] NIK: ${user.NIK}, ${toBackfill} days for year ${previousYear}`);
                     } else {
-                        await prisma.$transaction([
-                            prisma.tb_balance.update({
+                        const resultBackfill = await prisma.$transaction(async (tx) => {
+                            const balance = await tx.tb_balance.update({
                                 where: { id_balance: balancePrev.id_balance },
                                 data: { amount: balancePrev.amount + toBackfill }
-                            }),
-                            prisma.tb_balance_adjustment.create({
+                            });
+
+                            const logBalance = await tx.tb_balance_adjustment.create({
                                 data: {
                                     NIK: user.NIK,
                                     adjustment_value: toBackfill,
                                     notes: `backfill ${toBackfill} days for year ${previousYear}`,
                                     created_at: new Date(),
                                     actor: 'system',
-                                    balance_year: previousYear
+                                    balance_year: previousYear,
+                                    id_balance: balance.id_balance
                                 }
                             })
-                        ]);
+
+                            return { balance, logBalance };
+                        })
+        
                         console.log(`[Balance Backfill Updated] NIK: ${user.NIK}, added: ${toBackfill} for ${previousYear}`);
                     }
                 }
@@ -172,47 +182,56 @@ export const updateLeaveBalance = async (user) => {
 
             if(existingBalance) {
                 // update amount
-                await prisma.$transaction([
-                    prisma.tb_balance.update({
+                const resultBalance = await prisma.$transaction(async (tx) => {
+                    const newBalance = await tx.tb_balance.update({
                         where: { id_balance: existingBalance.id_balance },
                         data: {
                             amount: existingBalance.amount + leaveAmount
                         }
-                    }),
-                    prisma.tb_balance_adjustment.create({
+                    });
+                    
+                    const adjustmentLog = await tx.tb_balance_adjustment.create({
                         data: {
                             NIK: user.NIK,
                             adjustment_value: leaveAmount,
                             notes: `get ${leaveAmount} days of leave`,
                             created_at: new Date(),
                             actor: 'system',
-                            balance_year: currentYear
+                            balance_year: currentYear,
+                            id_balance: newBalance.id_balance
                         }
                     })
-                ]);
+
+                    return { newBalance, adjustmentLog }
+                })
 
                 console.log(`[Balance Updated] NIK: ${user.NIK}, added: ${leaveAmount}, total: ${existingBalance.amount + leaveAmount}`);
             } else {
-                await prisma.$transaction([
-                    prisma.tb_balance.create({
+                const resultBalance = await prisma.$transaction(async (tx) => {
+                    const newBalance = await tx.tb_balance.create({
                         data: {
                             NIK: user.NIK,
                             amount: leaveAmount,
                             receive_date: receiveDate,
                             expired_date: expiredDate
                         }
-                    }),
-                    prisma.tb_balance_adjustment.create({
+                    });
+
+                    const adjustmentLog = await tx.tb_balance_adjustment.create({
                         data: {
                             NIK: user.NIK,
                             adjustment_value: leaveAmount,
                             notes: `get ${leaveAmount} days of leave`,
                             created_at: new Date(),
                             actor: 'system',
-                            balance_year: currentYear
+                            balance_year: currentYear,
+                            id_balance: newBalance.id_balance
                         }
                     })
-                ]);
+
+                    return { newBalance, adjustmentLog }
+                })
+        
                 console.log(`[Balance Created] NIK: ${user.NIK}, amount: ${leaveAmount}`);
             }
         } else {
@@ -300,56 +319,59 @@ export const updateLeaveBalance = async (user) => {
                         // Buat tanggal dengan format yang eksplisit
                         const receiveDate = new Date(`${previousYear}-12-31T12:00:00.000Z`);
                         const expiredDate = new Date(`${previousYear + 2}-01-01T00:00:00.000Z`);
-                        
-                        // console.log(`[DEBUG BACKFILL] NIK: ${user.NIK}`);
-                        // console.log(`[DEBUG BACKFILL] previousYear: ${previousYear}`);
-                        // console.log(`[DEBUG BACKFILL] receiveDate: ${receiveDate.toISOString()}`);
-                        // console.log(`[DEBUG BACKFILL] expiredDate: ${expiredDate.toISOString()}`);
-                        // console.log(`[DEBUG BACKFILL] toBackfill: ${toBackfill}`);
-                        
-                        await prisma.$transaction([
-                            prisma.tb_balance.create({
+
+                        const resultBackfill = await prisma.$transaction(async (tx) => {
+                            const balance = await tx.tb_balance.create({
                                 data: {
                                     NIK: user.NIK,
                                     amount: toBackfill,
                                     receive_date: receiveDate,
                                     expired_date: expiredDate
                                 }
-                            }),
-                            prisma.tb_balance_adjustment.create({
+                            });
+
+                            const logBalance = await tx.tb_balance_adjustment.create({
                                 data: {
                                     NIK: user.NIK,
                                     adjustment_value: toBackfill,
                                     notes: `backfill ${toBackfill} days for year ${previousYear}`,
                                     created_at: new Date(),
                                     actor: 'system',
-                                    balance_year: previousYear
+                                    balance_year: previousYear,
+                                    id_balance: balance.id_balance
                                 }
-                            })
-                        ]);
+                            });
+
+                            return { balance, logBalance }
+                        })
+                        
                         console.log(`[Balance Backfill Created] NIK: ${user.NIK}, amount: ${toBackfill} for year ${previousYear}, receive: ${receiveDate.toISOString()}, expire: ${expiredDate.toISOString()}`);
                     } else {
-                        await prisma.$transaction([
-                            prisma.tb_balance.update({
+                        const resultBackfill = await prisma.$transaction(async (tx) =>  {
+                            const balance = await tx.tb_balance.update({
                                 where: {
                                     id_balance: balancePrev.id_balance
                                 },
                                 data: {
                                     amount: balancePrev.amount + toBackfill
                                 }
-                            }),
-                            prisma.tb_balance_adjustment.create({
+                            });
+
+                            const logBalance = await tx.tb_balance_adjustment.create({
                                 data: {
                                     NIK: user.NIK,
                                     adjustment_value: toBackfill,
                                     notes: `backfill ${toBackfill} days for year ${previousYear}`,
                                     created_at: new Date(),
                                     actor: 'system',
-                                    balance_year: previousYear
+                                    balance_year: previousYear,
+                                    id_balance: balance.id_balance
                                 }
                             })
-                        ]);
-                        console.log(`[Balance Backfill] NIK: ${user.NIK}, added: ${toBackfill} to ${previousYear}`);
+
+                            return { balance, logBalance}
+                        })
+                        console.log(`[Balance Backfill Updated] NIK: ${user.NIK}, added: ${toBackfill} to ${previousYear}`);
                     }
                 } 
             }
@@ -429,49 +451,59 @@ export const updateLeaveBalance = async (user) => {
 
                 if (!existingBalance) {
                     // Buat balance baru
-                    await prisma.$transaction([
-                        prisma.tb_balance.create({
+                    const resultBalance = await prisma.$transaction(async (tx) => {
+                        const newBalance = await tx.tb_balance.create({
                             data: {
                                 NIK: user.NIK,
                                 amount: toAdd,
                                 receive_date: receiveDate,
                                 expired_date: expiredDate
                             }
-                        }),
-                        prisma.tb_balance_adjustment.create({
+                        });
+
+                        const adjustmentLog = await tx.tb_balance_adjustment.create({
                             data: {
                                 NIK: user.NIK,
                                 adjustment_value: toAdd,
                                 notes: `get ${toAdd} days of leave`,
                                 created_at: new Date(),
                                 actor: 'system',
-                                balance_year: currentYear
+                                balance_year: currentYear,
+                                id_balance: newBalance.id_balance
                             }
-                        })
-                    ]);
+                        });
+
+                        return { newBalance, adjustmentLog}
+                    }) 
+                
                     console.log(`[Balance Created] NIK: ${user.NIK}, amount: ${toAdd}`);
                 } else {
                     // Update balance existing
-                    await prisma.$transaction([
-                        prisma.tb_balance.update({
+                    const resultBalance = await prisma.$transaction(async (tx) => {
+                        const newBalance = await tx.tb_balance.update({
                             where: {
                                 id_balance: existingBalance.id_balance
                             },
                             data: {
                                 amount: existingBalance.amount + toAdd
                             }
-                        }),
-                        prisma.tb_balance_adjustment.create({
+                        });
+
+                        const adjustmentLog = await tx.tb_balance_adjustment.create({
                             data: {
                                 NIK: user.NIK,
                                 adjustment_value: toAdd,
                                 notes: `add ${toAdd} days of leave`,
                                 created_at: new Date(),
                                 actor: 'system',
-                                balance_year: currentYear
+                                balance_year: currentYear,
+                                id_balance: newBalance.id_balance
                             }
                         })
-                    ]);
+
+                        return { newBalance, adjustmentLog}
+                    })
+                    
                     console.log(`[Balance Updated] NIK: ${user.NIK}, added: ${toAdd}, total: ${existingBalance.amount + toAdd}`);
                 }
             } //else {

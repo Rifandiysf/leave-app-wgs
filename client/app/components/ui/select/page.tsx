@@ -6,7 +6,7 @@ import {
     SelectGroup,
     SelectTrigger,
     SelectValue,
-} from "../ui/select"
+} from "../select"
 
 type SelectCustomProps = {
     placeholder?: string

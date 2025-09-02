@@ -3,11 +3,11 @@
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import React, { useEffect, useState } from "react";
 import { DatePickerField } from "../date-picker/datePicker";
-import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Button } from "../button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../dialog";
+import { Input } from "../input";
+import { Label } from "../label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../select";
 import { Notification } from '../notification/Notification';
 import { DateRange } from 'react-day-picker';
 

@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/app/componen
 import { Popover, PopoverContent, PopoverTrigger } from '@/app/components/ui/popover';
 import { Button } from '@/app/components/ui/button';
 import { useState } from 'react';
-import { LeaveChart } from '@/app/components/LeaveChart/LeaveChart';
+import { LeaveChart } from '@/app/components/ui/LeaveChart/LeaveChart';
 
 type UserData = {
     nik: string;

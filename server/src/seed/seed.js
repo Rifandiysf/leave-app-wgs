@@ -11,6 +11,30 @@ async function manualSeed() {
     await tx.tb_users.deleteMany();
     await tx.tb_special_leave.deleteMany();
     await tx.tb_mandatory_leave.deleteMany();
+    await tx.tb_settings.deleteMany();
+
+    await tx.tb_settings.create({
+      data: {
+        light_image: `http://${process.env.HOSTNAME}:${process.env.PORT}/uploads/dark.svg`,
+        light_background: "#FFFFFF",
+        light_foreground: "#191B21",
+        light_card: "#dbeafe",
+        light_cardForeground: "#193cb8",
+        light_primary: "#dbeafe",
+        light_primaryForeground: "#191B21",
+        light_secondary: "#155dfc",
+        light_secondaryForeground: "#FFFFFF",
+        dark_image: `http://${process.env.HOSTNAME}:${process.env.PORT}/uploads/light.svg`,
+        dark_background: "#191B21",
+        dark_foreground: "#FFFFFF",
+        dark_card: "#212838",
+        dark_cardForeground: "#FFFFFF",
+        dark_primary: "#212838",
+        dark_primaryForeground: "#dbeafe",
+        dark_secondary: "#155dfc",
+        dark_secondaryForeground: "#191B21",
+      },
+    });
 
     // Delete existing roles and statuses to prevent conflicts on re-seed
     await tx.tb_roles.deleteMany();

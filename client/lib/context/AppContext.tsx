@@ -1,38 +1,33 @@
 'use client';
 
-import React, { createContext, useState, useEffect, useContext, ReactNode, useCallback } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useCallback } from 'react';
 import { getMe, UserData } from '@/lib/api/service/user';
-import axiosInstance from "@/lib/api/axiosInstance";
+import { fetchSettingData, SettingData } from '@/lib/api/service/setting';
+import { applyThemeFromConfig } from '../utils';
 
 // --- Tipe Data untuk Context ---
-interface ThemeImages {
-    light_image: string;
-    dark_image: string;
-}
-
 interface AppContextType {
     user: UserData | null;
     isUserLoading: boolean;
     userError: string | null;
-    settingImages: ThemeImages | null;
-    fetchSetting: () => Promise<void>;
+    settingData: SettingData | null;
+    settingImage: string | null;
     fetchUserData: () => Promise<void>;
+    fetchSetting: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 // --- Provider Gabungan ---
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-    // State untuk User
     const [user, setUser] = useState<UserData | null>(null);
     const [isUserLoading, setIsUserLoading] = useState(true);
     const [userError, setUserError] = useState<string | null>(null);
+    const [settingData, setSettingData] = useState<SettingData | null>(null);
+    const [settingImage, setSettingImage] = useState<string | null>(null);
 
-    // State untuk Setting
-    const [settingImages, setSettingImages] = useState<ThemeImages | null>(null);
-
-    // Fetch User Data
     const fetchUserData = useCallback(async () => {
+        // ... kode yang sama dengan yang ada di soal ...
         setIsUserLoading(true);
         try {
             const userData = await getMe();
@@ -47,36 +42,33 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     }, []);
 
-    // Fetch Setting Data
     const fetchSetting = useCallback(async () => {
-        try {
-            const res = await axiosInstance.get("/setting");
-            if (res?.data?.data?.light_color && res?.data?.data?.dark_color) {
-                setSettingImages({
-                    light_image: res.data.data.light_color.image,
-                    dark_image: res.data.data.dark_color.image,
-                });
-            } else {
-                setSettingImages({ light_image: "/images/logo-wgs.svg", dark_image: "/images/logo-wgs.svg" });
+        const data = await fetchSettingData();
+        if (data) {
+            setSettingData(data);
+
+            const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' | null;
+            const themeToApply = savedTheme || 'system';
+
+            let finalThemeMode = themeToApply;
+            if (themeToApply === 'system') {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                finalThemeMode = prefersDark ? 'dark' : 'light';
             }
-        } catch (error) {
-            console.error("Failed to fetch setting:", error);
-            setSettingImages({ light_image: "/images/logo-wgs.svg", dark_image: "/images/logo-wgs.svg" });
+
+            const imageToApply = finalThemeMode === 'dark' ? data.dark_color.dark_image : data.light_color.light_image;
+
+            setSettingImage(imageToApply);
+            applyThemeFromConfig(data, themeToApply);
         }
     }, []);
-
-    // !! PERUBAHAN UTAMA: useEffect untuk fetch data awal !!
-    // Provider ini sekarang secara proaktif mengambil data saat pertama kali dimuat.
-    useEffect(() => {
-        fetchUserData();
-        fetchSetting();
-    }, [fetchUserData, fetchSetting]);
 
     const value = {
         user,
         isUserLoading,
         userError,
-        settingImages,
+        settingData,
+        settingImage,
         fetchUserData,
         fetchSetting,
     };
