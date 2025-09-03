@@ -7,7 +7,7 @@ export const statisticDashboard = async () => {
     const totalEmployees = await prisma.tb_users.count();
     const activeEmployees = await prisma.tb_users.count({
         where : {
-            status_active : 'active'
+            isActive : true
         }
     });
     const resignEmployees = totalEmployees - activeEmployees;
