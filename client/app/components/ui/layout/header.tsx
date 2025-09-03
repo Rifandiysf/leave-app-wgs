@@ -26,12 +26,10 @@ export default function Header() {
 
     const handleLogout = async () => {
         try {
-            // 4. Gunakan service logout yang terpusat
             await logoutUser();
         } catch (err) {
             console.error('Logout API call failed, but proceeding with client-side logout.', err)
         } finally {
-            // Selalu hapus cookies dan redirect, apapun hasil API call
             Cookies.remove('Authorization', { path: '/' });
             Cookies.remove('device-id', { path: '/' });
             router.push('/auth/login');
@@ -59,7 +57,7 @@ export default function Header() {
     }
 
     const fullname = user?.fullname || 'Guest';
-    const userRole = user?.role || '';
+    const userRole = user?.role?.slug || '';
     const isAdmin = userRole === 'admin' || userRole === 'super_admin';
 
     return (
