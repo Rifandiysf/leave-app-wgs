@@ -2,10 +2,10 @@
 
 import React from 'react';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import { useHistoryData } from '@/app/hooks/UseHistoryData';
+import { useHistoryData } from '@/app/hooks/user/UseHistoryData';
 import { HistoryFilters } from '@/app/components/user/history/HistoryFiilters';
 import { HistoryTable } from '@/app/components/user/history/HistoryTable';
-import { PaginationControls } from '@/app/components/user/history/PaginationControls';
+import { PaginationControls } from '@/app/components/ui/PaginationControls';
 
 const HistoryPage = () => {
     const { state, dispatch, isLoading, dataHistoryLeave, paginationInfo, itemPerPage } = useHistoryData();

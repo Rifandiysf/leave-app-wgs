@@ -1,6 +1,6 @@
-~'use client'
+'use client'
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/app/components/ui/button"
 import {
     Dialog,
@@ -14,8 +14,8 @@ import {
 import { Input } from "@/app/components/ui/input"
 import { Label } from "@/app/components/ui/label"
 import { DatePickerField } from "../date-picker/datePicker"
-import { parseISO } from "date-fns"
 import { DateRange } from "react-day-picker"
+import { useEditMandatory } from "@/app/hooks/admin/UseEditMandatory"
 
 type dataMandatoryType = {
     id_mandatory: string
@@ -31,105 +31,24 @@ type Props = {
 }
 
 export function EditMandatory({ initialData, onFormSubmit }: Props) {
-    const [title, setTitle] = useState(initialData.title)
-    const [description, setDescription] = useState(initialData.description)
-    const [startDate, setStartDate] = useState<Date>()
-    const [endDate, setEndDate] = useState<Date>()
-
-    const [titleError, setTitleError] = useState("")
-    const [descriptionError, setDescriptionError] = useState("")
-    const [generalError, setGeneralError] = useState('')
-    const [dateError, setDateError] = useState("")
-    const [generalSuccess, setGeneralSuccess] = useState('')
-    const [isLoading, setIsLoading] = useState(false)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
+    const { state, dispatch, handleSubmit, resetToInitial } = useEditMandatory(initialData)
 
-    useEffect(() => {
-        if (isDialogOpen) {
-            setTitle(initialData.title)
-            setDescription(initialData.description)
-            setStartDate(initialData.start_date ? parseISO(initialData.start_date) : undefined)
-            setEndDate(initialData.end_date ? parseISO(initialData.end_date) : undefined)
-            setTitleError("")
-            setDescriptionError("")
-            setDateError("")
-            setGeneralError("")
-            setGeneralSuccess("")
-        } else {
-            setTitle(initialData.title)
-            setDescription(initialData.description)
-            setStartDate(initialData.start_date ? parseISO(initialData.start_date) : undefined)
-            setEndDate(initialData.end_date ? parseISO(initialData.end_date) : undefined)
-        }
-    }, [isDialogOpen, initialData])
-
-    const handleEditMandatory = async (e: React.FormEvent) => {
-        e.preventDefault()
-
-        setGeneralError("")
-        setGeneralSuccess("")
-        setTitleError("")
-        setDescriptionError("")
-        setDateError("")
-
-        let hasError = false
-        if (!title.trim()) {
-            setTitleError("Title cannot be empty")
-            hasError = true
-        }
-        if (!description.trim()) {
-            setDescriptionError("Description cannot be empty")
-            hasError = true
-        }
-        if (!startDate || !endDate) {
-            setDateError("Both start and end date are required.")
-            hasError = true
-        } else if (endDate < startDate) {
-            setDateError("End date cannot be before start date.")
-            hasError = true
-        }
-
-        if (hasError) {
-            return
-        }
-
-        setIsLoading(true)
-        const payload = {
-            title,
-            description,
-            start_date: startDate?.toLocaleDateString('en-CA'),
-            end_date: endDate?.toLocaleDateString('en-CA')
-        }
-
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leaves/mandatory/${initialData.id_mandatory}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify(payload),
-            })
-
-            const result = await res.json()
-
-            if (!res.ok) {
-                setGeneralError("Failed to update mandatory leave")
-                return
-            }
-
-            setGeneralSuccess(result.message || "Mandatory leave updated successfully!")
-            onFormSubmit()
-            setIsDialogOpen(false)
-
-        } catch (error) {
-            console.error("Error updating data:", error)
-            setGeneralError("Failed to update data. Check your network or server response.")
-        } finally {
-            setIsLoading(false)
-        }
+    const onSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const success = await handleSubmit(onFormSubmit);
+        if (success) setIsDialogOpen(false);
     }
 
     return (
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog
+            open={isDialogOpen}
+            onOpenChange={(open) => {
+                setIsDialogOpen(open)
+                if (!open) {
+                    resetToInitial()
+                }
+            }}>
             <DialogTrigger asChild>
                 <Button variant="ghost" size={'icon'}>
                     <i className="bi bi-pencil-square text-lg"></i>
@@ -137,19 +56,19 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[550px]">
-                <form onSubmit={handleEditMandatory}>
+                <form onSubmit={onSubmit}>
                     <DialogHeader className="flex flex-col justify-center items-center mb-3">
                         <DialogTitle>Edit Mandatory Leave</DialogTitle>
                     </DialogHeader>
 
-                    {generalError && (
+                    {state.generalError && (
                         <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm">
-                            {generalError}
+                            {state.generalError}
                         </div>
                     )}
-                    {generalSuccess && (
+                    {state.generalSuccess && (
                         <div className="bg-green-100 text-green-700 px-4 py-2 rounded mb-4 text-sm">
-                            {generalSuccess}
+                            {state.generalSuccess}
                         </div>
                     )}
 
@@ -159,16 +78,15 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
                             <Input
                                 id="title"
                                 type="text"
-                                value={title}
+                                value={state.title}
                                 onChange={(e) => {
-                                    setTitle(e.target.value)
-                                    if (titleError) setTitleError("")
+                                    dispatch({ type: "SET_FIELD", field: "title", value: e.target.value })
                                 }}
                                 placeholder="Edit title"
-                                className={titleError ? 'border-red-400' : ''}
+                                className={state.titleError ? 'border-red-400' : ''}
                             />
-                            {titleError && (
-                                <p className="text-sm text-red-600 mt-1">{titleError}</p>
+                            {state.titleError && (
+                                <p className="text-sm text-red-600 mt-1">{state.titleError}</p>
                             )}
                         </div>
                         <div className="grid gap-3">
@@ -177,43 +95,41 @@ export function EditMandatory({ initialData, onFormSubmit }: Props) {
                                     label="Leave Date"
                                     mode="range"
                                     disablePastAndWeekends={false}
-                                    value={startDate && endDate ? { from: startDate, to: endDate } : undefined}
+                                    value={state.startDate && state.endDate ? { from: state.startDate, to: state.endDate } : undefined}
                                     onChange={(range: DateRange | undefined) => {
-                                        setStartDate(range?.from)
-                                        setEndDate(range?.to)
-                                        if (dateError) setDateError("")
+                                        dispatch({ type: "SET_FIELD", field: "startDate", value: range?.from });
+                                        dispatch({ type: "SET_FIELD", field: "endDate", value: range?.to });
                                     }}
-                                    className={dateError ? 'border-red-400' : ''}
+                                    className={state.dateError ? 'border-red-400' : ''}
                                 />
                             </div>
-                            {dateError && (
-                                <p className="text-sm text-red-600 mt-1">{dateError}</p>
+                            {state.dateError && (
+                                <p className="text-sm text-red-600 mt-1">{state.dateError}</p>
                             )}
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="description">Description</Label>
                             <textarea
                                 id="description"
-                                value={description}
+                                value={state.description}
                                 onChange={(e) => {
-                                    setDescription(e.target.value)
-                                    if (descriptionError) setDescriptionError("")
+                                    dispatch({ type: "SET_FIELD", field: "description", value: e.target.value })
                                 }}
                                 placeholder="Edit description"
-                                className={`border-[1.5px] border-border bg-accent ${descriptionError ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
+                                className={`border-[1.5px] border-border bg-accent ${state.descriptionError ? 'border-red-400' : ''} rounded-sm p-1 focus:border-2 focus:border-black`}
                             />
-                            {descriptionError && (
-                                <p className="text-sm text-red-600 mt-1">{descriptionError}</p>
+                            {state.descriptionError && (
+                                <p className="text-sm text-red-600 mt-1">{state.descriptionError}</p>
                             )}
                         </div>
                     </div>
 
                     <DialogFooter className="mt-5">
                         <DialogClose asChild>
-                            <Button type="button" variant="outline" disabled={isLoading}>Cancel</Button>
+                            <Button type="button" variant="outline" disabled={state.isLoading}>Cancel</Button>
                         </DialogClose>
-                        <Button type="submit" className="text-black" disabled={isLoading}>
-                            {isLoading ? (
+                        <Button type="submit" className="text-black" disabled={state.isLoading}>
+                            {state.isLoading ? (
                                 <>
                                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

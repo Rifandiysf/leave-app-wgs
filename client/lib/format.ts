@@ -1,8 +1,15 @@
-export const formatDate = (dateString: string) => {
-    if (!dateString) return '-';
-    const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-    return new Date(dateString).toLocaleDateString('id-ID', options);
+export const formatDate = (
+    dateString: string,
+    options: Intl.DateTimeFormatOptions = {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+    }
+) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleDateString("id-ID", options);
 };
+
 
 export const formatUppercase = (str: string): string => {
     return str

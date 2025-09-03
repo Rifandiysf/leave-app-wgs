@@ -3,7 +3,7 @@
 import Modal from "@/app/components/ui/Modal/Modal";
 import { formatDate, formatUppercase } from "@/lib/format";
 import { Label } from "@/app/components/ui/label";
-import { LeaveHistoryType } from "@/app/hooks/UseHistoryData"; 
+import { LeaveHistoryType } from "@/app/hooks/user/UseHistoryData"; 
 
 interface HistoryTableProps {
     isLoading: boolean;

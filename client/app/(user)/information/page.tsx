@@ -20,13 +20,15 @@ export default function InformationPage() {
         'Tombol "Apply for Leave": Tombol utama untuk mengajukan cuti baru (Personal Leave).',
         'Menu "History": Membawa Anda ke halaman Riwayat Cuti.',
         'Menu "Mandatory": Membawa Anda ke halaman Cuti Wajib Perusahaan.',
+        'Menu “Adjust History”: Membawa Anda ke halaman Riwayat Penambahan Jatah Cuti.',
+        'Menu "Setting": Untuk mengganti tema warna tampilan website Anda pribadi.',
         'Tombol "Logout": Untuk keluar dari akun Anda secara aman.'
       ]
     },
     {
       title: "Riwayat Cuti (History)",
       icon: "bi-clock-history",
-      color: "bg-purple-500",
+      color: "bg-blue-500",
       content: [
         "Halaman ini adalah arsip semua pengajuan cuti Anda.",
         "Daftar Pengajuan: Menampilkan seluruh riwayat pengajuan dengan statusnya (Pending, Approved, Rejected, Expired).",
@@ -37,7 +39,7 @@ export default function InformationPage() {
     {
       title: "Cuti Wajib (Mandatory Leave)",
       icon: "bi-calendar-event",
-      color: "bg-orange-500",
+      color: "bg-blue-500",
       content: [
         "Halaman untuk mengonfirmasi partisipasi Anda dalam Cuti Wajib Perusahaan (misal: Cuti Bersama).",
         'Mekanisme: Secara default, semua karyawan dianggap "Ikut (approved)". Anda harus secara manual mengubahnya menjadi "Tidak Ikut" jika tidak berpartisipasi.',
@@ -46,33 +48,46 @@ export default function InformationPage() {
       ]
     },
     {
+      title: "Riwayat Penambahan Jatah Cuti (Adjust History)",
+      icon: "bi-plus-square-dotted",
+      color: "bg-blue-500",
+      content: [
+        "Halaman ini menampilkan riwayat penambahan jatah cuti Anda.",
+        "Daftar Penambahan: Menampilkan riwayat penambahan jatah cuti anda.",
+        'Tombol "Detail": untuk melihat informasi lengkap dari setiap penambahan.',
+        'Fitur "Filter": untuk mencari riwayat dengan search dan year.'
+      ]
+    },
+    {
       title: "Pengajuan Cuti Pribadi (Personal Leave)",
       icon: "bi-person-plus",
-      color: "bg-green-500",
+      color: "bg-blue-500",
       content: [
         "Formulir untuk mengajukan cuti pribadi.",
         "Waktu Pengajuan: Pengajuan harus dilakukan minimal H-1. Anda tidak bisa mengajukan cuti untuk hari ini.",
-        "Overlapping: Anda tidak bisa mengajukan cuti pada tanggal yang tumpang tindih dengan pengajuan lain yang masih Pending atau Approved.",
+        "Overlapping: Anda tidak bisa mengajukan cuti pada tanggal yang tumpang tindih dengan pengajuan: Mandatory (terlepas dari statusnya), Personal Leave (status Approved atau Pending), Special Leave (status Approved atau Pending).",
         "Validasi Saldo: Pengajuan tidak boleh melebihi Total Available Anda.",
-        "Status Terkunci: Setelah tanggal mulai cuti tiba, status pengajuan tidak dapat diubah lagi oleh siapa pun."
+        "Status Terkunci: Setelah tanggal mulai cuti tiba, status pengajuan tidak dapat diubah lagi oleh siapa pun.",
+        "Status Expired (Kadaluwarsa): Setelah tanggal mulai cuti tiba tanpa ada tindakan dari Admin, statusnya akan berubah menjadi Expired. Jika pengajuan cuti yang termasuk penting, harap hubungi HRD untuk tindak lanjut."
       ]
     },
     {
       title: "Pengajuan Cuti Khusus (Special Leave)",
       icon: "bi-heart",
-      color: "bg-pink-500",
+      color: "bg-blue-500",
       content: [
         "Formulir untuk mengajukan cuti khusus (cuti menikah, duka, melahirkan, dll).",
-        "Tidak Mengurangi Saldo: Cuti Special yang disetujui TIDAK akan mengurangi jatah cuti tahunan Anda.",
+        "Tidak Mengurangi Saldo: Cuti Special yang disetujui TIDAK AKAN mengurangi jatah cuti tahunan Anda.",
         "Batas Keputusan: Keputusan dari Admin akan diberikan maksimal H-1 sebelum cuti dimulai.",
         "Status Terkunci: Saat tanggal mulai cuti tiba, status pengajuan tidak dapat diubah lagi.",
-        "Validasi Gender: Opsi cuti khusus akan disesuaikan dengan gender Anda yang terdaftar di sistem."
+        "Validasi Gender: Opsi cuti khusus akan disesuaikan dengan gender Anda yang terdaftar di sistem.",
+        "Status Expired (Kadaluwarsa): Setelah tanggal mulai cuti tiba tanpa ada tindakan dari Admin, statusnya akan berubah menjadi Expired. Jika pengajuan cuti yang termasuk penting, harap hubungi HRD untuk tindak lanjut."
       ]
     },
     {
       title: "Aturan Umum Cuti untuk Karyawan",
       icon: "bi-book",
-      color: "bg-indigo-500",
+      color: "bg-blue-500",
       content: [
         "Jatah Karyawan Tetap/Admin: Mendapatkan 12 hari cuti per tahun, diberikan setiap 1 Januari.",
         "Jatah Karyawan Kontrak: Mendapatkan 1 hari cuti per bulan, diberikan setiap awal bulan.",
@@ -98,8 +113,8 @@ export default function InformationPage() {
           <Card key={index} className="bg-white border shadow-sm hover:shadow-lg transition-shadow duration-300">
             <CardHeader className="pb-4">
               <div className="flex items-center space-x-4">
-                <div className={`inline-flex items-center justify-center w-12 h-12 bg-blue-500 rounded-2xl shadow-lg mb-6" ${section.color} text-white shadow-sm`}>
-                  <i className={`bi ${section.icon} justify-center text-lg`}></i>
+                <div className={`inline-flex items-center justify-center w-12 h-12 rounded-2xl shadow-lg ${section.color} text-white shadow-sm`}>
+                  <i className={`bi ${section.icon} text-lg`}></i>
                 </div>
                 <CardTitle className="text-xl font-semibold text-foreground">
                   {section.title}

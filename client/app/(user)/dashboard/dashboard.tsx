@@ -2,7 +2,7 @@
 
 import React from "react";
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import { useUserDashboardData } from "@/app/hooks/UseUserDashboardData";  
+import { useUserDashboardData } from "@/app/hooks/user/UseUserDashboardData";  
 import { DashboardHeader } from "@/app/components/user/dashboard/DashboardHeader";
 import { SummaryCards } from "@/app/components/user/dashboard/SummaryCards";
 import { Card } from "@/app/components/ui/card";
