@@ -87,7 +87,8 @@ export const getUserByNIK = async (nik) => {
             },
             role: {
                 id: user.tb_roles.id,
-                name: user.tb_roles.name
+                name: user.tb_roles.name,
+                slug: user.tb_roles.slug
             },
             balance: {
                 total_amount: currentBalance + lastYearBalance || 0,
