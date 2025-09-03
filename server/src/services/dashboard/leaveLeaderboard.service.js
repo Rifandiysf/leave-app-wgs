@@ -2,12 +2,15 @@ import prisma from "../../utils/client.js";
 
 export const leaveLeaderboard = async (order = "desc") => {
     const users = await prisma.tb_users.findMany({
-        where : {
-            NOT : {
-                role: 'magang'
+        where: {
+            NOT: {
+                tb_roles: {
+                    slug: 'magang'
+                }
             }
         },
         include: {
+            tb_roles: true,
             tb_balance: true,
             tb_leave: {
                 where: {
@@ -104,7 +107,7 @@ export const leaveLeaderboard = async (order = "desc") => {
         return {
             NIK: user.NIK,
             name: user.fullname,
-            role: user.role,
+            role: user.tb_roles.name,
             this_year: thisYearAmount,
             last_year: lastYearAmount,
             total_amount: lastYearAmount + thisYearAmount,
