@@ -10,7 +10,7 @@ export const pendingLeaves = async () => {
                 select : {
                     fullname: true,
                     NIK : true,
-                    role: true
+                    tb_roles: true
                 }
             }
         },

@@ -107,7 +107,7 @@ export const leaveLeaderboard = async (order = "desc") => {
         return {
             NIK: user.NIK,
             name: user.fullname,
-            role: user.tb_roles.name,
+            role: user.tb_roles.slug,
             this_year: thisYearAmount,
             last_year: lastYearAmount,
             total_amount: lastYearAmount + thisYearAmount,
