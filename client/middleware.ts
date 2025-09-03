@@ -7,7 +7,7 @@ export default async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl
 
     const authToken = request.cookies.get('Authorization')?.value;
-    const protectedRoutes = ['/', '/history', '/mandatory'];
+    const protectedRoutes = ['/', '/history', '/mandatory', '/adjust-history', '/information'];
     const loginPath = '/auth/login';
     const adminPaths = '/admin';
 
@@ -24,7 +24,7 @@ export default async function middleware(request: NextRequest) {
 
         try {
             const { payload } = await jwtVerify(authToken, secret);
-            const userRole = payload.role as string;
+            const userRole = (payload as any)?.tb_roles.slug;
             if (
                 pathname.startsWith(adminPaths) &&
                 !['admin', 'super_admin'].includes(userRole)
@@ -53,6 +53,8 @@ export const config = {
         '/',
         '/history',
         '/mandatory',
+        '/adjust-history',
+        '/information',
         '/admin/:path*',
         '/auth/login'
     ],
