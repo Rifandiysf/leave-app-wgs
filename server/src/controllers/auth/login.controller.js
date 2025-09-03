@@ -27,7 +27,6 @@ export const login = async (req, res, next) => {
             NIK: user.NIK,
             email: user.email,
             fullname: user.fullname,
-            role: user.tb_roles.name,
             tb_roles: {
                 id: user.tb_roles.id,
                 name: user.tb_roles.name,
