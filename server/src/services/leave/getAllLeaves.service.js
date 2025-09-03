@@ -27,7 +27,7 @@ export const getAllLeavesService = async (page, limit) => {
 
     return {
         data: {
-            employees: mappedLeaves, // Renamed 'data' to 'employees' for consistency with allUsers
+            employees: mappedLeaves,
             pagination: {
                 total: total,
                 totalPages: totalPages,
