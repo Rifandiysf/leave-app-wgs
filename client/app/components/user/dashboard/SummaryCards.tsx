@@ -20,15 +20,15 @@ export const SummaryCards = ({ currentAmount, carriedAmount }: SummaryCardsProps
             <div className="absolute bottom-0 left-0 w-12 h-12 sm:w-16 sm:h-16 bg-blue-300 rounded-full -ml-4 -mb-4 opacity-30"></div>
             <div className="relative p-1 sm:p-2">
               <div className="flex items-center justify-between mb-2 sm:mb-4">
-                <div className="w-8 h-8 sm:w-12 sm:h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                <div className="w-8 h-8 sm:w-12 sm:h-12 bg-secondary rounded-xl flex items-center justify-center">
                   <i className="bi bi-calendar-check text-white text-base sm:text-xl" />
                 </div>
                 <div className="text-right">
                   <div className="text-4xl sm:text-5xl md:text-9xl font-bold text-card-foreground mb-0.5 sm:mb-1">
                     {item.count}
                   </div>
-                  <div className={`h-1 bg-blue-600 rounded-full ml-auto sm:hidden ${item.count >= 10 ? 'w-10' : 'w-6'}`}></div>
-                  <div className={`h-1 bg-blue-600 rounded-full ml-auto hidden sm:block ${item.count >= 10 ? 'w-34' : 'w-24'}`}></div>
+                  <div className={`h-1 bg-secondary rounded-full ml-auto sm:hidden ${item.count >= 10 ? 'w-10' : 'w-6'}`}></div>
+                  <div className={`h-1 bg-secondary rounded-full ml-auto hidden sm:block ${item.count >= 10 ? 'w-34' : 'w-24'}`}></div>
                 </div>
               </div>
               <div>
