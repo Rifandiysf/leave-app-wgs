@@ -177,7 +177,7 @@ export const leaveLeaderboard = async (order = "desc") => {
         toDate.setMonth(toDate.getMonth() + 12)
 
         //sisa cuti
-        const remainingLeave = user.tb_balance.filter(adj => {
+        const remainingLeave = user.tb_balance.filter(b => {
             const receive = new Date(b.receive_date);
             return receive >= fromDate && receive <= toDate;
         })
@@ -229,7 +229,6 @@ export const leaveLeaderboard = async (order = "desc") => {
             this_year: thisYearAmount,
             last_year: lastYearAmount,
             total_amount: lastYearAmount + thisYearAmount,
-            given_leave: givenLeave,
             used_leave: usedLeave,
             average_leave: Number(averageLeave.toFixed(2))
         };
