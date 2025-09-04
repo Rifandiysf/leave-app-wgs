@@ -2,7 +2,7 @@ import { MandatoryPayload, MandatoryType, SpecialPayload } from "@/lib/type";
 import axiosInstance from "../axiosInstance";
 
 export const getSpecialLeaveUsers = async () => {
-    const res = await axiosInstance.get('/leaves/special');
+    const res = await axiosInstance.get('/users/special');
     return res.data.data;
 }
 
