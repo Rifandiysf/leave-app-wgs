@@ -11,6 +11,15 @@ export const getAllBalanceAdjustment = async (page, limit, startDate, endDate, b
                 lte: endDate || undefined
             },
             balance_year: balanceYear || undefined,
+             NOT: [
+                {
+                    actor: "System",
+                    notes: {
+                        contains: "Added by injecting data balance into database",
+                        mode: "insensitive"
+                    }
+                }
+            ],
             OR: [
                 {
                     tb_users: {
@@ -88,6 +97,15 @@ export const getAllBalanceAdjustmentByNIK = async (page, limit, nik, searchValue
                 lte: endDate || undefined
             },
             balance_year: balanceYear || undefined,
+            NOT: [
+                {
+                    actor: "System",
+                    notes: {
+                        contains: "Added by injecting data balance into database",
+                        mode: "insensitive"
+                    }
+                }
+            ],
             OR: [
                 {
                     tb_users: {

@@ -3,7 +3,7 @@ import timeout from 'connect-timeout';
 
 export const timeouthandle = async (req, res, next) => {
     try {
-        if (req.path.includes('/api/v1/leaves/import')) {
+        if (req.path.includes('/api/v1/uploads/import')) {
             return next()
         } else{
             return timeout('6s')(req, res, next);

@@ -15,13 +15,13 @@ async function manualSeed() {
     const users = [
       {
         NIK: '1',
-        fullname: 'System',
-        email: 'system@perusahaan.com',
-        password: 'System123!',
+        fullname: 'super admin',
+        email: 'superadmin@perusahaan.com',
+        password: 'super123!',
         gender: 'male',
         role: 'super_admin',
         status: 'active',
-        join_date: new Date('2024-01-15'),
+        join_date: new Date('2023-07-01'),
       }
     ];
 
@@ -133,97 +133,57 @@ async function manualSeed() {
 
     const mandatoryLeaves = [
       {
-        title: "Tahun Baru Masehi",
+        title: "Cuti Bersama Imlek",
         is_active: true,
-        description: "Libur nasional memperingati Tahun Baru",
-        start_date: new Date("2025-01-01"),
-        end_date: new Date("2025-01-01"),
+        description: "Cuti bersama Tahun Baru Imlek 2576 Kongzili",
+        start_date: new Date("2025-01-28"),
+        end_date: new Date("2025-01-28"),
       },
       {
-        title: "Isra Miraj",
+        title: "Cuti Bersama Nyepi",
         is_active: true,
-        description: "Peringatan Isra Miraj Nabi Muhammad SAW",
-        start_date: new Date("2025-01-27"),
-        end_date: new Date("2025-01-27"),
+        description: "Cuti bersama Hari Raya Nyepi Tahun Baru Saka 1947",
+        start_date: new Date("2025-03-28"),
+        end_date: new Date("2025-03-28"),
       },
       {
-        title: "Tahun Baru Imlek",
+        title: "Cuti Bersama Idul Fitri",
         is_active: true,
-        description: "Tahun Baru China / Imlek",
-        start_date: new Date("2025-02-01"),
-        end_date: new Date("2025-02-01"),
+        description: "Cuti bersama Hari Raya Idul Fitri 1446 H",
+        start_date: new Date("2025-04-02"),
+        end_date: new Date("2025-04-07"),
       },
       {
-        title: "Hari Raya Nyepi",
+        title: "Cuti Bersama Waisak",
         is_active: true,
-        description: "Tahun Baru Saka umat Hindu",
-        start_date: new Date("2025-03-29"),
-        end_date: new Date("2025-03-29"),
+        description: "Cuti bersama Hari Raya Waisak 2569 BE",
+        start_date: new Date("2025-05-13"),
+        end_date: new Date("2025-05-13"),
       },
       {
-        title: "Wafat Isa Almasih",
+        title: "Cuti Bersama Kenaikan Isa Almasih",
         is_active: true,
-        description: "Peringatan wafatnya Isa Almasih",
-        start_date: new Date("2025-04-18"),
-        end_date: new Date("2025-04-18"),
+        description: "Cuti bersama memperingati Kenaikan Isa Almasih",
+        start_date: new Date("2025-05-30"),
+        end_date: new Date("2025-05-30"),
       },
       {
-        title: "Hari Raya Idul Fitri",
+        title: "Cuti Bersama Idul Adha",
         is_active: true,
-        description: "Lebaran Hari Raya Umat Islam",
-        start_date: new Date("2025-03-31"),
-        end_date: new Date("2025-04-01"),
+        description: "Cuti bersama Hari Raya Idul Adha 1446 H",
+        start_date: new Date("2025-06-09"),
+        end_date: new Date("2025-06-09"),
       },
       {
-        title: "Hari Buruh Internasional",
+        title: "Cuti Bersama HUT RI",
         is_active: true,
-        description: "Hari Buruh Nasional",
-        start_date: new Date("2025-05-01"),
-        end_date: new Date("2025-05-01"),
-      },
-      {
-        title: "Kenaikan Isa Almasih",
-        is_active: true,
-        description: "Peringatan kenaikan Isa Almasih",
-        start_date: new Date("2025-05-29"),
-        end_date: new Date("2025-05-29"),
-      },
-      {
-        title: "Hari Raya Idul Adha",
-        is_active: true,
-        description: "Hari Raya Qurban Umat Islam",
-        start_date: new Date("2025-06-06"),
-        end_date: new Date("2025-06-06"),
-      },
-      {
-        title: "Tahun Baru Islam",
-        is_active: true,
-        description: "Tahun Baru Hijriyah",
-        start_date: new Date("2025-06-26"),
-        end_date: new Date("2025-06-26"),
-      },
-      {
-        title: "Hari Kemerdekaan RI",
-        is_active: true,
-        description: "Memperingati Proklamasi Kemerdekaan Indonesia",
-        start_date: new Date("2025-08-17"),
-        end_date: new Date("2025-08-17"),
-      },
-      {
-        title: "Maulid Nabi Muhammad SAW",
-        is_active: true,
-        description: "Hari kelahiran Nabi Muhammad SAW",
-        start_date: new Date("2025-09-05"),
-        end_date: new Date("2025-09-05"),
-      },
-      {
-        title: "Hari Natal",
-        is_active: true,
-        description: "Hari kelahiran Yesus Kristus",
-        start_date: new Date("2025-12-25"),
-        end_date: new Date("2025-12-25"),
+        description: "Cuti bersama Hari Ulang Tahun Kemerdekaan Republik Indonesia ke-80",
+        start_date: new Date("2025-08-18"),
+        end_date: new Date("2025-08-18"),
       },
     ];
+
+
 
     for (const leave of mandatoryLeaves) {
       await tx.tb_mandatory_leave.create({
@@ -242,4 +202,4 @@ manualSeed()
     console.error('❌ Seed gagal:', error);
     await prisma.$disconnect();
     process.exit(1);
-});
+  });

@@ -177,9 +177,10 @@ export const leaveLeaderboard = async (order = "desc") => {
         toDate.setMonth(toDate.getMonth() + 12)
 
         //sisa cuti
+
         const remainingLeave = user.tb_balance.filter(b => {
-            const receive = new Date(b.receive_date);
-            return receive >= fromDate && receive <= toDate;
+            const receive = new Date(b.expired_date);
+            return receive > new Date();
         })
         .reduce((sum, b) => sum + (b.amount || 0), 0);
 
@@ -202,12 +203,18 @@ export const leaveLeaderboard = async (order = "desc") => {
             eligibleMonthDiff += 1;
         }
 
+        console.log(eligibleMonthDiff);
+
         const divisor = eligibleMonthDiff >= 24 ? 24 : eligibleMonthDiff;
+
+        console.log(divisor)
 
         //average leave range (0-1)
         const averageLeave = divisor > 0
             ? remainingLeave/divisor
             : 0;
+
+        console.log(remainingLeave);
 
         // Jatah cuti tahun ini
         const currentBalance = user.tb_balance.find(
