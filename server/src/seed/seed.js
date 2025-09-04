@@ -203,6 +203,17 @@ async function manualSeed() {
         statusName: 'Tetap',
         join_date: new Date('2016-05-12'),
       },
+      {
+        NIK: '100011',
+        fullname: 'Amat Admin',
+        email: 'amat.admin@perusahaan.com',
+        password: 'Amat123!',
+        isMale: true,
+        isActive: true,
+        roleSlug: 'admin',
+        statusName: 'Kontrak',
+        join_date: new Date('2017-03-15'),
+      },
     ];
 
 
