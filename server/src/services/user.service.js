@@ -749,15 +749,27 @@ export const getAllMandatoryLeavesService = async (page = 1, limit = 10, req) =>
     const decoded = await decodeToken(req.cookies["Authorization"]);
     const userNIK = decoded.NIK;
 
+    const today = new Date();
+
     const [rawData, total] = await Promise.all([
         prisma.tb_mandatory_leave.findMany({
             skip,
             take: limit,
             orderBy: { start_date: 'asc' },
-            where: { is_active: true }
+            where: {
+                is_active: true,
+                end_date: {
+                    gte: today
+                }
+            }
         }),
         prisma.tb_mandatory_leave.count({
-            where: { is_active: true }
+            where: {
+                is_active: true,
+                end_date: {
+                    gte: today,
+                }
+            }
         })
     ]);
 
