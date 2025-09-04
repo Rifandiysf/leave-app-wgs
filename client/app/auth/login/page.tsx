@@ -15,14 +15,18 @@ import { Input } from "../../components/ui/input"
 import { Label } from "@/app/components/ui/label"
 import Image from "next/image"
 import { useLogin } from '@/app/hooks/auth/UseLogin'
+import { useAppContext } from '@/lib/context/AppContext'
 
 const LoginPage = () => {
     const router = useRouter()
     const { state, dispatch, handleLogin } = useLogin(() => router.push('/'))
+    const { settingImage } = useAppContext()
 
     return (
         <div className="w-full h-full flex flex-col justify-center items-center gap-4 px-4">
-            <Image src={"/images/logo-wgs.svg"} alt="logo WGS" width={140} height={140} />
+            {settingImage && (
+                <Image src={settingImage} alt="logo WGS" width={140} height={140} />
+            )}
             <Card className="w-full max-w-sm">
                 <CardHeader>
                     <CardTitle>Login to your account</CardTitle>
