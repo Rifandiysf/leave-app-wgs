@@ -176,12 +176,12 @@ export const leaveLeaderboard = async (order = "desc") => {
         let toDate = new Date(today)
         toDate.setMonth(toDate.getMonth() + 12)
 
-        //total cuti yg sudah diberikan dalam periode 24 bulan terakhir
-        const givenLeave = user.tb_balance_adjustment.filter(adj => {
-            const created = new Date(adj.created_at);
-            return created >= fromDate && created <= toDate;
+        //sisa cuti
+        const remainingLeave = user.tb_balance.filter(b => {
+            const receive = new Date(b.receive_date);
+            return receive >= fromDate && receive <= toDate;
         })
-        .reduce((sum, adj) => sum + (adj.adjustment_value || 0), 0);
+        .reduce((sum, b) => sum + (b.amount || 0), 0);
 
         //total cuti terpakai 
         const usedLeave = user.tb_leave.filter(l => {
@@ -195,12 +195,18 @@ export const leaveLeaderboard = async (order = "desc") => {
         })
         .reduce((sum, l) => sum + (l.total_days || 0), 0);
 
-        //sisa cuti
-        const remainingLeave = givenLeave - usedLeave
+        // hitung selisih bulan sejak eligibleDate
+        let eligibleMonthDiff = (today.getFullYear() - eligibleDate.getFullYear()) * 12 +
+                                (today.getMonth() - eligibleDate.getMonth());
+        if (today.getDate() >= eligibleDate.getDate()) {
+            eligibleMonthDiff += 1;
+        }
+
+        const divisor = eligibleMonthDiff >= 24 ? 24 : eligibleMonthDiff;
 
         //average leave range (0-1)
-        const averageLeave = givenLeave > 0
-            ? remainingLeave/givenLeave
+        const averageLeave = divisor > 0
+            ? remainingLeave/divisor
             : 0;
 
         // Jatah cuti tahun ini
@@ -223,7 +229,6 @@ export const leaveLeaderboard = async (order = "desc") => {
             this_year: thisYearAmount,
             last_year: lastYearAmount,
             total_amount: lastYearAmount + thisYearAmount,
-            given_leave: givenLeave,
             used_leave: usedLeave,
             average_leave: Number(averageLeave.toFixed(2))
         };
