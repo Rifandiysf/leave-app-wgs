@@ -25,5 +25,16 @@ export const getSpecialLeaveService = async (gender, page = 1, limit = 10) => {
 
     const totalPages = Math.ceil(total / limit);
 
-    return { data, total, totalPages, page };
+    // return { data, total, totalPages, page };
+    return {
+        data: {
+            employees: data,
+            pagination: {
+                total: total,
+                totalPages: totalPages,
+                currentPage: page,
+                limit: limit
+            }
+        }
+    }
 };
