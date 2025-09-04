@@ -193,7 +193,7 @@ export const updateLeave = async (id, status, reason, nik) => {
             // array di loop ini disort dari paling lama/ [-1] = currentBalance
             if ((data.status === "pending" || data.status === "rejected") && status === "approved") {
 
-                if (existing && data.leave_type !== 'mandatory_leave') {
+                if (existing) {
                     const err = new Error("There's overlap leave");
                     err.statusCode = 400;
                     throw err;
