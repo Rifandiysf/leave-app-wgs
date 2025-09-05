@@ -5,46 +5,7 @@ import { createDateFromString, formatDateIndonesia } from "../utils/leaves.utils
 export const getAllBalanceAdjustment = async (page, limit, startDate, endDate, balanceYear, searchValue) => {
     try {
         const offset = (page - 1) * limit
-        const filter = {
-            created_at: {
-                gte: startDate || undefined,
-                lte: endDate || undefined
-            },
-            balance_year: balanceYear || undefined,
-             NOT: [
-                {
-                    actor: "System",
-                    notes: {
-                        contains: "Added by injecting data balance into database",
-                        mode: "insensitive"
-                    }
-                }
-            ],
-            OR: [
-                {
-                    tb_users: {
-                        fullname: {
-                            contains: searchValue || undefined,
-                            mode: "insensitive"
-                        }
-                    }
-                },
-                {
-                    NIK: {
-                        contains: searchValue || undefined,
-                        mode: "insensitive"
-                    }
-                },
-                {
-                    actor: {
-                        contains: searchValue || undefined,
-                        mode: "insensitive"
-                    }
-                }
-            ]
-        }
-
-        const totalLogs = await prisma.tb_balance_adjustment.count({ where: filter });
+        const totalLogs = await prisma.tb_balance_adjustment.count();
 
         console.log('test', searchValue);
         const logs = await prisma.tb_balance_adjustment.findMany({
@@ -53,7 +14,35 @@ export const getAllBalanceAdjustment = async (page, limit, startDate, endDate, b
             omit: {
                 id_adjustment: true
             },
-            where: filter,
+            where: {
+                created_at: {
+                    gte: startDate || undefined,
+                    lte: endDate || undefined
+                },
+                balance_year: balanceYear || undefined,
+                OR: [
+                    {
+                        tb_users: {
+                            fullname: {
+                                contains: searchValue || undefined,
+                                mode: "insensitive"
+                            }
+                        }
+                    },
+                    {
+                        NIK: {
+                            contains: searchValue || undefined,
+                            mode: "insensitive"
+                        }
+                    },
+                    {
+                        actor: {
+                            contains: searchValue || undefined,
+                            mode: "insensitive"
+                        }
+                    }
+                ]
+            },
             orderBy: {
                 created_at: 'desc'
             },
@@ -90,47 +79,7 @@ export const getAllBalanceAdjustment = async (page, limit, startDate, endDate, b
 export const getAllBalanceAdjustmentByNIK = async (page, limit, nik, searchValue, startDate, endDate, balanceYear) => {
     try {
         const offset = (page - 1) * limit
-        const filter = {
-            NIK: nik,
-            created_at: {
-                gte: startDate || undefined,
-                lte: endDate || undefined
-            },
-            balance_year: balanceYear || undefined,
-            NOT: [
-                {
-                    actor: "System",
-                    notes: {
-                        contains: "Added by injecting data balance into database",
-                        mode: "insensitive"
-                    }
-                }
-            ],
-            OR: [
-                {
-                    tb_users: {
-                        fullname: {
-                            contains: searchValue || undefined,
-                            mode: "insensitive"
-                        }
-                    }
-                },
-                {
-                    NIK: {
-                        contains: searchValue || undefined,
-                        mode: "insensitive"
-                    }
-                },
-                {
-                    actor: {
-                        contains: searchValue || undefined,
-                        mode: "insensitive"
-                    }
-                }
-            ]
-        }
-
-        const totalLogs = await prisma.tb_balance_adjustment.count({ where: filter});
+        const totalLogs = await prisma.tb_balance_adjustment.count();
 
         console.log('test', searchValue);
         const logs = await prisma.tb_balance_adjustment.findMany({
@@ -139,7 +88,36 @@ export const getAllBalanceAdjustmentByNIK = async (page, limit, nik, searchValue
             omit: {
                 id_adjustment: true
             },
-            where: filter,
+            where: {
+                NIK: nik,
+                created_at: {
+                    gte: startDate || undefined,
+                    lte: endDate || undefined
+                },
+                balance_year: balanceYear || undefined,
+                OR: [
+                    {
+                        tb_users: {
+                            fullname: {
+                                contains: searchValue || undefined,
+                                mode: "insensitive"
+                            }
+                        }
+                    },
+                    {
+                        NIK: {
+                            contains: searchValue || undefined,
+                            mode: "insensitive"
+                        }
+                    },
+                    {
+                        actor: {
+                            contains: searchValue || undefined,
+                            mode: "insensitive"
+                        }
+                    }
+                ]
+            },
             orderBy: {
                 created_at: 'desc'
             },

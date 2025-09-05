@@ -8,6 +8,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model tb_roles {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique @db.VarChar(50)
+  slug        String     @unique @db.VarChar(50)
+  description String?
+  users       tb_users[]
+}
+
+model tb_statuses {
+  id    Int        @id @default(autoincrement())
+  name  String     @unique @db.VarChar(50)
+  users tb_users[]
+}
+
 model tb_balance {
   id_balance            String                  @id @default(uuid()) @db.VarChar(50)
   amount                Int                     @db.SmallInt
@@ -65,26 +79,29 @@ model tb_users {
   fullname              String                  @db.VarChar(50)
   email                 String                  @unique @db.VarChar(50)
   password              String                  @db.VarChar(20)
-  gender                gender
-  role                  role
-  status_active         status_active           @default(active)
+  isMale                Boolean
   join_date             DateTime                @db.Date
   created_at            DateTime                @default(now()) @db.Timestamptz(0)
+  tb_roles              tb_roles                @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "roles_id")
+  tb_statuses           tb_statuses             @relation(fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "status_id")
   tb_balance            tb_balance[]
   tb_balance_adjustment tb_balance_adjustment[]
   tb_jwt_token          tb_jwt_token[]
   tb_leave              tb_leave[]
   tb_leave_log          tb_leave_log[]
+  isActive              Boolean                 @default(true)
+  role_id               Int
+  status_id             Int
 }
 
 model tb_balance_adjustment {
-  id_adjustment    String     @id @default(uuid()) @db.VarChar(50)
-  NIK              String     @db.VarChar(16)
-  adjustment_value Int        @db.SmallInt
+  id_adjustment    String      @id @default(uuid()) @db.VarChar(50)
+  NIK              String      @db.VarChar(16)
+  adjustment_value Int         @db.SmallInt
   notes            String
-  created_at       DateTime   @default(now()) @db.Timestamptz(0)
-  actor            String     @db.VarChar(50)
-  tb_users         tb_users   @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
+  created_at       DateTime    @default(now()) @db.Timestamptz(0)
+  actor            String      @db.VarChar(50)
+  tb_users         tb_users    @relation(fields: [NIK], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")
   balance_year     Int
   id_balance       String?
   tb_balance       tb_balance? @relation(fields: [id_balance], references: [id_balance], onDelete: NoAction, onUpdate: NoAction, map: "id_balance")
@@ -113,26 +130,26 @@ model tb_jwt_token {
 }
 
 model tb_settings {
-  id                       String   @id @default(uuid())
-  light_image              String
-  light_background         String
-  light_foreground         String
-  light_card               String
-  light_cardForeground     String
-  light_primary            String
-  light_primaryForeground  String
-  light_secondary          String
+  id                        String   @id @default(uuid())
+  light_image               String
+  light_background          String
+  light_foreground          String
+  light_card                String
+  light_cardForeground      String
+  light_primary             String
+  light_primaryForeground   String
+  light_secondary           String
   light_secondaryForeground String
-  dark_image               String
-  dark_background          String
-  dark_foreground          String
-  dark_card                String
-  dark_cardForeground      String
-  dark_primary             String
-  dark_primaryForeground   String
-  dark_secondary           String
+  dark_image                String
+  dark_background           String
+  dark_foreground           String
+  dark_card                 String
+  dark_cardForeground       String
+  dark_primary              String
+  dark_primaryForeground    String
+  dark_secondary            String
   dark_secondaryForeground  String
-  created_at               DateTime @default(now()) @db.Timestamptz(0)
+  created_at                DateTime @default(now()) @db.Timestamptz(0)
 }
 
 enum applicable_gender {
@@ -141,10 +158,7 @@ enum applicable_gender {
   mf
 }
 
-enum gender {
-  male
-  female
-}
+
 
 enum leave_type {
   personal_leave  @map("personal leave")
@@ -152,22 +166,9 @@ enum leave_type {
   special_leave   @map("special leave")
 }
 
-enum role {
-  karyawan_tetap
-  karyawan_kontrak
-  magang
-  admin
-  super_admin
-}
-
 enum status {
   pending
   approved
   rejected
   expired
-}
-
-enum status_active {
-  active
-  resign
 }

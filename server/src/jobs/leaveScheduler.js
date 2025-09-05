@@ -1,14 +1,19 @@
 import cron from 'node-cron';
 import prisma from "../utils/client.js";
-import { updateLeaveBalance, expiredLeave } from '../services/leave.service.js';
+import { updateLeaveBalance } from '../services/leave/updateLeaveBalance.service.js';
+import { expiredLeave } from '../services/leave/expiredLeave.service.js';
 
-// Menjalankan setiap tanggal 1 pukul 00:00 pagi
-cron.schedule('0 0 1 * *', async () => {
+// Menjalankan setiap tanggal 1 pukul 00:30 pagi
+cron.schedule('30 0 1 * *', async () => {
   console.log('⏳ [Cron] Mulai penambahan cuti otomatis...');
 
   try {
     const allUsers = await prisma.tb_users.findMany({
-      orderBy: {fullname : 'asc'}
+      orderBy: {fullname : 'asc'},
+      include: {
+        tb_roles: true,
+        tb_statuses: true
+      }
     });
     console.log(`👤 Total user: ${allUsers.length}`);
     for (const user of allUsers) {

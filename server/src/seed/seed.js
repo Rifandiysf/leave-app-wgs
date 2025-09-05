@@ -1,5 +1,6 @@
-
 import prisma from '../utils/client.js';
+import bcrypt from 'bcrypt';
+import { v4 as uuid } from 'uuid'
 
 async function manualSeed() {
   await prisma.$transaction(async (tx) => {
@@ -33,8 +34,63 @@ async function manualSeed() {
         dark_primaryForeground: "#dbeafe",
         dark_secondary: "#155dfc",
         dark_secondaryForeground: "#191B21",
-      },
-    });
+      },
+    });
+
+    // Delete existing roles and statuses to prevent conflicts on re-seed
+    await tx.tb_roles.deleteMany();
+    await tx.tb_statuses.deleteMany();
+    await tx.tb_settings.deleteMany(); // Add this line to clear settings
+
+    // Seed Settings
+    await tx.tb_settings.create({
+      data: {
+        light_image: "http://localhost:3001/uploads/putih.png",
+        light_background: "#FFFFFF",
+        light_foreground: "#000000",
+        light_card: "#F5F5F5",
+        light_cardForeground: "#000000",
+        light_primary: "#007BFF",
+        light_primaryForeground: "#FFFFFF",
+        light_secondary: "#6C757D",
+        light_secondaryForeground: "#FFFFFF",
+        dark_image: "http://localhost:3001/uploads/hitam.png",
+        dark_background: "#121212",
+        dark_foreground: "#FFFFFF",
+        dark_card: "#1E1E1E",
+        dark_cardForeground: "#FFFFFF",
+        dark_primary: "#6A0DAD",
+        dark_primaryForeground: "#FFFFFF",
+        dark_secondary: "#BB86FC",
+        dark_secondaryForeground: "#000000",
+      },
+    });
+
+    // Seed Roles
+    const rolesData = [
+      { name: 'Super Admin', slug: 'super_admin', description: 'Full administrative access' },
+      { name: 'Admin', slug: 'admin', description: 'Administrative access with some limitations' },
+      { name: 'User', slug: 'user', description: 'user' },
+    ];
+
+    const createdRoles = {};
+    for (const role of rolesData) {
+      const newRole = await tx.tb_roles.create({ data: role });
+      createdRoles[role.slug] = newRole.id;
+    }
+
+    // Seed Statuses
+    const statusesData = [
+      { name: 'Magang' },
+      { name: 'Kontrak' },
+      { name: 'Tetap' },
+    ];
+
+    const createdStatuses = {};
+    for (const status of statusesData) {
+      const newStatus = await tx.tb_statuses.create({ data: status });
+      createdStatuses[status.name] = newStatus.id;
+    }
 
     const users = [
       {
@@ -42,9 +98,10 @@ async function manualSeed() {
         fullname: 'Rani Kontrak',
         email: 'rani.kontrak@perusahaan.com',
         password: 'Rani1234!',
-        gender: 'female',
-        role: 'karyawan_kontrak',
-        status: 'active',
+        isMale: false,
+        isActive: true,
+        roleSlug: 'user',
+        statusName: 'Kontrak',
         join_date: new Date('2024-01-15'),
       },
       {
@@ -52,9 +109,10 @@ async function manualSeed() {
         fullname: 'Budi Tetap',
         email: 'budi.tetap@perusahaan.com',
         password: 'Budi1234!',
-        gender: 'male',
-        role: 'karyawan_tetap',
-        status: 'active',
+        isMale: true,
+        isActive: true,
+        roleSlug: 'user',
+        statusName: 'Tetap',
         join_date: new Date('2023-11-01'),
       },
       {
@@ -62,9 +120,10 @@ async function manualSeed() {
         fullname: 'Tina Magang',
         email: 'tina.magang@perusahaan.com',
         password: 'Tina1234!',
-        gender: 'female',
-        role: 'magang',
-        status: 'active',
+        isMale: false,
+        isActive: true,
+        roleSlug: 'user',
+        statusName: 'Magang',
         join_date: new Date('2025-06-01'),
       },
       {
@@ -72,9 +131,10 @@ async function manualSeed() {
         fullname: 'Andi Admin',
         email: 'andi.admin@perusahaan.com',
         password: 'Admin123!',
-        gender: 'male',
-        role: 'admin',
-        status: 'active',
+        isMale: true,
+        isActive: true,
+        roleSlug: 'admin',
+        statusName: 'Tetap',
         join_date: new Date('2024-09-15'),
       },
       {
@@ -82,9 +142,10 @@ async function manualSeed() {
         fullname: 'Sari Super',
         email: 'sari.super@perusahaan.com',
         password: 'Super123!',
-        gender: 'female',
-        role: 'super_admin',
-        status: 'active',
+        isMale: false,
+        isActive: true,
+        roleSlug: 'super_admin',
+        statusName: 'Tetap',
         join_date: new Date('2023-01-10'),
       },
       {
@@ -92,9 +153,10 @@ async function manualSeed() {
         fullname: 'Tati Kontrak',
         email: 'tati.kontrak@perusahaan.com',
         password: 'Tati123!',
-        gender: 'female',
-        role: 'karyawan_kontrak',
-        status: 'active',
+        isMale: false,
+        isActive: true,
+        roleSlug: 'user',
+        statusName: 'Magang',
         join_date: new Date('2015-10-24'),
       },
       {
@@ -102,9 +164,10 @@ async function manualSeed() {
         fullname: 'Bondan Admin',
         email: 'bondan.admin@perusahaan.com',
         password: 'Bondan123!',
-        gender: 'male',
-        role: 'admin',
-        status: 'resign',
+        isMale: true,
+        isActive: false,
+        roleSlug: 'admin',
+        statusName: 'Tetap',
         join_date: new Date('2017-03-15'),
       },
       {
@@ -112,9 +175,10 @@ async function manualSeed() {
         fullname: 'Santi Kontrak',
         email: 'santi.kontrak@perusahaan.com',
         password: 'Santi123!',
-        gender: 'female',
-        role: 'karyawan_kontrak',
-        status: 'resign',
+        isMale: false,
+        isActive: false,
+        roleSlug: 'user',
+        statusName: 'Kontrak',
         join_date: new Date('2018-07-09'),
       },
       {
@@ -122,9 +186,10 @@ async function manualSeed() {
         fullname: 'Andi Magang',
         email: 'andi.magang@perusahaan.com',
         password: 'Andi123!',
-        gender: 'male',
-        role: 'magang',
-        status: 'resign',
+        isMale: true,
+        isActive: false,
+        roleSlug: 'user',
+        statusName: 'Magang',
         join_date: new Date('2020-01-20'),
       },
       {
@@ -132,10 +197,22 @@ async function manualSeed() {
         fullname: 'Rina Tetap',
         email: 'rina.tetap@perusahaan.com',
         password: 'Rina123!',
-        gender: 'female',
-        role: 'karyawan_tetap',
-        status: 'resign',
+        isMale: false,
+        isActive: false,
+        roleSlug: 'user',
+        statusName: 'Tetap',
         join_date: new Date('2016-05-12'),
+      },
+      {
+        NIK: '100011',
+        fullname: 'Amat Admin',
+        email: 'amat.admin@perusahaan.com',
+        password: 'Amat123!',
+        isMale: true,
+        isActive: true,
+        roleSlug: 'admin',
+        statusName: 'Kontrak',
+        join_date: new Date('2017-03-15'),
       },
     ];
 
@@ -147,30 +224,55 @@ async function manualSeed() {
           fullname: user.fullname,
           email: user.email,
           password: user.password,
-          gender: user.gender,
-          role: user.role,
-          status_active: user.status,
+          isMale: user.isMale,
+          role_id: createdRoles[user.roleSlug],
+          status_id: createdStatuses[user.statusName],
           join_date: user.join_date,
+          isActive: user.isActive
         },
       });
 
-      await tx.tb_balance.create({
-        data: {
-          amount: 12,
-          receive_date: new Date('2024-01-01'),
-          expired_date: new Date('2026-01-01'),
-          NIK: user.NIK,
-        },
-      });
+      if (user.isActive && user.statusName !== "Magang") {
+        const balanceLastYear = await tx.tb_balance.create({
+          data: {
+            amount: 12,
+            receive_date: new Date('2024-01-01'),
+            expired_date: new Date('2026-01-01'),
+            NIK: user.NIK,
+          },
+        });
 
-      await tx.tb_balance.create({
-        data: {
-          amount: 12,
-          receive_date: new Date('2025-01-01'),
-          expired_date: new Date('2027-01-01'),
-          NIK: user.NIK,
-        },
-      });
+        await tx.tb_balance_adjustment.create({
+          data: {
+            actor: "system",
+            balance_year: balanceLastYear.receive_date.getFullYear(),
+            NIK: balanceLastYear.NIK,
+            notes: "Created balance",
+            id_balance: balanceLastYear.id_balance,
+            adjustment_value: balanceLastYear.amount
+          }
+        })
+
+        const balanceThisYear = await tx.tb_balance.create({
+          data: {
+            amount: 12,
+            receive_date: new Date('2025-01-01'),
+            expired_date: new Date('2027-01-01'),
+            NIK: user.NIK,
+          },
+        });
+
+        await tx.tb_balance_adjustment.create({
+          data: {
+            actor: "system",
+            balance_year: balanceThisYear.receive_date.getFullYear(),
+            NIK: balanceThisYear.NIK,
+            notes: "Created balance",
+            id_balance: balanceThisYear.id_balance,
+            adjustment_value: balanceThisYear.amount
+          }
+        })
+      }
     }
 
     const specialLeaves = [

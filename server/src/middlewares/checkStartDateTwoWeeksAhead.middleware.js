@@ -12,7 +12,9 @@ export const checkStartDateTwoWeeksAhead = (req, res, next) => {
     const now = new Date();
 
     const minAllowedDate = new Date(now.setHours(0, 0, 0, 0));
-    minAllowedDate.setDate(minAllowedDate.getDate() + 15);
+    minAllowedDate.setDate(minAllowedDate.getDate() + 14);
+    console.log(start_date)
+    console.log(minAllowedDate)
 
     if (inputDate < minAllowedDate) {
         return res.status(400).json({

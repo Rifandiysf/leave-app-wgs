@@ -7,18 +7,23 @@ cron.schedule('0 0 * * *', async () => {
     try {
         const targetYear = new Date().getFullYear();
         const startOfYear = new Date(`${targetYear}-01-01`);
-        const endOfYear = new Date(`${targetYear}-12-31`);
+        const endOfYear = new Date(`${targetYear + 2}-12-31`);
+        console.log(targetYear)
+        console.log(startOfYear)
+        console.log(endOfYear)
 
         const users = await prisma.tb_users.findMany({
-            select: { NIK: true },
-            where: {
-                NOT : {
-                    role: 'magang'
-                }
+            include: {
+                tb_statuses: true,
+                tb_roles: true
             }
         });
 
-        for (const user of users) {
+        console.log(users)
+
+        const filteredUsers = users.filter(user => user.tb_statuses.name !== 'Magang' && user.isActive === true);
+
+        for (const user of filteredUsers) {
             const nik = user.NIK;
 
             const balance = await prisma.tb_balance.findFirst({
@@ -40,7 +45,7 @@ cron.schedule('0 0 * * *', async () => {
                     NIK: nik,
                     amount: adjustment_value,
                     receive_date: startOfYear,
-                    expired_date: new Date(`${targetYear + 2}-01-01`),
+                    expired_date: new Date(`${targetYear + 2}-01-01`)
                 };
 
                 const result = await prisma.$transaction(async (tx) => {
@@ -54,9 +59,9 @@ cron.schedule('0 0 * * *', async () => {
                             notes,
                             actor,
                             NIK: nik,
-                            balance_year: targetYear,
-                            id_balance: newBalance.id_balance, // relasi balance yang dibuat di atas
-                            created_at: new Date()
+                            created_at: new Date(),
+                            balance_year: newBalance.receive_date.getFullYear(),
+                            id_balance: newBalance.id_balance
                         }
                     })
 

@@ -1,11 +1,8 @@
 import { decodeToken } from '../utils/jwt.js';
-import {
-    getUserLeaveBalance,
-    getPendingLeaveDays,
-    isValidDateRange,
-    calculateHolidaysDays,
-    getUserCurrentYearLeaveBalance,
-} from '../utils/leaves.utils.js';
+import { getUserLeaveBalance } from '../services/user-balance/getUserLeaveBalance.service.js';
+import { getUserCurrentYearLeaveBalance } from '../services/user-balance/getUserCurrentYearLeaveBalance.service.js';
+import { getPendingLeaveDays } from '../services/user-balance/getPendingLeaveDays.service.js';
+import { isValidDateRange, calculateHolidaysDays } from '../utils/leaves.utils.js';
 
 export const validateLeaveBalance = async (req, res, next) => {
     const { start_date, end_date, leave_type } = req.body;

@@ -47,7 +47,7 @@ export default function Sidebar() {
     }
 
     const welcomeText = `Welcome, ${user?.fullname || 'Guest'}`;
-    const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
+    const isAdmin = user?.role?.slug === 'admin' || user?.role?.slug === 'super_admin';
 
     const showAdminSidebar = isAdmin && pathname.startsWith('/admin');
 

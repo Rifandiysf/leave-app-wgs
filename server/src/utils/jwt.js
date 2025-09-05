@@ -1,5 +1,6 @@
 import jwt, { decode } from 'jsonwebtoken';
-import { addToken, deleteToken } from '../services/auth.service.js';
+import { addToken } from '../services/auth/addToken.service.js';
+import { deleteToken } from '../services/auth/deleteToken.service.js';
 import { JWT_SECRET } from '../config/env.js';
 import prisma from './client.js';
 

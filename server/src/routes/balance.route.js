@@ -1,7 +1,7 @@
 import express from 'express'
 import { validateRole } from '../middlewares/validateRole.middleware.js'
-import { getAllBalanceAdjustment, getAllBalanceAdjustmentByNIK } from '../services/balance.service.js'
-import { getHistoryBalanceAdjustmenByNIK, getHistoryBalanceAdjustment } from '../controllers/balance.controller.js'
+import { getHistoryBalanceAdjustment } from '../controllers/balance/getHistoryBalanceAdjustment.controller.js';
+import { getHistoryBalanceAdjustmenByNIK } from '../controllers/balance/getHistoryBalanceAdjustmenByNIK.controller.js';
 
 const balanceRoutes = express.Router()
 
