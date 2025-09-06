@@ -37,7 +37,7 @@ export const validateUser = async (req, res, next) => {
         }
 
         // Check for "magang" role using slug
-        if (user.tb_roles && user.tb_roles.slug === "magang") {
+        if (user.tb_statuses.name === "Magang") {
             const error = new Error(`Your role does not have access to this system.`);
             error.statusCode = 401;
             throw error;
