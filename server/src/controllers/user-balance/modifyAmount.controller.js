@@ -11,11 +11,11 @@ export const modifyAmount = async (req, res, next) => {
         const decodedToken = await decodeToken(token);
         const actor = {
             nik: decodedToken.NIK,
-            role: decodedToken.role,
+            role: decodedToken.tb_roles.name,
             name: decodedToken.fullname
         };
 
-        console.log(actor.name);
+        console.log(actor);
 
         if (!actor.nik || !actor.role) {
             const error = new Error("Unauthorized: incomplete token data");
