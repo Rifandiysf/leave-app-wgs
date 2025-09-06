@@ -6,7 +6,12 @@ import { jwtDecode } from "jwt-decode";
 import { searchUsers, updateUserBalance } from '@/lib/api/service/admin';
 
 // --- Tipe Data ---
-export type UserSearchResult = { nik: string; name: string; this_year_leave: number; last_year_leave: number; };
+export type UserSearchResult = { 
+    nik: string; 
+    fullname: string; 
+    this_year_leave: number; 
+    last_year_leave: number; 
+};
 type JwtPayload = { nik: string; };
 
 // --- State Management ---
