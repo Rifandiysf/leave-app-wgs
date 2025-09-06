@@ -2,17 +2,55 @@
 
 import { useReducer, useState, useEffect, useCallback } from 'react';
 import { getEmployeeList } from '@/lib/api/service/admin';
-import { debounce } from 'lodash';
+import { PaginationInfo } from '@/lib/type';
 
 // --- Tipe Data ---
-export type Employee = { nik: string; name: string; gender: string; join_date: string; role: string; status: string; last_year_leave?: number; this_year_leave?: number; leave_total?: number; };
-export type PaginationInfo = { current_page: number; last_visible_page: number; has_next_page: boolean; item: { count: number; total: number; per_page: number; } };
+export type Employee = {
+    nik: string;
+    fullname: string;
+    emailKantor: string;
+    isMale: boolean;
+    isActive: boolean;
+    tanggalMasukKerja: string;
+    role: {
+        id: number;
+        name: string
+    };
+    status: {
+        id: number;
+        name: string
+    };
+    last_year_leave?: number;
+    this_year_leave?: number;
+    leave_total?: number;
+};
 
 // --- State Management ---
-export interface EmployeeState { currentPage: number; searchTerm: string; genderFilter: string | null; statusFilter: string | null; roleFilter: string | null; }
-export type EmployeeAction = | { type: 'SET_PAGE'; payload: number } | { type: 'SET_SEARCH'; payload: string } | { type: 'SET_GENDER'; payload: string | null } | { type: 'SET_STATUS'; payload: string | null } | { type: 'SET_ROLE'; payload: string | null };
+export interface EmployeeState {
+    currentPage: number;
+    searchTerm: string;
+    genderFilter: string | null;
+    statusFilter: string | null;
+    roleFilter: string | null;
+    activeFilter: boolean | null;
+}
 
-const initialState: EmployeeState = { currentPage: 1, searchTerm: "", genderFilter: null, statusFilter: null, roleFilter: null };
+export type EmployeeAction =
+    | { type: 'SET_PAGE'; payload: number }
+    | { type: 'SET_SEARCH'; payload: string }
+    | { type: 'SET_GENDER'; payload: string | null }
+    | { type: 'SET_STATUS'; payload: string | null }
+    | { type: 'SET_ROLE'; payload: string | null }
+    | { type: 'SET_ACTIVE'; payload: boolean | null };
+
+const initialState: EmployeeState = {
+    currentPage: 1,
+    searchTerm: "",
+    genderFilter: null,
+    statusFilter: null,
+    roleFilter: null,
+    activeFilter: null
+};
 
 function reducer(state: EmployeeState, action: EmployeeAction): EmployeeState {
     switch (action.type) {
@@ -21,6 +59,7 @@ function reducer(state: EmployeeState, action: EmployeeAction): EmployeeState {
         case 'SET_GENDER': return { ...state, genderFilter: action.payload, currentPage: 1 };
         case 'SET_STATUS': return { ...state, statusFilter: action.payload, currentPage: 1 };
         case 'SET_ROLE': return { ...state, roleFilter: action.payload, currentPage: 1 };
+        case 'SET_ACTIVE': return { ...state, activeFilter: action.payload, currentPage: 1 };
         default: return state;
     }
 }
@@ -39,25 +78,25 @@ export function useEmployeeData() {
         return () => clearTimeout(handler);
     }, [state.searchTerm]);
 
-   const fetchData = useCallback(async () => {
-    setIsLoading(true); // Cukup set loading ke true
-    try {
-        const result = await getEmployeeList({
-            currentPage: state.currentPage,
-            limit: itemPerPage,
-            searchTerm: debouncedSearch,
-            genderFilter: state.genderFilter,
-            statusFilter: state.statusFilter,
-            roleFilter: state.roleFilter,
-        });
-        setEmployees(result?.data?.data || result?.data || []);
-        setPaginationInfo(result?.pagination || null);
-    } catch (error) {
-        console.error("Failed to fetch employee data:", error);
-    } finally {
-        setIsLoading(false);
-    }
-}, [state.currentPage, debouncedSearch, state.genderFilter, state.statusFilter, state.roleFilter]);
+    const fetchData = useCallback(async () => {
+        setIsLoading(true); // Cukup set loading ke true
+        try {
+            const result = await getEmployeeList({
+                currentPage: state.currentPage,
+                limit: itemPerPage,
+                searchTerm: debouncedSearch,
+                genderFilter: state.genderFilter,
+                statusFilter: state.statusFilter,
+                roleFilter: state.roleFilter,
+            });
+            setEmployees(result?.data?.data || result?.data || []);
+            setPaginationInfo(result?.pagination || null);
+        } catch (error) {
+            console.error("Failed to fetch employee data:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [state.currentPage, debouncedSearch, state.genderFilter, state.statusFilter, state.roleFilter]);
 
     useEffect(() => {
         fetchData();

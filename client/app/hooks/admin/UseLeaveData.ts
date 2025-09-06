@@ -4,11 +4,10 @@
 
 import { useReducer, useState, useEffect, useCallback } from 'react';
 import { getLeaveRequests, getLeaveHistory, updateLeaveStatus } from '@/lib/api/service/admin';
-import { debounce } from 'lodash';
+import { PaginationInfo } from '@/lib/type';
 
 // --- Tipe Data ---
 export type ApiLeaveType = { NIK: string; fullname: string; id_leave: string; title: string; leave_type: string; start_date: string; end_date: string; total_days: number; reason: string; status: string; tb_leave_log: any; name: string; };
-export type PaginationInfo = { current_page: number; last_visible_page: number; has_next_page: boolean; item: { count: number; total: number; per_page: number; } };
 
 // --- State Management ---
 export interface LeaveState { viewMode: 'requests' | 'history' | null; currentPage: number; search: string; debouncedSearch: string; leaveType: string | null; status: string | null; }

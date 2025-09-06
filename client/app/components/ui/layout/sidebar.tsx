@@ -105,7 +105,7 @@ export default function Sidebar() {
                     </aside>
 
                     {/* ============== BOTTOM BAR ADMIN (MOBILE) ============== */}
-                    <nav className="fixed bottom-0 left-0 w-full bg-white dark:bg-card border-t z-50 overflow-x-auto lg:hidden">
+                    <nav className="fixed bottom-0 left-0 w-full bg-white dark:bg-card border-t z-50 flex justify-around overflow-x-auto lg:hidden">
                         <div className="flex flex-nowrap items-start px-2">
                             <Link href="/admin/dashboard" className={`flex flex-col items-center text-center h-full pt-2 px-3 min-w-[85px] ${isBottomActive('/admin/dashboard')}`}>
                                 <i className="bi bi-person-workspace text-xl" />

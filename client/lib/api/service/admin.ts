@@ -52,9 +52,9 @@ export const getEmployeeList = async (params: EmployeeListParams) => {
     queryParams.append('page', String(params.currentPage));
     queryParams.append('limit', String(params.limit));
     if (params.searchTerm) queryParams.append('search', params.searchTerm);
-    if (params.genderFilter) queryParams.append('gender', params.genderFilter);
-    if (params.statusFilter) queryParams.append('status', params.statusFilter);
-    if (params.roleFilter) queryParams.append('role', params.roleFilter);
+    if (params.genderFilter) queryParams.append('isMale', params.genderFilter);
+    if (params.statusFilter) queryParams.append('statusName', params.statusFilter);
+    if (params.roleFilter) queryParams.append('roleSlug', params.roleFilter);
 
     const response = await axiosInstance.get('/users', { params: queryParams });
     return response.data;

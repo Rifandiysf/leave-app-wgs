@@ -2,8 +2,8 @@
 
 import { useReducer, useState, useEffect, useCallback } from 'react';
 import { getLeaveHistory } from '@/lib/api/service/user'; 
+import { PaginationInfo } from '@/lib/type';
 export type LeaveHistoryType = { id_leave: string; leave_type: string; start_date: string; end_date: string; title: string; reason: string; status: string; total_days: number; tb_leave_log: { reason: string; tb_users: { fullname: string } } };
-export type PaginationInfo = { current_page: number; last_visible_page: number; has_next_page: boolean; item: { count: number; total: number; per_page: number } };
 
 export interface HistoryState {
     currentPage: number;

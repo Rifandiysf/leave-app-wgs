@@ -29,6 +29,7 @@ export type PaginationInfo = {
     };
 };
 
+
 export interface MandatoryPayload {
     title: string;
     description: string;

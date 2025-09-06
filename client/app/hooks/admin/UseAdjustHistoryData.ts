@@ -3,10 +3,10 @@
 import { useReducer, useState, useEffect, useCallback } from 'react';
 // Perbedaan utama: Mengimpor fungsi API untuk admin
 import { getAdminAdjustHistoryLogs } from '@/lib/api/service/admin';
+import { PaginationInfo } from '@/lib/type';
 
 // --- Tipe Data (bisa diekspor dari satu file terpusat jika diinginkan) ---
 export type HistoryLog = { NIK: string; name: string; adjustment_value: number; balance_year: string; date: string; time: string; actor: string; notes: string; id?: string; };
-export type PaginationInfo = { current_page: number; last_visible_page: number; has_next_page: boolean; item: { count: number; total: number; per_page: number; } };
 
 // --- State Management (logika reducer tetap sama) ---
 export interface AdjustHistoryState { currentPage: number; searchTerm: string; debouncedSearch: string; yearFilter: string | null; }

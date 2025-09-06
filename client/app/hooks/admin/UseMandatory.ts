@@ -2,6 +2,7 @@
 'use client';
 
 import { getMandatoryLeaves } from "@/lib/api/service/leave";
+import { PaginationInfo } from "@/lib/type";
 import { useReducer, useState, useEffect, useCallback } from "react";
 
 export type MandatoryLeaveType = {
@@ -11,17 +12,6 @@ export type MandatoryLeaveType = {
     description: string;
     start_date: string;
     end_date: string;
-};
-
-export type PaginationInfo = {
-    current_page: number;
-    last_visible_page: number;
-    has_next_page: boolean;
-    item: {
-        count: number;
-        total: number;
-        per_page: number;
-    };
 };
 
 export interface MandatoryState {

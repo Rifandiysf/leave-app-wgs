@@ -2,10 +2,10 @@
 
 import { useReducer, useState, useEffect, useCallback } from 'react';
 import { getAdjustHistoryLogs } from '@/lib/api/service/user';
+import { PaginationInfo } from '@/lib/type';
 
 // --- Tipe Data ---
 export type HistoryLog = { NIK: string; name: string; adjustment_value: number; balance_year: string; date: string; time: string; actor: string; notes: string; id?: string; };
-export type PaginationInfo = { current_page: number; last_visible_page: number; has_next_page: boolean; item: { count: number; total: number; per_page: number; } };
 
 // --- State Management ---
 export interface AdjustHistoryState { currentPage: number; searchTerm: string; debouncedSearch: string; yearFilter: string | null; }

@@ -9,8 +9,8 @@ import { LeaveChart } from '@/app/components/ui/LeaveChart/LeaveChart';
 
 type UserData = {
     nik: string;
-    name: string;
-    join_date: string; 
+    fullname: string;
+    tanggalMasukKerja: string; 
 };
 
 type StatisticsProps = {
@@ -43,9 +43,9 @@ const Statistics = ({ user }: StatisticsProps) => {
             </Popover>
             <DialogContent className='sm:max-w-3xl p-6'>
                 <DialogHeader>
-                    <DialogTitle>{user.name}'s Leave Statistics</DialogTitle>
+                    <DialogTitle>{user.fullname}'s Leave Statistics</DialogTitle>
                 </DialogHeader>
-                {isDialogOpen && <LeaveChart nik={user.nik} join_date={user.join_date} />}
+                {isDialogOpen && <LeaveChart nik={user.nik} join_date={user.tanggalMasukKerja} />}
             </DialogContent>
         </Dialog>
     );

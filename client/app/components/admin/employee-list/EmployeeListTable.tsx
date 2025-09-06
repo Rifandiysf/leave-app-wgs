@@ -10,10 +10,9 @@ interface EmployeeListTableProps {
     itemsPerPage: number;
 }
 
-const renderStatus = (status: string) => {
-    const isActive = (status || '').toLowerCase() === 'active';
+const renderStatus = (isActive: boolean) => {
     const className = isActive ? "text-[#00c41d] bg-[#82ff9544] p-2 px-3 rounded-full text-xs" : "text-red-500 bg-red-100 p-2 px-3 rounded-full text-xs";
-    return <span className={className}>{(status || '-').toUpperCase()}</span>;
+    return <span className={className}>{(isActive ? 'ACTIVE' : 'RESIGN')}</span>;
 };
 
 export const EmployeeListTable = ({ isLoading, employees, itemsPerPage }: EmployeeListTableProps) => {
@@ -25,7 +24,7 @@ export const EmployeeListTable = ({ isLoading, employees, itemsPerPage }: Employ
                         <thead className="text-foreground bg-[#F0f4f9] dark:bg-card">
                             <tr className="text-base">
                                 <th className="p-3 font-semibold">NIK</th>
-                                <th className="p-3 font-semibold">Name</th>
+                                <th className="p-3 font-semibold">Fullname</th>
                                 <th className="p-3 font-semibold">Gender</th>
                                 <th className="p-3 font-semibold">This Year Leave</th>
                                 <th className="p-3 font-semibold">Last Year Leave</th>
@@ -46,13 +45,13 @@ export const EmployeeListTable = ({ isLoading, employees, itemsPerPage }: Employ
                                 employees.map((data) => (
                                     <tr key={data.nik} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] odd:dark:bg-card/30 even:dark:bg-card/70">
                                         <td className="p-3">{data.nik}</td>
-                                        <td className="p-3">{data.name}</td>
-                                        <td className="p-3 capitalize">{data.gender}</td>
+                                        <td className="p-3">{data.fullname}</td>
+                                        <td className="p-3 capitalize">{data.isMale ? "Male" : "Female"}</td>
                                         <td className="p-3">{data.this_year_leave || 0}</td>
                                         <td className="p-3">{data.last_year_leave || 0}</td>
                                         <td className="p-3">{data.leave_total || 0}</td>
-                                        <td className="p-3">{(data.role || '').replace(/_/g, ' ')}</td>
-                                        <td className="p-3">{renderStatus(data.status)}</td>
+                                        <td className="p-3">{(data.status?.name || '-')}</td>
+                                        <td className="p-3">{renderStatus(data.isActive)}</td>
                                         <td className="p-3"><Statistics user={data}/></td>
                                     </tr>
                                 ))

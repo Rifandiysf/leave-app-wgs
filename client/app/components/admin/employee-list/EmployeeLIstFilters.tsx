@@ -1,8 +1,11 @@
 'use client';
 
 import React from 'react';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/app/components/ui/select";
-import { EmployeeState, EmployeeAction } from "@/app/hooks/admin/UseEmployeeListData"; // Pastikan path hook benar
+import {
+    Select, SelectContent, SelectGroup, SelectItem, SelectLabel,
+    SelectTrigger, SelectValue
+} from "@/app/components/ui/select";
+import { EmployeeState, EmployeeAction } from "@/app/hooks/admin/UseEmployeeListData";
 
 interface EmployeeListFiltersProps {
     state: EmployeeState;
@@ -10,6 +13,7 @@ interface EmployeeListFiltersProps {
 }
 
 export const EmployeeListFilters = ({ state, dispatch }: EmployeeListFiltersProps) => {
+
     return (
         <section className="p-5">
             {/* Desktop Layout */}
@@ -23,17 +27,56 @@ export const EmployeeListFilters = ({ state, dispatch }: EmployeeListFiltersProp
                         placeholder="Search..."
                         className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
-                    <Select onValueChange={(value) => dispatch({ type: 'SET_GENDER', payload: value === 'all' ? null : value })}>
-                        <SelectTrigger className="min-w-[120px]"><SelectValue placeholder="Gender" /></SelectTrigger>
-                        <SelectContent><SelectGroup><SelectLabel>Gender</SelectLabel><SelectItem value="all">All</SelectItem><SelectItem value="male">Male</SelectItem><SelectItem value="female">Female</SelectItem></SelectGroup></SelectContent>
+
+                    {/* Gender Filter */}
+                    <Select
+                        onValueChange={(value) => dispatch({ type: 'SET_GENDER', payload: value === 'all' ? null : value })}
+                    >
+                        <SelectTrigger className="min-w-[120px]">
+                            <SelectValue placeholder="Gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectLabel>Gender</SelectLabel>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="male">Male</SelectItem>
+                                <SelectItem value="female">Female</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
                     </Select>
-                    <Select onValueChange={(value) => dispatch({ type: 'SET_STATUS', payload: value === 'all' ? null : value })}>
-                        <SelectTrigger className="min-w-[120px]"><SelectValue placeholder="Status" /></SelectTrigger>
-                        <SelectContent><SelectGroup><SelectLabel>Status</SelectLabel><SelectItem value="all">All</SelectItem><SelectItem value="active">Active</SelectItem><SelectItem value="resign">Resign</SelectItem></SelectGroup></SelectContent>
+
+                    {/* Status Filter */}
+                    <Select
+                        onValueChange={(value) => dispatch({ type: 'SET_STATUS', payload: value === 'all' ? null : value })}
+                    >
+                        <SelectTrigger className="min-w-[120px]">
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectLabel>Status</SelectLabel>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="resign">Resign</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
                     </Select>
-                    <Select onValueChange={(value) => dispatch({ type: 'SET_ROLE', payload: value === 'all' ? null : value })}>
-                        <SelectTrigger className="min-w-[180px]"><SelectValue placeholder="Role" /></SelectTrigger>
-                        <SelectContent><SelectGroup><SelectLabel>Role</SelectLabel><SelectItem value="all">All</SelectItem><SelectItem value="karyawan_kontrak">Karyawan Kontrak</SelectItem><SelectItem value="karyawan_tetap">Karyawan Tetap</SelectItem><SelectItem value="magang">Magang</SelectItem></SelectGroup></SelectContent>
+
+                    {/* Role Filter */}
+                    <Select
+                        onValueChange={(value) => dispatch({ type: 'SET_ROLE', payload: value === 'all' ? null : value })}
+                    >
+                        <SelectTrigger className="min-w-[180px]">
+                            <SelectValue placeholder="Role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectLabel>Role</SelectLabel>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="Tetap">Tetap</SelectItem>
+                                <SelectItem value="Kontrak">Kontrak</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
                     </Select>
                 </div>
             </div>
@@ -50,22 +93,49 @@ export const EmployeeListFilters = ({ state, dispatch }: EmployeeListFiltersProp
                 />
                 <div className="flex w-full gap-2">
                     <div className="flex-1">
-                        <Select onValueChange={(value) => dispatch({ type: 'SET_GENDER', payload: value === 'all' ? null : value })}>
+                        <Select
+                            onValueChange={(value) => dispatch({ type: 'SET_GENDER', payload: value === 'all' ? null : value })}
+                        >
                             <SelectTrigger><SelectValue placeholder="Gender" /></SelectTrigger>
-                            <SelectContent><SelectGroup><SelectLabel>Gender</SelectLabel><SelectItem value="all">All</SelectItem><SelectItem value="male">Male</SelectItem><SelectItem value="female">Female</SelectItem></SelectGroup></SelectContent>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Gender</SelectLabel>
+                                    <SelectItem value="all">All</SelectItem>
+                                    <SelectItem value="male">Male</SelectItem>
+                                    <SelectItem value="female">Female</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="flex-1">
-                        <Select onValueChange={(value) => dispatch({ type: 'SET_STATUS', payload: value === 'all' ? null : value })}>
+                        <Select
+                            onValueChange={(value) => dispatch({ type: 'SET_STATUS', payload: value === 'all' ? null : value })}
+                        >
                             <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
-                            <SelectContent><SelectGroup><SelectLabel>Status</SelectLabel><SelectItem value="all">All</SelectItem><SelectItem value="active">Active</SelectItem><SelectItem value="resign">Resign</SelectItem></SelectGroup></SelectContent>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Status</SelectLabel>
+                                    <SelectItem value="all">All</SelectItem>
+                                    <SelectItem value="active">Active</SelectItem>
+                                    <SelectItem value="resign">Resign</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="flex-1">
-                        <Select onValueChange={(value) => dispatch({ type: 'SET_ROLE', payload: value === 'all' ? null : value })}>
-                        <SelectTrigger className="min-w-[100px]"><SelectValue placeholder="Role" /></SelectTrigger>
-                        <SelectContent><SelectGroup><SelectLabel>Role</SelectLabel><SelectItem value="all">All</SelectItem><SelectItem value="karyawan_kontrak">Karyawan Kontrak</SelectItem><SelectItem value="karyawan_tetap">Karyawan Tetap</SelectItem><SelectItem value="magang">Magang</SelectItem></SelectGroup></SelectContent>
-                    </Select>
+                        <Select
+                            onValueChange={(value) => dispatch({ type: 'SET_ROLE', payload: value === 'all' ? null : value })}
+                        >
+                            <SelectTrigger className="min-w-[100px]"><SelectValue placeholder="Role" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Role</SelectLabel>
+                                    <SelectItem value="all">All</SelectItem>
+                                    <SelectItem value="Tetap">Tetap</SelectItem>
+                                    <SelectItem value="Kontrak">Kontrak</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
             </div>

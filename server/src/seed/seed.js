@@ -1,6 +1,6 @@
-import prisma from '../utils/client.js';
-import bcrypt from 'bcrypt';
-import { v4 as uuid } from 'uuid'
+import prisma from "../utils/client.js";
+import bcrypt from "bcrypt";
+import { v4 as uuid } from "uuid";
 
 async function manualSeed() {
   await prisma.$transaction(async (tx) => {
@@ -16,7 +16,7 @@ async function manualSeed() {
 
     await tx.tb_settings.create({
       data: {
-        light_image: `http://${process.env.HOSTNAME}:${process.env.PORT}/uploads/dark.svg`,
+        light_image: `http://localhost:3001/uploads/dark.svg`,
         light_background: "#FFFFFF",
         light_foreground: "#191B21",
         light_card: "#dbeafe",
@@ -25,7 +25,7 @@ async function manualSeed() {
         light_primaryForeground: "#191B21",
         light_secondary: "#155dfc",
         light_secondaryForeground: "#FFFFFF",
-        dark_image: `http://${process.env.HOSTNAME}:${process.env.PORT}/uploads/light.svg`,
+        dark_image: `http://localhost:3001/uploads/light.svg`,
         dark_background: "#191B21",
         dark_foreground: "#FFFFFF",
         dark_card: "#212838",
@@ -45,32 +45,40 @@ async function manualSeed() {
     // Seed Settings
     await tx.tb_settings.create({
       data: {
-        light_image: "http://localhost:3001/uploads/putih.png",
+        light_image: `http://localhost:3001/uploads/dark.svg`,
         light_background: "#FFFFFF",
-        light_foreground: "#000000",
-        light_card: "#F5F5F5",
-        light_cardForeground: "#000000",
-        light_primary: "#007BFF",
-        light_primaryForeground: "#FFFFFF",
-        light_secondary: "#6C757D",
+        light_foreground: "#191B21",
+        light_card: "#dbeafe",
+        light_cardForeground: "#193cb8",
+        light_primary: "#dbeafe",
+        light_primaryForeground: "#191B21",
+        light_secondary: "#155dfc",
         light_secondaryForeground: "#FFFFFF",
-        dark_image: "http://localhost:3001/uploads/hitam.png",
-        dark_background: "#121212",
+        dark_image: `http://localhost:3001/uploads/light.svg`,
+        dark_background: "#191B21",
         dark_foreground: "#FFFFFF",
-        dark_card: "#1E1E1E",
+        dark_card: "#212838",
         dark_cardForeground: "#FFFFFF",
-        dark_primary: "#6A0DAD",
-        dark_primaryForeground: "#FFFFFF",
-        dark_secondary: "#BB86FC",
-        dark_secondaryForeground: "#000000",
+        dark_primary: "#212838",
+        dark_primaryForeground: "#dbeafe",
+        dark_secondary: "#155dfc",
+        dark_secondaryForeground: "#191B21",
       },
     });
 
     // Seed Roles
     const rolesData = [
-      { name: 'Super Admin', slug: 'super_admin', description: 'Full administrative access' },
-      { name: 'Admin', slug: 'admin', description: 'Administrative access with some limitations' },
-      { name: 'User', slug: 'user', description: 'user' },
+      {
+        name: "Super Admin",
+        slug: "super_admin",
+        description: "Full administrative access",
+      },
+      {
+        name: "Admin",
+        slug: "admin",
+        description: "Administrative access with some limitations",
+      },
+      { name: "User", slug: "user", description: "user" },
     ];
 
     const createdRoles = {};
@@ -81,9 +89,9 @@ async function manualSeed() {
 
     // Seed Statuses
     const statusesData = [
-      { name: 'Magang' },
-      { name: 'Kontrak' },
-      { name: 'Tetap' },
+      { name: "Magang" },
+      { name: "Kontrak" },
+      { name: "Tetap" },
     ];
 
     const createdStatuses = {};
@@ -94,128 +102,116 @@ async function manualSeed() {
 
     const users = [
       {
-        NIK: '100001',
-        fullname: 'Rani Kontrak',
-        email: 'rani.kontrak@perusahaan.com',
-        password: 'Rani1234!',
+        NIK: "100001",
+        fullname: "Rani Kontrak",
+        email: "rani.kontrak@perusahaan.com",
+        password: "Rani1234!",
         isMale: false,
         isActive: true,
-        roleSlug: 'user',
-        statusName: 'Kontrak',
-        join_date: new Date('2024-01-15'),
+        roleSlug: "user",
+        statusName: "Kontrak",
+        join_date: new Date("2024-01-15"),
       },
       {
-        NIK: '100002',
-        fullname: 'Budi Tetap',
-        email: 'budi.tetap@perusahaan.com',
-        password: 'Budi1234!',
+        NIK: "100002",
+        fullname: "Budi Tetap",
+        email: "budi.tetap@perusahaan.com",
+        password: "Budi1234!",
         isMale: true,
         isActive: true,
-        roleSlug: 'user',
-        statusName: 'Tetap',
-        join_date: new Date('2023-11-01'),
+        roleSlug: "user",
+        statusName: "Tetap",
+        join_date: new Date("2023-11-01"),
       },
       {
-        NIK: '100003',
-        fullname: 'Tina Magang',
-        email: 'tina.magang@perusahaan.com',
-        password: 'Tina1234!',
+        NIK: "100003",
+        fullname: "Tina Magang",
+        email: "tina.magang@perusahaan.com",
+        password: "Tina1234!",
         isMale: false,
         isActive: true,
-        roleSlug: 'user',
-        statusName: 'Magang',
-        join_date: new Date('2025-06-01'),
+        roleSlug: "user",
+        statusName: "Magang",
+        join_date: new Date("2025-06-01"),
       },
       {
-        NIK: '100004',
-        fullname: 'Andi Admin',
-        email: 'andi.admin@perusahaan.com',
-        password: 'Admin123!',
+        NIK: "100004",
+        fullname: "Andi Admin",
+        email: "andi.admin@perusahaan.com",
+        password: "Admin123!",
         isMale: true,
         isActive: true,
-        roleSlug: 'admin',
-        statusName: 'Tetap',
-        join_date: new Date('2024-09-15'),
+        roleSlug: "admin",
+        statusName: "Tetap",
+        join_date: new Date("2024-09-15"),
       },
       {
-        NIK: '100005',
-        fullname: 'Sari Super',
-        email: 'sari.super@perusahaan.com',
-        password: 'Super123!',
+        NIK: "100005",
+        fullname: "Sari Super",
+        email: "sari.super@perusahaan.com",
+        password: "Super123!",
         isMale: false,
         isActive: true,
-        roleSlug: 'super_admin',
-        statusName: 'Tetap',
-        join_date: new Date('2023-01-10'),
+        roleSlug: "super_admin",
+        statusName: "Tetap",
+        join_date: new Date("2023-01-10"),
       },
       {
-        NIK: '100006',
-        fullname: 'Tati Kontrak',
-        email: 'tati.kontrak@perusahaan.com',
-        password: 'Tati123!',
+        NIK: "100006",
+        fullname: "Tati Kontrak",
+        email: "tati.kontrak@perusahaan.com",
+        password: "Tati123!",
         isMale: false,
         isActive: true,
-        roleSlug: 'user',
-        statusName: 'Magang',
-        join_date: new Date('2015-10-24'),
+        roleSlug: "user",
+        statusName: "Magang",
+        join_date: new Date("2015-10-24"),
       },
       {
-        NIK: '100007',
-        fullname: 'Bondan Admin',
-        email: 'bondan.admin@perusahaan.com',
-        password: 'Bondan123!',
-        isMale: true,
-        isActive: false,
-        roleSlug: 'admin',
-        statusName: 'Tetap',
-        join_date: new Date('2017-03-15'),
-      },
-      {
-        NIK: '100008',
-        fullname: 'Santi Kontrak',
-        email: 'santi.kontrak@perusahaan.com',
-        password: 'Santi123!',
-        isMale: false,
-        isActive: false,
-        roleSlug: 'user',
-        statusName: 'Kontrak',
-        join_date: new Date('2018-07-09'),
-      },
-      {
-        NIK: '100009',
-        fullname: 'Andi Magang',
-        email: 'andi.magang@perusahaan.com',
-        password: 'Andi123!',
+        NIK: "100007",
+        fullname: "Bondan Admin",
+        email: "bondan.admin@perusahaan.com",
+        password: "Bondan123!",
         isMale: true,
         isActive: false,
-        roleSlug: 'user',
-        statusName: 'Magang',
-        join_date: new Date('2020-01-20'),
+        roleSlug: "admin",
+        statusName: "Tetap",
+        join_date: new Date("2017-03-15"),
       },
       {
-        NIK: '100010',
-        fullname: 'Rina Tetap',
-        email: 'rina.tetap@perusahaan.com',
-        password: 'Rina123!',
+        NIK: "100008",
+        fullname: "Santi Kontrak",
+        email: "santi.kontrak@perusahaan.com",
+        password: "Santi123!",
         isMale: false,
         isActive: false,
-        roleSlug: 'user',
-        statusName: 'Tetap',
-        join_date: new Date('2016-05-12'),
+        roleSlug: "user",
+        statusName: "Kontrak",
+        join_date: new Date("2018-07-09"),
       },
       {
-        NIK: '100011',
-        fullname: 'Amat Admin',
-        email: 'amat.admin@perusahaan.com',
-        password: 'Amat123!',
+        NIK: "100009",
+        fullname: "Andi Magang",
+        email: "andi.magang@perusahaan.com",
+        password: "Andi123!",
         isMale: true,
-        isActive: true,
-        roleSlug: 'admin',
-        statusName: 'Kontrak',
-        join_date: new Date('2017-03-15'),
+        isActive: false,
+        roleSlug: "user",
+        statusName: "Magang",
+        join_date: new Date("2020-01-20"),
+      },
+      {
+        NIK: "100010",
+        fullname: "Rina Tetap",
+        email: "rina.tetap@perusahaan.com",
+        password: "Rina123!",
+        isMale: false,
+        isActive: false,
+        roleSlug: "user",
+        statusName: "Tetap",
+        join_date: new Date("2016-05-12"),
       },
     ];
-
 
     for (const user of users) {
       await tx.tb_users.create({
@@ -228,7 +224,7 @@ async function manualSeed() {
           role_id: createdRoles[user.roleSlug],
           status_id: createdStatuses[user.statusName],
           join_date: user.join_date,
-          isActive: user.isActive
+          isActive: user.isActive,
         },
       });
 
@@ -236,8 +232,8 @@ async function manualSeed() {
         const balanceLastYear = await tx.tb_balance.create({
           data: {
             amount: 12,
-            receive_date: new Date('2024-01-01'),
-            expired_date: new Date('2026-01-01'),
+            receive_date: new Date("2024-01-01"),
+            expired_date: new Date("2026-01-01"),
             NIK: user.NIK,
           },
         });
@@ -249,15 +245,15 @@ async function manualSeed() {
             NIK: balanceLastYear.NIK,
             notes: "Created balance",
             id_balance: balanceLastYear.id_balance,
-            adjustment_value: balanceLastYear.amount
-          }
-        })
+            adjustment_value: balanceLastYear.amount,
+          },
+        });
 
         const balanceThisYear = await tx.tb_balance.create({
           data: {
             amount: 12,
-            receive_date: new Date('2025-01-01'),
-            expired_date: new Date('2027-01-01'),
+            receive_date: new Date("2025-01-01"),
+            expired_date: new Date("2027-01-01"),
             NIK: user.NIK,
           },
         });
@@ -269,9 +265,9 @@ async function manualSeed() {
             NIK: balanceThisYear.NIK,
             notes: "Created balance",
             id_balance: balanceThisYear.id_balance,
-            adjustment_value: balanceThisYear.amount
-          }
-        })
+            adjustment_value: balanceThisYear.amount,
+          },
+        });
       }
     }
 
@@ -330,7 +326,8 @@ async function manualSeed() {
         applicable_gender: "mf",
         duration: 2,
         is_active: true,
-        description: "Cuti karena meninggal suami/istri/orang tua/mertua/anak/menantu",
+        description:
+          "Cuti karena meninggal suami/istri/orang tua/mertua/anak/menantu",
       },
       {
         title: "Cuti Anggota Serumah Meninggalll",
@@ -451,11 +448,11 @@ async function manualSeed() {
 
 manualSeed()
   .then(() => {
-    console.log('✅ Seed selesai.');
+    console.log("✅ Seed selesai.");
     return prisma.$disconnect();
   })
   .catch(async (error) => {
-    console.error('❌ Seed gagal:', error);
+    console.error("❌ Seed gagal:", error);
     await prisma.$disconnect();
     process.exit(1);
   });

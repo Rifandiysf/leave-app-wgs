@@ -8,17 +8,7 @@ import {
     PaginationNext,
     PaginationPrevious
 } from "@/app/components/ui/pagination";
-
-export type PaginationInfo = {
-    current_page: number;
-    last_visible_page: number;
-    has_next_page: boolean;
-    item?: {
-        count: number;
-        total: number;
-        per_page: number;
-    }
-};
+import { PaginationInfo } from "@/lib/type";
 
 type PageItem = number | 'ellipsis';
 
