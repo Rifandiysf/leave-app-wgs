@@ -80,8 +80,8 @@ export function useApplyLeave() {
     const [state, dispatch] = useReducer(ApplyLeaveReducer, initialState)
 
     useEffect(() => {
-        if (!state.isDialogOpen) dispatch({ type: "RESET_FORM" })
-    }, [state.isDialogOpen])
+        if (!state.isDialogOpen && !state.showSuccessNotification) dispatch({ type: "RESET_FORM" })
+    }, [state.isDialogOpen, state.showSuccessNotification])
 
     useEffect(() => {
         if (state.leaveType === "special_leave") {

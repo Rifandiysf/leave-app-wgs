@@ -26,7 +26,7 @@ export const UserSearch = ({ state, dispatch, onUserSelect }: any) => (
                     ) : state.searchResults.length > 0 ? (
                         state.searchResults.map((user: UserSearchResult) => (
                             <div key={user.nik} className="p-2 hover:bg-muted-foreground/20 cursor-pointer text-sm" onClick={() => onUserSelect(user)}>
-                                {user.nik} - {user.name}
+                                {user.nik} - {user.fullname}
                             </div>
                         ))
                     ) : (
