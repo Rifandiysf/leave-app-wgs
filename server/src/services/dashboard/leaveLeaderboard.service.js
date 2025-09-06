@@ -4,8 +4,8 @@ export const leaveLeaderboard = async (order = "desc") => {
     const users = await prisma.tb_users.findMany({
         where: {
             NOT: {
-                tb_roles: {
-                    slug: 'magang'
+                tb_statuses: {
+                    name: "Magang"
                 }
             }
         },
@@ -35,18 +35,18 @@ export const leaveLeaderboard = async (order = "desc") => {
 
         //bulan pertama bekerja
         let effectiveJoin = new Date(joinDate)
-        if(joinDate.getDate() > 20) {
+        if (joinDate.getDate() > 20) {
             effectiveJoin.setMonth(effectiveJoin.getMonth() + 1)
         }
         effectiveJoin.setDate(1)
 
         //bulan mendapatkan hak cuti (setelah 3 bulan kerja)
-        let  eligibleDate = new Date(effectiveJoin)
+        let eligibleDate = new Date(effectiveJoin)
         eligibleDate.setMonth(eligibleDate.getMonth() + 3)
         eligibleDate.setDate(1)
 
         let joinMonthDiff = (today.getFullYear() - effectiveJoin.getFullYear()) * 12 +
-                        (today.getMonth() - effectiveJoin.getMonth());
+            (today.getMonth() - effectiveJoin.getMonth());
         if (today.getDate() >= effectiveJoin.getDate()) {
             joinMonthDiff += 1
         }
@@ -69,26 +69,26 @@ export const leaveLeaderboard = async (order = "desc") => {
             const created = new Date(adj.created_at);
             return created >= fromDate && created <= toDate;
         })
-        .reduce((sum, adj) => sum + (adj.adjustment_value || 0), 0);
+            .reduce((sum, adj) => sum + (adj.adjustment_value || 0), 0);
 
         //total cuti terpakai 
         const usedLeave = user.tb_leave.filter(l => {
             const start = new Date(l.start_date);
 
-            if(l.leave_type === 'mandatory_leave') {
+            if (l.leave_type === 'mandatory_leave') {
                 return start >= fromDate && start <= toDate
             } else {
                 return start >= fromDate && start <= toDate && start >= eligibleDate
             }
         })
-        .reduce((sum, l) => sum + (l.total_days || 0), 0);
+            .reduce((sum, l) => sum + (l.total_days || 0), 0);
 
         //sisa cuti
         const remainingLeave = givenLeave - usedLeave
 
         //average leave range (0-1)
         const averageLeave = givenLeave > 0
-            ? remainingLeave/givenLeave
+            ? remainingLeave / givenLeave
             : 0;
 
         // Jatah cuti tahun ini
