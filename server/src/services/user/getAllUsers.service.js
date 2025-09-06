@@ -17,8 +17,8 @@ export const getAllUsers = async (page, limit, search = '', gender = '', statusN
             ...(roleSlug ? { role: { slug: roleSlug } } : []),
         ],
         NOT: {
-            tb_roles: {
-                slug: "magang"
+            tb_statuses: {
+                name: "Magang"
             }
         }
     };
