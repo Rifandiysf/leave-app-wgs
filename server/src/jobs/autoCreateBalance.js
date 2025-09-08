@@ -45,7 +45,7 @@ cron.schedule('0 0 * * *', async () => {
                     NIK: nik,
                     amount: adjustment_value,
                     receive_date: startOfYear,
-                    expired_date: new Date(`${targetYear + 2}-01-01`)
+                    expired_date: new Date(`${targetYear + 2}-04-01`)
                 };
 
                 const result = await prisma.$transaction(async (tx) => {
