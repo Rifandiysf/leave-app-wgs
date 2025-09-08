@@ -12,14 +12,14 @@ export const checkStartDateTwoWeeksAhead = (req, res, next) => {
     const now = new Date();
 
     const minAllowedDate = new Date(now.setHours(0, 0, 0, 0));
-    minAllowedDate.setDate(minAllowedDate.getDate() + 14);
+    minAllowedDate.setDate(minAllowedDate.getDate() + 3);
     console.log(start_date)
     console.log(minAllowedDate)
 
     if (inputDate < minAllowedDate) {
         return res.status(400).json({
             success: false,
-            message: `Start date must be at least 14 days from today (${minAllowedDate.toISOString().split("T")[0]})`
+            message: `Start date must be at least 3 days from today`
         });
     }
 

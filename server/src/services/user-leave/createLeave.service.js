@@ -37,18 +37,29 @@ export const createLeave = async (data) => {
         const duration = specialLeave.duration;
         const startDate = createDateFromString(start_date);
 
-        let count = 0;
-        let tempDate = new Date(startDate);
-        while (count < duration - 1) {
-            tempDate.setUTCDate(tempDate.getUTCDate() + 1);
-            const day = tempDate.getUTCDay();
-            // if (day !== 0 && day !== 6) {
-            count++;
-            // }
-        }
+        if (specialLeave.type === 'month') {
+            let tempDate = new Date(startDate);
+            tempDate.setUTCMonth(tempDate.getUTCMonth() + duration);
+            end_date = tempDate;
 
-        end_date = tempDate;
-        total_days = duration;
+            total_days = calculateHolidaysDays(
+                createDateFromString(start_date),
+                createDateFromString(end_date)
+            );
+
+        } else {
+            let count = 0;
+            let tempDate = new Date(startDate);
+            while (count < duration - 1) {
+                tempDate.setUTCDate(tempDate.getUTCDate() + 1);
+                const day = tempDate.getUTCDay();
+                // if (day !== 0 && day !== 6) {
+                count++;
+                // }
+            }
+            end_date = tempDate;
+            total_days = duration;
+        }
 
         title = specialLeave.title;
         reason = specialLeave.title;

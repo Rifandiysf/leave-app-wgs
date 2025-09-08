@@ -19,6 +19,7 @@ import updateLeaveRequestSchema from "../validators/updateLeave.validator.js";
 import { specialLeaveForm, specialLeaveFormUpdate } from "../validators/specialLeaveForm.validator.js";
 import { mandatoryLeaveForm, mandatoryLeaveFormUpdate } from "../validators/mandatoryLeaveForm.validator.js";
 import { checkStartDateTwoWeeksAhead } from "../middlewares/checkStartDateTwoWeeksAhead.middleware.js";
+import { updateMandatoryYear } from "../controllers/mandatory/updateMandatoryYear.controller.js";
 
 const leaveRoutes = express.Router();
 
@@ -37,6 +38,7 @@ leaveRoutes.get('/mandatory', getMandatoryLeaves)
 leaveRoutes.get('/mandatory/search', getSearchMandatoryLeave)
 leaveRoutes.post('/mandatory', checkStartDateTwoWeeksAhead, validate(mandatoryLeaveForm), createMandatoryLeave)
 leaveRoutes.patch('/mandatory/:id', validate(mandatoryLeaveFormUpdate), updateMandatoryLeave)
+leaveRoutes.patch('/mandatory-year/:year', updateMandatoryYear)
 
 leaveRoutes.patch('/:id', validate(updateLeaveRequestSchema), updateLeaveById)
 
