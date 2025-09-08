@@ -14,6 +14,7 @@ export type SpecialLeaveType = {
     title: string,
     applicable_gender: string,
     duration: number,
+    type: string;
     is_active: boolean,
     description: string,
 }
@@ -42,5 +43,6 @@ export interface SpecialPayload {
     title: string;
     applicable_gender: string;
     duration: number;
+    type: 'day' | 'mounth';
     description: string;
 }
