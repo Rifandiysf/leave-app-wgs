@@ -24,14 +24,14 @@ export const HistoryTable = ({ isLoading, data, itemsPerPage }: HistoryTableProp
     return (
         <div className="w-full border-border rounded-md overflow-hidden">
             <div className="overflow-x-auto">
-                <table className="w-full min-w-max text-sm">
+                <table className="w-full text-sm">
                     <thead className="border-b-[1.5px] border-border bg-[#f0f4f9] dark:bg-card">
                         <tr>
                             <th className="p-3 font-semibold text-center">Status</th>
                             <th className="p-3 font-semibold text-center">Type</th>
-                            <th className="p-3 font-semibold text-center">Start Leave</th>
-                            <th className="p-3 font-semibold text-center">End Leave</th>
-                            <th className="p-3 font-semibold text-center">Leave Usage</th>
+                            <th className="p-3 font-semibold text-center hidden md:table-cell">Start Leave</th>
+                            <th className="p-3 font-semibold text-center hidden md:table-cell">End Leave</th>
+                            <th className="p-3 font-semibold text-center hidden md:table-cell">Leave Usage</th>
                             <th className="p-3 font-semibold text-center">Title</th>
                             <th className="p-3 font-semibold text-center">Detail</th>
                         </tr>
@@ -40,11 +40,13 @@ export const HistoryTable = ({ isLoading, data, itemsPerPage }: HistoryTableProp
                         {isLoading ? (
                             Array.from({ length: itemsPerPage }).map((_, rowIdx) => (
                                 <tr key={rowIdx} className="animate-pulse">
-                                    {Array.from({ length: 7 }).map((_, colIdx) => (
-                                        <td key={colIdx} className="p-4 text-center">
-                                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto" />
-                                        </td>
-                                    ))}
+                                    <td className="p-4 text-center"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto" /></td>
+                                    <td className="p-4 text-center"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto" /></td>
+                                    <td className="p-4 text-center hidden md:table-cell"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto" /></td>
+                                    <td className="p-4 text-center hidden md:table-cell"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto" /></td>
+                                    <td className="p-4 text-center hidden md:table-cell"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto" /></td>
+                                    <td className="p-4 text-center"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto" /></td>
+                                    <td className="p-4 text-center"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto" /></td>
                                 </tr>
                             ))
                         ) : data.length === 0 ? (
@@ -54,16 +56,16 @@ export const HistoryTable = ({ isLoading, data, itemsPerPage }: HistoryTableProp
                                 <tr key={item.id_leave} className="odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] odd:dark:bg-card/30 even:dark:bg-card/70 transition-colors duration-300">
                                     <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{statusTag(item.status)}</td>
                                     <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{formatUppercase(item.leave_type)}</td>
-                                    <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{formatDate(item.start_date)}</td>
-                                    <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{formatDate(item.end_date)}</td>
-                                    <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{item.total_days} Days</td>
+                                    <td className="p-2 text-center border-b-[1.5px] border-[#0000001f] hidden md:table-cell">{formatDate(item.start_date)}</td>
+                                    <td className="p-2 text-center border-b-[1.5px] border-[#0000001f] hidden md:table-cell">{formatDate(item.end_date)}</td>
+                                    <td className="p-2 text-center border-b-[1.5px] border-[#0000001f] hidden md:table-cell">{item.total_days} Days</td>
                                     <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">{item.title}</td>
                                     <td className="p-2 text-center border-b-[1.5px] border-[#0000001f]">
                                         <Modal
                                             mode="info"
                                             size="icon"
                                             variant="ghost"
-                                            title="Information"
+                                            title="History Information"
                                             triggerLabel={<i className="bi bi-exclamation-circle text-xl text-blue-500 hover:text-blue-700"></i>}
                                             triggerClassName='hover:bg-blue-50'
                                             showFooter={false}
@@ -91,7 +93,7 @@ export const HistoryTable = ({ isLoading, data, itemsPerPage }: HistoryTableProp
                                                     <div className="flex flex-col gap-5">
                                                         <div className="flex flex-col gap-0.5">
                                                             <Label className="font-bold text-gray-500">Reason Leave</Label>
-                                                            <h1>{item.reason}</h1>
+                                                            <h1 className="break-words">{item.reason}</h1>
                                                         </div>
                                                         <div className="flex flex-col gap-0.5">
                                                             <Label className="font-bold text-gray-500">Status</Label>
@@ -123,3 +125,4 @@ export const HistoryTable = ({ isLoading, data, itemsPerPage }: HistoryTableProp
         </div>
     );
 };
+
