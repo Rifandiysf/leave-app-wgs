@@ -5,6 +5,8 @@ export const updateMandatoryLeave = async (req, res) => {
 
     const { id } = req.params
     const data = req.body
+    console.log(id)
+    console.log(data)
 
     const mandatoryLeave = await updateMandatoryLeaveService(id, data)
 
