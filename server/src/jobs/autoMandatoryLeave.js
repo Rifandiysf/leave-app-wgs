@@ -8,14 +8,14 @@ cron.schedule('0 0 * * *', async () => {
 
     const today = new Date();
     const targetDate = new Date(today);
-    targetDate.setDate(today.getDate() + 6);
+    targetDate.setDate(today.getDate() + 2);
     targetDate.setHours(0, 0, 0, 0);
 
     const startOfTargetDay = new Date(targetDate);
     const endOfTargetDay = new Date(targetDate);
     endOfTargetDay.setHours(23, 59, 59, 999);
 
-    console.log(`Target H-7 date: ${targetDate.toISOString().split('T')[0]}`);
+    console.log(`Target H-2 date: ${targetDate.toISOString().split('T')[0]}`);
 
     try {
         const upcomingMandatoryLeaves = await prisma.tb_mandatory_leave.findMany({
@@ -28,14 +28,14 @@ cron.schedule('0 0 * * *', async () => {
             }
         });
 
-        console.log(`Found ${upcomingMandatoryLeaves.length} mandatory leaves starting on H-7`);
+        console.log(`Found ${upcomingMandatoryLeaves.length} mandatory leaves starting on H-2`);
 
         for (const mandatory of upcomingMandatoryLeaves) {
             console.log(`Processing mandatory leave: ${mandatory.title}, start_date: ${mandatory.start_date}`);
 
             const allUsers = await prisma.tb_users.findMany({
                 where: {
-                    is_active: true,
+                    isActive: true,
                 },
                 select: {
                     NIK: true
