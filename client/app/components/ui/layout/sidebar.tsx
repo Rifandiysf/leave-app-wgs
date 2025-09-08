@@ -65,8 +65,8 @@ export default function Sidebar() {
                                 <h2 className="text-2xl font-medium text-foreground mt-2 whitespace-nowrap">{welcomeText}</h2>
                             </div>
                         </div>
-                        <nav className="bg-card p-4 flex-1 relative rounded-se-4xl">
-                            <div className="font-semibold mt-8 space-y-2">
+                        <nav className="bg-card p-4 flex-1 relative rounded-ss-4xl overflow-y-auto [direction:rtl]">
+                            <div className="font-semibold mt-8 space-y-2 [direction:ltr]">
                                 <Link href="/admin/dashboard" className={`flex items-center py-3 px-6 rounded-full transition-colors ${isActive('/admin/dashboard')}`}>
                                     <i className="bi bi-person-workspace text-xl w-6 text-center" />
                                     <span className="ml-3">Dashboard</span>
