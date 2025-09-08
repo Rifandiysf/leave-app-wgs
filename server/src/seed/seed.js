@@ -271,11 +271,12 @@ async function manualSeed() {
       }
     }
 
-    const specialLeaves = [
+        const specialLeaves = [
       {
         title: "Cuti Melahirkan",
         applicable_gender: "f",
-        duration: 90,
+        duration: 3,
+        type: "month",
         is_active: true,
         description: "Cuti melahirkan untuk karyawan perempuan",
       },
@@ -283,6 +284,7 @@ async function manualSeed() {
         title: "Cuti Haid",
         applicable_gender: "f",
         duration: 2,
+        type: "day",
         is_active: true,
         description: "Cuti haid untuk karyawan perempuan",
       },
@@ -290,6 +292,7 @@ async function manualSeed() {
         title: "Cuti Menikah",
         applicable_gender: "mf",
         duration: 3,
+        type: "day",
         is_active: true,
         description: "Cuti menikah untuk karyawan",
       },
@@ -297,6 +300,7 @@ async function manualSeed() {
         title: "Cuti Menikahkan Anak",
         applicable_gender: "mf",
         duration: 2,
+        type: "day",
         is_active: true,
         description: "Cuti menikahkan anak untuk karyawan",
       },
@@ -304,6 +308,7 @@ async function manualSeed() {
         title: "Cuti Mengkhitankan Anak",
         applicable_gender: "mf",
         duration: 2,
+        type: "day",
         is_active: true,
         description: "Cuti mengkhitankan anak untuk karyawan",
       },
@@ -311,6 +316,7 @@ async function manualSeed() {
         title: "Cuti Membaptis Anak",
         applicable_gender: "mf",
         duration: 2,
+        type: "day",
         is_active: true,
         description: "Cuti membaptis anak untuk karyawan",
       },
@@ -318,6 +324,7 @@ async function manualSeed() {
         title: "Cuti Istri Melahirkan/Keguguran",
         applicable_gender: "m",
         duration: 2,
+        type: "day",
         is_active: true,
         description: "Cuti karena istri melahirkan atau keguguran",
       },
@@ -325,6 +332,7 @@ async function manualSeed() {
         title: "Cuti Keluarga Inti Meninggal",
         applicable_gender: "mf",
         duration: 2,
+        type: "day",
         is_active: true,
         description:
           "Cuti karena meninggal suami/istri/orang tua/mertua/anak/menantu",
@@ -333,6 +341,7 @@ async function manualSeed() {
         title: "Cuti Anggota Serumah Meninggalll",
         applicable_gender: "mf",
         duration: 1,
+        type: "day",
         is_active: true,
         description: "Cuti karena meninggal anggota keluarga serumah",
       },
