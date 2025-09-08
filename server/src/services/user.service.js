@@ -653,9 +653,6 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
     if (!leave_type || (leave_type !== 'this_year_leave' && leave_type !== 'last_year_leave')) {
         throw new Error("Parameter 'leave_type' harus 'this_year_leave' atau 'last_year_leave'");
     }
-    if (adjustment_value <= 0) {
-        throw new Error('Adjustment value must be positive');
-    }
     if (actor?.nik === nik) {
         throw new Error('You are not allowed to add your own leave balance');
     }
