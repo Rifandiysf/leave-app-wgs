@@ -6,7 +6,7 @@ export const allUsers = async (req, res, next) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const search = req.query.search || ''
-        const isMale = req.query.isMale
+        const isMale = req.query.isMale === 'true' ? true : req.query.isMale === 'false' ? false : undefined;
         const statusName = req.query.status || '' 
         const roleSlug = req.query.role || ''    
 

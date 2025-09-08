@@ -2,37 +2,40 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useAmountLeaveForm } from '@/app/hooks/admin/UseAmountLeaveForm';
+import { UseAdjustBalanceForm } from '@/app/hooks/admin/UseAdjustBalanceForm';
 import { Button } from '@/app/components/ui/button';
 import Modal from '@/app/components/ui/Modal/Modal';
-import { UserSearch } from '@/app/components/admin/amount-leave/UserSearch';
-import { YearSelector } from '@/app/components/admin/amount-leave/YearSelector';
-import { BalanceFields } from '@/app/components/admin/amount-leave/BalanceFields';
+import { UserSearch } from '@/app/components/admin/adjust-balance/UserSearch';
+import { YearSelector } from '@/app/components/admin/adjust-balance/YearSelector';
+import { BalanceFields } from '@/app/components/admin/adjust-balance/BalanceFields';
+import { AdjustmentTypeSelector } from '@/app/components/admin/adjust-balance/AdjusmentTypeSelector';
 import { Notification } from '@/app/components/ui/notification/Notification';
 
 const AmountLeavePage = () => {
-    const { state, dispatch, handleUserSelect, handleSubmit, closeNotification } = useAmountLeaveForm();
+    const { state, dispatch, handleUserSelect, handleSubmit, closeNotification } = UseAdjustBalanceForm();
     const router = useRouter();
 
-    const isFormValid = state.selectedUser && state.amountToAdd > 0 && state.information.trim() !== '' && !state.isSelfEdit;
-    const isDirty = state.nik.trim() !== '' || state.amountToAdd > 0 || state.information.trim() !== '';
+    const isFormValid = state.selectedUser && state.adjustmentAmount > 0 && state.information.trim() !== '' && !state.isSelfEdit;
+    const isDirty = state.nik.trim() !== '' || state.adjustmentAmount > 0 || state.information.trim() !== '';
 
     const getConfirmationMessage = () => {
         if (!state.selectedUser) return "";
         const thisYear = new Date().getFullYear();
         const lastYear = thisYear - 1;
         const yearType = state.selectedYear === lastYear.toString() ? "last year" : "this year";
-        return `Are you sure you want to add ${state.amountToAdd} leaves for ${yearType} (${state.selectedYear}) to ${state.selectedUser.nik} - ${state.selectedUser.name}?`;
+        const actionVerb = state.adjustmentType === 'add' ? 'add' : 'reduce';
+
+        return `Are you sure you want to ${actionVerb} ${state.adjustmentAmount} leaves for ${yearType} (${state.selectedYear}) to ${state.selectedUser.nik} - ${state.selectedUser.fullname}?`;
     };
 
-    const effectiveError = state.isSelfEdit ? "You are not allowed to add your own leave balance." : state.error;
+    const effectiveError = state.isSelfEdit ? "You are not allowed to adjust your own leave balance." : state.error;
 
     return (
         <>
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-2">
                 <div className="bg-background rounded-lg shadow-lg py-3 px-4 w-full max-w-lg relative max-h-[95vh] overflow-y-auto">
                     <div className="text-center mb-4">
-                        <h2 className="text-lg font-bold">Add Amount Leave</h2>
+                        <h2 className="text-lg font-bold">Adjust Leave Balance</h2>
                     </div>
 
                     {effectiveError && (
@@ -46,6 +49,7 @@ const AmountLeavePage = () => {
                     
                     <div className="space-y-3">
                         <UserSearch state={state} dispatch={dispatch} onUserSelect={handleUserSelect} />
+                        <AdjustmentTypeSelector state={state} dispatch={dispatch} />
                         <YearSelector state={state} dispatch={dispatch} />
                         <BalanceFields state={state} dispatch={dispatch} />
                         
@@ -60,7 +64,6 @@ const AmountLeavePage = () => {
                             ></textarea>
                         </div>
                         
-                        {/* Buttons */}
                         <div className="flex justify-between items-center mt-6">
                             {isDirty ? (
                                 <Modal
@@ -85,7 +88,6 @@ const AmountLeavePage = () => {
                                     Back
                                 </Button>
                             )}
-
                             {isFormValid ? (
                                 <Modal
                                     mode="confirm"

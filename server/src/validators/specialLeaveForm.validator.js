@@ -7,7 +7,10 @@ export const specialLeaveForm = z.object({
     required_error: "Gender must be selected",
   }),
   duration: z.number().int().min(1, "Minimum duration 1 day").max(365, "Maximum duration 365 days"),
-  isActive: z.boolean().optional(),
+  type: z.enum(["day", "month"], {
+    required_error: "Type must be selected",
+  }),
+  is_active: z.boolean().optional(),
   description: z.string(),
 });
 

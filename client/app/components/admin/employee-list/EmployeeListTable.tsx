@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Statistics from "@/app/components/ui/Modal/Statistics"; 
+import Statistics from '@/app/components/ui/Modal/Statistics'; 
 import { Employee } from "@/app/hooks/admin/UseEmployeeListData"; 
 
 interface EmployeeListTableProps {
@@ -52,7 +52,12 @@ export const EmployeeListTable = ({ isLoading, employees, itemsPerPage }: Employ
                                         <td className="p-3">{data.leave_total || 0}</td>
                                         <td className="p-3">{(data.status?.name || '-')}</td>
                                         <td className="p-3">{renderStatus(data.isActive)}</td>
-                                        <td className="p-3"><Statistics user={data}/></td>
+                                        <td className="p-3">
+                                            <div className="flex justify-center items-center gap-4">
+                                                <Statistics user={data}/>
+                                            
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))
                             )}
@@ -63,4 +68,5 @@ export const EmployeeListTable = ({ isLoading, employees, itemsPerPage }: Employ
         </section>
     );
 };
+
 

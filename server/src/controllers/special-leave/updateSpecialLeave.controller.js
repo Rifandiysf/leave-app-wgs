@@ -5,6 +5,8 @@ export const updateSpecialLeave = async (req, res) => {
 
     const { id } = req.params
     const data = req.body
+    console.log(id)
+    console.log(data)
 
     const specialLeaves = await updateSpecialLeaveService(id, data)
 
