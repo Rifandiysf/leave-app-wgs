@@ -1,8 +1,11 @@
 import prisma from "../../utils/client.js";
 
-export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, targetRole, leave_type) => {
+export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, targetRole, leave_type, operation) => {
     if (!leave_type || (leave_type !== 'this_year_leave' && leave_type !== 'last_year_leave')) {
         throw new Error("Parameter 'leave_type' harus 'this_year_leave' atau 'last_year_leave'");
+    }
+    if (!operation || (operation !== 'add_amount' && operation !== 'reduce_amount')) {
+        throw new Error("Parameter 'operation' harus 'add_amount' atau 'reduce_amount'");
     }
     if (actor?.nik === nik) {
         throw new Error('You are not allowed to add your own leave balance');
@@ -46,16 +49,16 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
     if (!balance) {
         const newBalanceData = {
             NIK: nik,
-            amount: adjustment_value,
+            amount: operation === "reduce_amount" ? -Math.abs(adjustment_value) : adjustment_value,
             receive_date: new Date(`${targetYear}-01-01`),
-            expired_date: new Date(`${targetYear + 2}-01-01`),
+            expired_date: new Date(`${targetYear + 2}-04-01`),
         };
 
         const [newBalance, adjustmentLog] = await prisma.$transaction([
             prisma.tb_balance.create({ data: newBalanceData }),
             prisma.tb_balance_adjustment.create({
                 data: {
-                    adjustment_value,
+                    adjustment_value: operation === "reduce_amount" ? -Math.abs(adjustment_value) : adjustment_value,
                     notes,
                     actor: actor.name,
                     NIK: nik,
@@ -70,14 +73,16 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
         prisma.tb_balance.update({
             where: { id_balance: balance.id_balance },
             data: {
-                amount: {
-                    increment: adjustment_value
-                }
+                amount:
+                    operation === "add_amount"
+                        ? { increment: adjustment_value }
+                        : { decrement: adjustment_value },
+                
             }
         }),
         prisma.tb_balance_adjustment.create({
             data: {
-                adjustment_value,
+                adjustment_value: operation === "reduce_amount" ? -Math.abs(adjustment_value) : adjustment_value,
                 notes,
                 actor: actor.name,
                 NIK: nik,
