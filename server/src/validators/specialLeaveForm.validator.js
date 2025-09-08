@@ -10,7 +10,7 @@ export const specialLeaveForm = z.object({
   type: z.enum(["day", "month"], {
     required_error: "Type must be selected",
   }),
-  isActive: z.boolean().optional(),
+  is_active: z.boolean().optional(),
   description: z.string(),
 });
 
