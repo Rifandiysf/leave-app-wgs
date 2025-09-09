@@ -21,7 +21,7 @@ export const getUserHistoryByNIK = async (nik, limit = 10, page = 1, dataFilter)
         l.reason,
         l.status,
         (SELECT balances_used FROM tb_leave_log WHERE tb_leave_log.id_leave = l.id_leave ORDER BY tb_leave_log.changed_at DESC LIMIT 1) AS balances_used,
-        (SELECT changed_by_nik FROM tb_leave_log WHERE tb_leave_log.id_leave = l.id_leave ORDER BY tb_leave_log.changed_at DESC LIMIT 1) AS changed_by_nik,
+        (SELECT actor_fullname FROM tb_leave_log WHERE tb_leave_log.id_leave = l.id_leave ORDER BY tb_leave_log.changed_at DESC LIMIT 1) AS changed_by,
         (SELECT reason FROM tb_leave_log WHERE tb_leave_log.id_leave = l.id_leave ORDER BY tb_leave_log.changed_at DESC LIMIT 1) AS reason_log,
         NULL AS adjustment_value,
         NULL AS notes,
@@ -45,7 +45,7 @@ export const getUserHistoryByNIK = async (nik, limit = 10, page = 1, dataFilter)
         NULL AS reason,
         NULL AS status,
         NULL AS balance_used,
-        NULL AS changed_by_nik,
+        NULL AS changed_by,
         NULL AS reason_log,
         a.adjustment_value,
         a.notes,
@@ -84,8 +84,11 @@ export const getUserHistoryByNIK = async (nik, limit = 10, page = 1, dataFilter)
                 delete item.reason
                 delete item.status
                 delete item.balances_used
-                delete item.changed_by_nik
+                delete item.changed_by
                 delete item.reason_log
+
+                item.date = formatDateIndonesia(createDateFromString(item.created_at))
+                item.time = item.created_at.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: undefined }).replace('.', ':')
             }
 
             return item
