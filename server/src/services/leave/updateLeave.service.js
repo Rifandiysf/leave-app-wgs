@@ -1,7 +1,7 @@
 import prisma from "../../utils/client.js";
 import { createDateFromString } from "../../utils/leaves.utils.js";
 
-export const updateLeave = async (id, status, reason, nik) => {
+export const updateLeave = async (id, status, reason, nik, fullname) => {
     try {
         const currentYear = new Date().getFullYear();
         const currentDate = new Date()
@@ -23,6 +23,7 @@ export const updateLeave = async (id, status, reason, nik) => {
                 }
             }
         });
+        console.log(data)
 
         if (!data) {
             const err = new Error("Leave not found");
@@ -185,6 +186,7 @@ export const updateLeave = async (id, status, reason, nik) => {
                     new_status: status,
                     reason: reason,
                     changed_by_nik: nik,
+                    fullname: fullname,
                     id_leave: data.id_leave,
                     changed_at: new Date(),
                     balances_used: balancesUsed.sort((a, b) => b[1] - a[1]) ?? []
