@@ -115,7 +115,7 @@ model tb_leave_log {
   reason         String
   changed_at     DateTime @default(now()) @db.Timestamptz(0)
   changed_by_nik String   @db.VarChar(16)
-  fullname       String   @db.VarChar(50)
+  actor_fullname       String   @db.VarChar(50)
   id_leave       String   @db.VarChar(50)
   balances_used  Json     @default("[]")
   tb_users       tb_users @relation(fields: [changed_by_nik], references: [NIK], onDelete: NoAction, onUpdate: NoAction, map: "NIK")

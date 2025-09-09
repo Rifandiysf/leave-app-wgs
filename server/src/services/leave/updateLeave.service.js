@@ -1,7 +1,7 @@
 import prisma from "../../utils/client.js";
 import { createDateFromString } from "../../utils/leaves.utils.js";
 
-export const updateLeave = async (id, status, reason, nik, fullname) => {
+export const updateLeave = async (id, status, reason, nik, actor_fullname) => {
     try {
         const currentYear = new Date().getFullYear();
         const currentDate = new Date()
@@ -186,7 +186,7 @@ export const updateLeave = async (id, status, reason, nik, fullname) => {
                     new_status: status,
                     reason: reason,
                     changed_by_nik: nik,
-                    fullname: fullname,
+                    actor_fullname: actor_fullname,
                     id_leave: data.id_leave,
                     changed_at: new Date(),
                     balances_used: balancesUsed.sort((a, b) => b[1] - a[1]) ?? []
