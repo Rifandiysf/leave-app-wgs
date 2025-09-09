@@ -1,6 +1,7 @@
 import prisma from "../utils/client.js";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
+import { createDateFromString } from "../utils/leaves.utils.js";
 
 async function manualSeed() {
   await prisma.$transaction(async (tx) => {
@@ -110,7 +111,7 @@ async function manualSeed() {
         isActive: true,
         roleSlug: "user",
         statusName: "Kontrak",
-        join_date: new Date("2024-01-15"),
+        join_date: new Date("2022-01-15"),
       },
       {
         NIK: "100002",
@@ -121,7 +122,7 @@ async function manualSeed() {
         isActive: true,
         roleSlug: "user",
         statusName: "Tetap",
-        join_date: new Date("2023-11-01"),
+        join_date: new Date("2022-11-01"),
       },
       {
         NIK: "100003",
@@ -132,7 +133,7 @@ async function manualSeed() {
         isActive: true,
         roleSlug: "user",
         statusName: "Magang",
-        join_date: new Date("2025-06-01"),
+        join_date: new Date("2022-06-01"),
       },
       {
         NIK: "100004",
@@ -143,7 +144,7 @@ async function manualSeed() {
         isActive: true,
         roleSlug: "admin",
         statusName: "Tetap",
-        join_date: new Date("2024-09-15"),
+        join_date: new Date("2022-09-15"),
       },
       {
         NIK: "100005",
@@ -154,7 +155,7 @@ async function manualSeed() {
         isActive: true,
         roleSlug: "super_admin",
         statusName: "Tetap",
-        join_date: new Date("2023-01-10"),
+        join_date: new Date("2022-01-10"),
       },
       {
         NIK: "100006",
@@ -165,7 +166,7 @@ async function manualSeed() {
         isActive: true,
         roleSlug: "user",
         statusName: "Magang",
-        join_date: new Date("2015-10-24"),
+        join_date: new Date("2022-10-24"),
       },
       {
         NIK: "100007",
@@ -176,7 +177,7 @@ async function manualSeed() {
         isActive: false,
         roleSlug: "admin",
         statusName: "Tetap",
-        join_date: new Date("2017-03-15"),
+        join_date: new Date("2022-03-15"),
       },
       {
         NIK: "100008",
@@ -187,7 +188,7 @@ async function manualSeed() {
         isActive: false,
         roleSlug: "user",
         statusName: "Kontrak",
-        join_date: new Date("2018-07-09"),
+        join_date: new Date("2022-07-09"),
       },
       {
         NIK: "100009",
@@ -198,7 +199,7 @@ async function manualSeed() {
         isActive: false,
         roleSlug: "user",
         statusName: "Magang",
-        join_date: new Date("2020-01-20"),
+        join_date: new Date("2022-01-20"),
       },
       {
         NIK: "100010",
@@ -209,7 +210,7 @@ async function manualSeed() {
         isActive: false,
         roleSlug: "user",
         statusName: "Tetap",
-        join_date: new Date("2016-05-12"),
+        join_date: new Date("2022-05-12"),
       },
     ];
 
@@ -229,11 +230,31 @@ async function manualSeed() {
       });
 
       if (user.isActive && user.statusName !== "Magang") {
+         const balanceLastTwoYear = await tx.tb_balance.create({
+          data: {
+            amount: 12,
+            receive_date: new Date("2023-01-01"),
+            expired_date: createDateFromString(new Date(2025, 3, 1)),
+            NIK: user.NIK,
+          },
+        });
+
+        await tx.tb_balance_adjustment.create({
+          data: {
+            actor: "system",
+            balance_year: balanceLastTwoYear.receive_date.getFullYear(),
+            NIK: balanceLastTwoYear.NIK,
+            notes: "Created balance",
+            id_balance: balanceLastTwoYear.id_balance,
+            adjustment_value: balanceLastTwoYear.amount,
+          },
+        });
+
         const balanceLastYear = await tx.tb_balance.create({
           data: {
             amount: 12,
             receive_date: new Date("2024-01-01"),
-            expired_date: new Date("2026-01-01"),
+            expired_date: createDateFromString(new Date(2026, 3, 1)),
             NIK: user.NIK,
           },
         });
@@ -253,7 +274,7 @@ async function manualSeed() {
           data: {
             amount: 12,
             receive_date: new Date("2025-01-01"),
-            expired_date: new Date("2027-01-01"),
+            expired_date: createDateFromString(new Date(2027, 3, 1)),
             NIK: user.NIK,
           },
         });

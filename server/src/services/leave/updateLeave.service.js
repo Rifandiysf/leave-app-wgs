@@ -3,10 +3,11 @@ import { createDateFromString } from "../../utils/leaves.utils.js";
 
 export const updateLeave = async (id, status, reason, nik, actor_fullname) => {
     try {
-        const currentYear = new Date().getFullYear();
-        const currentDate = new Date()
-        const currentDateFirstMonth = new Date(currentYear, 0, 1)
-        const currentYearLastMonth = new Date(currentYear, 11, 31, 23, 59, 59);
+        const currentDate = createDateFromString(new Date())
+        console.log(currentDate)
+        const currentYear = currentDate.getFullYear();
+        const currentDateFirstMonth = createDateFromString(new Date(currentYear, 0, 1))
+        const currentYearLastMonth = createDateFromString(new Date(currentYear, 11, 31, 23, 59, 59));
         console.log(currentYearLastMonth)
 
         const data = await prisma.tb_leave.findUnique({
@@ -40,14 +41,12 @@ export const updateLeave = async (id, status, reason, nik, actor_fullname) => {
         const start = createDateFromString(new Date(data.start_date));
         const end = createDateFromString(new Date(data.end_date));
 
-        1
-
         if (start <= currentDate && data.leave_type !== 'special_leave') {
             const err = new Error("The start date of the leave has passed the current date");
             err.statusCode = 400;
             throw err;
-        } else if (start < new Date().setHours(0, 0, 0, 0) && data.leave_type === 'special_leave') {
-            const err = new Error("The start date of tssshe leave has passed the current date");
+        } else if (start < currentDate && data.leave_type === 'special_leave') {
+            const err = new Error("The start date of the leave has passed the current date");
             err.statusCode = 400;
             throw err;
         }
@@ -80,13 +79,13 @@ export const updateLeave = async (id, status, reason, nik, actor_fullname) => {
             where: {
                 NIK: data.NIK,
                 expired_date: {
-                    gt: new Date(),
+                    gt: status === "approved" ? currentDate : undefined,
                 },
                 receive_date: {
                     lte: currentYearLastMonth
                 }
             },
-            take: 2,
+            take: 3,
             orderBy: {
                 expired_date: "desc" // [0] = currentYearBalance && [-1] = lastYearBalance
             }
@@ -104,8 +103,7 @@ export const updateLeave = async (id, status, reason, nik, actor_fullname) => {
             historyBalancesUsed = data.tb_leave_log[0].balances_used
         }
 
-        const isStartDateNextYear = new Date().getFullYear() < data.start_date.getFullYear();
-        console.log(isStartDateNextYear);
+        const isStartDateNextYear = currentYear < data.start_date.getFullYear();
         const currentYearBalance = userBalance.find(balance => balance.receive_date.getFullYear() === currentYear);
 
         if ((isStartDateNextYear && totalDaysUsed > currentYearBalance.amount) && data.leave_type === "personal_leave") {
@@ -164,7 +162,7 @@ export const updateLeave = async (id, status, reason, nik, actor_fullname) => {
             }
         }
 
-        if (data.leave_type == "personal_leave" && userBalance.find((bal) => bal.receive_date.getFullYear() === new Date().getFullYear())?.amount < 0) {
+        if (data.leave_type == "personal_leave" && userBalance.find((bal) => bal.receive_date.getFullYear() === currentYear)?.amount < 0) {
             const error = new Error('Insufficient leave balance');
             error.statusCode = 400;
             throw error;
@@ -188,7 +186,7 @@ export const updateLeave = async (id, status, reason, nik, actor_fullname) => {
                     changed_by_nik: nik,
                     actor_fullname: actor_fullname,
                     id_leave: data.id_leave,
-                    changed_at: new Date(),
+                    changed_at: currentDate,
                     balances_used: balancesUsed.sort((a, b) => b[1] - a[1]) ?? []
                 }
             })

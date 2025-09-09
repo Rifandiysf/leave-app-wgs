@@ -259,4 +259,4 @@ manualSeed()
     console.error('❌ Seed gagal:', error);
     await prisma.$disconnect();
     process.exit(1);
-}););
+});

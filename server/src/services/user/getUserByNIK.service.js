@@ -1,10 +1,12 @@
 import prisma from "../../utils/client.js";
+import { createDateFromString } from "../../utils/leaves.utils.js";
 
 export const getUserByNIK = async (nik) => {
     try {
-        const currentDate = new Date();
-        const currentDateFirstMonth = new Date(new Date().getFullYear(), 0, 1);
-        const currentDateLastMonth = new Date(new Date().getFullYear(), 11, 31);
+        const currentDate = createDateFromString(new Date());
+        const currentYear = currentDate.getFullYear()
+        const currentDateFirstMonth = createDateFromString(new Date(currentYear, 0, 1));
+        const currentDateLastMonth = createDateFromString(new Date(currentYear, 11, 31, 23, 59, 59));
 
         const user = await prisma.tb_users.findUnique({
             select: {
@@ -16,12 +18,7 @@ export const getUserByNIK = async (nik) => {
                 tb_roles: true, 
                 tb_statuses: true, 
                 tb_balance: {
-                    take: 2,
-                    where: {
-                        expired_date: {
-                            gte: new Date()
-                        }
-                    },
+                    take: 3,
                     orderBy: {
                         expired_date: "desc"
                     }
@@ -44,8 +41,10 @@ export const getUserByNIK = async (nik) => {
         }
 
         const { tb_balance, NIK, fullname, isMale } = user;
-        const currentBalance = tb_balance.filter((bal) => new Date().getFullYear() === bal.receive_date.getFullYear())?.[0]?.amount ?? 0;
-        const lastYearBalance = tb_balance.filter((bal) => new Date().getFullYear() !== bal.receive_date.getFullYear())?.[0]?.amount ?? 0;
+        const currentBalance = tb_balance.filter((bal) => currentYear === bal.receive_date.getFullYear())?.[0]?.amount ?? 0;
+        const lastYearBalance = tb_balance.filter((bal) => currentYear - 1 === bal.receive_date.getFullYear())?.[0]?.amount ?? 0;
+        const lastTwoYearBalance = tb_balance.filter((bal) => currentYear - 2 === bal.receive_date.getFullYear())?.[0]?.amount ?? 0;
+        const totalAmount = currentDate > createDateFromString(new Date(currentYear, 3, 1)) ? currentBalance + lastYearBalance : currentBalance + lastYearBalance + lastTwoYearBalance
 
         const pending_request = await prisma.tb_leave.count({
             where: {
@@ -91,9 +90,10 @@ export const getUserByNIK = async (nik) => {
                 slug: user.tb_roles.slug
             },
             balance: {
-                total_amount: currentBalance + lastYearBalance || 0,
+                total_amount: totalAmount || 0,
                 current_amount: currentBalance,
                 carried_amount: lastYearBalance,
+                last_two_year_amount: lastTwoYearBalance,
                 used_days: approved_request._sum.total_days || 0,
                 pending_request: pending_request || 0,
             }
