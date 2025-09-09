@@ -101,6 +101,7 @@ export const searchUsers = async (searchTerm: string) => {
 };
 
 interface UpdateBalancePayload {
+    operation: "add_amount" | "reduce_amount";
     adjustment_value: number;
     notes: string;
     leave_type: "last_year_leave" | "this_year_leave";
@@ -139,6 +140,7 @@ export const getAdminAdjustHistoryLogs = async (params: AdjustHistoryParams) => 
 
 // fetch all history
 
+// Tipe data untuk item mentah dari API
 interface ApiHistoryItem {
     data_source: 'leave' | 'adjustment';
     created_at: string;
@@ -148,11 +150,28 @@ interface ApiHistoryItem {
     total_days?: number;
     notes?: string;
     adjustment_value?: number;
-    // [key: string]: any;
+    [key: string]: any;
 }
 
+interface PaginatedHistoryResponse {
+    data: ApiHistoryItem[];
+    totalPages: number;
+    currentPage: number;
+    totalRecords: number;
+}
 
-export const fetchUserHistory = async (nik: string): Promise<ApiHistoryItem[]> => {
-    const response = await axiosInstance.get(`users/${nik}/history`);                              
+export const fetchUserHistory = async (
+    nik: string, 
+    page: number, 
+    limit: number
+): Promise<PaginatedHistoryResponse> => {
+    
+    const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    });
+
+    const response = await axiosInstance.get(`users/${nik}/history?${params.toString()}`);
+    
     return response.data;
 };
