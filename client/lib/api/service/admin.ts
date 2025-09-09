@@ -77,7 +77,7 @@ export const getLeaveHistory = async (params: LeaveListParams) => {
     if (params.status) queryParams.append("status", params.status);
 
     const response = await axiosInstance.get(`/leaves/logs/search?${queryParams.toString()}`);
-    
+
     // Melakukan filter di sini sesuai logika awal Anda
     if (response.data?.data) {
         response.data.data = response.data.data.filter((leave: any) => leave.status.toLowerCase() !== 'pending');
@@ -97,7 +97,7 @@ export const updateLeaveStatus = async (id: string, newStatus: 'approved' | 'rej
 //fetch untuk add amount leave
 export const searchUsers = async (searchTerm: string) => {
     const response = await axiosInstance.get(`/users?search=${searchTerm}&limit=5`);
-    return response.data; 
+    return response.data;
 };
 
 interface UpdateBalancePayload {
@@ -131,7 +131,7 @@ export const getAdminAdjustHistoryLogs = async (params: AdjustHistoryParams) => 
     const response = await axiosInstance.get('/balances/logs', {
         params: queryParams
     });
-    
+
     return response.data;
 };
 
@@ -148,17 +148,11 @@ interface ApiHistoryItem {
     total_days?: number;
     notes?: string;
     adjustment_value?: number;
-    [key: string]: any; 
+    // [key: string]: any;
 }
 
 
 export const fetchUserHistory = async (nik: string): Promise<ApiHistoryItem[]> => {
-    const response = await fetch(`/api/v1/users/${nik}/history`);
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Failed to fetch user history' }));
-        throw new Error(errorData.message || 'An unknown error occurred');
-    }
-
-    return response.json();
+    const response = await axiosInstance.get(`users/${nik}/history`);                              
+    return response.data;
 };
