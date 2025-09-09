@@ -7,6 +7,20 @@ export const getUserHistoryByNIK = async (nik, limit = 10, page = 1, dataFilter)
 
         const dataSource = dataFilter || null
 
+        const totalLeave = dataSource === "adjustment" ? 0 : await prisma.tb_leave.count({
+            where: {
+                NIK: nik
+            }
+        })
+
+        const totalAdjustment = dataSource === "leave" ? 0 : await prisma.tb_balance_adjustment.count({
+            where: {
+                NIK: nik
+            }
+        })
+
+        const totalData = totalLeave + totalAdjustment
+
         const data = await prisma.$queryRaw`  
         SELECT * FROM (
         SELECT 'leave' AS data_source, 
@@ -57,10 +71,11 @@ export const getUserHistoryByNIK = async (nik, limit = 10, page = 1, dataFilter)
         
         ORDER BY created_at DESC) AS combined_result
 
-        WHERE combined_result.data_source = coalesce(${dataSource}, combined_result.data_source)`
+        WHERE combined_result.data_source = coalesce(${dataSource}, combined_result.data_source)
+        OFFSET ${offset} LIMIT ${limit}`
 
         const modifiedResult = data.map((item) => {
-            if (item.data_source === "leave") { 
+            if (item.data_source === "leave") {
                 const startDate = formatDateIndonesia(item.start_date);
                 const endDate = formatDateIndonesia(item.end_date);
 
@@ -93,8 +108,18 @@ export const getUserHistoryByNIK = async (nik, limit = 10, page = 1, dataFilter)
 
             return item
         })
-        
-        return modifiedResult
+
+        return {
+            data: {
+                data: data,
+                pagination: {
+                    total: totalData,
+                    totalPages: Math.ceil(totalData / limit),
+                    currentPage: page,
+                    limit: limit
+                }
+            }
+        }
     } catch (error) {
         throw error
     }
