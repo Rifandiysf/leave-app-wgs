@@ -6,6 +6,7 @@ export type DataSpecialType = {
     title: string;
     applicable_gender: string;
     duration: number;
+    type: string;
     description: string;
 };
 
@@ -13,16 +14,21 @@ interface EditSpecialState {
     title: string;
     gender: string;
     duration: number;
+    type: string;
     description: string;
     errors: {
         title?: string;
         gender?: string;
         duration?: string;
+        type?: string;
         description?: string;
         general?: string;
     };
     success: string;
     loading: boolean;
+    showConfirmModal: boolean;
+    showDiscardModal: boolean;
+    isDialogOpen: boolean;
 }
 
 type EditSpecialAction =
@@ -37,10 +43,14 @@ const initialState: EditSpecialState = {
     title: "",
     gender: "",
     duration: 0,
+    type: "",
     description: "",
     errors: {},
     success: "",
     loading: false,
+    showConfirmModal: false,
+    showDiscardModal: false,
+    isDialogOpen: false,
 };
 
 function EditSpecialReducer(state: EditSpecialState, action: EditSpecialAction): EditSpecialState {
@@ -61,6 +71,7 @@ function EditSpecialReducer(state: EditSpecialState, action: EditSpecialAction):
                 title: action.payload.title,
                 gender: action.payload.applicable_gender,
                 duration: action.payload.duration,
+                type: action.payload.type,
                 description: action.payload.description,
             };
         default:
@@ -91,6 +102,9 @@ export const useEditSpecialLeave = (initialData: DataSpecialType, onSuccess: () 
             dispatch({ type: "SET_ERROR", field: "duration", value: "Amount cannot be 0 days" });
             hasError = false;
         }
+        if (state.type.trim()) {
+            dispatch({ type: "SET_ERROR", field: 'type', value: "Type cannot be empty" })
+        }
         if (!state.gender.trim()) {
             dispatch({ type: "SET_ERROR", field: "gender", value: "Gender cannot be empty" });
             hasError = false;
@@ -99,16 +113,21 @@ export const useEditSpecialLeave = (initialData: DataSpecialType, onSuccess: () 
         return hasError;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleConfirmModal = (e: React.FormEvent) => {
         e.preventDefault();
         if (!validateForm()) return;
+        dispatch({ type: "SET_FIELD", field: "showConfirmModal", value: true });
+    };
 
+    const handleSubmit = async () => {
+        dispatch({ type: "SET_FIELD", field: "showConfirmModal", value: false });
         dispatch({ type: "SET_LOADING", value: true });
         try {
             const result = await updateSpecialLeave(initialData.id_special, {
                 title: state.title,
                 applicable_gender: state.gender,
                 duration: state.duration,
+                type: state.type,
                 description: state.description,
             })
 
@@ -121,5 +140,5 @@ export const useEditSpecialLeave = (initialData: DataSpecialType, onSuccess: () 
         }
     }
 
-    return { state, dispatch, handleSubmit }
+    return { state, dispatch, handleSubmit, handleConfirmModal }
 }

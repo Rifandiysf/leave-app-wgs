@@ -5,7 +5,7 @@ import { decodeToken } from "../../utils/jwt.js";
 export const modifyAmount = async (req, res, next) => {
     try {
         const { nik } = req.params;
-        const { adjustment_value, notes, leave_type } = req.body;
+        const { adjustment_value, notes, leave_type, operation } = req.body;
         const token = req.cookies["Authorization"];
 
         const decodedToken = await decodeToken(token);
@@ -50,7 +50,8 @@ export const modifyAmount = async (req, res, next) => {
             notes,
             actor,
             targetRole,
-            leave_type
+            leave_type,
+            operation
         );
 
         res.status(200).json({ message: 'Balance adjusted successfully', data: result });

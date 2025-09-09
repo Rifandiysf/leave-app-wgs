@@ -58,7 +58,7 @@ export const SpecialLeaveTable = ({
                                 </td>
                                 <td className="p-2 text-center border-b-[1.5px] border-black/10">{item.title}</td>
                                 <td className="p-2 text-center border-b-[1.5px] border-black/10">{formatUpperCase(item.applicable_gender)}</td>
-                                <td className="p-2 text-center border-b-[1.5px] border-black/10">{item.duration} Days</td>
+                                <td className="p-2 text-center border-b-[1.5px] border-black/10">{item.duration} {item.type}</td>
                                 <td className="p-2 text-center border-b-[1.5px] border-black/10">{item.description}</td>
                                 <td className="p-2 text-center border-b-[1.5px] border-black/10">
                                     <div className="flex justify-center items-center gap-2">

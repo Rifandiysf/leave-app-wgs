@@ -16,6 +16,10 @@ interface AddMandatoryState {
     };
     success: string;
     isLoading: boolean;
+    isDialogOpen: boolean;
+    showConfirmModal: boolean;
+    showDiscardModal: boolean;
+    showSuccessNotification: boolean;
 }
 
 type AddMandatoryAction =
@@ -34,6 +38,10 @@ const initialState: AddMandatoryState = {
     errors: {},
     success: "",
     isLoading: false,
+    isDialogOpen: false,
+    showConfirmModal: false,
+    showDiscardModal: false,
+    showSuccessNotification: false,
 }
 
 function AddMandatoryReducer(state: AddMandatoryState, action: AddMandatoryAction): AddMandatoryState {
@@ -89,9 +97,14 @@ export function useAddMandatory(onSuccess: () => void) {
         return !hasError;
     };
 
-    const submit = async () => {
-        if (!validateForm()) return;
+    const handleConfirmModal = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!validateForm()) return
+        dispatch({ type: "SET_FIELD", field: "showConfirmModal", value: true })
+    }
 
+    const submit = async () => {
+        dispatch({ type: "SET_FIELD", field: "showConfirmModal", value: false });
         dispatch({ type: "SET_LOADING", value: true });
         try {
             const payload: MandatoryPayload = {
@@ -102,8 +115,14 @@ export function useAddMandatory(onSuccess: () => void) {
             };
             const result = await addMandatoryLeave(payload);
             dispatch({ type: "SET_SUCCESS", message: result.message || "Mandatory leave added successfully!" });
+            dispatch({ type: "SET_FIELD", field: "isDialogOpen", value: false });
+            dispatch({ type: "SET_FIELD", field: "showSuccessNotification", value: true });
             onSuccess();
-            dispatch({ type: "RESET" });
+            dispatch({ type: "CLEAR_ERRORS" });
+            dispatch({ type: "SET_FIELD", field: "title", value: "" });
+            dispatch({ type: "SET_FIELD", field: "description", value: "" });
+            dispatch({ type: "SET_FIELD", field: "startDate", value: undefined });
+            dispatch({ type: "SET_FIELD", field: "endDate", value: undefined });
         } catch (err: any) {
             dispatch({
                 type: "SET_ERROR",
@@ -115,5 +134,5 @@ export function useAddMandatory(onSuccess: () => void) {
         }
     };
 
-    return { state, dispatch, submit };
+    return { state, dispatch, submit, handleConfirmModal };
 }

@@ -13,6 +13,9 @@ type EditMandatoryState = {
     generalError: string;
     generalSuccess: string;
     isLoading: boolean;
+    showConfirmModal: boolean;
+    showDiscardModal: boolean;
+    isDialogOpen: boolean;
 };
 
 type EditMandatoryAction =
@@ -34,6 +37,9 @@ const initialState: EditMandatoryState = {
     generalError: "",
     generalSuccess: "",
     isLoading: false,
+    showConfirmModal: false,
+    showDiscardModal: false,
+    isDialogOpen: false,
 };
 
 function EditMandatoryReducer(state: EditMandatoryState, action: EditMandatoryAction): EditMandatoryState {
@@ -117,8 +123,14 @@ export const useEditMandatory = (initialData: {
         return hasError;
     };
 
+    const handleConfirmModal = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!validateForm()) return;
+        dispatch({ type: "SET_FIELD", field: "showConfirmModal", value: true });
+    };
+
     const handleSubmit = async (onFormSubmit: () => void) => {
-        if (!validateForm()) return
+        dispatch({ type: "SET_FIELD", field: "showConfirmModal", value: false });
         dispatch({ type: "SET_LOADING", value: true })
 
         try {
@@ -142,5 +154,5 @@ export const useEditMandatory = (initialData: {
         }
     }
 
-    return { state, dispatch, handleSubmit, resetToInitial };
+    return { state, dispatch, handleSubmit, handleConfirmModal, resetToInitial };
 }

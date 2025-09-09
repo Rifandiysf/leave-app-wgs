@@ -6,16 +6,21 @@ interface AddSpecialState {
     title: string;
     gender: string;
     duration: number;
+    type: string;
     description: string;
     errors: {
         title?: string;
         gender?: string;
         duration?: string;
+        type?: string;
         description?: string;
         general?: string;
     };
     success: string;
     loading: boolean;
+    showConfirmModal: boolean;
+    showDiscardModal: boolean;
+    isDialogOpen: boolean;
 }
 
 type AddSpecialAction =
@@ -30,10 +35,14 @@ const initialState: AddSpecialState = {
     title: "",
     gender: "",
     duration: 0,
+    type: "",
     description: "",
     errors: {},
     success: "",
     loading: false,
+    showConfirmModal: false,
+    showDiscardModal: false,
+    isDialogOpen: false,
 }
 
 function AddSpecialReducer(state: AddSpecialState, action: AddSpecialAction): AddSpecialState {
@@ -74,6 +83,9 @@ export const useAddSpecialLeave = (onSuccess: () => void) => {
             dispatch({ type: "SET_ERROR", field: "duration", value: "Amount cannot be 0 days" });
             hasError = true;
         }
+        if (!state.type.trim()) {
+            dispatch({ type: "SET_ERROR", field: 'type', value: "Type cannot be empty" })
+        }
         if (!state.gender.trim()) {
             dispatch({ type: "SET_ERROR", field: "gender", value: "Gender cannot be empty" });
             hasError = true;
@@ -82,16 +94,20 @@ export const useAddSpecialLeave = (onSuccess: () => void) => {
         return !hasError;
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!validateForm()) return
+    const handleConfirmModal = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!validateForm()) return;
+        dispatch({ type: "SET_FIELD", field: "showConfirmModal", value: true });
+    };
 
+    const handleSubmit = async () => {
         dispatch({ type: "SET_LOADING", value: true })
         try {
             const result = await addSpecialLeave({
                 title: state.title,
                 applicable_gender: state.gender,
                 duration: state.duration,
+                type: state.type,
                 description: state.description
             })
 
@@ -102,8 +118,9 @@ export const useAddSpecialLeave = (onSuccess: () => void) => {
             dispatch({ type: "SET_ERROR", field: "general", value: err?.response?.data?.message || "Failed to add data. Check your network or server response." })
         } finally {
             dispatch({ type: "SET_LOADING", value: false })
+            dispatch({ type: "SET_FIELD", field: "showConfirmModal", value: false });
         }
     }
 
-    return { state, dispatch, handleSubmit }
+    return { state, dispatch, handleSubmit, handleConfirmModal }
 }

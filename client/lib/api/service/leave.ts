@@ -56,6 +56,7 @@ export const updateSpecialLeave = async (
         title: string;
         applicable_gender: string;
         duration: number;
+        type: string;
         description: string;
     }
 ) => {
