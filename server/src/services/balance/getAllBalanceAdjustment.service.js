@@ -4,44 +4,44 @@ import { createDateFromString, formatDateIndonesia } from "../../utils/leaves.ut
 export const getAllBalanceAdjustment = async (page, limit, startDate, endDate, balanceYear, searchValue) => {
     try {
         const offset = (page - 1) * limit
-        const totalLogs = await prisma.tb_balance_adjustment.count();
+        const filter = {
+            created_at: {
+                gte: startDate || undefined,
+                lte: endDate || undefined
+            },
+            balance_year: balanceYear || undefined,
+            OR: [
+                {
+                    tb_users: {
+                        fullname: {
+                            contains: searchValue || undefined,
+                            mode: "insensitive"
+                        }
+                    }
+                },
+                {
+                    NIK: {
+                        contains: searchValue || undefined,
+                        mode: "insensitive"
+                    }
+                },
+                {
+                    actor: {
+                        contains: searchValue || undefined,
+                        mode: "insensitive"
+                    }
+                }
+            ]
+        }
 
-        console.log('test', searchValue);
+        const totalLogs = await prisma.tb_balance_adjustment.count({ where: filter});
         const logs = await prisma.tb_balance_adjustment.findMany({
             skip: offset,
             take: limit,
             omit: {
                 id_adjustment: true
             },
-            where: {
-                created_at: {
-                    gte: startDate || undefined,
-                    lte: endDate || undefined
-                },
-                balance_year: balanceYear || undefined,
-                OR: [
-                    {
-                        tb_users: {
-                            fullname: {
-                                contains: searchValue || undefined,
-                                mode: "insensitive"
-                            }
-                        }
-                    },
-                    {
-                        NIK: {
-                            contains: searchValue || undefined,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        actor: {
-                            contains: searchValue || undefined,
-                            mode: "insensitive"
-                        }
-                    }
-                ]
-            },
+            where: filter,
             orderBy: {
                 created_at: 'desc'
             },
