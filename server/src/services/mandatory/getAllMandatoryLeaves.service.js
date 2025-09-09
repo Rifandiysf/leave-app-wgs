@@ -16,7 +16,7 @@ export const getAllMandatoryLeavesService = async (page = 1, limit = 10) => {
 
     return {
         data: {
-            employees: data, // Renamed 'data' to 'employees' for consistency
+            data: data, 
             pagination: {
                 total: total,
                 totalPages: totalPages,

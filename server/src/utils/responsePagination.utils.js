@@ -2,7 +2,7 @@
 
 export const responsePagination = (message, serviceResult) => {
     console.log("serviceResult received by responsePagination:", serviceResult);
-    const { employees, pagination } = serviceResult.data;
+    const { data, pagination } = serviceResult.data;
 
     const response = {
         success: true,
@@ -12,12 +12,12 @@ export const responsePagination = (message, serviceResult) => {
             last_visible_page: pagination.totalPages,
             has_next_page: pagination.currentPage < pagination.totalPages,
             item: {
-                count: employees.length,
+                count: data.length,
                 total: pagination.total,
                 per_page: pagination.limit
             }
         },
-        data: employees,
+        data: data,
     }
 
     return response;

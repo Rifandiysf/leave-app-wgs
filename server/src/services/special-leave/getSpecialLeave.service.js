@@ -28,7 +28,7 @@ export const getSpecialLeaveService = async (gender, page = 1, limit = 10) => {
     // return { data, total, totalPages, page };
     return {
         data: {
-            employees: data,
+            data: data,
             pagination: {
                 total: total,
                 totalPages: totalPages,
