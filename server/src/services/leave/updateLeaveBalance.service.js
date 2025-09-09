@@ -192,7 +192,7 @@ export const updateLeaveBalance = async (user) => {
                 receiveDate.setHours(12, 0, 0, 0);
 
                 const expiredDate = new Date(receiveDate);
-                expiredDate.setFullYear(receiveDate.getFullYear() + 2, 0, 1);
+                expiredDate.setFullYear(receiveDate.getFullYear() + 2, 3, 1);
 
                 // Cari existing balance untuk tahun ini
                 const existingBalance = await prisma.tb_balance.findFirst({

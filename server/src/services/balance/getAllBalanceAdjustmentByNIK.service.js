@@ -4,7 +4,38 @@ import { createDateFromString, formatDateIndonesia } from "../../utils/leaves.ut
 export const getAllBalanceAdjustmentByNIK = async (page, limit, nik, searchValue, startDate, endDate, balanceYear) => {
     try {
         const offset = (page - 1) * limit
-        const totalLogs = await prisma.tb_balance_adjustment.count();
+        const filter = {
+            NIK: nik,
+            created_at: {
+                gte: startDate || undefined,
+                lte: endDate || undefined
+            },
+            balance_year: balanceYear || undefined,
+            OR: [
+                {
+                    tb_users: {
+                        fullname: {
+                            contains: searchValue || undefined,
+                            mode: "insensitive"
+                        }
+                    }
+                },
+                {
+                    NIK: {
+                        contains: searchValue || undefined,
+                        mode: "insensitive"
+                    }
+                },
+                {
+                    actor: {
+                        contains: searchValue || undefined,
+                        mode: "insensitive"
+                    }
+                }
+            ]
+        }
+
+        const totalLogs = await prisma.tb_balance_adjustment.count({where: filter });
 
         console.log('test', searchValue);
         const logs = await prisma.tb_balance_adjustment.findMany({
@@ -13,36 +44,7 @@ export const getAllBalanceAdjustmentByNIK = async (page, limit, nik, searchValue
             omit: {
                 id_adjustment: true
             },
-            where: {
-                NIK: nik,
-                created_at: {
-                    gte: startDate || undefined,
-                    lte: endDate || undefined
-                },
-                balance_year: balanceYear || undefined,
-                OR: [
-                    {
-                        tb_users: {
-                            fullname: {
-                                contains: searchValue || undefined,
-                                mode: "insensitive"
-                            }
-                        }
-                    },
-                    {
-                        NIK: {
-                            contains: searchValue || undefined,
-                            mode: "insensitive"
-                        }
-                    },
-                    {
-                        actor: {
-                            contains: searchValue || undefined,
-                            mode: "insensitive"
-                        }
-                    }
-                ]
-            },
+            where: filter,
             orderBy: {
                 created_at: 'desc'
             },
@@ -58,7 +60,7 @@ export const getAllBalanceAdjustmentByNIK = async (page, limit, nik, searchValue
             adjustment_value: log.adjustment_value,
             balance_year: log.balance_year.toString(),
             date: formatDateIndonesia(createDateFromString(log.created_at)),
-            time: log.created_at.toLocaleTimeString().slice(0, 5).replace('.', ':'),
+            time: log.created_at.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: undefined }).replace('.', ':'),
             actor: log.actor,
             notes: log.notes
         }))

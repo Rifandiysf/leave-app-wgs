@@ -22,6 +22,7 @@ import { checkDuplicateLeave } from "../middlewares/checkDuplicateLeave .middlew
 import { validateStartDate } from "../middlewares/validateStartDate.middleware.js";
 import { validateLeaveDateRange } from "../middlewares/validateLeaveDateRange.middleware.js";
 import { getSpecialLeave } from "../controllers/special-leave/getSpecialLeave.controller.js";
+import { getUserHistory } from "../controllers/user/getUserHistory.controller.js";
 
 const userRoutes = express.Router();
 
@@ -41,5 +42,7 @@ userRoutes.delete('/:nik', validateRole("admin", "super_admin"), deleteUser);
 userRoutes.patch('/:nik/balance',validateRole("admin", "super_admin"), modifyAmount);
 userRoutes.get('/', validateRole("admin", "super_admin") ,allUsers);
 userRoutes.get('/:nik/leave-trend', validateRole("admin", "super_admin"), leaveTrend);
+
+userRoutes.get('/:nik/history', getUserHistory)
 
 export default userRoutes;
