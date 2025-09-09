@@ -177,6 +177,7 @@ export function useApplyLeave() {
 
             dispatch({ type: "SET_FIELD", field: "isDialogOpen", value: false })
             dispatch({ type: "SET_FIELD", field: "showSuccessNotification", value: true })
+            window.location.reload()
         } catch (err: any) {
             dispatch({
                 type: "SET_ERROR",

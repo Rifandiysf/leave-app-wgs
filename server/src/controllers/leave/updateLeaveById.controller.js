@@ -5,10 +5,10 @@ export const updateLeaveById = async (req, res, next) => {
   const { id } = req.params;
   const { reason, status } = req.body;
   const decodedToken = await decodeToken(req.cookies["Authorization"]);
-  const { NIK } = decodedToken;
+  const { NIK, fullname } = decodedToken;
 
   try {
-    const updatedLeave = await updateLeave(id, status, reason, NIK);
+    const updatedLeave = await updateLeave(id, status, reason, NIK, fullname);
 
     if (!updatedLeave) {
       const error = new Error("leave not found");
