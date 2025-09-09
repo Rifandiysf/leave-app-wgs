@@ -111,7 +111,7 @@ export const getUserHistoryByNIK = async (nik, limit = 10, page = 1, dataFilter)
 
         return {
             data: {
-                data: data,
+                data: modifiedResult,
                 pagination: {
                     total: totalData,
                     totalPages: Math.ceil(totalData / limit),
