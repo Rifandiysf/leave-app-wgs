@@ -6,7 +6,6 @@ info:
 servers:
   - url: /api/v1
     description: Development server
-
 tags:
   - name: Auth
     description: Authentication operations
@@ -16,7 +15,6 @@ tags:
     description: Operations available only to super administrators
   - name: User
     description: Operations available to standard users (karyawan)
-
 paths:
   /auth/login:
     post:
@@ -54,7 +52,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
   /auth/logout:
     get:
       tags:
@@ -88,7 +85,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
   /users:
     get:
       tags:
@@ -172,7 +168,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
   /users/{nik}:
     get:
       tags:
@@ -193,7 +188,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/tb_users'
         '401':
           description: Unauthorized
           content:
@@ -236,7 +231,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/tb_users'
         '400':
           description: Validation error
           content:
@@ -306,7 +301,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
   /users/{nik}/balance:
     patch:
       tags:
@@ -365,7 +359,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
   /users/{nik}/leave-trend:
     get:
       tags:
@@ -419,7 +412,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
   /users/{nik}/history:
     get:
       tags:
@@ -450,7 +442,6 @@ paths:
           description: User not found
         '500':
           description: Internal server error
-
   /users/me:
     get:
       tags:
@@ -464,12 +455,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/tb_users'
         '401':
           description: Unauthorized
         '500':
           description: Internal server error
-
   /users/special:
     get:
       tags:
@@ -485,12 +475,11 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SpecialLeave'
+                  $ref: '#/components/schemas/tb_special_leave'
         '401':
           description: Unauthorized
         '500':
           description: Internal server error
-
   /users/mandatory:
     get:
       tags:
@@ -506,12 +495,11 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MandatoryLeave'
+                  $ref: '#/components/schemas/tb_mandatory_leave'
         '401':
           description: Unauthorized
         '500':
           description: Internal server error
-
   /users/leave:
     post:
       tags:
@@ -531,7 +519,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Leave'
+                $ref: '#/components/schemas/tb_leave'
         '400':
           description: Validation error or business logic error (e.g., insufficient balance, duplicate leave)
         '401':
@@ -566,7 +554,6 @@ paths:
           description: Unauthorized
         '500':
           description: Internal server error
-
   /users/leave/search:
     get:
       tags:
@@ -591,7 +578,6 @@ paths:
           description: Unauthorized
         '500':
           description: Internal server error
-
   /users/leave/{id}:
     get:
       tags:
@@ -612,14 +598,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Leave'
+                $ref: '#/components/schemas/tb_leave'
         '401':
           description: Unauthorized
         '404':
           description: Leave request not found
         '500':
           description: Internal server error
-
   /leaves:
     get:
       tags:
@@ -652,7 +637,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-
   /leaves/search:
     get:
       tags:
@@ -680,7 +664,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-
   /leaves/logs:
     get:
       tags:
@@ -697,14 +680,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/LeaveLog'
+                  $ref: '#/components/schemas/tb_leave_log'
         '401':
           description: Unauthorized
         '403':
           description: Forbidden
         '500':
           description: Internal server error
-
   /leaves/logs/search:
     get:
       tags:
@@ -727,14 +709,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/LeaveLog'
+                  $ref: '#/components/schemas/tb_leave_log'
         '401':
           description: Unauthorized
         '403':
           description: Forbidden
         '500':
           description: Internal server error
-
   /leaves/special:
     get:
       tags:
@@ -751,7 +732,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SpecialLeave'
+                  $ref: '#/components/schemas/tb_special_leave'
         '401':
           description: Unauthorized
         '403':
@@ -777,7 +758,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SpecialLeave'
+                $ref: '#/components/schemas/tb_special_leave'
         '400':
           description: Validation error
         '401':
@@ -786,7 +767,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-
   /leaves/special/search:
     get:
       tags:
@@ -809,14 +789,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SpecialLeave'
+                  $ref: '#/components/schemas/tb_special_leave'
         '401':
           description: Unauthorized
         '403':
           description: Forbidden
         '500':
           description: Internal server error
-
   /leaves/special/{id}:
     patch:
       tags:
@@ -844,7 +823,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SpecialLeave'
+                $ref: '#/components/schemas/tb_special_leave'
         '400':
           description: Validation error
         '401':
@@ -855,7 +834,6 @@ paths:
           description: Special leave not found
         '500':
           description: Internal server error
-
   /leaves/mandatory:
     get:
       tags:
@@ -872,7 +850,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MandatoryLeave'
+                  $ref: '#/components/schemas/tb_mandatory_leave'
         '401':
           description: Unauthorized
         '403':
@@ -898,7 +876,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MandatoryLeave'
+                $ref: '#/components/schemas/tb_mandatory_leave'
         '400':
           description: Validation error (e.g., start date not two weeks ahead)
         '401':
@@ -907,7 +885,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-
   /leaves/mandatory/search:
     get:
       tags:
@@ -930,14 +907,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MandatoryLeave'
+                  $ref: '#/components/schemas/tb_mandatory_leave'
         '401':
           description: Unauthorized
         '403':
           description: Forbidden
         '500':
           description: Internal server error
-
   /leaves/mandatory/{id}:
     patch:
       tags:
@@ -965,7 +941,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MandatoryLeave'
+                $ref: '#/components/schemas/tb_mandatory_leave'
         '400':
           description: Validation error
         '401':
@@ -976,7 +952,6 @@ paths:
           description: Mandatory leave not found
         '500':
           description: Internal server error
-
   /leaves/mandatory-year/{year}:
     patch:
       tags:
@@ -1000,7 +975,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-
   /leaves/{id}:
     patch:
       tags:
@@ -1028,7 +1002,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Leave'
+                $ref: '#/components/schemas/tb_leave'
         '400':
           description: Validation error
         '401':
@@ -1039,7 +1013,6 @@ paths:
           description: Leave request not found
         '500':
           description: Internal server error
-
   /uploads/import:
     post:
       tags:
@@ -1067,7 +1040,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-
   /uploads/balance-adjustment:
     post:
       tags:
@@ -1096,7 +1068,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-
   /uploads/export:
     get:
       tags:
@@ -1118,7 +1089,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-
   /dashboard/statistics:
     get:
       tags:
@@ -1136,7 +1106,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-
   /dashboard/trend:
     get:
       tags:
@@ -1154,7 +1123,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-
   /dashboard/leaderboard:
     get:
       tags:
@@ -1172,7 +1140,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-
   /dashboard/pending-leave:
     get:
       tags:
@@ -1190,7 +1157,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-
   /balances/logs:
     get:
       tags:
@@ -1207,14 +1173,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/BalanceAdjustment'
+                  $ref: '#/components/schemas/tb_balance_adjustment'
         '401':
           description: Unauthorized
         '403':
           description: Forbidden
         '500':
           description: Internal server error
-
   /balances/me:
     get:
       tags:
@@ -1230,12 +1195,11 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/BalanceAdjustment'
+                  $ref: '#/components/schemas/tb_balance_adjustment'
         '401':
           description: Unauthorized
         '500':
           description: Internal server error
-
   /setting:
     post:
       tags:
@@ -1247,7 +1211,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Setting'
+              $ref: '#/components/schemas/tb_settings'
       responses:
         '201':
           description: Settings created successfully
@@ -1269,14 +1233,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Setting'
+                $ref: '#/components/schemas/tb_settings'
         '401':
           description: Unauthorized
         '403':
           description: Forbidden
         '500':
           description: Internal server error
-
   /setting/{id}:
     patch:
       tags:
@@ -1295,7 +1258,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Setting'
+              $ref: '#/components/schemas/tb_settings'
       responses:
         '200':
           description: Settings updated successfully
@@ -1307,200 +1270,306 @@ paths:
           description: Setting not found
         '500':
           description: Internal server error
-
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
   schemas:
-    User:
+    tb_roles:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+          maxLength: 50
+        slug:
+          type: string
+          maxLength: 50
+        description:
+          type: string
+    tb_statuses:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+          maxLength: 50
+    tb_balance:
+      type: object
+      properties:
+        id_balance:
+          type: string
+          maxLength: 50
+        amount:
+          type: integer
+          format: int32
+        receive_date:
+          type: string
+          format: date-time
+        expired_date:
+          type: string
+          format: date-time
+        NIK:
+          type: string
+          maxLength: 16
+        created_at:
+          type: string
+          format: date-time
+    tb_leave:
+      type: object
+      properties:
+        id_leave:
+          type: string
+          maxLength: 50
+        title:
+          type: string
+          maxLength: 255
+        leave_type:
+          $ref: '#/components/schemas/leave_type'
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        total_days:
+          type: integer
+          format: int32
+        reason:
+          type: string
+        status:
+          $ref: '#/components/schemas/status'
+        created_at:
+          type: string
+          format: date-time
+        NIK:
+          type: string
+          maxLength: 50
+        id_special:
+          type: string
+          maxLength: 50
+        id_mandatory:
+          type: string
+          maxLength: 50
+    tb_mandatory_leave:
+      type: object
+      properties:
+        id_mandatory:
+          type: string
+          maxLength: 50
+        title:
+          type: string
+          maxLength: 255
+        is_active:
+          type: boolean
+        description:
+          type: string
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+    tb_special_leave:
+      type: object
+      properties:
+        id_special:
+          type: string
+          maxLength: 50
+        title:
+          type: string
+          maxLength: 255
+        applicable_gender:
+          $ref: '#/components/schemas/applicable_gender'
+        duration:
+          type: integer
+          format: int32
+        type:
+          $ref: '#/components/schemas/special_leave_type'
+        is_active:
+          type: boolean
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    tb_users:
       type: object
       properties:
         NIK:
           type: string
+          maxLength: 16
         fullname:
           type: string
+          maxLength: 50
         email:
           type: string
-          format: email
+          maxLength: 50
+        password:
+          type: string
+          maxLength: 20
         isMale:
           type: boolean
         join_date:
+          type: string
+          format: date-time
+        created_at:
           type: string
           format: date-time
         isActive:
           type: boolean
         role_id:
           type: integer
+          format: int32
         status_id:
           type: integer
-        tb_roles:
-          $ref: '#/components/schemas/Role'
-        tb_statuses:
-          $ref: '#/components/schemas/Status'
-
-    Role:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        slug:
-          type: string
-
-    Status:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-
-    Leave:
-      type: object
-      properties:
-        id_leave:
-          type: string
-          format: uuid
-        title:
-          type: string
-        leave_type:
-          type: string
-          enum: [personal_leave, mandatory_leave, special_leave]
-        start_date:
-          type: string
-          format: date
-        end_date:
-          type: string
-          format: date
-        total_days:
-          type: integer
-        reason:
-          type: string
-        status:
-          type: string
-          enum: [pending, approved, rejected, expired]
-        NIK:
-          type: string
-        id_special:
-          type: string
-          format: uuid
-        id_mandatory:
-          type: string
-          format: uuid
-
-    SpecialLeave:
-      type: object
-      properties:
-        id_special:
-          type: string
-          format: uuid
-        title:
-          type: string
-        applicable_gender:
-          type: string
-          enum: [m, f, mf]
-        duration:
-          type: integer
-        type:
-          type: string
-          enum: [day, month]
-        is_active:
-          type: boolean
-        description:
-          type: string
-
-    MandatoryLeave:
-      type: object
-      properties:
-        id_mandatory:
-          type: string
-          format: uuid
-        title:
-          type: string
-        is_active:
-          type: boolean
-        description:
-          type: string
-        start_date:
-          type: string
-          format: date
-        end_date:
-          type: string
-          format: date
-
-    Balance:
-      type: object
-      properties:
-        id_balance:
-          type: string
-          format: uuid
-        amount:
-          type: integer
-        receive_date:
-          type: string
-          format: date
-        expired_date:
-          type: string
-          format: date
-        NIK:
-          type: string
-
-    BalanceAdjustment:
+          format: int32
+    tb_balance_adjustment:
       type: object
       properties:
         id_adjustment:
           type: string
-          format: uuid
+          maxLength: 50
         NIK:
           type: string
+          maxLength: 16
         adjustment_value:
           type: integer
+          format: int32
         notes:
           type: string
+        created_at:
+          type: string
+          format: date-time
         actor:
           type: string
+          maxLength: 50
         balance_year:
           type: integer
-
-    LeaveLog:
+          format: int32
+        id_balance:
+          type: string
+    tb_leave_log:
       type: object
       properties:
         id_log:
           type: string
-          format: uuid
+          maxLength: 50
         old_status:
-          type: string
+          $ref: '#/components/schemas/status'
         new_status:
-          type: string
+          $ref: '#/components/schemas/status'
         reason:
           type: string
+        changed_at:
+          type: string
+          format: date-time
         changed_by_nik:
           type: string
+          maxLength: 16
         actor_fullname:
           type: string
+          maxLength: 50
         id_leave:
           type: string
-          format: uuid
-
-    Setting:
+          maxLength: 50
+        balances_used:
+          type: object
+    tb_jwt_token:
       type: object
       properties:
+        access_token:
+          type: string
+          maxLength: 500
+        NIK:
+          type: string
+          maxLength: 16
+        device_id:
+          type: string
+          maxLength: 255
+        device_info:
+          type: string
+          maxLength: 255
+        created_at:
+          type: string
+          format: date-time
+    tb_settings:
+      type: object
+      properties:
+        id:
+          type: string
         light_image:
           type: string
         light_background:
           type: string
-        # ... and all other setting fields
+        light_foreground:
+          type: string
+        light_card:
+          type: string
+        light_cardForeground:
+          type: string
+        light_primary:
+          type: string
+        light_primaryForeground:
+          type: string
+        light_secondary:
+          type: string
+        light_secondaryForeground:
+          type: string
         dark_image:
           type: string
         dark_background:
           type: string
-        # ... etc
-
+        dark_foreground:
+          type: string
+        dark_card:
+          type: string
+        dark_cardForeground:
+          type: string
+        dark_primary:
+          type: string
+        dark_primaryForeground:
+          type: string
+        dark_secondary:
+          type: string
+        dark_secondaryForeground:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    applicable_gender:
+      type: string
+      enum:
+        - m
+        - f
+        - mf
+    leave_type:
+      type: string
+      enum:
+        - personal_leave
+        - mandatory_leave
+        - special_leave
+    status:
+      type: string
+      enum:
+        - pending
+        - approved
+        - rejected
+        - expired
+    special_leave_type:
+      type: string
+      enum:
+        - day
+        - month
     LoginRequest:
       type: object
       required:
@@ -1512,7 +1581,6 @@ components:
           format: email
         password:
           type: string
-
     LoginSuccessResponse:
       type: object
       properties:
@@ -1526,18 +1594,16 @@ components:
           type: object
           properties:
             user:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/tb_users'
             token:
               type: string
-
     CreateLeaveRequest:
       type: object
       properties:
         title:
           type: string
         leave_type:
-          type: string
-          enum: [personal_leave, mandatory_leave, special_leave]
+          $ref: '#/components/schemas/leave_type'
         start_date:
           type: string
           format: date
@@ -1552,53 +1618,44 @@ components:
         id_mandatory:
           type: string
           format: uuid
-
     UpdateLeaveStatusRequest:
       type: object
       required:
         - status
       properties:
         status:
-          type: string
-          enum: [approved, rejected]
+          $ref: '#/components/schemas/status'
         reason:
           type: string
           description: Required when status is 'rejected'
-
     CreateSpecialLeaveRequest:
       type: object
       properties:
         title:
           type: string
         applicable_gender:
-          type: string
-          enum: [m, f, mf]
+          $ref: '#/components/schemas/applicable_gender'
         duration:
           type: integer
         type:
-          type: string
-          enum: [day, month]
+          $ref: '#/components/schemas/special_leave_type'
         description:
           type: string
-
     UpdateSpecialLeaveRequest:
       type: object
       properties:
         title:
           type: string
         applicable_gender:
-          type: string
-          enum: [m, f, mf]
+          $ref: '#/components/schemas/applicable_gender'
         duration:
           type: integer
         type:
-          type: string
-          enum: [day, month]
+          $ref: '#/components/schemas/special_leave_type'
         description:
           type: string
         is_active:
           type: boolean
-
     CreateMandatoryLeaveRequest:
       type: object
       properties:
@@ -1612,7 +1669,6 @@ components:
         end_date:
           type: string
           format: date
-
     UpdateMandatoryLeaveRequest:
       type: object
       properties:
@@ -1628,7 +1684,6 @@ components:
           format: date
         is_active:
           type: boolean
-
     UpdateUserRequest:
       type: object
       properties:
@@ -1641,7 +1696,6 @@ components:
           type: string
         isMale:
           type: boolean
-
     AdjustBalanceRequest:
       type: object
       properties:
@@ -1649,7 +1703,6 @@ components:
           type: integer
         notes:
           type: string
-
     UserListResponse:
       type: object
       properties:
@@ -1662,10 +1715,9 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/User'
+            $ref: '#/components/schemas/tb_users'
         pagination:
           $ref: '#/components/schemas/Pagination'
-
     LeaveListResponse:
       type: object
       properties:
@@ -1678,10 +1730,9 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Leave'
+            $ref: '#/components/schemas/tb_leave'
         pagination:
           $ref: '#/components/schemas/Pagination'
-
     Pagination:
       type: object
       properties:
@@ -1693,7 +1744,6 @@ components:
           type: integer
         totalPages:
           type: integer
-
     ErrorResponse:
       type: object
       properties:
@@ -1702,7 +1752,6 @@ components:
           example: fail
         message:
           type: string
-
     ValidationErrorResponse:
       type: object
       properties:
@@ -1721,7 +1770,6 @@ components:
                 type: string
               message:
                 type: string
-
     SuccessResponse:
       type: object
       properties:
