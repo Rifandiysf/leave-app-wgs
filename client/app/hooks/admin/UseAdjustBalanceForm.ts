@@ -156,12 +156,12 @@ export function UseAdjustBalanceForm() {
         const lastYear = (new Date().getFullYear() - 1).toString();
         const leaveType: LeaveType = state.selectedYear === lastYear ? "last_year_leave" : "this_year_leave";
         
-        const adjustmentValue = state.adjustmentType === 'add'
-            ? Number(state.adjustmentAmount)
-            : Number(state.adjustmentAmount) * -1; 
+        const operation: "add_amount" | "reduce_amount" = 
+            state.adjustmentType === 'add' ? 'add_amount' : 'reduce_amount';
 
         const payload = {
-            adjustment_value: adjustmentValue,
+            operation: operation,
+            adjustment_value: Number(state.adjustmentAmount),
             notes: state.information.trim(),
             leave_type: leaveType,
         };

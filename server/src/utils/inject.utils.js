@@ -161,7 +161,7 @@ const modifyBalanceData = (data) => {
     try {
         const receive = new Date(data.receive_date_balance)
 
-        const expired = data.expired_date ? new Date(data.expired_date_balance_o) : new Date(receive.getFullYear() + 2, 0, 1);
+        const expired = data.expired_date ? new Date(data.expired_date_balance_o) : new Date(receive.getFullYear() + 2, 2, 31, 23, 59, 59, 999);
         const result = {
             id_balance: data.id || uuid(),
             amount: Number(data.amount_balance),
@@ -180,7 +180,6 @@ const modifyBalanceData = (data) => {
 
 const modifyUserData = async (data) => {
     try {
-        console.log("NIH DATANYAAAAAAAAA", data.NIK);
         const isMale = data.gender_user === "male";
         const isActive = data.status_active_user === "active";
 

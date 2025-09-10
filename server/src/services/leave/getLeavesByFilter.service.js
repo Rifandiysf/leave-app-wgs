@@ -46,7 +46,7 @@ export const getLeavesByFilterService = async (type, value, page, limit) => {
 
     return {
         data: {
-            employees: data, // Renamed 'data' to 'employees' for consistency
+            data: data, 
             pagination: {
                 total: total,
                 totalPages: totalPages,

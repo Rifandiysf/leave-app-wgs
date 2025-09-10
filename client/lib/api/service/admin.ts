@@ -1,37 +1,23 @@
 import axiosInstance from "../axiosInstance";
 
-/**
- * Mengambil data statistik utama untuk dasbor admin.
- * @returns {Promise<any>} Data statistik.
- */
 export const getDashboardStatistics = async () => {
     const response = await axiosInstance.get('/dashboard/statistics');
     return response.data;
 };
 
-/**
- * Mengambil data tren cuti bulanan berdasarkan tahun.
- * @param {number} year - Tahun yang akan difilter.
- * @returns {Promise<any>} Data tren bulanan.
- */
+
 export const getDashboardTrend = async (year: number) => {
     const response = await axiosInstance.get(`/dashboard/trend?year=${year}`);
     return response.data;
 };
 
-/**
- * Mengambil data papan peringkat (leaderboard) sisa cuti.
- * @returns {Promise<any>} Data leaderboard.
- */
+
 export const getDashboardLeaderboard = async () => {
     const response = await axiosInstance.get('/dashboard/leaderboard');
     return response.data;
 };
 
-/**
- * Mengambil daftar permintaan cuti yang sedang tertunda (pending).
- * @returns {Promise<any>} Daftar cuti yang pending.
- */
+
 export const getDashboardPendingLeave = async () => {
     const response = await axiosInstance.get('/dashboard/pending-leave');
     return response.data;
@@ -91,7 +77,7 @@ export const getLeaveHistory = async (params: LeaveListParams) => {
     if (params.status) queryParams.append("status", params.status);
 
     const response = await axiosInstance.get(`/leaves/logs/search?${queryParams.toString()}`);
-    
+
     // Melakukan filter di sini sesuai logika awal Anda
     if (response.data?.data) {
         response.data.data = response.data.data.filter((leave: any) => leave.status.toLowerCase() !== 'pending');
@@ -111,11 +97,11 @@ export const updateLeaveStatus = async (id: string, newStatus: 'approved' | 'rej
 //fetch untuk add amount leave
 export const searchUsers = async (searchTerm: string) => {
     const response = await axiosInstance.get(`/users?search=${searchTerm}&limit=5`);
-    return response.data; // Mengembalikan data mentah dari API
+    return response.data;
 };
 
-// 2. Fungsi untuk memperbarui saldo cuti pengguna
 interface UpdateBalancePayload {
+    operation: "add_amount" | "reduce_amount";
     adjustment_value: number;
     notes: string;
     leave_type: "last_year_leave" | "this_year_leave";
@@ -136,11 +122,6 @@ interface AdjustHistoryParams {
     yearFilter?: string | null;
 }
 
-/**
- * Mengambil log riwayat penyesuaian untuk Admin dari API.
- * @param params - Parameter kueri untuk panggilan API.
- * @returns Promise yang resolve ke data respons API.
- */
 export const getAdminAdjustHistoryLogs = async (params: AdjustHistoryParams) => {
     const queryParams = new URLSearchParams();
     queryParams.append('page', String(params.currentPage));
@@ -148,10 +129,49 @@ export const getAdminAdjustHistoryLogs = async (params: AdjustHistoryParams) => 
     if (params.debouncedSearch) queryParams.append('value', params.debouncedSearch);
     if (params.yearFilter) queryParams.append('year', params.yearFilter);
 
-    // Perbedaan utama: Menggunakan endpoint '/balances/logs' untuk admin
     const response = await axiosInstance.get('/balances/logs', {
         params: queryParams
     });
+
+    return response.data;
+};
+
+
+
+// fetch all history
+
+// Tipe data untuk item mentah dari API
+interface ApiHistoryItem {
+    data_source: 'leave' | 'adjustment';
+    created_at: string;
+    title?: string;
+    reason?: string;
+    status?: string;
+    total_days?: number;
+    notes?: string;
+    adjustment_value?: number;
+    [key: string]: any;
+}
+
+interface PaginatedHistoryResponse {
+    data: ApiHistoryItem[];
+    totalPages: number;
+    currentPage: number;
+    totalRecords: number;
+}
+
+export const fetchUserHistory = async (
+    nik: string, 
+    page: number, 
+    limit: number
+): Promise<PaginatedHistoryResponse> => {
+    
+    const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    });
+
+    const response = await axiosInstance.get(`users/${nik}/history?${params.toString()}`);
     
     return response.data;
 };

@@ -18,14 +18,16 @@ export const createDateFromString = (dateInput) => {
         const year = dateInput.getFullYear();
         const month = dateInput.getMonth();
         const day = dateInput.getDate();
-        return new Date(Date.UTC(year, month, day));
+        const hours = dateInput.getHours();
+        const minutes = dateInput.getMinutes();
+        const seconds = dateInput.getSeconds()
+        return new Date(Date.UTC(year, month, day, hours, minutes, seconds));
     }
 
     const parts = dateInput.split('-');
     const year = parseInt(parts[0]);
     const month = parseInt(parts[1]) - 1; 
     const day = parseInt(parts[2]);
-
     return new Date(Date.UTC(year, month, day));
 };
 

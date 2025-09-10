@@ -100,7 +100,7 @@ export const getAllUsers = async (page, limit, search = '', isMale, statusName =
 
     return {
         data: {
-            employees: result,
+            data: result,
             pagination: {
                 total: totalUsers,
                 totalPages: totalPages,

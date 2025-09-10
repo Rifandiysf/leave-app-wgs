@@ -64,7 +64,7 @@ export const getAllBalanceAdjustment = async (page, limit, startDate, endDate, b
 
         return {
             data: {
-                employees: logsModified, // Renamed 'data' to 'employees' for consistency
+                data: logsModified, 
                 pagination: {
                     total: totalLogs,
                     totalPages: Math.ceil(totalLogs / limit),

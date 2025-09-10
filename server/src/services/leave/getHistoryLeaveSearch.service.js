@@ -79,7 +79,7 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
 
         return {
             data: {
-                employees: formattedLeaves, // Renamed 'data' to 'employees' for consistency
+                data: formattedLeaves, 
                 pagination: {
                     total: total,
                     totalPages: totalPages,

@@ -76,7 +76,7 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
 
     return {
         data: {
-            employees: formattedLeaves, // Renamed 'data' to 'employees' for consistency
+            data: formattedLeaves, 
             pagination: {
                 total: total,
                 totalPages: totalPages,

@@ -43,7 +43,7 @@ export const getLeavesByNIK = async (NIK, page, limit) => {
 
     return {
         data: {
-            employees: transformedData, // Renamed 'data' to 'employees' for consistency
+            data: transformedData,
             pagination: {
                 total: total,
                 totalPages: Math.ceil(total / limit),
