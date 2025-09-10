@@ -1,9 +1,8 @@
 import { v4 as uuid } from 'uuid'
 import { Prisma, status } from '../../generated/prisma/client.js';
-import { balanceAdjustmentSchema, balanceSchema, leaveLogSchema, leaveSchema, userSchema, validateInjectDataType } from '../validators/inject.validator.js';
-import { create } from 'domain';
+import { balanceAdjustmentSchema, balanceSchema, importBalanceAdjustmentSchema, leaveLogSchema, leaveSchema, userSchema, validateInjectDataType } from '../validators/inject.validator.js';
 import prisma from './client.js';
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+import { adjustModifyAmount } from '../services/user-balance/adjustModifyAmount.service.js';
 
 export const processData = async (data, number, tx, CHUNK_BASE, requestNIK) => {
     let count = 0;
@@ -111,6 +110,70 @@ export const processData = async (data, number, tx, CHUNK_BASE, requestNIK) => {
     }
 }
 
+export const processDataImportBalanceAdjustment = async (data, chunkCount, tx, CHUNK_BASE, actor) => {
+    let count = 0
+    const balance_year = {
+        current: "this_year_leave",
+        last_year: "last_year_leave",
+        last_two_year: "last_two_year"
+    }
+
+    try {
+
+        for (const item of data) {
+            count++;
+
+            const modifiedData = {
+                NIK: item.NIK,
+                amount: Number(item.amount),
+                notes: item.notes,
+                leave_balances: item.leave_balances
+            }
+
+            validateInjectDataType(importBalanceAdjustmentSchema, modifiedData)
+
+            const targetUser = await prisma.tb_users.findFirst({
+                where: {
+                    NIK: item.NIK
+                },
+                include: {
+                    tb_roles: true,
+                    tb_statuses: true
+                }
+            })
+
+            const operation = modifiedData.amount >= 0 ? "add_amount" : "reduce_amount"
+            modifiedData.amount = modifiedData.amount >= 0 ? modifiedData.amount : Math.abs(modifiedData.amount)
+
+            if (!targetUser) {
+                const error = new Error(`User with NIK ${modifiedData.NIK} not found.`);
+                error.statusCode = 404;
+                throw error;
+            }
+
+            const result = await adjustModifyAmount(
+                modifiedData.NIK,
+                modifiedData.amount,
+                modifiedData.notes,
+                actor,
+                targetUser.tb_roles.slug,
+                balance_year[modifiedData.leave_balances],
+                operation
+            )
+        }
+
+        console.log("Balance Adjustment data imported successfully. \nTotal data received: ", chunkCount)
+    } catch (error) {
+        const errorLine = chunkCount <= CHUNK_BASE ? count : chunkCount - CHUNK_BASE + count + 1;
+
+        error.statusCode = 400
+        error.cause = error.message
+        error.message = `An error occurred in the data input on CSV file at line ${errorLine}`
+
+        throw error;
+    }
+}
+
 const modifyLeaveData = (data) => {
     try {
         const startDate = new Date(data.start_date_leave)
@@ -185,7 +248,7 @@ const modifyUserData = async (data) => {
 
         const role = await prisma.tb_roles.findFirst({
             where: {
-                slug : {
+                slug: {
                     contains: data.role_user,
                     mode: "insensitive"
                 }
@@ -197,7 +260,7 @@ const modifyUserData = async (data) => {
             error.statusCode = 400;
             throw error;
         }
-        
+
         const employee_status = await prisma.tb_statuses.findFirst({
             where: {
                 name: {
@@ -225,9 +288,9 @@ const modifyUserData = async (data) => {
             join_date: new Date(data.join_date_user)
         }
 
-       validateInjectDataType(userSchema, result);
+        validateInjectDataType(userSchema, result);
 
-       console.log(result);
+        console.log(result);
 
         return result;
     } catch (error) {
