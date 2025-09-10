@@ -186,7 +186,6 @@ export const updateLeave = async (id, status, reason, nik, actor_fullname) => {
                     changed_by_nik: nik,
                     actor_fullname: actor_fullname,
                     id_leave: data.id_leave,
-                    changed_at: currentDate,
                     balances_used: balancesUsed.sort((a, b) => b[1] - a[1]) ?? []
                 }
             })

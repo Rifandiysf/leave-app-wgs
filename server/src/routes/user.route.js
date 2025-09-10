@@ -43,6 +43,6 @@ userRoutes.patch('/:nik/balance',validateRole("admin", "super_admin"), modifyAmo
 userRoutes.get('/', validateRole("admin", "super_admin") ,allUsers);
 userRoutes.get('/:nik/leave-trend', validateRole("admin", "super_admin"), leaveTrend);
 
-userRoutes.get('/:nik/history', getUserHistory)
+userRoutes.get('/:nik/history', validateRole('admin', 'super_admin'), getUserHistory)
 
 export default userRoutes;

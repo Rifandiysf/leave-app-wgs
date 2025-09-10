@@ -2,6 +2,7 @@ import { z } from 'zod/v4';
 
 const leave_type = ['personal_leave', 'mandatory_leave', 'special_leave']
 const status = ['approved', 'pending', 'rejected', 'expired']
+const leave_balances = ['current', 'last_year', 'last_two_year']
 
 export const leaveSchema = z.object({
     id_leave: z.string(),
@@ -51,6 +52,13 @@ export const balanceAdjustmentSchema = z.object({
     actor: z.string("actor must be string"),
     NIK: z.string("NIK must be string"),
     balance_year: z.number("balance_year must be number")
+})
+
+export const importBalanceAdjustmentSchema = z.object({
+    NIK: z.string("NIK must be string"),
+    amount: z.number("amount must be number"),
+    notes: z.string("notes must be string"),
+        leave_balances: z.enum(leave_balances, "Invalid input in the leave_balances column; available options are: current, last_year, last_two_year.")
 })
 
 export const validateInjectDataType = (schema, data) => {

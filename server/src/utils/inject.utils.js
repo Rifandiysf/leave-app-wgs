@@ -1,11 +1,11 @@
 import { v4 as uuid } from 'uuid'
 import { Prisma, status } from '../../generated/prisma/client.js';
-import { balanceAdjustmentSchema, balanceSchema, leaveLogSchema, leaveSchema, userSchema, validateInjectDataType } from '../validators/inject.validator.js';
-import { create } from 'domain';
+import { balanceAdjustmentSchema, balanceSchema, importBalanceAdjustmentSchema, leaveLogSchema, leaveSchema, userSchema, validateInjectDataType } from '../validators/inject.validator.js';
 import prisma from './client.js';
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+import { adjustModifyAmount } from '../services/user-balance/adjustModifyAmount.service.js';
+import { createDateFromString } from './leaves.utils.js';
 
-export const processData = async (data, number, tx, CHUNK_BASE, requestNIK) => {
+export const processData = async (data, number, tx, CHUNK_BASE, actor) => {
     let count = 0;
     let dataLeave = []
     let dataLog = []
@@ -21,8 +21,8 @@ export const processData = async (data, number, tx, CHUNK_BASE, requestNIK) => {
                     const leaveData = modifyLeaveData(item);
                     dataLeave.push(leaveData)
 
-                    if (item.status !== 'pending') {
-                        let leaveLogData = modifyLeaveLogData(item, leaveData, requestNIK);
+                    if (item.status_leave_o !== 'pending') {
+                        let leaveLogData = modifyLeaveLogData(item, leaveData, actor);
                         dataLog.push(leaveLogData)
                     }
 
@@ -111,10 +111,74 @@ export const processData = async (data, number, tx, CHUNK_BASE, requestNIK) => {
     }
 }
 
+export const processDataImportBalanceAdjustment = async (data, chunkCount, tx, CHUNK_BASE, actor) => {
+    let count = 0
+    const balance_year = {
+        current: "this_year_leave",
+        last_year: "last_year_leave",
+        last_two_year: "last_two_year"
+    }
+
+    try {
+
+        for (const item of data) {
+            count++;
+
+            const modifiedData = {
+                NIK: item.NIK,
+                amount: Number(item.amount),
+                notes: item.notes,
+                leave_balances: item.leave_balances
+            }
+
+            validateInjectDataType(importBalanceAdjustmentSchema, modifiedData)
+
+            const targetUser = await prisma.tb_users.findFirst({
+                where: {
+                    NIK: item.NIK
+                },
+                include: {
+                    tb_roles: true,
+                    tb_statuses: true
+                }
+            })
+
+            const operation = modifiedData.amount >= 0 ? "add_amount" : "reduce_amount"
+            modifiedData.amount = modifiedData.amount >= 0 ? modifiedData.amount : Math.abs(modifiedData.amount)
+
+            if (!targetUser) {
+                const error = new Error(`User with NIK ${modifiedData.NIK} not found.`);
+                error.statusCode = 404;
+                throw error;
+            }
+
+            const result = await adjustModifyAmount(
+                modifiedData.NIK,
+                modifiedData.amount,
+                modifiedData.notes,
+                actor,
+                targetUser.tb_roles.slug,
+                balance_year[modifiedData.leave_balances],
+                operation
+            )
+        }
+
+        console.log("Balance Adjustment data imported successfully. \nTotal data received: ", chunkCount)
+    } catch (error) {
+        const errorLine = chunkCount <= CHUNK_BASE ? count : chunkCount - CHUNK_BASE + count + 1;
+
+        error.statusCode = 400
+        error.cause = error.message
+        error.message = `An error occurred in the data input on CSV file at line ${errorLine}`
+
+        throw error;
+    }
+}
+
 const modifyLeaveData = (data) => {
     try {
-        const startDate = new Date(data.start_date_leave)
-        const endDate = new Date(data.end_date_leave)
+        const startDate = createDateFromString(new Date(data.start_date_leave))
+        const endDate = createDateFromString(new Date(data.end_date_leave))
 
         const result = {
             id_leave: data.id || uuid(),
@@ -137,15 +201,16 @@ const modifyLeaveData = (data) => {
     }
 }
 
-const modifyLeaveLogData = (data, leaveData, requestNIK) => {
+const modifyLeaveLogData = (data, leaveData, actor) => {
     try {
         const result = {
             id_leave: leaveData.id_leave,
             old_status: data.old_status_leave_log_o || 'pending',
             new_status: data.status_leave_o,
             reason: data.reason_leave_log_o || 'Added by injecting data into database',
-            changed_by_nik: data.changed_by_nik_leave_log_o || requestNIK,
-            changed_at: data.changed_at_leave_log_o ? new Date(data.changed_at_leave_log_o) : new Date(),
+            changed_by_nik: data.changed_by_nik_leave_log_o !== null && data.changed_by_fullname_leave_log_o !== null ? data.changed_by_nik_leave_log_o : actor.NIK,
+            actor_fullname: data.changed_by_nik_leave_log_o !== null && data.changed_by_fullname_leave_log_o !== null ? data.changed_by_fullname_leave_log_o : actor.fullName,
+            changed_at: data.changed_at_leave_log_o ? createDateFromString(new Date(data.changed_at_leave_log_o)) : new Date(),
             balances_used: [],
         }
 
@@ -159,9 +224,9 @@ const modifyLeaveLogData = (data, leaveData, requestNIK) => {
 
 const modifyBalanceData = (data) => {
     try {
-        const receive = new Date(data.receive_date_balance)
+        const receive = createDateFromString(new Date(data.receive_date_balance))
 
-        const expired = data.expired_date ? new Date(data.expired_date_balance_o) : new Date(receive.getFullYear() + 2, 2, 31, 23, 59, 59, 999);
+        const expired = data.expired_date ? createDateFromString(new Date(data.expired_date_balance_o)) : createDateFromString(new Date(receive.getFullYear() + 2, 3, 1, 0, 0, 0, 0));
         const result = {
             id_balance: data.id || uuid(),
             amount: Number(data.amount_balance),
@@ -185,7 +250,7 @@ const modifyUserData = async (data) => {
 
         const role = await prisma.tb_roles.findFirst({
             where: {
-                slug : {
+                slug: {
                     contains: data.role_user,
                     mode: "insensitive"
                 }
@@ -197,7 +262,7 @@ const modifyUserData = async (data) => {
             error.statusCode = 400;
             throw error;
         }
-        
+
         const employee_status = await prisma.tb_statuses.findFirst({
             where: {
                 name: {
@@ -222,12 +287,12 @@ const modifyUserData = async (data) => {
             role_id: role.id,
             status_id: employee_status.id,
             isActive: isActive,
-            join_date: new Date(data.join_date_user)
+            join_date: createDateFromString(new Date(data.join_date_user))
         }
 
-       validateInjectDataType(userSchema, result);
+        validateInjectDataType(userSchema, result);
 
-       console.log(result);
+        console.log(result);
 
         return result;
     } catch (error) {
@@ -237,8 +302,7 @@ const modifyUserData = async (data) => {
 
 const modifyBalanceAdjustmentData = (data) => {
     try {
-        const created_at = data.created_at_balance_adjustment_o ? new Date(data.created_at_balance_adjustment_o) : new Date();
-        created_at.setHours(0, 0, 0)
+        const created_at = data.created_at_balance_adjustment_o ? createDateFromString(new Date(data.created_at_balance_adjustment_o)) : createDateFromString(new Date());
 
         const result = {
             id_adjustment: data.id || uuid(),

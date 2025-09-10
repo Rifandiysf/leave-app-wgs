@@ -19,7 +19,7 @@ router.use('/auth', authRoutes);
 router.use('/users', isAuthenticated, userRoutes);
 router.use('/leaves', isAuthenticated, validateRole('super_admin', 'admin'), leaveRoutes);
 router.use('/setting', isAuthenticated, settingRoutes)
-router.use('/uploads', isAuthenticated, validateRole('super_admin'), uploadRoutes)
+router.use('/uploads', isAuthenticated, uploadRoutes)
 router.use('/dashboard', isAuthenticated, dashboardRoutes);
 router.use('/balances', isAuthenticated, balanceRoutes)
 

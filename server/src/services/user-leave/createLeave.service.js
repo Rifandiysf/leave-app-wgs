@@ -12,6 +12,8 @@ export const createLeave = async (data) => {
         status
     } = data;
 
+    console.log("TESTTT", new Date())
+
     console.log("Data di createLeave (full object):", JSON.stringify(data, null, 2));
     console.log("STATUS di createLeave:", status);
     console.log("Type of status:", typeof status);
@@ -180,9 +182,11 @@ export const createLeave = async (data) => {
                 NIK,
                 total_days,
                 id_mandatory,
+                created_at: new Date(),
                 status: 'pending'
             }
         });
+
 
         if (status !== 'pending') {
             try {
@@ -222,7 +226,9 @@ export const createLeave = async (data) => {
         id_special
     };
 
-    return await prisma.tb_leave.create({
+    const leave2 = await prisma.tb_leave.create({
         data: leaveData,
     });
+
+    return leave2
 };
