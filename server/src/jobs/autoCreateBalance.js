@@ -1,5 +1,6 @@
 import cron from 'node-cron';
 import prisma from "../utils/client.js";
+import { createDateFromString } from '../utils/leaves.utils.js';
 
 cron.schedule('0 0 * * *', async () => {
     console.log('⏳ [Cron] Mulai cek balance...');
@@ -59,7 +60,7 @@ cron.schedule('0 0 * * *', async () => {
                             notes,
                             actor,
                             NIK: nik,
-                            created_at: new Date(),
+                            created_at: createDateFromString(new Date()),
                             balance_year: newBalance.receive_date.getFullYear(),
                             id_balance: newBalance.id_balance
                         }

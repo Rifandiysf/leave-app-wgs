@@ -1,4 +1,5 @@
 import prisma from "../../utils/client.js";
+import { createDateFromString } from "../../utils/leaves.utils.js";
 
 export const updateLeaveBalance = async (user) => {
     function formatDateLocal(date) {
@@ -88,7 +89,7 @@ export const updateLeaveBalance = async (user) => {
                             NIK: user.NIK,
                             adjustment_value: leaveAmount,
                             notes: `get ${leaveAmount} days of leave`,
-                            created_at: new Date(),
+                            created_at: createDateFromString(new Date()),
                             actor: 'system',
                             balance_year: currentYear,
                             id_balance: newBalance.id_balance
@@ -115,7 +116,7 @@ export const updateLeaveBalance = async (user) => {
                             NIK: user.NIK,
                             adjustment_value: leaveAmount,
                             notes: `get ${leaveAmount} days of leave`,
-                            created_at: new Date(),
+                            created_at: createDateFromString(new Date()),
                             actor: 'system',
                             balance_year: currentYear,
                             id_balance: newBalance.id_balance
@@ -224,7 +225,7 @@ export const updateLeaveBalance = async (user) => {
                                 NIK: user.NIK,
                                 adjustment_value: toAdd,
                                 notes: `get ${toAdd} days of leave`,
-                                created_at: new Date(),
+                                created_at: createDateFromString(new Date()),
                                 actor: 'system',
                                 balance_year: currentYear,
                                 id_balance: newBalance.id_balance
@@ -252,7 +253,7 @@ export const updateLeaveBalance = async (user) => {
                                 NIK: user.NIK,
                                 adjustment_value: toAdd,
                                 notes: `add ${toAdd} days of leave`,
-                                created_at: new Date(),
+                                created_at: createDateFromString(new Date()),
                                 actor: 'system',
                                 balance_year: currentYear,
                                 id_balance: newBalance.id_balance

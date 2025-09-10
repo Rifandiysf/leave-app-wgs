@@ -1,4 +1,5 @@
 import prisma from "../../utils/client.js";
+import { createDateFromString } from "../../utils/leaves.utils.js";
 
 export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, targetRole, leave_type, operation) => {
     if (!leave_type || !['this_year_leave', 'last_year_leave', 'last_two_year'].includes(leave_type)) {
@@ -62,7 +63,9 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
                     notes,
                     actor: actor.name,
                     NIK: nik,
-                    created_at: new Date()
+                    created_at: createDateFromString(new Date()),
+                    id_balance: balance.id_balance,
+                    balance_year: balance.receive_date.getFullYear()
                 }
             })
         ]);
@@ -86,7 +89,7 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
                 notes,
                 actor: actor.name,
                 NIK: nik,
-                created_at: new Date(),
+                created_at: createDateFromString(new Date()),
                 id_balance: balance.id_balance,
                 balance_year: balance.receive_date.getFullYear()
             }
