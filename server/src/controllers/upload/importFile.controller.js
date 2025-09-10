@@ -4,8 +4,8 @@ import { decodeToken } from '../../utils/jwt.js';
 
 export const importFile = async (req, res, next) => {
   try {
-    const user = await decodeToken(req.cookies["Authorization"])
-    const process = await importFileServices(`./src/temp/${req.file.originalname}`, user.NIK)
+    const actor = await decodeToken(req.cookies["Authorization"])
+    const process = await importFileServices(`./src/temp/${req.file.originalname}`, actor)
     if (process) {
       fs.unlink(`./src/temp/${req.file.originalname}`, (err) => {
         if (err) {
