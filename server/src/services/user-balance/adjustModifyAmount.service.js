@@ -1,8 +1,8 @@
 import prisma from "../../utils/client.js";
 
 export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, targetRole, leave_type, operation) => {
-    if (!leave_type || (leave_type !== 'this_year_leave' && leave_type !== 'last_year_leave')) {
-        throw new Error("Parameter 'leave_type' harus 'this_year_leave' atau 'last_year_leave'");
+    if (!leave_type || !['this_year_leave', 'last_year_leave', 'last_two_year'].includes(leave_type)) {
+        throw new Error("Parameter 'leave_type' harus 'this_year_leave' | 'last_year_leave' | 'last_two_year'");
     }
     if (!operation || (operation !== 'add_amount' && operation !== 'reduce_amount')) {
         throw new Error("Parameter 'operation' harus 'add_amount' atau 'reduce_amount'");
@@ -15,36 +15,36 @@ export const adjustModifyAmount = async (nik, adjustment_value, notes, actor, ta
     }
 
     const currentYear = new Date().getFullYear();
-    const targetYear = (leave_type === 'last_year_leave')
+    const today = new Date();
+    const targetYear = 
+        leave_type === 'last_year_leave'
         ? currentYear - 1
+        : leave_type === 'last_two_year'
+        ? currentYear - 2
         : currentYear;
 
     let balance;
-
-    if (targetRole === 'karyawan_kontrak') {
-        balance = await prisma.tb_balance.findFirst({
-            where: {
-                NIK: nik,
-                receive_date: {
-                    gte: new Date(`${targetYear}-01-01`),
-                    lte: new Date(`${targetYear}-12-31`),
-                }
-            },
-            orderBy: { receive_date: 'desc' }
-        });
-    } else {
-        const startOfYear = new Date(`${targetYear}-01-01`);
-        const endOfYear = new Date(`${targetYear}-12-31`);
-        balance = await prisma.tb_balance.findFirst({
-            where: {
-                NIK: nik,
-                receive_date: {
-                    gte: startOfYear,
-                    lte: endOfYear
-                }
+    const startOfYear = new Date(`${targetYear}-01-01`);
+    const endOfYear = new Date(`${targetYear}-12-31`);
+    balance = await prisma.tb_balance.findFirst({
+        where: {
+            NIK: nik,
+            receive_date: {
+                gte: startOfYear,
+                lte: endOfYear
             }
-        });
+        }
+    });
+
+    if (leave_type === 'last_two_year') {
+        if (!balance) {
+            throw new Error (`There is no balance for ${targetYear}`)
+        }
+        if (balance.expired_date <= today) {
+            throw new Error(`Balance ${targetYear} has expired, cannot be adjusted`)
+        } 
     }
+    
 
     if (!balance) {
         const newBalanceData = {
