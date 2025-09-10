@@ -1,119 +1,522 @@
-openapi: 3.0.3
+openapi: 3.0.0
 info:
-  title: Leave Management System
+  title: Leave Application API
+  description: API documentation for the WGS Leave Application server.
   version: 1.0.0
-  description: OpenAPI schema documentation.
+servers:
+  - url: /api/v1
+    description: Development server
+
+tags:
+  - name: Auth
+    description: Authentication operations
+  - name: Admin
+    description: Operations available to administrators
+  - name: Super Admin
+    description: Operations available only to super administrators
+  - name: User
+    description: Operations available to standard users (karyawan)
+
 paths:
   /auth/login:
     post:
-      summary: Login
-      description: Login user menggunakan email dan password.
-      tags: [Auth]
+      tags:
+        - Auth
+      summary: User login
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: user@example.com
-                password:
-                  type: string
-                  minLength: 8
-                  maxLength: 16
-                  example: yourpassword123
-              required:
-                - email
-                - password
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Login berhasil
-          headers:
-            Authorization:
-              description: JWT token dalam format Bearer
-              schema:
-                type: string
-                example: Bearer eyJhbGciOiJIUzI1...
-            device-id:
-              description: ID perangkat unik
-              schema:
-                type: string
-                example: 123e4567-e89b-12d3-a456-426614174000
+          description: Successful login
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Welcome John Doe
-                  data:
-                    type: object
-                    properties:
-                      nik:
-                        type: string
-                        example: '123456'
-                      name:
-                        type: string
-                        example: John Doe
-                      role:
-                        $ref: '#/components/schemas/role'
-                    required:
-                      - nik
-                      - name
-                      - role
-                required:
-                  - success
-                  - message
-                  - data
+                $ref: '#/components/schemas/LoginSuccessResponse'
         '400':
-          $ref: '#/components/responses/Error400'
+          description: Validation error (e.g., email not valid, password empty)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
         '401':
-          $ref: '#/components/responses/Error401'
-        '404':
-          $ref: '#/components/responses/Error404'
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
-          $ref: '#/components/responses/Error500'
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /auth/logout:
     get:
-      summary: Logout
-      description: Logout user dan hapus token dari database.
-      tags: [Auth]
+      tags:
+        - Auth
+      summary: User logout
       security:
         - bearerAuth: []
-        - deviceId: []
       responses:
         '200':
-          description: Logout berhasil
+          description: Successful logout
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  success:
-                    type: boolean
-                    example: true
+                  status:
+                    type: string
+                    example: success
                   message:
                     type: string
-                    example: You have been successfully logged out.
-                required:
-                  - success
-                  - message
+                    example: Logout successful
         '401':
-          $ref: '#/components/responses/Error401'
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
-          $ref: '#/components/responses/Error500'
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users:
+    get:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Get all users (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of items per page
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search query for user name or NIK
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - User
+      summary: Deactivate user account (self)
+      description: Allows a user to deactivate their own account.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User deactivated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/{nik}:
+    get:
+      tags:
+        - User
+      summary: Get user details by NIK
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: nik
+          required: true
+          schema:
+            type: string
+          description: User's NIK
+      responses:
+        '200':
+          description: User data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags:
+        - User
+      summary: Update user details (self)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: nik
+          required: true
+          schema:
+            type: string
+          description: User's NIK
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Deactivate a user by NIK (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: nik
+          required: true
+          schema:
+            type: string
+          description: NIK of the user to deactivate
+      responses:
+        '200':
+          description: User deactivated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/{nik}/balance:
+    patch:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Adjust user's leave balance (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: nik
+          required: true
+          schema:
+            type: string
+          description: User's NIK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdjustBalanceRequest'
+      responses:
+        '200':
+          description: Balance adjusted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/{nik}/leave-trend:
+    get:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Get leave trend for a specific user (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: nik
+          required: true
+          schema:
+            type: string
+          description: User's NIK
+      responses:
+        '200':
+          description: Leave trend data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    month:
+                      type: string
+                    total:
+                      type: integer
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/{nik}/history:
+    get:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Get leave history for a specific user (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: nik
+          required: true
+          schema:
+            type: string
+          description: User's NIK
+      responses:
+        '200':
+          description: User's leave history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveListResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+
+  /users/me:
+    get:
+      tags:
+        - User
+      summary: Get current user's details
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user's data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /users/special:
+    get:
+      tags:
+        - User
+      summary: Get available special leaves for the user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of available special leaves
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SpecialLeave'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /users/mandatory:
+    get:
+      tags:
+        - User
+      summary: Get available mandatory leaves for the user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of available mandatory leaves
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MandatoryLeave'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
   /users/leave:
     post:
-      tags: [Dashboard user]
-      summary: Mengajukan Permohonan Cuti Baru
-      description: Memungkinkan pengguna yang terautentikasi untuk mengajukan permohonan cuti baru. Endpoint ini mencakup validasi untuk body permintaan, duplikasi permohonan cuti, saldo cuti, dan pengecekan cuti khusus agar tidak jatuh pada akhir pekan.
+      tags:
+        - User
+      summary: Create a new leave request
       security:
         - bearerAuth: []
       requestBody:
@@ -121,2194 +524,853 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                  minLength: 3
-                  description: Judul permohonan cuti. Diperlukan kecuali jika leave_type adalah 'special_leave' yang akan diisi secara otomatis dari `tb_special_leave`.
-                leave_type:
-                  $ref: '#/components/schemas/leave_type'
-                  description: 'Jenis cuti: personal_leave, mandatory_leave, atau special_leave.'
-                start_date:
-                  type: string
-                  format: date
-                  description: Tanggal mulai cuti (YYYY-MM-DD).
-                end_date:
-                  type: string
-                  format: date
-                  description: Tanggal berakhir cuti (YYYY-MM-DD). Diperlukan untuk cuti pribadi atau wajib. Dihitung secara otomatis untuk cuti khusus.
-                reason:
-                  type: string
-                  minLength: 5
-                  description: Alasan permohonan cuti. Diperlukan kecuali jika leave_type adalah 'special_leave' yang akan diisi secara otomatis dari `tb_special_leave`.
-                id_special:
-                  type: string
-                  description: Diperlukan untuk jenis 'special_leave', merujuk pada id_special di tb_special_leave.
-                  nullable: true
-                id_mandatory:
-                  type: string
-                  description: Diperlukan untuk jenis 'mandatory_leave', merujuk pada id_mandatory di tb_mandatory_leave.
-                  nullable: true
-              required:
-                - leave_type
-                - start_date
-              oneOf:
-                - properties:
-                    leave_type:
-                      enum:
-                        - personal_leave
-                        - mandatory_leave
-                    end_date:
-                      type: string
-                      format: date
-                  required:
-                    - end_date
-                - properties:
-                    leave_type:
-                      enum: [special_leave]
-                    id_special:
-                      type: string
-                  required:
-                    - id_special
-            examples:
-              personalLeaveRequest:
-                value:
-                  title: Annual Vacation
-                  leave_type: personal_leave
-                  start_date: '2025-08-01'
-                  end_date: '2025-08-05'
-                  reason: Family vacation to Bali
-              specialLeaveRequest:
-                value:
-                  leave_type: special_leave
-                  start_date: '2025-09-10'
-                  id_special: SPL001
+              $ref: '#/components/schemas/CreateLeaveRequest'
       responses:
         '201':
-          description: Leave request created successfully.
+          description: Leave request created successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Leave request created successfully
-                  data:
-                    $ref: '#/components/schemas/tb_leave'
+                $ref: '#/components/schemas/Leave'
         '400':
-          $ref: '#/components/responses/Error400'
+          description: Validation error or business logic error (e.g., insufficient balance, duplicate leave)
         '401':
-          $ref: '#/components/responses/Error401'
+          description: Unauthorized
         '500':
-          $ref: '#/components/responses/Error500'
+          description: Internal server error
     get:
-      tags: [Dashboard user]
-      summary: Mendapatkan Daftar Permohonan Cuti
-      description: Mengambil daftar permohonan cuti untuk pengguna yang diautentikasi, dengan opsi paginasi.
+      tags:
+        - User
+      summary: Get user's own leave requests
       security:
         - bearerAuth: []
       parameters:
-        - name: page
-          in: query
-          description: Nomor halaman untuk paginasi
-          required: false
+        - in: query
+          name: page
           schema:
             type: integer
             default: 1
-        - name: limit
-          in: query
-          description: Jumlah item per halaman
-          required: false
+        - in: query
+          name: limit
           schema:
             type: integer
             default: 10
       responses:
-        '201':
-          description: Daftar permohonan cuti berhasil diambil atau tidak ada data.
+        '200':
+          description: A list of the user's leave requests
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    examples:
-                      - Leave requests retrieved successfully
-                      - The data doesn't exist
-                  pagination:
-                    $ref: '#/components/schemas/Pagination'
-                  data:
-                    type: array
-                    items:
-                      allOf:
-                        - $ref: '#/components/schemas/tb_leave'
-                        - type: object
-                          properties:
-                            tb_leave_log:
-                              type: object
-                              properties:
-                                reason:
-                                  type: string
-                                  description: Alasan log cuti terakhir
-                                tb_users:
-                                  type: object
-                                  properties:
-                                    fullname:
-                                      type: string
-                                      description: Nama lengkap pengguna yang mengubah log
-              examples:
-                successWithData:
-                  value:
-                    success: true
-                    message: Leave requests retrieved successfully
-                    pagination:
-                      current_page: 1
-                      last_visible_page: 1
-                      has_next_page: false
-                      item:
-                        count: 1
-                        total: 1
-                        per_page: 10
-                    data:
-                      - id_leave: some-uuid-1
-                        title: Cuti Pribadi
-                        leave_type: personal_leave
-                        start_date: '2025-07-20'
-                        end_date: '2025-07-22'
-                        total_days: 3
-                        reason: Acara keluarga
-                        status: pending
-                        created_at: '2025-07-15T10:00:00Z'
-                        NIK: '12345'
-                        id_special: null
-                        id_mandatory: null
-                        tb_leave_log:
-                          reason: '-'
-                          tb_users:
-                            fullname: '-'
-                noData:
-                  value:
-                    success: true
-                    message: The data doesn't exist
-                    pagination:
-                      current_page: 1
-                      last_visible_page: 0
-                      has_next_page: false
-                      item:
-                        count: 0
-                        total: 0
-                        per_page: 10
-                    data: []
+                $ref: '#/components/schemas/LeaveListResponse'
         '401':
-          $ref: '#/components/responses/Error401'
+          description: Unauthorized
         '500':
-          $ref: '#/components/responses/Error500'
+          description: Internal server error
+
   /users/leave/search:
     get:
-      tags: [Dashboard user]
-      summary: Mencari Permohonan Cuti Berdasarkan Filter
-      description: Mengambil daftar permohonan cuti untuk pengguna yang diautentikasi, difilter berdasarkan jenis cuti, status, dan nilai pencarian, dengan opsi paginasi.
+      tags:
+        - User
+      summary: Search within the user's own leave requests
       security:
         - bearerAuth: []
       parameters:
-        - name: value
-          in: query
-          description: Nilai untuk mencari judul cuti (pencarian tidak peka huruf besar/kecil)
-          required: false
+        - in: query
+          name: query
           schema:
             type: string
-        - name: type
-          in: query
-          description: Jenis cuti untuk difilter (personal, mandatory, special)
-          required: false
-          schema:
-            type: string
-            enum: [personal, mandatory, special]
-        - name: status
-          in: query
-          description: Status cuti untuk difilter (pending, approved, reject)
-          required: false
-          schema:
-            type: string
-            enum: [pending, approved, reject]
-        - name: page
-          in: query
-          description: Nomor halaman untuk paginasi
-          required: false
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Jumlah item per halaman
-          required: false
-          schema:
-            type: integer
-            default: 10
+          description: Search by leave title
       responses:
         '200':
-          description: Data cuti yang difilter berhasil diambil.
+          description: A list of matching leave requests
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    examples:
-                      - Filtered leave data retrieved successfully
-                      - The data doesn't exist
-                  pagination:
-                    $ref: '#/components/schemas/Pagination'
-                  data:
-                    type: array
-                    items:
-                      allOf:
-                        - $ref: '#/components/schemas/tb_leave'
-                        - type: object
-                          properties:
-                            tb_leave_log:
-                              type: object
-                              properties:
-                                reason:
-                                  type: string
-                                tb_users:
-                                  type: object
-                                  properties:
-                                    fullname:
-                                      type: string
-              examples:
-                successWithData:
-                  value:
-                    success: true
-                    message: Filtered leave data retrieved successfully
-                    pagination:
-                      current_page: 1
-                      last_visible_page: 1
-                      has_next_page: false
-                      item:
-                        count: 1
-                        total: 1
-                        per_page: 10
-                    data:
-                      - id_leave: some-uuid-1
-                        title: Cuti Filtered
-                        leave_type: personal_leave
-                        start_date: '2025-07-20'
-                        end_date: '2025-07-22'
-                        total_days: 3
-                        reason: Alasan filter
-                        status: approved
-                        created_at: '2025-07-15T10:00:00Z'
-                        NIK: '12345'
-                        id_special: null
-                        id_mandatory: null
-                        tb_leave_log:
-                          reason: '-'
-                          tb_users:
-                            fullname: '-'
-                noData:
-                  value:
-                    success: true
-                    message: The data doesn't exist
-                    pagination:
-                      current_page: 1
-                      last_visible_page: 0
-                      has_next_page: false
-                      item:
-                        count: 0
-                        total: 0
-                        per_page: 10
-                    data: []
-        '400':
-          $ref: '#/components/responses/Error400'
+                $ref: '#/components/schemas/LeaveListResponse'
         '401':
-          $ref: '#/components/responses/Error401'
+          description: Unauthorized
         '500':
-          $ref: '#/components/responses/Error500'
+          description: Internal server error
+
   /users/leave/{id}:
     get:
-      tags: [Dashboard user]
-      summary: Mendapatkan Permohonan Cuti Berdasarkan ID
-      description: Mengambil detail permohonan cuti tertentu untuk pengguna yang diautentikasi berdasarkan ID cuti.
+      tags:
+        - User
+      summary: Get a specific leave request by ID
       security:
         - bearerAuth: []
       parameters:
-        - name: id
-          in: path
-          description: ID unik dari permohonan cuti
+        - in: path
+          name: id
           required: true
           schema:
             type: string
-      responses:
-        '201':
-          description: Data cuti berhasil diambil berdasarkan ID.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Successfully retrieved leave data by ID
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/tb_leave'
-              examples:
-                successWithData:
-                  value:
-                    message: Successfully retrieved leave data by ID
-                    data:
-                      - id_leave: specific-uuid-1
-                        title: Cuti Dadakan
-                        leave_type: personal_leave
-                        start_date: '2025-10-01'
-                        end_date: '2025-10-02'
-                        total_days: 2
-                        reason: Sakit mendadak
-                        status: approved
-                        created_at: '2025-09-28T09:00:00Z'
-                        NIK: '12345'
-                        id_special: null
-                        id_mandatory: null
-        '401':
-          $ref: '#/components/responses/Error401'
-        '500':
-          $ref: '#/components/responses/Error500'
-  /users/{nik}:
-    get:
-      tags: [Dashboard user]
-      summary: Mendapatkan Detail Pengguna Berdasarkan NIK
-      description: Mengambil detail profil pengguna tertentu, termasuk informasi saldo cuti dan status permohonan, berdasarkan Nomor Induk Karyawan (NIK). Akses terbatas admin dan super_admin dapat melihat data pengguna manapun; karyawan hanya dapat melihat data mereka sendiri.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: nik
-          in: path
-          description: NIK (Nomor Induk Karyawan) pengguna yang ingin diambil datanya.
-          required: true
-          schema:
-            type: string
+            format: uuid
       responses:
         '200':
-          description: Data pengguna berhasil diambil.
+          description: The leave request object
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Data retrieve successfully
-                  requested_by:
-                    type: object
-                    properties:
-                      role:
-                        $ref: '#/components/schemas/role'
-                      nik:
-                        type: string
-                  data:
-                    type: object
-                    properties:
-                      NIK:
-                        type: string
-                      fullname:
-                        type: string
-                      gender:
-                        $ref: '#/components/schemas/gender'
-                      status_active:
-                        $ref: '#/components/schemas/status_active'
-                      role:
-                        $ref: '#/components/schemas/role'
-                      balance:
-                        type: object
-                        properties:
-                          total_amount:
-                            type: integer
-                            description: Total saldo cuti yang tersedia (current + carried).
-                          current_amount:
-                            type: integer
-                            description: Saldo cuti yang diterima di tahun berjalan.
-                          carried_amount:
-                            type: integer
-                            description: Saldo cuti yang dibawa dari tahun sebelumnya.
-                          days_used:
-                            type: integer
-                            description: Jumlah hari cuti yang telah disetujui dan digunakan di tahun berjalan.
-                          pending_request:
-                            type: integer
-                            description: Jumlah hari cuti yang sedang dalam status 'pending' di tahun berjalan.
-              examples:
-                adminRequest:
-                  value:
-                    success: true
-                    message: Data retrieve successfully
-                    requested_by:
-                      role: admin
-                      nik: ADMIN001
-                    data:
-                      NIK: KRY001
-                      fullname: Budi Santoso
-                      gender: male
-                      status_active: active
-                      role: karyawan_tetap
-                      balance:
-                        total_amount: 10
-                        current_amount: 7
-                        carried_amount: 3
-                        days_used: 2
-                        pending_request: 1
-                userSelfRequest:
-                  value:
-                    success: true
-                    message: Data retrieve successfully
-                    requested_by:
-                      role: karyawan_tetap
-                      nik: KRY001
-                    data:
-                      NIK: KRY001
-                      fullname: Budi Santoso
-                      gender: male
-                      status_active: active
-                      role: karyawan_tetap
-                      balance:
-                        total_amount: 10
-                        current_amount: 7
-                        carried_amount: 3
-                        days_used: 2
-                        pending_request: 1
+                $ref: '#/components/schemas/Leave'
         '401':
-          $ref: '#/components/responses/Error401'
+          description: Unauthorized
         '404':
-          $ref: '#/components/responses/Error404'
+          description: Leave request not found
         '500':
-          $ref: '#/components/responses/Error500'
-    patch:
-      summary: Update user
-      description: Update user data.
-      tags: [User]
+          description: Internal server error
+
+  /leaves:
+    get:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Get all leave requests (Admin/Super Admin)
       security:
         - bearerAuth: []
       parameters:
-        - name: nik
-          in: path
-          description: NIK of the user to update
-          required: true
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A list of all leave requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveListResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+
+  /leaves/search:
+    get:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Search all leave requests (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: query
           schema:
             type: string
+          description: Search by user name, NIK, or leave title
+      responses:
+        '200':
+          description: A list of matching leave requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveListResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+
+  /leaves/logs:
+    get:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Get all leave status change logs (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of leave logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveLog'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+
+  /leaves/logs/search:
+    get:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Search leave status change logs (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: Search query
+      responses:
+        '200':
+          description: A list of matching leave logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaveLog'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+
+  /leaves/special:
+    get:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Get all special leaves (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of all special leaves
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SpecialLeave'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+    post:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Create a new special leave type (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSpecialLeaveRequest'
       responses:
         '201':
-          description: Successful operation
+          description: Special leave created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                $ref: '#/components/schemas/SpecialLeave'
+        '400':
+          description: Validation error
         '401':
-          $ref: '#/components/responses/Error401'
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '500':
-          $ref: '#/components/responses/Error500'
-    delete:
-      summary: Delete user
-      description: Delete a user. Admin and super admin access only.
-      tags: [User]
+          description: Internal server error
+
+  /leaves/special/search:
+    get:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Search for special leaves (Admin/Super Admin)
       security:
         - bearerAuth: []
       parameters:
-        - name: nik
-          in: path
-          description: NIK of the user to delete
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: Search by title
+      responses:
+        '200':
+          description: A list of matching special leaves
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SpecialLeave'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+
+  /leaves/special/{id}:
+    patch:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Update a special leave type (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
           required: true
           schema:
             type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSpecialLeaveRequest'
       responses:
         '200':
-          description: Successful operation
+          description: Special leave updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                $ref: '#/components/schemas/SpecialLeave'
+        '400':
+          description: Validation error
         '401':
-          $ref: '#/components/responses/Error401'
+          description: Unauthorized
         '403':
-          $ref: '#/components/responses/Error403'
+          description: Forbidden
+        '404':
+          description: Special leave not found
         '500':
-          $ref: '#/components/responses/Error500'
-  /users/{nik}/leave-trend:
+          description: Internal server error
+
+  /leaves/mandatory:
     get:
-      summary: Get leave trend
-      description: Get the leave trend for a user. Admin and super admin access only.
-      tags: [User]
+      tags:
+        - Admin
+        - Super Admin
+      summary: Get all mandatory leaves (Admin/Super Admin)
       security:
         - bearerAuth: []
-      parameters:
-        - name: nik
-          in: path
-          description: NIK of the user
-          required: true
-          schema:
-            type: string
       responses:
         '200':
-          description: Successful operation
+          description: A list of all mandatory leaves
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LeaveTrendResponse'
+                type: array
+                items:
+                  $ref: '#/components/schemas/MandatoryLeave'
         '401':
-          $ref: '#/components/responses/Error401'
+          description: Unauthorized
         '403':
-          $ref: '#/components/responses/Error403'
+          description: Forbidden
         '500':
-          $ref: '#/components/responses/Error500'
-  /balance/logs:
-    get:
-      summary: Get all balance adjustment logs
-      description: Get all balance adjustment logs with pagination and filtering. Admin and super admin access only.
-      tags: [Balance]
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: page
-          in: query
-          description: Page number for pagination
-          required: false
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Number of items per page
-          required: false
-          schema:
-            type: integer
-            default: 10
-        - name: start
-          in: query
-          description: Start date for filtering
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: end
-          in: query
-          description: End date for filtering
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: year
-          in: query
-          description: Year for filtering
-          required: false
-          schema:
-            type: integer
-        - name: value
-          in: query
-          description: Search value for filtering by name or NIK
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BalanceLogResponse'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '500':
-          $ref: '#/components/responses/Error500'
-  /balance/logs/me:
-    get:
-      summary: Get my balance adjustment logs
-      description: Get my balance adjustment logs with pagination and filtering.
-      tags: [Balance]
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: page
-          in: query
-          description: Page number for pagination
-          required: false
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Number of items per page
-          required: false
-          schema:
-            type: integer
-            default: 10
-        - name: start
-          in: query
-          description: Start date for filtering
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: end
-          in: query
-          description: End date for filtering
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: year
-          in: query
-          description: Year for filtering
-          required: false
-          schema:
-            type: integer
-        - name: value
-          in: query
-          description: Search value for filtering
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BalanceLogResponse'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '500':
-          $ref: '#/components/responses/Error500'
-  /users/me:
-    get:
-      summary: Get my data
-      description: Get the data of the logged in user.
-      tags: [User]
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '500':
-          $ref: '#/components/responses/Error500'
-  /upload/import:
+          description: Internal server error
     post:
-      summary: Import file
-      description: Import a file.
-      tags: [Upload]
+      tags:
+        - Admin
+        - Super Admin
+      summary: Create a new mandatory leave (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMandatoryLeaveRequest'
+      responses:
+        '201':
+          description: Mandatory leave created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MandatoryLeave'
+        '400':
+          description: Validation error (e.g., start date not two weeks ahead)
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+
+  /leaves/mandatory/search:
+    get:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Search for mandatory leaves (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: Search by title
+      responses:
+        '200':
+          description: A list of matching mandatory leaves
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MandatoryLeave'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+
+  /leaves/mandatory/{id}:
+    patch:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Update a mandatory leave (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMandatoryLeaveRequest'
+      responses:
+        '200':
+          description: Mandatory leave updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MandatoryLeave'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Mandatory leave not found
+        '500':
+          description: Internal server error
+
+  /leaves/mandatory-year/{year}:
+    patch:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Update mandatory leave year settings (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: year
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success message
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+
+  /leaves/{id}:
+    patch:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Update a leave request status (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLeaveStatusRequest'
+      responses:
+        '200':
+          description: Leave status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Leave'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Leave request not found
+        '500':
+          description: Internal server error
+
+  /uploads/import:
+    post:
+      tags:
+        - Super Admin
+      summary: Import users from a file (Super Admin)
       security:
         - bearerAuth: []
       requestBody:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/FileUploadRequest'
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
       responses:
         '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FileUploadResponse'
+          description: File imported successfully
+        '400':
+          description: No file uploaded or invalid file format
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '500':
-          $ref: '#/components/responses/Error500'
-  /upload/export:
+          description: Internal server error
+
+  /uploads/balance-adjustment:
+    post:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Import balance adjustments from a file (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: File imported successfully
+        '400':
+          description: No file uploaded or invalid file format
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+
+  /uploads/export:
     get:
-      summary: Export file
-      description: Export a file.
-      tags: [Upload]
+      tags:
+        - Super Admin
+      summary: Export user data to a file (Super Admin)
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Successful operation
+          description: Excel file of users
           content:
             application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
               schema:
                 type: string
                 format: binary
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '500':
-          $ref: '#/components/responses/Error500'
+          description: Internal server error
+
+  /dashboard/statistics:
+    get:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Get dashboard statistics (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard statistics
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+
+  /dashboard/trend:
+    get:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Get dashboard leave trend (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard trend data
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+
+  /dashboard/leaderboard:
+    get:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Get dashboard leave leaderboard (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard leaderboard data
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+
+  /dashboard/pending-leave:
+    get:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Get pending leave requests for the dashboard (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of pending leaves
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+
+  /balances/logs:
+    get:
+      tags:
+        - Admin
+        - Super Admin
+      summary: Get all balance adjustment logs (Admin/Super Admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of balance adjustment logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BalanceAdjustment'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+
+  /balances/me:
+    get:
+      tags:
+        - User
+      summary: Get current user's balance adjustment logs
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of the user's balance adjustment logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BalanceAdjustment'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
   /setting:
     post:
-      summary: Create setting
-      description: Create a new setting.
-      tags: [Setting]
+      tags:
+        - Super Admin
+      summary: Create application settings (Super Admin)
       security:
         - bearerAuth: []
       requestBody:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SettingRequest'
+              $ref: '#/components/schemas/Setting'
       responses:
         '201':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SettingResponse'
+          description: Settings created successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '500':
-          $ref: '#/components/responses/Error500'
+          description: Internal server error
     get:
-      summary: Get setting
-      description: Get the setting.
-      tags: [Setting]
+      tags:
+        - Super Admin
+      summary: Get application settings (Super Admin)
+      security:
+        - bearerAuth: []
       responses:
         '200':
-          description: Successful operation
+          description: Application settings
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SettingResponse'
+                $ref: '#/components/schemas/Setting'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '500':
-          $ref: '#/components/responses/Error500'
+          description: Internal server error
+
   /setting/{id}:
     patch:
-      summary: Update setting
-      description: Update the setting.
-      tags: [Setting]
+      tags:
+        - Super Admin
+      summary: Update application settings (Super Admin)
       security:
         - bearerAuth: []
       parameters:
-        - name: id
-          in: path
-          description: ID of the setting to update
+        - in: path
+          name: id
           required: true
           schema:
             type: string
+            format: uuid
       requestBody:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SettingRequest'
+              $ref: '#/components/schemas/Setting'
       responses:
         '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SettingResponse'
-        '500':
-          $ref: '#/components/responses/Error500'
-  /users/{nik}/balance:
-    patch:
-      tags: [Dashboard admin]
-      summary: Menyesuaikan Saldo Cuti Pengguna
-      description: Memungkinkan 'admin' atau 'super_admin' untuk menyesuaikan saldo cuti seorang karyawan. Endpoint ini memvalidasi peran pengguna yang membuat permintaan, memastikan pengguna target ada, dan memperbarui saldo cuti serta mencatat penyesuaian.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: nik
-          in: path
-          description: NIK (Nomor Induk Karyawan) pengguna yang saldonya akan disesuaikan.
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                adjustment_value:
-                  type: integer
-                  description: Nilai untuk menyesuaikan saldo cuti. Harus angka positif.
-                  example: 5
-                notes:
-                  type: string
-                  description: Catatan tentang penyesuaian saldo.
-                  example: Penambahan saldo cuti tahunan
-              required:
-                - adjustment_value
-                - notes
-      responses:
-        '200':
-          description: Saldo berhasil disesuaikan.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Balance adjusted successfully
-                  data:
-                    type: array
-                    items:
-                      oneOf:
-                        - $ref: '#/components/schemas/tb_balance'
-                        - $ref: '#/components/schemas/tb_balance_adjustment'
-              examples:
-                successAdjustment:
-                  value:
-                    message: Balance adjusted successfully
-                    data:
-                      - id_balance: some-balance-uuid
-                        amount: 15
-                        receive_date: '2025-01-01'
-                        expired_date: '2025-12-31'
-                        NIK: KRY001
-                      - id_adjustment: some-adjustment-uuid
-                        adjustment_value: 5
-                        notes: Penambahan saldo cuti tahunan
-                        created_at: '2025-07-24T10:00:00Z'
-                        actor: admin
-                        NIK: KRY001
-        '400':
-          $ref: '#/components/responses/Error400'
+          description: Settings updated successfully
         '401':
-          $ref: '#/components/responses/Error401'
+          description: Unauthorized
         '403':
-          $ref: '#/components/responses/Error403'
+          description: Forbidden
         '404':
-          $ref: '#/components/responses/Error404'
+          description: Setting not found
         '500':
-          $ref: '#/components/responses/Error500'
-  /users:
-    get:
-      tags: [Dashboard admin]
-      summary: Mendapatkan Semua Pengguna
-      description: Mengambil daftar semua pengguna dengan opsi pencarian, filter berdasarkan jenis kelamin, status, dan peran, serta paginasi. Hanya dapat diakses oleh pengguna dengan peran 'admin' atau 'super_admin'.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: page
-          in: query
-          description: Nomor halaman untuk paginasi
-          required: false
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Jumlah item per halaman
-          required: false
-          schema:
-            type: integer
-            default: 10
-        - name: search
-          in: query
-          description: Kata kunci pencarian untuk nama lengkap atau NIK (tidak peka huruf besar/kecil)
-          required: false
-          schema:
-            type: string
-        - name: gender
-          in: query
-          description: Filter berdasarkan jenis kelamin
-          required: false
-          schema:
-            $ref: '#/components/schemas/gender'
-        - name: status
-          in: query
-          description: Filter berdasarkan status aktif
-          required: false
-          schema:
-            $ref: '#/components/schemas/status_active'
-        - name: role
-          in: query
-          description: Filter berdasarkan peran pengguna
-          required: false
-          schema:
-            $ref: '#/components/schemas/role'
-      responses:
-        '200':
-          description: Data pengguna berhasil diambil.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Successfully retrieved user data
-                  pagination:
-                    $ref: '#/components/schemas/Pagination'
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        nik:
-                          type: string
-                          description: Nomor Induk Karyawan.
-                        name:
-                          type: string
-                          description: Nama lengkap pengguna.
-                        gender:
-                          $ref: '#/components/schemas/gender'
-                          description: Jenis kelamin pengguna.
-                        last_year_leave:
-                          type: integer
-                          description: Jumlah cuti yang dibawa dari tahun sebelumnya.
-                        this_year_leave:
-                          type: integer
-                          description: Jumlah cuti yang diterima di tahun berjalan.
-                        leave_total:
-                          type: integer
-                          description: Total saldo cuti (tahun lalu + tahun ini).
-                        role:
-                          $ref: '#/components/schemas/role'
-                          description: Peran pengguna.
-                        status:
-                          $ref: '#/components/schemas/status_active'
-                          description: Status keaktifan pengguna.
-              examples:
-                successWithData:
-                  value:
-                    success: true
-                    message: Successfully retrieved user data
-                    pagination:
-                      current_page: 1
-                      last_visible_page: 1
-                      has_next_page: false
-                      item:
-                        count: 1
-                        total: 1
-                        per_page: 10
-                    data:
-                      - nik: KRY001
-                        name: Budi Santoso
-                        gender: male
-                        last_year_leave: 3
-                        this_year_leave: 7
-                        leave_total: 10
-                        role: karyawan_tetap
-                        status: active
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '500':
-          $ref: '#/components/responses/Error500'
-  /leaves:
-    get:
-      tags: [Dashboard admin]
-      summary: Mendapatkan Semua Pengajuan Cuti (Pending)
-      description: Mengambil daftar semua pengajuan cuti dengan status 'pending', lengkap dengan informasi pengguna terkait dan paginasi. Membutuhkan autentikasi dan peran 'super_admin' atau 'admin'.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: page
-          in: query
-          description: Nomor halaman untuk paginasi.
-          required: false
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Jumlah item per halaman.
-          required: false
-          schema:
-            type: integer
-            default: 10
-      responses:
-        '200':
-          description: Data cuti berhasil diambil.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Leave data retrieved successfully
-                  pagination:
-                    $ref: '#/components/schemas/Pagination'
-                  data:
-                    type: array
-                    items:
-                      allOf:
-                        - $ref: '#/components/schemas/tb_leave'
-                        - type: object
-                          properties:
-                            name:
-                              type: string
-                              description: Nama lengkap pengguna yang mengajukan cuti.
-              examples:
-                successResponse:
-                  value:
-                    success: true
-                    message: Leave data retrieved successfully
-                    pagination:
-                      current_page: 1
-                      last_visible_page: 1
-                      has_next_page: false
-                      item:
-                        count: 1
-                        total: 1
-                        per_page: 10
-                    data:
-                      - id_leave: leave-123
-                        title: Cuti Tahunan
-                        leave_type: personal_leave
-                        start_date: '2025-08-01'
-                        end_date: '2025-08-05'
-                        total_days: 5
-                        reason: Liburan keluarga
-                        status: pending
-                        created_at: '2025-07-24T10:00:00Z'
-                        NIK: KRY001
-                        id_special: null
-                        id_mandatory: null
-                        name: Budi Santoso
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '500':
-          $ref: '#/components/responses/Error500'
-  /leaves/search:
-    get:
-      tags: [Dashboard admin]
-      summary: Mencari Pengajuan Cuti Berdasarkan Filter
-      description: Mengambil pengajuan cuti yang tertunda dengan filter opsional berdasarkan jenis cuti ('personal', 'mandatory', 'special') dan nilai pencarian (berdasarkan nama lengkap pengguna). Membutuhkan autentikasi dan peran 'super_admin' atau 'admin'.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: type
-          in: query
-          description: Jenis cuti untuk difilter (misalnya, 'personal', 'mandatory', 'special').
-          required: false
-          schema:
-            type: string
-            enum: [personal, mandatory, special]
-        - name: value
-          in: query
-          description: Nilai pencarian untuk nama lengkap pengguna.
-          required: false
-          schema:
-            type: string
-        - name: page
-          in: query
-          description: Nomor halaman untuk paginasi.
-          required: false
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Jumlah item per halaman.
-          required: false
-          schema:
-            type: integer
-            default: 10
-      responses:
-        '200':
-          description: Data cuti yang difilter berhasil diambil.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Filtered leave data retrieved successfully
-                  pagination:
-                    $ref: '#/components/schemas/Pagination'
-                  data:
-                    type: array
-                    items:
-                      allOf:
-                        - $ref: '#/components/schemas/tb_leave'
-                        - type: object
-                          properties:
-                            name:
-                              type: string
-                              description: Nama lengkap pengguna yang mengajukan cuti.
-              examples:
-                successFilterByType:
-                  value:
-                    success: true
-                    message: Filtered leave data retrieved successfully
-                    pagination:
-                      current_page: 1
-                      last_visible_page: 1
-                      has_next_page: false
-                      item:
-                        count: 1
-                        total: 1
-                        per_page: 10
-                    data:
-                      - id_leave: leave-124
-                        title: Cuti Bersalin
-                        leave_type: special_leave
-                        start_date: '2025-09-01'
-                        end_date: '2025-09-30'
-                        total_days: 30
-                        reason: Melahirkan
-                        status: pending
-                        created_at: '2025-07-24T10:05:00Z'
-                        NIK: KRY002
-                        id_special: special-1
-                        id_mandatory: null
-                        name: Siti Aminah
-                successFilterByValue:
-                  value:
-                    success: true
-                    message: Filtered leave data retrieved successfully
-                    pagination:
-                      current_page: 1
-                      last_visible_page: 1
-                      has_next_page: false
-                      item:
-                        count: 1
-                        total: 1
-                        per_page: 10
-                    data:
-                      - id_leave: leave-123
-                        title: Cuti Tahunan
-                        leave_type: personal_leave
-                        start_date: '2025-08-01'
-                        end_date: '2025-08-05'
-                        total_days: 5
-                        reason: Liburan keluarga
-                        status: pending
-                        created_at: '2025-07-24T10:00:00Z'
-                        NIK: KRY001
-                        id_special: null
-                        id_mandatory: null
-                        name: Budi Santoso
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '500':
-          $ref: '#/components/responses/Error500'
-  /leaves/logs:
-    get:
-      tags: [Dashboard admin]
-      summary: Mendapatkan Riwayat Log Cuti
-      description: Mengambil riwayat log cuti yang statusnya bukan 'pending', lengkap dengan informasi pengguna terkait dan paginasi. Membutuhkan autentikasi dan peran 'super_admin' atau 'admin'.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: page
-          in: query
-          description: Nomor halaman untuk paginasi.
-          required: false
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Jumlah item per halaman.
-          required: false
-          schema:
-            type: integer
-            default: 10
-      responses:
-        '200':
-          description: Data log cuti berhasil diambil.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Leave data log retrieved successfully
-                  pagination:
-                    $ref: '#/components/schemas/Pagination'
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                          description: Nama lengkap pengguna yang mengajukan cuti.
-                        leave_type:
-                          $ref: '#/components/schemas/leave_type'
-                        start_date:
-                          type: string
-                          format: date
-                        end_date:
-                          type: string
-                          format: date
-                        total_days:
-                          type: integer
-                        status:
-                          $ref: '#/components/schemas/status'
-              examples:
-                successResponse:
-                  value:
-                    success: true
-                    message: Leave data log retrieved successfully
-                    pagination:
-                      current_page: 1
-                      last_visible_page: 1
-                      has_next_page: false
-                      item:
-                        count: 1
-                        total: 1
-                        per_page: 10
-                    data:
-                      - name: Budi Santoso
-                        leave_type: personal_leave
-                        start_date: '2025-06-01'
-                        end_date: '2025-06-05'
-                        total_days: 5
-                        status: approved
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '500':
-          $ref: '#/components/responses/Error500'
-  /leaves/logs/search:
-    get:
-      tags: [Dashboard admin]
-      summary: Mencari Riwayat Log Cuti Berdasarkan Filter
-      description: Mengambil riwayat log cuti yang statusnya bukan 'pending' dengan filter opsional berdasarkan nilai pencarian (nama lengkap), jenis cuti, dan status cuti. Membutuhkan autentikasi dan peran 'super_admin' atau 'admin'.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: value
-          in: query
-          description: Nilai pencarian untuk nama lengkap pengguna.
-          required: false
-          schema:
-            type: string
-            default: ''
-        - name: type
-          in: query
-          description: Jenis cuti untuk difilter (misalnya, 'personal', 'mandatory', 'special').
-          required: false
-          schema:
-            type: string
-            enum: [personal, mandatory, special]
-            default: ''
-        - name: status
-          in: query
-          description: Status cuti untuk difilter (misalnya, 'approved', 'rejected').
-          required: false
-          schema:
-            type: string
-            enum: [approved, rejected]
-            default: ''
-        - name: page
-          in: query
-          description: Nomor halaman untuk paginasi.
-          required: false
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Jumlah item per halaman.
-          required: false
-          schema:
-            type: integer
-            default: 10
-      responses:
-        '200':
-          description: Data log cuti yang difilter berhasil diambil.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Filtered leave data log retrieved successfully
-                  pagination:
-                    $ref: '#/components/schemas/Pagination'
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                          description: Nama lengkap pengguna yang mengajukan cuti.
-                        leave_type:
-                          $ref: '#/components/schemas/leave_type'
-                        start_date:
-                          type: string
-                          format: date
-                        end_date:
-                          type: string
-                          format: date
-                        total_days:
-                          type: integer
-                        status:
-                          $ref: '#/components/schemas/status'
-              examples:
-                successResponse:
-                  value:
-                    success: true
-                    message: Filtered leave data log retrieved successfully
-                    pagination:
-                      current_page: 1
-                      last_visible_page: 1
-                      has_next_page: false
-                      item:
-                        count: 1
-                        total: 1
-                        per_page: 10
-                    data:
-                      - name: Siti Aminah
-                        leave_type: special_leave
-                        start_date: '2025-09-01'
-                        end_date: '2025-09-30'
-                        total_days: 30
-                        status: approved
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '500':
-          $ref: '#/components/responses/Error500'
-  /leaves/special:
-    get:
-      tags: [Dashboard admin]
-      summary: Mendapatkan Semua Cuti Khusus
-      description: Mengambil semua data cuti khusus dengan paginasi.
-      parameters:
-        - name: page
-          in: query
-          description: Nomor halaman untuk paginasi.
-          required: false
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Jumlah item per halaman.
-          required: false
-          schema:
-            type: integer
-            default: 10
-      responses:
-        '200':
-          description: Semua data cuti khusus berhasil diambil.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: All special leave was successfully taken
-                  pagination:
-                    $ref: '#/components/schemas/Pagination'
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/tb_special_leave'
-              examples:
-                successResponse:
-                  value:
-                    success: true
-                    message: All special leave was successfully taken
-                    pagination:
-                      current_page: 1
-                      last_visible_page: 1
-                      has_next_page: false
-                      item:
-                        count: 1
-                        total: 1
-                        per_page: 10
-                    data:
-                      - id_special: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                        title: Cuti Melahirkan
-                        applicable_gender: f
-                        duration: 90
-                        is_active: true
-                        description: Cuti untuk ibu melahirkan
-        '500':
-          $ref: '#/components/responses/Error500'
-    post:
-      tags: [Dashboard admin]
-      summary: Membuat Cuti Khusus Baru
-      description: Membuat entri cuti khusus baru. Data yang diterima akan divalidasi.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id_special:
-                  type: string
-                  format: uuid
-                  maxLength: 50
-                  description: ID unik untuk cuti khusus (opsional, akan dihasilkan jika tidak diberikan)
-                title:
-                  type: string
-                  maxLength: 255
-                  description: Judul cuti khusus
-                applicable_gender:
-                  $ref: '#/components/schemas/applicable_gender'
-                  description: Jenis kelamin yang berlaku untuk cuti ini (m, f, atau mf)
-                duration:
-                  type: integer
-                  minimum: 1
-                  maximum: 365
-                  description: Durasi cuti dalam hari
-                is_active:
-                  type: boolean
-                  description: Status aktif cuti khusus (opsional)
-                  default: true
-                description:
-                  type: string
-                  description: Deskripsi cuti khusus
-              required:
-                - title
-                - applicable_gender
-                - duration
-                - description
-            examples:
-              createSpecialLeaveRequest:
-                value:
-                  title: Cuti Pernikahan
-                  applicable_gender: mf
-                  duration: 3
-                  description: Cuti untuk karyawan yang menikah
-      responses:
-        '201':
-          description: Cuti khusus berhasil dibuat.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Special leave created successfully
-                  data:
-                    $ref: '#/components/schemas/tb_special_leave'
-              examples:
-                successResponse:
-                  value:
-                    message: Special leave created successfully
-                    data:
-                      id_special: c1d2e3f4-g5h6-7890-1234-567890abcdef
-                      title: Cuti Pernikahan
-                      applicable_gender: mf
-                      duration: 3
-                      is_active: true
-                      description: Cuti untuk karyawan yang menikah
-        '400':
-          $ref: '#/components/responses/Error400'
-  /leaves/special/search:
-    get:
-      tags: [Dashboard admin]
-      summary: Mencari Cuti Khusus Berdasarkan Nilai
-      description: Mencari data cuti khusus berdasarkan judul dengan paginasi.
-      parameters:
-        - name: value
-          in: query
-          description: Nilai pencarian untuk judul cuti khusus.
-          required: false
-          schema:
-            type: string
-            default: ''
-        - name: page
-          in: query
-          description: Nomor halaman untuk paginasi.
-          required: false
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Jumlah item per halaman.
-          required: false
-          schema:
-            type: integer
-            default: 10
-      responses:
-        '200':
-          description: Data cuti khusus yang dicari berhasil diambil.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Search special leave data retrieved successfully
-                  pagination:
-                    $ref: '#/components/schemas/Pagination'
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/tb_special_leave'
-              examples:
-                successResponse:
-                  value:
-                    success: true
-                    message: Search special leave data retrieved successfully
-                    pagination:
-                      current_page: 1
-                      last_visible_page: 1
-                      has_next_page: false
-                      item:
-                        count: 1
-                        total: 1
-                        per_page: 10
-                    data:
-                      - id_special: f5e4d3c2-b1a0-9876-5432-10fedcba9876
-                        title: Cuti Haji
-                        applicable_gender: mf
-                        duration: 40
-                        is_active: true
-                        description: Cuti untuk menjalankan ibadah haji
-        '500':
-          $ref: '#/components/responses/Error500'
-  /leaves/special/{id}:
-    patch:
-      tags: [Dashboard admin]
-      summary: Memperbarui Cuti Khusus
-      description: Memperbarui data cuti khusus yang ada berdasarkan ID. Data yang diterima akan divalidasi dan hanya properti yang disediakan yang akan diperbarui (parsial).
-      parameters:
-        - name: id
-          in: path
-          description: ID dari cuti khusus yang akan diperbarui.
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                  maxLength: 255
-                  description: Judul cuti khusus
-                applicable_gender:
-                  $ref: '#/components/schemas/applicable_gender'
-                  description: Jenis kelamin yang berlaku untuk cuti ini (m, f, atau mf)
-                duration:
-                  type: integer
-                  minimum: 1
-                  maximum: 365
-                  description: Durasi cuti dalam hari
-                is_active:
-                  type: boolean
-                  description: Status aktif cuti khusus
-                description:
-                  type: string
-                  description: Deskripsi cuti khusus
-            examples:
-              updateSpecialLeaveRequest:
-                value:
-                  title: Cuti Pernikahan Diperbarui
-                  duration: 5
-      responses:
-        '200':
-          description: Cuti khusus berhasil diperbarui.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Special leave updated successfully
-                  data:
-                    $ref: '#/components/schemas/tb_special_leave'
-              examples:
-                successResponse:
-                  value:
-                    message: Special leave updated successfully
-                    data:
-                      id_special: c1d2e3f4-g5h6-7890-1234-567890abcdef
-                      title: Cuti Pernikahan Diperbarui
-                      applicable_gender: mf
-                      duration: 5
-                      is_active: true
-                      description: Cuti untuk karyawan yang menikah
-        '400':
-          $ref: '#/components/responses/Error400'
-  /leaves/mandatory:
-    get:
-      tags: [Dashboard admin]
-      summary: Mendapatkan Semua Cuti Wajib
-      description: Mengambil semua data cuti wajib dengan paginasi.
-      parameters:
-        - name: page
-          in: query
-          description: Nomor halaman untuk paginasi.
-          required: false
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Jumlah item per halaman.
-          required: false
-          schema:
-            type: integer
-            default: 10
-      responses:
-        '200':
-          description: Semua data cuti wajib berhasil diambil.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: All mandatory leave was successfully taken
-                  pagination:
-                    $ref: '#/components/schemas/Pagination'
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/tb_mandatory_leave'
-              examples:
-                successResponse:
-                  value:
-                    success: true
-                    message: All mandatory leave was successfully taken
-                    pagination:
-                      current_page: 1
-                      last_visible_page: 1
-                      has_next_page: false
-                      item:
-                        count: 1
-                        total: 1
-                        per_page: 10
-                    data:
-                      - id_mandatory: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                        title: Cuti Bersama Idul Fitri
-                        duration: 2
-                        is_active: true
-                        description: Cuti wajib saat hari raya Idul Fitri
-        '500':
-          $ref: '#/components/responses/Error500'
-    post:
-      tags: [Dashboard admin]
-      summary: Membuat Cuti Wajib Baru
-      description: Membuat entri cuti wajib baru. Data yang diterima akan divalidasi dan `start_date` harus setidaknya 14 hari dari hari ini.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id_mandatory:
-                  type: string
-                  format: uuid
-                  maxLength: 50
-                  description: ID unik untuk cuti wajib (opsional, akan dihasilkan jika tidak diberikan)
-                title:
-                  type: string
-                  maxLength: 255
-                  description: Judul cuti wajib
-                is_active:
-                  type: boolean
-                  description: Status aktif cuti wajib (opsional)
-                  default: true
-                start_date:
-                  type: string
-                  format: date
-                  description: Tanggal mulai cuti wajib. Harus setidaknya 14 hari dari tanggal saat ini.
-                end_date:
-                  type: string
-                  format: date
-                  description: Tanggal berakhir cuti wajib.
-                description:
-                  type: string
-                  description: Deskripsi cuti wajib
-              required:
-                - title
-                - start_date
-                - end_date
-                - description
-            examples:
-              createMandatoryLeaveRequest:
-                value:
-                  title: Cuti Wajib Tahun Baru
-                  start_date: '2025-01-15'
-                  end_date: '2025-01-15'
-                  description: Cuti wajib untuk merayakan Tahun Baru
-      responses:
-        '201':
-          description: Cuti wajib berhasil dibuat.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Mandatory leave created successfully
-                  data:
-                    $ref: '#/components/schemas/tb_mandatory_leave'
-              examples:
-                successResponse:
-                  value:
-                    success: true
-                    message: Mandatory leave created successfully
-                    data:
-                      id_mandatory: c1d2e3f4-g5h6-7890-1234-567890abcdef
-                      title: Cuti Wajib Tahun Baru
-                      duration: null
-                      is_active: true
-                      start_date: '2025-01-15T00:00:00.000Z'
-                      end_date: '2025-01-15T00:00:00.000Z'
-                      description: Cuti wajib untuk merayakan Tahun Baru
-        '400':
-          $ref: '#/components/responses/Error400'
-  /leaves/mandatory/search:
-    get:
-      tags: [Dashboard admin]
-      summary: Mencari Cuti Wajib Berdasarkan Nilai
-      description: Mencari data cuti wajib berdasarkan judul dengan paginasi.
-      parameters:
-        - name: value
-          in: query
-          description: Nilai pencarian untuk judul cuti wajib.
-          required: false
-          schema:
-            type: string
-            default: ''
-        - name: page
-          in: query
-          description: Nomor halaman untuk paginasi.
-          required: false
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          description: Jumlah item per halaman.
-          required: false
-          schema:
-            type: integer
-            default: 10
-      responses:
-        '200':
-          description: Data cuti wajib yang dicari berhasil diambil.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Search mandatory leave data retrived succesfully
-                  pagination:
-                    $ref: '#/components/schemas/Pagination'
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/tb_mandatory_leave'
-              examples:
-                successResponse:
-                  value:
-                    success: true
-                    message: Search mandatory leave data retrived succesfully
-                    pagination:
-                      current_page: 1
-                      last_visible_page: 1
-                      has_next_page: false
-                      item:
-                        count: 1
-                        total: 1
-                        per_page: 10
-                    data:
-                      - id_mandatory: f5e4d3c2-b1a0-9876-5432-10fedcba9876
-                        title: Cuti Hari Kemerdekaan
-                        duration: 1
-                        is_active: true
-                        description: Cuti untuk merayakan hari kemerdekaan
-        '500':
-          $ref: '#/components/responses/Error500'
-  /leaves/mandatory/{id}:
-    patch:
-      tags: [Dashboard admin]
-      summary: Memperbarui Cuti Wajib
-      description: Memperbarui data cuti wajib yang ada berdasarkan ID. Data yang diterima akan divalidasi dan hanya properti yang disediakan yang akan diperbarui (parsial).
-      parameters:
-        - name: id
-          in: path
-          description: ID dari cuti wajib yang akan diperbarui.
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                  maxLength: 255
-                  description: Judul cuti wajib
-                is_active:
-                  type: boolean
-                  description: Status aktif cuti wajib
-                start_date:
-                  type: string
-                  format: date
-                  description: Tanggal mulai cuti wajib.
-                end_date:
-                  type: string
-                  format: date
-                  description: Tanggal berakhir cuti wajib.
-                description:
-                  type: string
-                  description: Deskripsi cuti wajib
-            examples:
-              updateMandatoryLeaveRequest:
-                value:
-                  title: Cuti Wajib Tahun Baru Diperbarui
-                  is_active: false
-      responses:
-        '200':
-          description: Cuti wajib berhasil diperbarui.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Mandatory leave updated successfully
-                  data:
-                    $ref: '#/components/schemas/tb_mandatory_leave'
-              examples:
-                successResponse:
-                  value:
-                    message: Mandatory leave updated successfully
-                    data:
-                      id_mandatory: c1d2e3f4-g5h6-7890-1234-567890abcdef
-                      title: Cuti Wajib Tahun Baru Diperbarui
-                      duration: null
-                      is_active: false
-                      start_date: '2025-01-15T00:00:00.000Z'
-                      end_date: '2025-01-15T00:00:00.000Z'
-                      description: Cuti wajib untuk merayakan Tahun Baru
-        '400':
-          $ref: '#/components/responses/Error400'
-  /leaves/{id}:
-    patch:
-      tags: [Dashboard admin]
-      summary: Memperbarui Status Cuti Berdasarkan ID
-      description: Memperbarui status pengajuan cuti (disetujui/ditolak) dan membuat log perubahan. Endpoint ini membutuhkan autentikasi dan otorisasi oleh `super_admin` atau `admin`.
-      parameters:
-        - name: id
-          in: path
-          description: ID unik dari pengajuan cuti yang akan diperbarui.
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                status:
-                  $ref: '#/components/schemas/status'
-                reason:
-                  type: string
-                  maxLength: 255
-                  description: Alasan untuk perubahan status cuti.
-              required:
-                - status
-                - reason
-            examples:
-              approveLeave:
-                value:
-                  status: approved
-                  reason: Pengajuan cuti disetujui setelah peninjauan.
-              rejectLeave:
-                value:
-                  status: rejected
-                  reason: Pengajuan cuti ditolak karena tidak sesuai kebijakan perusahaan.
-      responses:
-        '200':
-          description: Data cuti berhasil diperbarui.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Successfully updated leave data
-                  data:
-                    type: object
-                    properties:
-                      updated_leave:
-                        $ref: '#/components/schemas/tb_leave'
-              examples:
-                successResponse:
-                  value:
-                    success: true
-                    message: Successfully updated leave data
-                    data:
-                      updated_leave:
-                        id_leave: some-uuid-1
-                        title: Cuti Tahunan
-                        leave_type: personal_leave
-                        start_date: '2024-07-20'
-                        end_date: '2024-07-25'
-                        total_days: 5
-                        reason: Liburan keluarga
-                        status: approved
-                        created_at: '2024-07-10T10:00:00Z'
-                        NIK: '1234567890'
-                        id_special: null
-                        id_mandatory: null
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '500':
-          $ref: '#/components/responses/Error500'
+          description: Internal server error
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
-    tb_balance:
+    User:
       type: object
       properties:
-        id_balance:
-          type: string
-        amount:
-          type: integer
-        receive_date:
-          type: string
-          format: date
-        expired_date:
-          type: string
-          format: date
         NIK:
           type: string
-      required:
-        - id_balance
-        - amount
-        - receive_date
-        - expired_date
-        - NIK
-    SettingRequest:
-      type: object
-      properties:
-        light_image:
+        fullname:
           type: string
-          format: binary
-        dark_image:
+        email:
           type: string
-          format: binary
-        light_background:
-          type: string
-        light_foreground:
-          type: string
-        light_card:
-          type: string
-        light_cardForeground:
-          type: string
-        light_primary:
-          type: string
-        light_primaryForeground:
-          type: string
-        light_secondary:
-          type: string
-        light_secondaryForeground:
-          type: string
-        dark_background:
-          type: string
-        dark_foreground:
-          type: string
-        dark_card:
-          type: string
-        dark_cardForeground:
-          type: string
-        dark_primary:
-          type: string
-        dark_primaryForeground:
-          type: string
-        dark_secondary:
-          type: string
-        dark_secondaryForeground:
-          type: string
-    SettingResponse:
-      type: object
-      properties:
-        message:
-          type: string
-        data:
-          type: object
-    SpecialLeaveResponse:
-      type: object
-      properties:
-        success:
+          format: email
+        isMale:
           type: boolean
-          example: true
-        message:
+        join_date:
           type: string
-          example: Search special leave data retrieved successfully
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/tb_special_leave'
-    MandatoryLeaveResponse:
+          format: date-time
+        isActive:
+          type: boolean
+        role_id:
+          type: integer
+        status_id:
+          type: integer
+        tb_roles:
+          $ref: '#/components/schemas/Role'
+        tb_statuses:
+          $ref: '#/components/schemas/Status'
+
+    Role:
       type: object
       properties:
-        success:
-          type: boolean
-          example: true
-        message:
+        id:
+          type: integer
+        name:
           type: string
-          example: Search mandatory leave data retrived succesfully
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/tb_mandatory_leave'
-    DashboardStatisticsResponse:
+        slug:
+          type: string
+
+    Status:
       type: object
       properties:
-        success:
-          type: boolean
-          example: true
-        message:
+        id:
+          type: integer
+        name:
           type: string
-          example: Statistics retrieved successfully
-        data:
-          type: object
-    DashboardTrendResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: Trend data retrieved successfully
-        data:
-          type: array
-          items:
-            type: object
-    DashboardLeaderboardResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: Leaderboard data retrieved successfully
-        data:
-          type: array
-          items:
-            type: object
-    DashboardPendingLeaveResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: Pending leave data retrieved successfully
-        data:
-          type: array
-          items:
-            type: object
-    BalanceLogResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: Balance Adjustment logs retrieved successfully
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/tb_balance_adjustment'
-    tb_leave:
+
+    Leave:
       type: object
       properties:
         id_leave:
           type: string
+          format: uuid
         title:
           type: string
         leave_type:
-          $ref: '#/components/schemas/leave_type'
+          type: string
+          enum: [personal_leave, mandatory_leave, special_leave]
         start_date:
           type: string
           format: date
@@ -2320,75 +1382,256 @@ components:
         reason:
           type: string
         status:
-          $ref: '#/components/schemas/status'
-        created_at:
           type: string
-          format: date-time
+          enum: [pending, approved, rejected, expired]
         NIK:
           type: string
         id_special:
           type: string
-          nullable: true
+          format: uuid
         id_mandatory:
           type: string
-          nullable: true
-      required:
-        - id_leave
-        - title
-        - leave_type
-        - start_date
-        - end_date
-        - total_days
-        - reason
-        - status
-        - created_at
-        - NIK
-    tb_mandatory_leave:
-      type: object
-      properties:
-        id_mandatory:
-          type: string
-        title:
-          type: string
-        duration:
-          type: integer
-        is_active:
-          type: boolean
-        description:
-          type: string
-      required:
-        - id_mandatory
-        - title
-        - duration
-        - is_active
-        - description
-    tb_special_leave:
+          format: uuid
+
+    SpecialLeave:
       type: object
       properties:
         id_special:
           type: string
+          format: uuid
         title:
           type: string
         applicable_gender:
-          $ref: '#/components/schemas/applicable_gender'
+          type: string
+          enum: [m, f, mf]
         duration:
           type: integer
+        type:
+          type: string
+          enum: [day, month]
         is_active:
           type: boolean
         description:
           type: string
-      required:
-        - id_special
-        - title
-        - applicable_gender
-        - duration
-        - is_active
-        - description
-    tb_users:
+
+    MandatoryLeave:
       type: object
       properties:
+        id_mandatory:
+          type: string
+          format: uuid
+        title:
+          type: string
+        is_active:
+          type: boolean
+        description:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+
+    Balance:
+      type: object
+      properties:
+        id_balance:
+          type: string
+          format: uuid
+        amount:
+          type: integer
+        receive_date:
+          type: string
+          format: date
+        expired_date:
+          type: string
+          format: date
         NIK:
           type: string
+
+    BalanceAdjustment:
+      type: object
+      properties:
+        id_adjustment:
+          type: string
+          format: uuid
+        NIK:
+          type: string
+        adjustment_value:
+          type: integer
+        notes:
+          type: string
+        actor:
+          type: string
+        balance_year:
+          type: integer
+
+    LeaveLog:
+      type: object
+      properties:
+        id_log:
+          type: string
+          format: uuid
+        old_status:
+          type: string
+        new_status:
+          type: string
+        reason:
+          type: string
+        changed_by_nik:
+          type: string
+        actor_fullname:
+          type: string
+        id_leave:
+          type: string
+          format: uuid
+
+    Setting:
+      type: object
+      properties:
+        light_image:
+          type: string
+        light_background:
+          type: string
+        # ... and all other setting fields
+        dark_image:
+          type: string
+        dark_background:
+          type: string
+        # ... etc
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    LoginSuccessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+          example: Login successful
+        data:
+          type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+            token:
+              type: string
+
+    CreateLeaveRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        leave_type:
+          type: string
+          enum: [personal_leave, mandatory_leave, special_leave]
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        reason:
+          type: string
+        id_special:
+          type: string
+          format: uuid
+        id_mandatory:
+          type: string
+          format: uuid
+
+    UpdateLeaveStatusRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [approved, rejected]
+        reason:
+          type: string
+          description: Required when status is 'rejected'
+
+    CreateSpecialLeaveRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        applicable_gender:
+          type: string
+          enum: [m, f, mf]
+        duration:
+          type: integer
+        type:
+          type: string
+          enum: [day, month]
+        description:
+          type: string
+
+    UpdateSpecialLeaveRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        applicable_gender:
+          type: string
+          enum: [m, f, mf]
+        duration:
+          type: integer
+        type:
+          type: string
+          enum: [day, month]
+        description:
+          type: string
+        is_active:
+          type: boolean
+
+    CreateMandatoryLeaveRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+
+    UpdateMandatoryLeaveRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+
+    UpdateUserRequest:
+      type: object
+      properties:
         fullname:
           type: string
         email:
@@ -2396,256 +1639,94 @@ components:
           format: email
         password:
           type: string
-        gender:
-          $ref: '#/components/schemas/gender'
-        role:
-          $ref: '#/components/schemas/role'
-        status_active:
-          $ref: '#/components/schemas/status_active'
-        join_date:
-          type: string
-          format: date
-      required:
-        - NIK
-        - fullname
-        - email
-        - password
-        - gender
-        - role
-        - status_active
-        - join_date
-    tb_balance_adjustment:
+        isMale:
+          type: boolean
+
+    AdjustBalanceRequest:
       type: object
       properties:
-        id_adjustment:
-          type: string
-        adjustment_value:
+        amount:
           type: integer
         notes:
           type: string
-        created_at:
-          type: string
-          format: date-time
-        actor:
-          type: string
-        NIK:
-          type: string
-      required:
-        - id_adjustment
-        - adjustment_value
-        - created_at
-        - actor
-        - NIK
-    tb_leave_log:
+
+    UserListResponse:
       type: object
       properties:
-        id_log:
+        status:
           type: string
-        old_status:
-          $ref: '#/components/schemas/status'
-        new_status:
-          $ref: '#/components/schemas/status'
-        reason:
-          type: string
-        changed_at:
-          type: string
-          format: date-time
-        changed_by_nik:
-          type: string
-        id_leave:
-          type: string
-      required:
-        - id_log
-        - old_status
-        - new_status
-        - reason
-        - changed_at
-        - changed_by_nik
-        - id_leave
-    gender:
-      type: string
-      enum: [male, female]
-    applicable_gender:
-      type: string
-      enum: [m, f, mf]
-    leave_type:
-      type: string
-      enum: [personal_leave, mandatory_leave, special_leave]
-    role:
-      type: string
-      enum:
-        - karyawan_tetap
-        - karyawan_kontrak
-        - magang
-        - admin
-        - super_admin
-    status:
-      type: string
-      enum: [pending, approved, rejected]
-    status_active:
-      type: string
-      enum: [active, resign]
-    Pagination:
-      type: object
-      properties:
-        current_page:
-          type: integer
-          description: Halaman saat ini.
-        last_visible_page:
-          type: integer
-          description: Total halaman yang tersedia.
-        has_next_page:
-          type: boolean
-          description: Menunjukkan apakah ada halaman berikutnya.
-        item:
-          type: object
-          properties:
-            count:
-              type: integer
-              description: Jumlah item di halaman saat ini.
-            total:
-              type: integer
-              description: Total item di seluruh koleksi.
-            per_page:
-              type: integer
-              description: Jumlah item per halaman.
-    UserResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
+          example: success
         message:
           type: string
-          example: Data retrieve successfully
-        data:
-          $ref: '#/components/schemas/tb_users'
-    LeaveTrendResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: Leave trend data retrieved successfully
+          example: Users retrieved successfully
         data:
           type: array
           items:
-            type: object
-    FileUploadRequest:
+            $ref: '#/components/schemas/User'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    LeaveListResponse:
       type: object
       properties:
-        file:
+        status:
           type: string
-          format: binary
-    FileUploadResponse:
-      type: object
-      properties:
+          example: success
         message:
           type: string
-          example: File uploaded successfully
-  responses:
-    Error400:
-      description: Bad Request
-      content:
-        application/json:
-          schema:
+          example: Leaves retrieved successfully
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Leave'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: fail
+        message:
+          type: string
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: fail
+        message:
+          type: string
+          example: Validation failed
+        errors:
+          type: array
+          items:
             type: object
             properties:
-              success:
-                type: boolean
-                example: false
-              status_code:
-                type: integer
-                example: 400
+              field:
+                type: string
               message:
                 type: string
-              detail:
-                type: string
-                nullable: true
-    Error401:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-                example: false
-              status_code:
-                type: integer
-                example: 401
-              message:
-                type: string
-                example: Unauthorized. please login to access this resources.
-              detail:
-                type: string
-                example: Login session expired
-                nullable: true
-    Error403:
-      description: Forbidden
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-                example: false
-              status_code:
-                type: integer
-                example: 403
-              message:
-                type: string
-                example: Access denied.
-              detail:
-                type: string
-                nullable: true
-    Error404:
-      description: Not Found
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-                example: false
-              status_code:
-                type: integer
-                example: 404
-              message:
-                type: string
-              detail:
-                type: string
-                nullable: true
-    Error500:
-      description: Internal Server Error
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-                example: false
-              status_code:
-                type: integer
-                example: 500
-              message:
-                type: string
-                example: Internal Server Error
-              detail:
-                type: string
-                nullable: true
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-    deviceId:
-      type: apiKey
-      in: header
-      name: device-id
+
+    SuccessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
