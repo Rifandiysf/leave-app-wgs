@@ -10,7 +10,7 @@ export const importBalanceAdjustmentServices = async (path, actor) => {
 
     let data = []
     let chunkCount = 0
-    
+
     // stream 
     const readable = fs.createReadStream(path)
     const parser = parse({
@@ -47,7 +47,7 @@ export const importBalanceAdjustmentServices = async (path, actor) => {
 
                             data = []
                         }
-                        
+
                         cb()
                     } catch (error) {
                         cb(error)

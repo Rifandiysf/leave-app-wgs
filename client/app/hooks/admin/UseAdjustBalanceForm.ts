@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useReducer, useEffect, useCallback } from 'react';
@@ -11,9 +12,10 @@ export type UserSearchResult = {
     fullname: string;
     this_year_leave: number;
     last_year_leave: number;
+    last_two_year_leave: number; 
 };
 type JwtPayload = { nik: string; };
-type LeaveType = "last_year_leave" | "this_year_leave";
+type LeaveType = "last_year_leave" | "this_year_leave" | "last_two_year";
 type AdjustmentType = "add" | "reduce";
 
 // --- State Management ---
@@ -64,7 +66,7 @@ const initialState: FormState = {
 function formReducer(state: FormState, action: FormAction): FormState {
     switch (action.type) {
         case 'SET_FIELD':
-            if (action.field === 'adjustmentType') {
+            if (action.field === 'adjustmentType' || action.field === 'selectedYear') {
                 return { ...state, adjustmentAmount: 0, [action.field]: action.payload };
             }
             return { ...state, [action.field]: action.payload };
@@ -154,7 +156,16 @@ export function UseAdjustBalanceForm() {
         dispatch({ type: 'SUBMIT_START' });
 
         const lastYear = (new Date().getFullYear() - 1).toString();
-        const leaveType: LeaveType = state.selectedYear === lastYear ? "last_year_leave" : "this_year_leave";
+        const lastTwoYear = (new Date().getFullYear() - 2).toString();
+        
+        let leaveType: LeaveType;
+        if (state.selectedYear === lastYear) {
+            leaveType = "last_year_leave";
+        } else if (state.selectedYear === lastTwoYear) {
+            leaveType = "last_two_year";
+        } else {
+            leaveType = "this_year_leave";
+        }
         
         const operation: "add_amount" | "reduce_amount" = 
             state.adjustmentType === 'add' ? 'add_amount' : 'reduce_amount';

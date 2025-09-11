@@ -43,6 +43,6 @@ export interface SpecialPayload {
     title: string;
     applicable_gender: string;
     duration: number;
-    type: 'day' | 'mounth';
+    type: string;
     description: string;
 }

@@ -1,14 +1,25 @@
 import multer from 'multer'
+import path from 'path'
+import { fileURLToPath } from 'url';
+import fs from 'fs'
+
+const uploadDir = path.join(process.cwd(), 'src', 'temp')
+console.log(uploadDir);
+
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true })
+}
 
 // storage configuration
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, './src/temp')
+        cb(null, uploadDir)
     },
     filename: function (req, file, cb) {
         cb(null, file.originalname)
     },
 });
+
 
 const upload = multer({
     fileFilter: function (req, file, cb) {
@@ -25,6 +36,7 @@ const uploadSingle = upload.single('file')
 
 export const uploadFile = async (req, res, next) => {
     try {
+
         uploadSingle(req, res, function (err) {
             if (err) {
                 console.log(err);

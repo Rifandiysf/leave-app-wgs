@@ -94,9 +94,9 @@ export const updateLeaveStatus = async (id: string, newStatus: 'approved' | 'rej
     return response.data;
 };
 
-//fetch untuk add amount leave
+//fetch untuk adjust balance
 export const searchUsers = async (searchTerm: string) => {
-    const response = await axiosInstance.get(`/users?search=${searchTerm}&limit=5`);
+    const response = await axiosInstance.get(`/users?search=${searchTerm}`);
     return response.data;
 };
 
@@ -104,7 +104,7 @@ interface UpdateBalancePayload {
     operation: "add_amount" | "reduce_amount";
     adjustment_value: number;
     notes: string;
-    leave_type: "last_year_leave" | "this_year_leave";
+    leave_type: "last_year_leave" | "this_year_leave" | "last_two_year";
 }
 
 export const updateUserBalance = async (nik: string, payload: UpdateBalancePayload) => {
@@ -113,6 +113,19 @@ export const updateUserBalance = async (nik: string, payload: UpdateBalancePaylo
 };
 
 
+
+export const injectBalanceAdjustment = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await axiosInstance.post('/uploads/balance-adjustment', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    
+    return response.data;
+};
 
 //fetch untuk adjust history
 interface AdjustHistoryParams {

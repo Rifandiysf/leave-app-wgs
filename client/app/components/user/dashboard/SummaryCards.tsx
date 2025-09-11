@@ -4,16 +4,18 @@ import { Card } from "@/app/components/ui/card";
 type SummaryCardsProps = {
   currentAmount: number;
   carriedAmount: number;
+  last_two_year_amount: number;
 };
 
-export const SummaryCards = ({ currentAmount, carriedAmount }: SummaryCardsProps) => {
+export const SummaryCards = ({ currentAmount, carriedAmount, last_two_year_amount }: SummaryCardsProps) => {
   const cards = [
     { count: currentAmount, label: "Remaining Leave", subtitle: "This Year" },
     { count: carriedAmount, label: "Remaining Leave", subtitle: "From Last Year" },
+    { count: last_two_year_amount, label: "Remaining Leave", subtitle: "2 Years Ago" },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-8">
+    <div className="grid grid-cols-3 gap-3 sm:gap-6 mb-8">
       {cards.map((item, idx) => (
         <Card key={idx} className="group hover:shadow-lg transition-all duration-300 bg-card border-0 overflow-hidden relative rounded-lg sm:rounded-2xl p-2 sm:p-3">
             <div className="absolute top-0 right-0 w-14 h-14 sm:w-20 sm:h-20 bg-blue-200 rounded-full -mr-6 -mt-6 opacity-50"></div>

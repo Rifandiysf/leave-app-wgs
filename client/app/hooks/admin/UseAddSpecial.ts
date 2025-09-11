@@ -79,12 +79,13 @@ export const useAddSpecialLeave = (onSuccess: () => void) => {
             dispatch({ type: "SET_ERROR", field: "description", value: "Description cannot be empty" });
             hasError = true;
         }
-        if (state.duration <= 0) {
-            dispatch({ type: "SET_ERROR", field: "duration", value: "Amount cannot be 0 days" });
+        if (!state.type.trim()) {
+            dispatch({ type: "SET_ERROR", field: "type", value: "Type Date cannot be empty" });
             hasError = true;
         }
-        if (!state.type.trim()) {
-            dispatch({ type: "SET_ERROR", field: 'type', value: "Type cannot be empty" })
+        if ( state.duration <= 0) {
+            dispatch({ type: "SET_ERROR", field: "duration", value: "Amount cannot be 0 days" });
+            hasError = true;
         }
         if (!state.gender.trim()) {
             dispatch({ type: "SET_ERROR", field: "gender", value: "Gender cannot be empty" });

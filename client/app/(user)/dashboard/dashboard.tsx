@@ -64,6 +64,7 @@ const UserDashboard = () => {
       <SummaryCards 
         currentAmount={dashboardData.balance.current_amount} 
         carriedAmount={dashboardData.balance.carried_amount}
+        last_two_year_amount={dashboardData.balance.last_two_year_amount    }
       />
       
       <div className="space-y-6 pb-24">

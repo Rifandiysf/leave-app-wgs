@@ -117,6 +117,12 @@ export const updateMandatoryLeaveStatus = async (id: string, newStatus: boolean)
     return response.data
 }
 
+export const updateMandatoryYear = async (year: number) => {
+    const res = await axiosInstance.patch(`/leaves/mandatory-year/${year}`);
+    return res.data;
+};
+
+
 export const addMandatoryLeave = async (payload: MandatoryPayload) => {
     const response = await axiosInstance.post("/leaves/mandatory", payload);
     return response.data;
