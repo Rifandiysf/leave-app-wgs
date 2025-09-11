@@ -3,6 +3,7 @@ import prisma from "../../utils/client.js";
 export const getAllUsers = async (page, limit, search = '', isMale, statusName = '', roleSlug = '') => {
     const currentYear = new Date().getFullYear();
     const lastYear = currentYear - 1;
+    const lastTwoYear = currentYear - 2;
 
     const filterCondition = {
         AND: [
@@ -56,6 +57,7 @@ export const getAllUsers = async (page, limit, search = '', isMale, statusName =
 
         let current = 0;
         let last = 0;
+        let lastTwo = 0;
 
         if (user.tb_roles.slug === 'karyawan_kontrak') { // Use tb_roles.slug
             // Karyawan kontrak: jumlahkan seluruh amount berdasarkan tahun
@@ -66,13 +68,18 @@ export const getAllUsers = async (page, limit, search = '', isMale, statusName =
             last = userLeaveAmount
                 .filter(b => b.receive_date.getFullYear() === lastYear)
                 .reduce((sum, item) => sum + item.amount, 0);
+            lastTwo = userLeaveAmount
+                .filter(b => b.receive_date.getFullYear() === lastTwoYear)
+                .reduce((sum, item) => sum + item.amount, 0);
         } else {
             // Karyawan tetap: ambil satu record per tahun
             const currentYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === currentYear);
             const lastYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === lastYear);
+            const lastTwoYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === lastTwoYear);
 
             current = currentYearAmount?.amount || 0;
             last = lastYearAmount?.amount || 0;
+            lastTwo = lastTwoYearAmount?.amount || 0;
         }
 
         return {
@@ -90,9 +97,10 @@ export const getAllUsers = async (page, limit, search = '', isMale, statusName =
                 id: user.tb_statuses.id, // Use tb_statuses.id
                 name: user.tb_statuses.name // Use tb_statuses.name
             },
+            last_two_year_leave: lastTwo,
             last_year_leave: last,
             this_year_leave: current,
-            leave_total: last + current,
+            leave_total: last + current + lastTwo,
         };
     });
 
