@@ -119,35 +119,35 @@ export const LeaveTable = ({ viewMode, isLoading, leaveData, itemsPerPage, onAct
 
                                                 {/* Info Modal for Both Views */}
                                                 <Modal mode='info' size='icon' variant='ghost' title='Leave Information' showFooter={false} triggerLabel={<i className="bi bi-info-circle text-xl text-blue-500 hover:text-blue-700"></i>}>
-                                                   <div className="grid grid-cols-2 grid-rows-1 gap-3 text-left">
-                                                       <div className="flex flex-col gap-5">
-                                                           <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">NIK</Label><h1>{data.NIK}</h1></div>
-                                                           <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Name</Label><h1>{data.name}</h1></div>
-                                                           <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Title</Label><h1>{data.title}</h1></div>
-                                                           <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Type</Label><h1>{formatUppercase(data.leave_type)}</h1></div>
-                                                           <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Start Leave</Label><h1>{formatDate(data.start_date)}</h1></div>
-                                                       </div>
-                                                       <div className="flex flex-col gap-5">
-                                                           <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">End Leave</Label><h1>{formatDate(data.end_date)}</h1></div>
-                                                           <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Leave Used</Label><h1>{data.total_days} Days</h1></div>
-                                                           {data.leave_type !== 'mandatory_leave' && (
-                                                               <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Reason Leave</Label><h1>{data.reason}</h1></div>
-                                                           )}
-                                                           <div className="flex flex-col gap-0.5">
-                                                               <Label className="font-bold text-gray-500">Status</Label>
-                                                               <div className="flex items-center gap-1">
-                                                                   <i className={`bi bi-circle-fill text-xs ${data.status === 'rejected' ? 'text-red-500' : data.status === 'approved' ? 'text-green-500' : data.status === 'pending' ? 'text-yellow-500' : 'text-gray-500'}`}></i>
-                                                                   <div className="flex gap-1">
-                                                                       <h1>{formatUppercase(data.status)}</h1>
-                                                                       {data.status !== 'pending' && (<h1>by {data.tb_leave_log?.tb_users?.fullname}</h1>)}
-                                                                   </div>
-                                                               </div>
-                                                           </div>
-                                                           {data.status === 'rejected' && data.tb_leave_log?.reason && (
-                                                               <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Reason Rejected</Label><h1>{data.tb_leave_log.reason}</h1></div>
-                                                           )}
-                                                       </div>
-                                                   </div>
+                                                    <div className="grid grid-cols-2 grid-rows-1 gap-3 text-left">
+                                                        <div className="flex flex-col gap-5">
+                                                            <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">NIK</Label><h1>{data.NIK}</h1></div>
+                                                            <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Name</Label><h1>{data.fullname}</h1></div>
+                                                            <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Title</Label><h1>{data.title}</h1></div>
+                                                            <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Type</Label><h1>{formatUppercase(data.leave_type)}</h1></div>
+                                                            <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Start Leave</Label><h1>{formatDate(data.start_date)}</h1></div>
+                                                        </div>
+                                                        <div className="flex flex-col gap-5">
+                                                            <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">End Leave</Label><h1>{formatDate(data.end_date)}</h1></div>
+                                                            <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Leave Used</Label><h1>{data.total_days} Days</h1></div>
+                                                            {data.leave_type !== 'mandatory_leave' && (
+                                                                <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Reason Leave</Label><h1>{data.reason}</h1></div>
+                                                            )}
+                                                            <div className="flex flex-col gap-0.5">
+                                                                <Label className="font-bold text-gray-500">Status</Label>
+                                                                <div className="flex items-center gap-1">
+                                                                    <i className={`bi bi-circle-fill text-xs ${data.status === 'rejected' ? 'text-red-500' : data.status === 'approved' ? 'text-green-500' : data.status === 'pending' ? 'text-yellow-500' : 'text-gray-500'}`}></i>
+                                                                    <div className="flex gap-1">
+                                                                        <h1>{formatUppercase(data.status)}</h1>
+                                                                        {data.status !== 'pending' && (<h1>by {data.tb_leave_log?.tb_users?.fullname}</h1>)}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            {data.status === 'rejected' && data.tb_leave_log?.reason && (
+                                                                <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Reason Rejected</Label><h1>{data.tb_leave_log.reason}</h1></div>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </Modal>
                                             </div>
                                         </td>
