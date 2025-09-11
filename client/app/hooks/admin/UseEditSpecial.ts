@@ -102,8 +102,8 @@ export const useEditSpecialLeave = (initialData: DataSpecialType, onSuccess: () 
             dispatch({ type: "SET_ERROR", field: "duration", value: "Amount cannot be 0 days" });
             hasError = false;
         }
-        if (state.type.trim()) {
-            dispatch({ type: "SET_ERROR", field: 'type', value: "Type cannot be empty" })
+        if (!state.type.trim()) {
+            dispatch({ type: "SET_ERROR", field: 'type', value: "Type Date cannot be empty" })
         }
         if (!state.gender.trim()) {
             dispatch({ type: "SET_ERROR", field: "gender", value: "Gender cannot be empty" });

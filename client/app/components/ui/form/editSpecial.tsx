@@ -101,7 +101,7 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
                                 <p className="text-sm text-red-600 mt-1">{state.errors.gender}</p>
                             )}
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-3 items-start">
                             <div className="grid gap-3">
                                 <Label htmlFor="duration">Duration</Label>
                                 <Input
@@ -120,7 +120,7 @@ export function EditSpecial({ initialData, onFormSubmit }: Props) {
                             <div className="grid gap-3">
                                 <Label htmlFor="type">Type Date</Label>
                                 <Select value={state.type} onValueChange={(value) => dispatch({ type: "SET_FIELD", field: "type", value: value })}>
-                                    <SelectTrigger className={`w-full ${state.errors.type ? 'border-e-red-400' : ''}`}>
+                                    <SelectTrigger className={`w-full ${state.errors.type ? 'border-red-400' : ''}`}>
                                         <SelectValue placeholder="Select the type" />
                                     </SelectTrigger>
                                     <SelectContent>
