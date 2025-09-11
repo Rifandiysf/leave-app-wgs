@@ -213,6 +213,8 @@ const AdjustBalanceData = async (nik, adjustment_value, notes, actor, targetRole
             }
         });
 
+        console.log(balance)
+
         if (leave_type === 'last_two_year') {
             if (!balance) {
                 throw new Error(`There is no balance for ${targetYear}`)
@@ -221,6 +223,9 @@ const AdjustBalanceData = async (nik, adjustment_value, notes, actor, targetRole
                 throw new Error(`Balance ${targetYear} has expired, cannot be adjusted`)
             }
         }
+
+        console.log(leave_type)
+        console.log(adjustment_value)
 
 
         if (!balance) {
@@ -248,7 +253,7 @@ const AdjustBalanceData = async (nik, adjustment_value, notes, actor, targetRole
             return [newBalance, adjustmentLog];
         }
 
-        tx.tb_balance.update({
+        await tx.tb_balance.update({
             where: { id_balance: balance.id_balance },
             data: {
                 amount:
@@ -257,18 +262,19 @@ const AdjustBalanceData = async (nik, adjustment_value, notes, actor, targetRole
                         : { decrement: adjustment_value },
 
             }
-        }),
-            tx.tb_balance_adjustment.create({
-                data: {
-                    adjustment_value: operation === "reduce_amount" ? -Math.abs(adjustment_value) : adjustment_value,
-                    notes,
-                    actor: actor.name,
-                    NIK: nik,
-                    created_at: createDateFromString(new Date()),
-                    id_balance: balance.id_balance,
-                    balance_year: balance.receive_date.getFullYear()
-                }
-            })
+        })
+
+        await tx.tb_balance_adjustment.create({
+            data: {
+                adjustment_value: operation === "reduce_amount" ? -Math.abs(adjustment_value) : adjustment_value,
+                notes,
+                actor: actor.name,
+                NIK: nik,
+                created_at: createDateFromString(new Date()),
+                id_balance: balance.id_balance,
+                balance_year: balance.receive_date.getFullYear()
+            }
+        })
     } catch (error) {
         throw error
     }
