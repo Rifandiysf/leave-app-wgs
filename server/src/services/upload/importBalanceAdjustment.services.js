@@ -6,12 +6,11 @@ import { processDataImportBalanceAdjustment } from '../../utils/inject.utils.js'
 
 export const importBalanceAdjustmentServices = async (path, actor) => {
     // config
-
     const CHUNK_BASE = 10
 
     let data = []
     let chunkCount = 0
-    
+
     // stream 
     const readable = fs.createReadStream(path)
     const parser = parse({
@@ -48,7 +47,7 @@ export const importBalanceAdjustmentServices = async (path, actor) => {
 
                             data = []
                         }
-                        
+
                         cb()
                     } catch (error) {
                         cb(error)

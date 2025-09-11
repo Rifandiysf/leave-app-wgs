@@ -6,7 +6,7 @@ import fs from 'fs'
 export const importBalanceAdjustment = async (req, res, next) => {
     try {
         const decodedToken = await decodeToken(req.cookies["Authorization"]);
-         const actor = {
+        const actor = {
             role: decodedToken.tb_roles.name,
             name: decodedToken.fullname
         };
