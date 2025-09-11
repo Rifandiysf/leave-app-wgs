@@ -1,3 +1,4 @@
+import path from "path";
 import { importBalanceAdjustmentServices } from "../../services/upload/importBalanceAdjustment.services.js";
 import { decodeToken } from "../../utils/jwt.js"
 import fs from 'fs'
@@ -9,10 +10,11 @@ export const importBalanceAdjustment = async (req, res, next) => {
             role: decodedToken.tb_roles.name,
             name: decodedToken.fullname
         };
-        const process = await importBalanceAdjustmentServices(`./src/temp/${req.file.originalname}`, actor)
+        const filepath = path.resolve("src", "temp", req.file.originalname)
+        const process = await importBalanceAdjustmentServices(filepath, actor)
 
         if (process) {
-            fs.unlink(`./src/temp/${req.file.originalname}`, (err) => {
+            fs.unlink(filepath, (err) => {
                 if (err) {
                     throw err
                 }
@@ -27,7 +29,7 @@ export const importBalanceAdjustment = async (req, res, next) => {
             })
         }
     } catch (error) {
-        fs.unlink(`./src/temp/${req.file.originalname}`, (error) => {
+        fs.unlink(path.resolve("src", "temp", req.file.originalname), (error) => {
             if (error) {
                 next(error)
             }
