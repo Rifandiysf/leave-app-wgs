@@ -112,16 +112,12 @@ export const updateUserBalance = async (nik: string, payload: UpdateBalancePaylo
     return response.data;
 };
 
-// File: lib/api/service/admin.ts
 
 
 export const injectBalanceAdjustment = async (file: File) => {
     const formData = new FormData();
-    // Pastikan key 'file' ini sama dengan yang dites di Postman & diharapkan backend
     formData.append('file', file);
 
-    // INI BAGIAN KUNCINYA:
-    // Kita harus menimpa Content-Type default agar request ini benar
     const response = await axiosInstance.post('/uploads/balance-adjustment', formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
