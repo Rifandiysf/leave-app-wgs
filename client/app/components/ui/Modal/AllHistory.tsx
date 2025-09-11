@@ -11,7 +11,7 @@ interface HistoryItem {
     type: 'Leave Request' | 'Adjustment';
     description: string;
     status: string;
-    rawData: any; // Objek data asli
+    rawData: any; 
 }
 
 type AllHistoryProps = {

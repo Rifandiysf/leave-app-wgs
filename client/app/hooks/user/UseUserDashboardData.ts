@@ -8,6 +8,7 @@ type DashboardData = {
     total_amount: number;
     current_amount: number;
     carried_amount: number;
+    last_two_year_amount: number;
     pending_request: number;
     used_days: number;
   };
