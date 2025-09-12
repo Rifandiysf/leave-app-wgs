@@ -1,6 +1,6 @@
 import prisma from "../../utils/client.js";
 
-export const getAllUsers = async (page, limit, search = '', isMale, statusName = '', roleSlug = '') => {
+export const getAllUsers = async (page, limit, search = '', isMale, statusName = '', roleSlug = '', isActive) => {
     const currentYear = new Date().getFullYear();
     const lastYear = currentYear - 1;
     const lastTwoYear = currentYear - 2;
@@ -16,6 +16,7 @@ export const getAllUsers = async (page, limit, search = '', isMale, statusName =
                         ...(isMale !== undefined ? [{ isMale: isMale }] : []),
             ...(statusName ? [{ tb_statuses: { name: statusName } }] : []),
             ...(roleSlug ? [{ tb_roles: { slug: roleSlug } }] : []),
+            ...(isActive !== undefined ? [{ isActive: isActive }] : []),
         ],
         NOT: {
             tb_statuses: {

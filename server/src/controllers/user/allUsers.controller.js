@@ -7,10 +7,11 @@ export const allUsers = async (req, res, next) => {
         const limit = parseInt(req.query.limit) || 10;
         const search = req.query.search || ''
         const isMale = req.query.isMale === 'true' ? true : req.query.isMale === 'false' ? false : undefined;
-        const statusName = req.query.statusName || '' 
-        const roleSlug = req.query.roleSlug || ''    
+        const statusName = req.query.statusName || ''
+        const roleSlug = req.query.roleSlug || ''
+        const isActive = req.query.isActive === 'true' ? true : req.query.isActive === 'false' ? false : undefined;
 
-        const dataUsers = await getAllUsers(page, limit, search, isMale, statusName, roleSlug);
+        const dataUsers = await getAllUsers(page, limit, search, isMale, statusName, roleSlug, isActive);
 
         const response = responsePagination("Successfully retrieved user data", dataUsers);
         res.status(200).json(response);
