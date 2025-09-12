@@ -31,6 +31,7 @@ interface EmployeeListParams {
     genderFilter?: string | null;
     statusFilter?: string | null;
     roleFilter?: string | null;
+    activeFilter?: string | null;
 }
 
 export const getEmployeeList = async (params: EmployeeListParams) => {
@@ -41,6 +42,7 @@ export const getEmployeeList = async (params: EmployeeListParams) => {
     if (params.genderFilter) queryParams.append('isMale', params.genderFilter);
     if (params.statusFilter) queryParams.append('statusName', params.statusFilter);
     if (params.roleFilter) queryParams.append('roleSlug', params.roleFilter);
+    if (params.activeFilter) queryParams.append('isActive', params.activeFilter);
 
     const response = await axiosInstance.get('/users', { params: queryParams });
     return response.data;

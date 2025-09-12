@@ -11,7 +11,7 @@ interface HistoryItem {
     type: 'Leave Request' | 'Adjustment';
     description: string;
     status: string;
-    rawData: any; 
+    rawData: any;
 }
 
 type AllHistoryProps = {
@@ -63,7 +63,7 @@ const renderModalStatus = (status: string) => {
 const DetailRow = ({ label, children }: { label: string, children: React.ReactNode }) => (
     <div className="flex flex-col gap-1">
         <p className="font-bold text-sm text-gray-400">{label}</p>
-        <div>{children}</div>
+        <div className='text-foreground'>{children}</div>
     </div>
 );
 
@@ -73,7 +73,7 @@ const DetailContent = ({ item }: { item: HistoryItem }) => {
     if (type === 'Leave Request') {
         const actorName = rawData.approved_by?.fullname || rawData.changed_by?.fullname;
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 text-left text-white">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 text-left text-foreground">
                 <DetailRow label="Type"><p>{type}</p></DetailRow>
                 <DetailRow label="Status">{renderModalStatus(rawData.status)}</DetailRow>
                 <DetailRow label="Leave Type"><p>{rawData.leave_type || 'Uncategorized'}</p></DetailRow>
@@ -103,9 +103,6 @@ const DetailContent = ({ item }: { item: HistoryItem }) => {
                 <div className="md:col-span-2">
                     <DetailRow label="Notes"><p className="leading-relaxed">{rawData.notes || 'N/A'}</p></DetailRow>
                 </div>
-                
-                
-               
             </div>
         );
     }
@@ -121,7 +118,7 @@ const PaginationControls = ({ paginationInfo, currentPage, onPageChange }: { pag
             <button
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage <= 1}
-                className="px-3 py-1 bg-slate-600 hover:bg-slate-500 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1 bg-slate-600 hover:bg-slate-500 text-foreground rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
                 Previous
             </button>
@@ -129,7 +126,7 @@ const PaginationControls = ({ paginationInfo, currentPage, onPageChange }: { pag
             <button
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={!paginationInfo.has_next_page}
-                className="px-3 py-1 bg-slate-600 hover:bg-slate-500 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1 bg-slate-600 hover:bg-slate-500 text-foreground rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
                 Next
             </button>
@@ -145,10 +142,10 @@ const AllHistory = ({ user, isOpen, onClose }: AllHistoryProps) => {
 
     return (
         <div className="fixed inset-0 bg-black/50 z-50 flex justify-center items-center p-4" onClick={onClose}>
-            <div className="bg-slate-800 rounded-xl shadow-xl w-full max-w-5xl" onClick={e => e.stopPropagation()}>
-                <div className="p-6 border-b border-slate-700">
-                    <h2 className="text-xl font-semibold text-white">History - {user.fullname}</h2>
-                    <p className="text-sm text-gray-400 mt-1">NIK: {user.nik}</p>
+            <div className="bg-background rounded-xl shadow-xl w-full max-w-5xl" onClick={e => e.stopPropagation()}>
+                <div className="p-6 border-b border-border">
+                    <h2 className="text-xl font-semibold text-foreground">History - {user.fullname}</h2>
+                    <p className="text-sm text-muted-foreground mt-1">NIK: {user.nik}</p>
                 </div>
                 <div className="p-6 max-h-[65vh] overflow-y-auto">
                     {state.isLoading ? (
@@ -158,26 +155,26 @@ const AllHistory = ({ user, isOpen, onClose }: AllHistoryProps) => {
                     ) : state.history.length === 0 ? (
                         <div className="text-center py-12"><div className="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4"><svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></div><p className="text-gray-400">No history data found</p></div>
                     ) : (
-                        <div className="overflow-x-auto border border-slate-700 rounded-lg">
-                            <table className="w-full text-sm border-collapse bg-slate-800">
+                        <div className="overflow-x-auto border border-border rounded-lg">
+                            <table className="w-full text-sm border-collaps">
                                 <thead>
-                                    <tr className="bg-slate-700 border-b border-slate-600">
-                                        <th className="px-4 py-3 text-left font-semibold text-white border-r border-slate-600">Date</th>
-                                        <th className="px-4 py-3 text-left font-semibold text-white border-r border-slate-600">Type</th>
-                                        <th className="px-4 py-3 text-left font-semibold text-white border-r border-slate-600">Description</th>
-                                        <th className="px-4 py-3 text-center font-semibold text-white border-r border-slate-600">Status</th>
-                                        <th className="px-4 py-3 text-center font-semibold text-white">Action</th>
+                                    <tr className="bg-[#F0f4f9] dark:bg-card border-b border-border">
+                                        <th className="px-4 py-3 text-left font-semibold text-foreground border-r border-border">Date</th>
+                                        <th className="px-4 py-3 text-left font-semibold text-foreground border-r border-border">Type</th>
+                                        <th className="px-4 py-3 text-left font-semibold text-foreground border-r border-border">Description</th>
+                                        <th className="px-4 py-3 text-center font-semibold text-foreground border-r border-border">Status</th>
+                                        <th className="px-4 py-3 text-center font-semibold text-foreground">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {state.history.map((item, index) => (
-                                        <tr key={index} className="border-b border-slate-700 hover:bg-slate-700/50 transition-colors">
-                                            <td className="px-4 py-3 text-white border-r border-slate-600 whitespace-nowrap">{formatDate(item.created_at)}</td>
-                                            <td className="px-4 py-3 text-white border-r border-slate-600">{item.type}</td>
-                                            <td className="px-4 py-3 text-gray-300 border-r border-slate-600 max-w-xs truncate">{item.description}</td>
-                                            <td className="px-4 py-3 border-r border-slate-600 text-center">{getStatusChip(item.status)}</td>
+                                        <tr key={index} className="border-b border-border odd:bg-[#e8efff] even:bg-[#f8faff] hover:bg-[#e3e7f0] odd:dark:bg-card/30 even:dark:bg-card/70 transition-colors">
+                                            <td className="px-4 py-3 text-foreground border-r border-border whitespace-nowrap">{formatDate(item.created_at)}</td>
+                                            <td className="px-4 py-3 text-foreground border-r border-border">{item.type}</td>
+                                            <td className="px-4 py-3 text-foreground/40 border-r border-border max-w-xs truncate">{item.description}</td>
+                                            <td className="px-4 py-3 border-r border-border text-center">{getStatusChip(item.status)}</td>
                                             <td className="px-4 py-3 text-center">
-                                                <Modal mode='info' size='default' variant='ghost' title='Detail History' showFooter={false} triggerLabel={<div className='text-blue-400 hover:text-blue-300' title='View Details'><svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>}>
+                                                <Modal mode='info' size='default' variant='ghost' title='Detail History' showFooter={false} triggerLabel={<div className='text-blue-400 hover:text-blue-300' title='View Details'><i className="bi bi-exclamation-circle text-xl text-blue-500 hover:text-blue-700"></i></div>}>
                                                     <DetailContent item={item} />
                                                 </Modal>
                                             </td>
@@ -188,10 +185,10 @@ const AllHistory = ({ user, isOpen, onClose }: AllHistoryProps) => {
                         </div>
                     )}
                 </div>
-                <div className="p-6 border-t border-slate-700 flex justify-between items-center">
-                    <span className="text-sm text-gray-400">{state.paginationInfo?.item?.total || 0} records total</span>
+                <div className="p-6 border-t border-border flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">{state.paginationInfo?.item?.total || 0} records total</span>
                     <PaginationControls paginationInfo={state.paginationInfo} currentPage={state.currentPage} onPageChange={handlePageChange} />
-                    <button onClick={onClose} className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors">Close</button>
+                    <button onClick={onClose} className="px-4 py-2 bg-secondary hover:bg-secondary/75 text-white rounded-lg transition-colors">Close</button>
                 </div>
             </div>
         </div>

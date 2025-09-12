@@ -32,7 +32,7 @@ export interface EmployeeState {
     genderFilter: string | null;
     statusFilter: string | null;
     roleFilter: string | null;
-    activeFilter: boolean | null;
+    activeFilter: string | null;
 }
 
 export type EmployeeAction =
@@ -41,14 +41,14 @@ export type EmployeeAction =
     | { type: 'SET_GENDER'; payload: string | null }
     | { type: 'SET_STATUS'; payload: string | null }
     | { type: 'SET_ROLE'; payload: string | null }
-    | { type: 'SET_ACTIVE'; payload: boolean | null };
+    | { type: 'SET_ACTIVE'; payload: string | null };
 
 const initialState: EmployeeState = {
     currentPage: 1,
     searchTerm: "",
     genderFilter: null,
-    statusFilter: null,
-    roleFilter: null,
+    statusFilter: "",
+    roleFilter: "",
     activeFilter: null
 };
 
@@ -88,6 +88,7 @@ export function useEmployeeData() {
                 genderFilter: state.genderFilter,
                 statusFilter: state.statusFilter,
                 roleFilter: state.roleFilter,
+                activeFilter: state.activeFilter,
             });
             setEmployees(result?.data?.data || result?.data || []);
             setPaginationInfo(result?.pagination || null);
@@ -96,7 +97,7 @@ export function useEmployeeData() {
         } finally {
             setIsLoading(false);
         }
-    }, [state.currentPage, debouncedSearch, state.genderFilter, state.statusFilter, state.roleFilter]);
+    }, [state.currentPage, debouncedSearch, state.genderFilter, state.statusFilter, state.roleFilter, state.activeFilter]);
 
     useEffect(() => {
         fetchData();
