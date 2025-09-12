@@ -11,8 +11,8 @@ export const updateMandatoryYearService = async (data) => {
         const startDate = new Date(leave.start_date);
         const endDate = new Date(leave.end_date);
 
-        const newStartDate = new Date(year, startDate.getMonth(), startDate.getDate());
-        const newEndDate = new Date(year, endDate.getMonth(), endDate.getDate());
+        const newStartDate = new Date(Date.UTC(year, startDate.getUTCMonth(), startDate.getUTCDate()));
+        const newEndDate = new Date(Date.UTC(year, endDate.getUTCMonth(), endDate.getUTCDate()));
 
         return prisma.tb_mandatory_leave.update({
             where: { id_mandatory: leave.id_mandatory }, 
