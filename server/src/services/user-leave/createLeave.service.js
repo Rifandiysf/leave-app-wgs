@@ -9,8 +9,10 @@ export const createLeave = async (data) => {
         start_date,
         reason,
         NIK,
-        status
+        status,
+        fullname
     } = data;
+    console.log(`fullname : ${fullname}`)
 
     console.log("TESTTT", new Date())
 
@@ -164,12 +166,17 @@ export const createLeave = async (data) => {
         });
 
         if (existingLeave) {
-            return await updateLeave(
+            const mandatory = await updateLeave(
                 existingLeave.id_leave,
                 status,
                 finalReason,
-                NIK
+                NIK,
+                fullname
             );
+
+            console.log("Data mandatory")
+            console.log(mandatory)
+            return mandatory
         }
 
         const createdLeave = await prisma.tb_leave.create({
@@ -194,7 +201,8 @@ export const createLeave = async (data) => {
                     createdLeave.id_leave,
                     status,
                     finalReason,
-                    NIK
+                    NIK,
+                    fullname
                 );
                 return updatedLeave;
             } catch (error) {

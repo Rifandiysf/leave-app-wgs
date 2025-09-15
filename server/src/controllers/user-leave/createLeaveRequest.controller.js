@@ -12,6 +12,7 @@ export const createLeaveRequest = async (req, res, next) => {
         const leave = await createLeave({
             ...req.body,
             NIK: user.NIK,
+            fullname: user.fullname,
             total_days: req.workingDays
         })
 
