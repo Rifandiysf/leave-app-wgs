@@ -53,30 +53,25 @@ export const getHistoryLeave = async (page = 1, limit = 10) => {
             status: leave.status,
             created_at: leave.created_at,
             NIK: leave.NIK,
-            fullname: leave.tb_users?.fullname || "Unknown",
             id_special: leave.id_special,
             id_mandatory: leave.id_mandatory,
-            tb_leave_log: latestLog
+            leave_log: latestLog
                 ? {
                     reason: latestLog.reason,
                     balances_used: latestLog.balances_used,
-                    tb_users: {
-                        fullname: latestLog.tb_users?.fullname || "-"
-                    }
+                    actor_fullname: latestLog.tb_users?.fullname
                 }
                 : {
                     reason: "-",
                     balances_used: "-",
-                    tb_users: {
-                        fullname: "-"
-                    }
+                    actor_fullname: "-"
                 }
         };
     });
 
     return {
         data: {
-            data: formattedLeaves, 
+            data: formattedLeaves,
             pagination: {
                 total: total,
                 totalPages: totalPages,

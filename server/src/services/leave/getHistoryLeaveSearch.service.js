@@ -52,10 +52,9 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
         });
 
         const formattedLeaves = leaves.map(leave => {
-            const latestLog = leave.tb_leave_log?.[0] || {
-                reason: "-",
-                tb_users: { fullname: "-" }
-            };
+            const latestLog = leave.tb_leave_log[0] || null;
+
+            console.log(latestLog)
 
             return {
                 id_leave: leave.id_leave,
@@ -71,15 +70,25 @@ export const getHistoryLeaveSearch = async ({ value, type, status, page = 1, lim
                 fullname: leave.tb_users?.fullname || "Unknown",
                 id_special: leave.id_special,
                 id_mandatory: leave.id_mandatory,
-                tb_leave_log: latestLog
+                leave_log: latestLog
+                    ? {
+                        reason: latestLog.reason,
+                        balances_used: latestLog.balances_used,
+                        actor_fullname: latestLog.tb_users?.fullname
+                    }
+                    : {
+                        reason: "-",
+                        balances_used: "-",
+                        actor_fullname: "-"
+                    }
             };
         });
 
-        
+
 
         return {
             data: {
-                data: formattedLeaves, 
+                data: formattedLeaves,
                 pagination: {
                     total: total,
                     totalPages: totalPages,
