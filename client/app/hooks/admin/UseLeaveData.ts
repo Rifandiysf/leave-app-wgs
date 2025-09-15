@@ -7,7 +7,7 @@ import { getLeaveRequests, getLeaveHistory, updateLeaveStatus } from '@/lib/api/
 import { PaginationInfo } from '@/lib/type';
 
 // --- Tipe Data ---
-export type ApiLeaveType = { NIK: string; fullname: string; id_leave: string; title: string; leave_type: string; start_date: string; end_date: string; total_days: number; reason: string; status: string; tb_leave_log: any; name: string; };
+export type ApiLeaveType = { NIK: string; fullname: string; id_leave: string; title: string; leave_type: string; start_date: string; end_date: string; total_days: number; reason: string; status: string; leave_log: any; name: string; };
 
 // --- State Management ---
 export interface LeaveState { viewMode: 'requests' | 'history' | null; currentPage: number; search: string; debouncedSearch: string; leaveType: string | null; status: string | null; }
