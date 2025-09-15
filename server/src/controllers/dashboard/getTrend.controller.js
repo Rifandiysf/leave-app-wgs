@@ -5,13 +5,14 @@ export const getTrend = async (req, res) => {
         const { year } = req.query
         const currentYear = year ? parseInt(year, 10) : new Date().getFullYear()
 
-        const trend = await trendDashboard(currentYear);
+        const { availableYears, monthlyTrend } = await trendDashboard(currentYear);
 
         res.status(200).json({
             message: "Successfully get leave data trend",
             data: {
                 year : currentYear,
-                trend
+                availableYears, // daftar tahun yang bisa dipilih
+                trend: monthlyTrend
             }
         })
     } catch (error) {
