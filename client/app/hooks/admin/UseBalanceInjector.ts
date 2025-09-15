@@ -3,12 +3,17 @@
 import { useState, useCallback } from 'react';
 import { injectBalanceAdjustment } from '@/lib/api/service/admin';
 
+interface UploadErrorState {
+    message: string;
+    detail?: string;
+}
+
 export function useBalanceInjection() {
     const [file, setFile] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
-    const [uploadError, setUploadError] = useState<string | null>(null);
-    // State dan logika untuk uploadProgress sudah tidak ada
+    
+    const [uploadError, setUploadError] = useState<UploadErrorState | null>(null);
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles.length > 0) {
@@ -18,7 +23,7 @@ export function useBalanceInjection() {
                 setUploadError(null);
                 setUploadSuccess(null);
             } else {
-                setUploadError('Hanya file dengan format .csv yang diterima.');
+                setUploadError({ message: 'Hanya file dengan format .csv yang diterima.' });
                 setFile(null);
             }
         }
@@ -26,7 +31,7 @@ export function useBalanceInjection() {
 
     const handleUpload = async () => {
         if (!file) {
-            setUploadError("Silakan pilih file terlebih dahulu.");
+            setUploadError({ message: "Silakan pilih file terlebih dahulu." });
             return;
         }
 
@@ -35,13 +40,15 @@ export function useBalanceInjection() {
         setUploadSuccess(null);
 
         try {
-            // PERBAIKAN: Hanya satu argumen yang dikirim
             const response = await injectBalanceAdjustment(file);
             setUploadSuccess(response.message || 'File berhasil diproses!');
             setFile(null);
         } catch (error: any) {
-            const errorMessage = error.response?.data?.message || "Terjadi kesalahan saat mengunggah file.";
-            setUploadError(errorMessage);
+            const errorData = error.response?.data;
+            const errorMessage = errorData?.message || "Terjadi kesalahan saat mengunggah file.";
+            const errorDetail = errorData?.detail;
+
+            setUploadError({ message: errorMessage, detail: errorDetail });
         } finally {
             setIsUploading(false);
         }

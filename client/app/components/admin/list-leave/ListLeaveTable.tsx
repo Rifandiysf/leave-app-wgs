@@ -130,24 +130,24 @@ export const LeaveTable = ({ viewMode, isLoading, leaveData, itemsPerPage, onAct
                                                         </div>
                                                         <div className="flex flex-col gap-5">
                                                             <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Leave Used</Label><h1>{data.total_days} Days</h1></div>
-                                                            {data.tb_leave_log?.balances_used?.[0] && data.tb_leave_log.balances_used[0][2] !== 0 && (
+                                                            {data.leave_log?.balances_used?.[0] && data.leave_log.balances_used[0][2] !== 0 && (
                                                                 <div className="flex flex-col gap-0.5">
-                                                                    <Label className="font-bold text-gray-500">{data.tb_leave_log.balances_used[0][1]}</Label>
-                                                                    {data.tb_leave_log.balances_used[0][2]}
+                                                                    <Label className="font-bold text-gray-500">{data.leave_log.balances_used[0][1]}</Label>
+                                                                    {data.leave_log.balances_used[0][2]}
                                                                 </div>
                                                             )}
 
-                                                            {data.tb_leave_log?.balances_used?.[1] && data.tb_leave_log.balances_used[1][2] !== 0 && (
+                                                            {data.leave_log?.balances_used?.[1] && data.leave_log.balances_used[1][2] !== 0 && (
                                                                 <div className="flex flex-col gap-0.5">
-                                                                    <Label className="font-bold text-gray-500">{data.tb_leave_log.balances_used[1][1]}</Label>
-                                                                    {data.tb_leave_log.balances_used[1][2]}
+                                                                    <Label className="font-bold text-gray-500">{data.leave_log.balances_used[1][1]}</Label>
+                                                                    {data.leave_log.balances_used[1][2]}
                                                                 </div>
                                                             )}
 
-                                                            {data.tb_leave_log?.balances_used?.[2] && data.tb_leave_log.balances_used[2][2] !== 0 && (
+                                                            {data.leave_log?.balances_used?.[2] && data.leave_log.balances_used[2][2] !== 0 && (
                                                                 <div className="flex flex-col gap-0.5">
-                                                                    <Label className="font-bold text-gray-500">{data.tb_leave_log.balances_used[2][1]}</Label>
-                                                                    {data.tb_leave_log.balances_used[2][2]}
+                                                                    <Label className="font-bold text-gray-500">{data.leave_log.balances_used[2][1]}</Label>
+                                                                    {data.leave_log.balances_used[2][2]}
                                                                 </div>
                                                             )}
 
@@ -160,12 +160,12 @@ export const LeaveTable = ({ viewMode, isLoading, leaveData, itemsPerPage, onAct
                                                                     <i className={`bi bi-circle-fill text-xs ${data.status === 'rejected' ? 'text-red-500' : data.status === 'approved' ? 'text-green-500' : data.status === 'pending' ? 'text-yellow-500' : 'text-gray-500'}`}></i>
                                                                     <div className="flex gap-1">
                                                                         <h1>{formatUppercase(data.status)}</h1>
-                                                                        {data.status !== 'pending' && (<h1>by {data.tb_leave_log?.tb_users?.fullname}</h1>)}
+                                                                        {data.status !== 'pending' && (<h1>by {data.leave_log?.actor_fullname}</h1>)}
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            {data.status === 'rejected' && data.tb_leave_log?.reason && (
-                                                                <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Reason Rejected</Label><h1>{data.tb_leave_log.reason}</h1></div>
+                                                            {data.status === 'rejected' && data.leave_log?.reason && (
+                                                                <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Reason Rejected</Label><h1>{data.leave_log.reason}</h1></div>
                                                             )}
                                                         </div>
                                                     </div>

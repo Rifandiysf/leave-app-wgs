@@ -113,61 +113,92 @@ const EditConfig = ({ initialData, onFormSubmit }: EditConfigProps) => {
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+        e.preventDefault();
 
-        setGeneralError(null)
-
-        setIsLoading(true)
+        setGeneralError(null);
+        setIsLoading(true);
 
         try {
             const formData = new FormData();
+
+            // hanya kirim jika ada perubahan file (light logo)
             if (lightLogo instanceof File) {
                 formData.append("light_image", lightLogo);
-            } else {
-                formData.append("light_image", lightLogo); // string URL dari backend
             }
 
+            // hanya kirim jika ada perubahan file (dark logo)
             if (darkLogo instanceof File) {
                 formData.append("dark_image", darkLogo);
-            } else {
-                formData.append("dark_image", darkLogo);
             }
 
-            //light color
-            formData.append("light_background", lightColor.baseColor.background);
-            formData.append("light_foreground", lightColor.baseColor.foreground);
-            formData.append("light_card", lightColor.cardColor.card);
-            formData.append("light_cardForeground", lightColor.cardColor.cardForeground);
-            formData.append("light_primary", lightColor.primaryColor.primary);
-            formData.append("light_primaryForeground", lightColor.primaryColor.primaryForeground);
-            formData.append("light_secondary", lightColor.secondaryColor.secondary);
-            formData.append("light_secondaryForeground", lightColor.secondaryColor.secondaryForeground);
+            // contoh untuk warna, hanya kirim kalau beda dengan initialData
+            if (lightColor.baseColor.background !== initialData.light_color.baseColor.background) {
+                formData.append("light_background", lightColor.baseColor.background);
+            }
+            if (lightColor.baseColor.foreground !== initialData.light_color.baseColor.foreground) {
+                formData.append("light_foreground", lightColor.baseColor.foreground);
+            }
+            if (lightColor.cardColor.card !== initialData.light_color.cardColor.card) {
+                formData.append("light_card", lightColor.cardColor.card);
+            }
+            if (lightColor.cardColor.cardForeground !== initialData.light_color.cardColor.cardForeground) {
+                formData.append("light_cardForeground", lightColor.cardColor.cardForeground);
+            }
+            if (lightColor.primaryColor.primary !== initialData.light_color.primaryColor.primary) {
+                formData.append("light_primary", lightColor.primaryColor.primary);
+            }
+            if (lightColor.primaryColor.primaryForeground !== initialData.light_color.primaryColor.primaryForeground) {
+                formData.append("light_primaryForeground", lightColor.primaryColor.primaryForeground);
+            }
+            if (lightColor.secondaryColor.secondary !== initialData.light_color.secondaryColor.secondary) {
+                formData.append("light_secondary", lightColor.secondaryColor.secondary);
+            }
+            if (lightColor.secondaryColor.secondaryForeground !== initialData.light_color.secondaryColor.secondaryForeground) {
+                formData.append("light_secondaryForeground", lightColor.secondaryColor.secondaryForeground);
+            }
 
-            //dark color
-            formData.append("dark_background", darkColor.baseColor.background);
-            formData.append("dark_foreground", darkColor.baseColor.foreground);
-            formData.append("dark_card", darkColor.cardColor.card);
-            formData.append("dark_cardForeground", darkColor.cardColor.cardForeground);
-            formData.append("dark_primary", darkColor.primaryColor.primary);
-            formData.append("dark_primaryForeground", darkColor.primaryColor.primaryForeground);
-            formData.append("dark_secondary", darkColor.secondaryColor.secondary);
-            formData.append("dark_secondaryForeground", darkColor.secondaryColor.secondaryForeground);
+            // dark color
+            if (darkColor.baseColor.background !== initialData.dark_color.baseColor.background) {
+                formData.append("dark_background", darkColor.baseColor.background);
+            }
+            if (darkColor.baseColor.foreground !== initialData.dark_color.baseColor.foreground) {
+                formData.append("dark_foreground", darkColor.baseColor.foreground);
+            }
+            if (darkColor.cardColor.card !== initialData.dark_color.cardColor.card) {
+                formData.append("dark_card", darkColor.cardColor.card);
+            }
+            if (darkColor.cardColor.cardForeground !== initialData.dark_color.cardColor.cardForeground) {
+                formData.append("dark_cardForeground", darkColor.cardColor.cardForeground);
+            }
+            if (darkColor.primaryColor.primary !== initialData.dark_color.primaryColor.primary) {
+                formData.append("dark_primary", darkColor.primaryColor.primary);
+            }
+            if (darkColor.primaryColor.primaryForeground !== initialData.dark_color.primaryColor.primaryForeground) {
+                formData.append("dark_primaryForeground", darkColor.primaryColor.primaryForeground);
+            }
+            if (darkColor.secondaryColor.secondary !== initialData.dark_color.secondaryColor.secondary) {
+                formData.append("dark_secondary", darkColor.secondaryColor.secondary);
+            }
+            if (darkColor.secondaryColor.secondaryForeground !== initialData.dark_color.secondaryColor.secondaryForeground) {
+                formData.append("dark_secondaryForeground", darkColor.secondaryColor.secondaryForeground);
+            }
 
-            await axiosInstance.patch(`/setting/${initialData.id}`, formData, {
+            // kirim ke endpoint tanpa id
+            await axiosInstance.patch(`/setting`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
-            })
+            });
 
-            onFormSubmit()
-            setOpenDialog(false)
+            onFormSubmit();
+            setOpenDialog(false);
         } catch (error) {
-            console.error("Failed Update Configuration", error)
-            setGeneralError('Failed Update Configuration')
+            console.error("Failed Update Configuration", error);
+            setGeneralError("Failed Update Configuration");
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
-    }
+    };
 
     return (
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>

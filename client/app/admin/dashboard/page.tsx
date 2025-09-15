@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useDashboardData } from "@/app/hooks/admin/UseDashboardData";
 import { SummaryCards } from "@/app/components/admin/dashboard/SummaryCards";
 import { DashboardHeader } from "@/app/components/admin/dashboard/dashboardHeader";
@@ -30,10 +30,30 @@ const DashboardSkeleton = () => (
 );
 
 const DashboardPage = () => {
-    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-    const { stats, leaderboard, trendData, pendingLeaveRequests, availableYears, isLoading, error } = useDashboardData(selectedYear);
+    const searchParams = useSearchParams();
+    const router = useRouter();
 
-    if (isLoading) {
+    // ✅ **Langkah 1: Baca tahun dari URL, bukan dari state lokal.**
+    const selectedYear = Number(searchParams.get('year')) || new Date().getFullYear();
+
+    // Hook Anda sekarang akan menerima tahun dari URL secara otomatis.
+    // Pastikan hook Anda menggunakan 'isInitialLoading' dan 'isTrendLoading'.
+    const { 
+        stats, 
+        leaderboard, 
+        trendData, 
+        pendingLeaveRequests, 
+        availableYears, 
+        isInitialLoading,
+        isTrendLoading,
+        error 
+    } = useDashboardData(selectedYear);
+
+    const handleYearChange = (newYear: number) => {
+        router.push(`/admin/dashboard?year=${newYear}`, {scroll : false});
+    };
+
+    if (isInitialLoading) {
         return <DashboardSkeleton />;
     }
 
@@ -46,12 +66,15 @@ const DashboardPage = () => {
             <DashboardHeader />
             <SummaryCards stats={stats} />
             <PendingLeaveRequests requests={pendingLeaveRequests} />
+            
             <TrendChart 
                 trendData={trendData} 
                 selectedYear={selectedYear} 
                 availableYears={availableYears}
-                onYearChange={setSelectedYear} 
+                onYearChange={handleYearChange} 
+                isLoading={isTrendLoading} 
             />
+            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Leaderboard 
                     title="Users With the Most Remaining Leave"

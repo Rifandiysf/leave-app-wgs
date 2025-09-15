@@ -10,12 +10,14 @@ import { YearSelector } from '@/app/components/admin/adjust-balance/YearSelector
 import { BalanceFields } from '@/app/components/admin/adjust-balance/BalanceFields';
 import { AdjustmentTypeSelector } from '@/app/components/admin/adjust-balance/AdjusmentTypeSelector';
 import { Notification } from '@/app/components/ui/notification/Notification';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs"; // Asumsi Anda punya komponen Tabs
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { BalanceInjection } from '@/app/components/admin/adjust-balance/BalanceInjection';
 
 const AmountLeavePage = () => {
     const { state, dispatch, handleUserSelect, handleSubmit, closeNotification } = UseAdjustBalanceForm();
     const router = useRouter();
+
+    const { UI, InjectButton } = BalanceInjection();
 
     const isFormValid = state.selectedUser && state.adjustmentAmount > 0 && state.information.trim() !== '' && !state.isSelfEdit;
     const isDirty = state.nik.trim() !== '' || state.adjustmentAmount > 0 || state.information.trim() !== '';
@@ -34,6 +36,8 @@ const AmountLeavePage = () => {
     };
 
     const effectiveError = state.isSelfEdit ? "You are not allowed to adjust your own leave balance." : state.error;
+
+    const backButtonClasses = "flex items-center gap-1 font-medium text-sm p-2";
 
     return (
         <>
@@ -77,17 +81,20 @@ const AmountLeavePage = () => {
                                             mode="confirm"
                                             title="Do you want to discard the changes?"
                                             onConfirm={() => router.back()}
+                                            variant="ghost" 
                                             triggerLabel={
-                                                <div className="flex items-center gap-1 text-foreground hover:text-gray-800 font-medium cursor-pointer text-sm p-2">
+                                                <span className="flex items-center gap-1">
                                                     <i className="bi bi-box-arrow-in-left text-lg"></i> Back
-                                                </div>
+                                                </span>
                                             }
+                                            triggerClassName={backButtonClasses}
                                         />
                                     ) : (
-                                        <Button type="button" variant="ghost" className="flex items-center gap-1 text-foreground hover:text-gray-800 font-medium text-sm p-2" onClick={() => router.back()}>
+                                        <Button type="button" variant="ghost" className={backButtonClasses} onClick={() => router.back()}>
                                             <i className="bi bi-box-arrow-in-left text-lg"></i> Back
                                         </Button>
                                     )}
+                                    
                                     {isFormValid ? (
                                         <Modal
                                             mode="confirm"
@@ -107,14 +114,20 @@ const AmountLeavePage = () => {
                         </TabsContent>
                         
                         <TabsContent value="inject">
-                             <div className="pt-4">
-                                <BalanceInjection />
-                                <div className="flex justify-start items-center mt-6">
-                                    <Button type="button" variant="ghost" className="flex items-center gap-1 text-foreground hover:text-gray-800 font-medium text-sm p-2" onClick={() => router.back()}>
+                             <div className="pt-4 flex flex-col gap-4">
+                                {UI}
+                                <div className="flex justify-between items-center mt-2">
+                                    <Button 
+                                        type="button" 
+                                        variant="ghost" 
+                                        className="flex items-center gap-1 text-foreground hover:text-gray-800 font-medium text-sm p-2" 
+                                        onClick={() => router.back()}
+                                    >
                                         <i className="bi bi-box-arrow-in-left text-lg"></i> Back
                                     </Button>
+                                    {InjectButton}
                                 </div>
-                             </div>
+                            </div>
                         </TabsContent>
                     </Tabs>
                 </div>
