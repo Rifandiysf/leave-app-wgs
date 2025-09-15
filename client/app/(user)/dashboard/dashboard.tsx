@@ -16,7 +16,8 @@ const DashboardSkeleton = () => (
         <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded w-1/4 mb-2 animate-pulse"></div>
         <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/2 animate-pulse"></div>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-8">
+      <div className="grid grid-cols-3 gap-3 sm:gap-6 mb-8">
+        <div className="h-36 bg-gray-200 dark:bg-gray-600 rounded-lg sm:rounded-2xl animate-pulse"></div>
         <div className="h-36 bg-gray-200 dark:bg-gray-600 rounded-lg sm:rounded-2xl animate-pulse"></div>
         <div className="h-36 bg-gray-200 dark:bg-gray-600 rounded-lg sm:rounded-2xl animate-pulse"></div>
       </div>

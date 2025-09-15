@@ -1,75 +1,95 @@
 'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import { 
-    getDashboardStatistics, 
-    getDashboardTrend, 
-    getDashboardLeaderboard, 
-    getDashboardPendingLeave 
+import { useState, useEffect } from "react";
+import {
+    getDashboardStatistics,
+    getDashboardTrend,
+    getDashboardLeaderboard,
+    getDashboardPendingLeave
 } from "@/lib/api/service/admin";
 
-// --- Tipe Data ---
-export interface DashboardStats {
-    totalEmployees?: { total: number; activeEmployees: number; resignEmployees: number; };
-    thisYearLeave?: number;
-    weeklyLeave?: number;
-    pendingLeaves?: number;
-    availableYears?: number[];
-}
-export type LeaderboardUserType = { nik: string; name: string; role: string; total_amount: number; this_year: number; last_year: number; average_leave: string; };
-export type PendingLeaveRequestType = { NIK: string; name: string; role?: string; type: string; start_date: string; end_date: string; duration: string; status: string; };
-export type MonthlyTrendType = { month: string; mandatory_leave: number; special_leave: number; personal_leave: number; };
+// (Tipe data tidak perlu diubah)
+export interface DashboardStats { /* ... */ }
+export type LeaderboardUserType = { /* ... */ };
+export type PendingLeaveRequestType = { /* ... */ };
+export type MonthlyTrendType = { /* ... */ };
 
-/**
- * Custom hook untuk mengambil semua data yang dibutuhkan oleh dasbor admin.
- * @param {number} year - Tahun yang dipilih untuk data tren.
- */
+
 export function useDashboardData(year: number) {
     const [stats, setStats] = useState<DashboardStats>({});
     const [leaderboard, setLeaderboard] = useState<{ top: LeaderboardUserType[]; bottom: LeaderboardUserType[] }>({ top: [], bottom: [] });
-    const [trendData, setTrendData] = useState<MonthlyTrendType[]>([]);
     const [pendingLeaveRequests, setPendingLeaveRequests] = useState<PendingLeaveRequestType[]>([]);
-    const [availableYears, setAvailableYears] = useState<number[]>([new Date().getFullYear()]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [availableYears, setAvailableYears] = useState<number[]>([]);
+    const [trendData, setTrendData] = useState<MonthlyTrendType[]>([]);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [isTrendLoading, setIsTrendLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchDashboardData = useCallback(async () => {
-        setIsLoading(true);
-        setError(null);
-        try {
-            const [statsRes, trendRes, leaderboardRes, pendingLeaveRes] = await Promise.all([
-                getDashboardStatistics(),
-                getDashboardTrend(year),
-                getDashboardLeaderboard(),
-                getDashboardPendingLeave()
-            ]);
-
-            setStats(statsRes.data || {});
-            setTrendData(trendRes.data?.trend || []);
-            setLeaderboard({ top: leaderboardRes.data?.most_used || [], bottom: leaderboardRes.data?.least_used || [] });
-            setPendingLeaveRequests(pendingLeaveRes.data?.pendingLeaveList?.data || []);
-            
-            const yearsFromServer = statsRes.data?.availableYears;
-            if (yearsFromServer?.length > 0) {
-                const yearSet = new Set([...yearsFromServer, year]);
-                setAvailableYears(Array.from(yearSet).sort((a, b) => b - a));
-            }
-
-        } catch (err) {
-            console.error("Terjadi kesalahan saat mengambil data dasbor:", err);
-            setError("Gagal memuat data dasbor. Silakan coba lagi nanti.");
-            setStats({});
-            setTrendData([]);
-            setLeaderboard({ top: [], bottom: [] });
-            setPendingLeaveRequests([]);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [year]);
-
+    // Efek untuk data yang dimuat sekali
     useEffect(() => {
-        fetchDashboardData();
-    }, [fetchDashboardData]);
+        const fetchInitialData = async () => {
+            setIsInitialLoading(true);
+            setError(null);
+            try {
+                const [statsRes, leaderboardRes, pendingLeaveRes] = await Promise.all([
+                    getDashboardStatistics(),
+                    getDashboardLeaderboard(),
+                    getDashboardPendingLeave()
+                ]);
 
-    return { stats, leaderboard, trendData, pendingLeaveRequests, availableYears, isLoading, error };
+                setStats(statsRes.data || {});
+                setLeaderboard({ top: leaderboardRes.data?.most_used || [], bottom: leaderboardRes.data?.least_used || [] });
+                setPendingLeaveRequests(pendingLeaveRes.data?.pendingLeaveList?.data || []);
+
+            } catch (err) {
+                console.error("Gagal mengambil data awal dasbor:", err);
+                setError("Gagal memuat data utama dasbor.");
+            } finally {
+                setIsInitialLoading(false);
+            }
+        };
+
+        fetchInitialData();
+    }, []); // <-- Hanya berjalan sekali
+
+    // Efek untuk data tren yang berubah sesuai tahun
+    useEffect(() => {
+        if (!year) return;
+
+        const fetchTrendData = async () => {
+            setIsTrendLoading(true);
+            try {
+                const trendRes = await getDashboardTrend(year);
+                setTrendData(trendRes.data?.trend || []);
+
+                // ✅ SUMBER DATA YANG BENAR ADA DI SINI
+                const yearsFromServer = trendRes.data?.availableYears;
+                if (yearsFromServer && yearsFromServer.length > 0) {
+                    setAvailableYears(yearsFromServer.sort((a: number, b: number) => b - a));
+                } else {
+                    setAvailableYears([new Date().getFullYear()]);
+                }
+
+            } catch (err) {
+                console.error(`Gagal mengambil data tren untuk tahun ${year}:`, err);
+                setTrendData([]);
+            } finally {
+                setIsTrendLoading(false);
+            }
+        };
+
+        fetchTrendData();
+    }, [year]); // <-- Berjalan setiap kali tahun berubah
+
+    return {
+        stats,
+        leaderboard,
+        trendData,
+        pendingLeaveRequests,
+        availableYears,
+        isLoading: isInitialLoading || isTrendLoading,
+        isInitialLoading,
+        isTrendLoading,
+        error
+    };
 }

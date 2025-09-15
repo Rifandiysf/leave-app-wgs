@@ -14,7 +14,6 @@ export const BalanceInjection = () => {
         onDrop,
         handleUpload,
     } = useBalanceInjection();
-    // uploadProgress dihapus dari sini
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
@@ -24,7 +23,17 @@ export const BalanceInjection = () => {
 
     const uploadedFileName = file?.name;
 
-    return (
+    const InjectButton = (
+        <Button
+            onClick={handleUpload}
+            disabled={!file || isUploading}
+            className="bg-blue-500 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 font-medium shadow-md text-sm"
+        >
+            {isUploading ? 'Mengunggah...' : 'Inject Data'}
+        </Button>
+    );
+
+    const UI = (
         <div className='flex flex-col gap-4'>
             <div>
                 <Label className='block text-sm font-medium mb-1'>Unggah File CSV</Label>
@@ -54,31 +63,27 @@ export const BalanceInjection = () => {
                 </div>
             </div>
 
-            {/* Komponen Progress telah dihapus dari sini */}
-
             {uploadSuccess && (
                 <div className="bg-green-500/10 text-green-700 dark:text-green-400 p-3 rounded-lg text-sm flex items-center gap-2">
                     <i className='bi bi-check-circle-fill'></i> {uploadSuccess}
                 </div>
             )}
+            
             {uploadError && (
-                 <div className="bg-red-500/10 text-red-700 dark:text-red-500 p-3 rounded-lg text-sm flex items-center gap-2">
-                    <i className='bi bi-x-circle-fill'></i> {uploadError}
+                 <div className="bg-red-500/10 text-red-700 dark:text-red-500 p-3 rounded-lg text-sm flex items-start gap-2">
+                    <i className='bi bi-x-circle-fill mt-0.5'></i>
+                    <div>
+                        <p className='font-semibold'>{uploadError.message}</p>
+                        {uploadError.detail && (
+                            <p className='text-xs mt-1 opacity-90'>{uploadError.detail}</p>
+                        )}
+                    </div>
                 </div>
             )}
-            
-            <div className="flex justify-end items-center mt-2">
-                <Button
-                    onClick={handleUpload}
-                    disabled={!file || isUploading}
-                    className="bg-blue-500 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 font-medium shadow-md text-sm"
-                >
-                    {/* Teks persentase dihapus */}
-                    {isUploading ? 'Mengunggah...' : 'Inject Data'}
-                </Button>
-            </div>
         </div>
     );
+    
+    return { UI, InjectButton };
 };
 
 const Label = ({ className, ...props }: React.LabelHTMLAttributes<HTMLLabelElement>) => (
