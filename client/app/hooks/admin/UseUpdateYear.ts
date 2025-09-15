@@ -46,7 +46,7 @@ export const useUpdateMandatoryYear = (onSuccess: () => void) => {
         try {
             const res = await updateMandatoryYear(state.selectedYear);
             dispatch({ type: "SET_SUCCESS", message: res.message || "Year updated successfully!" });
-            onSuccess(); // refresh data di page
+            onSuccess();
         } catch (err: any) {
             dispatch({
                 type: "SET_ERROR",

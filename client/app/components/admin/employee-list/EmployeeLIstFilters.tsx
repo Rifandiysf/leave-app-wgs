@@ -39,8 +39,8 @@ export const EmployeeListFilters = ({ state, dispatch }: EmployeeListFiltersProp
                             <SelectGroup>
                                 <SelectLabel>Gender</SelectLabel>
                                 <SelectItem value="all">All</SelectItem>
-                                <SelectItem value="male">Male</SelectItem>
-                                <SelectItem value="female">Female</SelectItem>
+                                <SelectItem value="true">Male</SelectItem>
+                                <SelectItem value="false">Female</SelectItem>
                             </SelectGroup>
                         </SelectContent>
                     </Select>
@@ -50,31 +50,31 @@ export const EmployeeListFilters = ({ state, dispatch }: EmployeeListFiltersProp
                         onValueChange={(value) => dispatch({ type: 'SET_STATUS', payload: value === 'all' ? null : value })}
                     >
                         <SelectTrigger className="min-w-[120px]">
-                            <SelectValue placeholder="Status" />
+                            <SelectValue placeholder="Role" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Status</SelectLabel>
                                 <SelectItem value="all">All</SelectItem>
-                                <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="resign">Resign</SelectItem>
+                                <SelectItem value="Tetap">Tetap</SelectItem>
+                                <SelectItem value="Kontrak">Kontrak</SelectItem>
                             </SelectGroup>
                         </SelectContent>
                     </Select>
 
                     {/* Role Filter */}
                     <Select
-                        onValueChange={(value) => dispatch({ type: 'SET_ROLE', payload: value === 'all' ? null : value })}
+                        onValueChange={(value) => dispatch({ type: 'SET_ACTIVE', payload: value === 'all' ? null : value })}
                     >
                         <SelectTrigger className="min-w-[180px]">
-                            <SelectValue placeholder="Role" />
+                            <SelectValue placeholder="Status" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectGroup>
-                                <SelectLabel>Role</SelectLabel>
+                                <SelectLabel>Status</SelectLabel>
                                 <SelectItem value="all">All</SelectItem>
-                                <SelectItem value="Tetap">Tetap</SelectItem>
-                                <SelectItem value="Kontrak">Kontrak</SelectItem>
+                                <SelectItem value="true">Active</SelectItem>
+                                <SelectItem value="false">Resign</SelectItem>
                             </SelectGroup>
                         </SelectContent>
                     </Select>
@@ -101,8 +101,8 @@ export const EmployeeListFilters = ({ state, dispatch }: EmployeeListFiltersProp
                                 <SelectGroup>
                                     <SelectLabel>Gender</SelectLabel>
                                     <SelectItem value="all">All</SelectItem>
-                                    <SelectItem value="male">Male</SelectItem>
-                                    <SelectItem value="female">Female</SelectItem>
+                                    <SelectItem value="true">Male</SelectItem>
+                                    <SelectItem value="false">Female</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
@@ -111,28 +111,32 @@ export const EmployeeListFilters = ({ state, dispatch }: EmployeeListFiltersProp
                         <Select
                             onValueChange={(value) => dispatch({ type: 'SET_STATUS', payload: value === 'all' ? null : value })}
                         >
-                            <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+                            <SelectTrigger className="min-w-[120px]">
+                                <SelectValue placeholder="Role" />
+                            </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
                                     <SelectLabel>Status</SelectLabel>
                                     <SelectItem value="all">All</SelectItem>
-                                    <SelectItem value="active">Active</SelectItem>
-                                    <SelectItem value="resign">Resign</SelectItem>
+                                    <SelectItem value="Tetap">Tetap</SelectItem>
+                                    <SelectItem value="Kontrak">Kontrak</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="flex-1">
                         <Select
-                            onValueChange={(value) => dispatch({ type: 'SET_ROLE', payload: value === 'all' ? null : value })}
+                            onValueChange={(value) => dispatch({ type: 'SET_ACTIVE', payload: value === 'all' ? null : value })}
                         >
-                            <SelectTrigger className="min-w-[100px]"><SelectValue placeholder="Role" /></SelectTrigger>
+                            <SelectTrigger className="min-w-[180px]">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
-                                    <SelectLabel>Role</SelectLabel>
+                                    <SelectLabel>Status</SelectLabel>
                                     <SelectItem value="all">All</SelectItem>
-                                    <SelectItem value="Tetap">Tetap</SelectItem>
-                                    <SelectItem value="Kontrak">Kontrak</SelectItem>
+                                    <SelectItem value="true">Active</SelectItem>
+                                    <SelectItem value="false">Resign</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>

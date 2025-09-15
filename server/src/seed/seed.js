@@ -46,7 +46,7 @@ async function manualSeed() {
     // Seed Settings
     await tx.tb_settings.create({
       data: {
-        light_image: `http://localhost:3001/uploads/dark.svg`,
+        light_image: `http://${process.env.HOSTNAME}:${process.env.PORT}/uploads/dark.svg`,
         light_background: "#FFFFFF",
         light_foreground: "#191B21",
         light_card: "#dbeafe",
@@ -55,7 +55,7 @@ async function manualSeed() {
         light_primaryForeground: "#191B21",
         light_secondary: "#155dfc",
         light_secondaryForeground: "#FFFFFF",
-        dark_image: `http://localhost:3001/uploads/light.svg`,
+        dark_image: `http://${process.env.HOSTNAME}:${process.env.PORT}/uploads/light.svg`,
         dark_background: "#191B21",
         dark_foreground: "#FFFFFF",
         dark_card: "#212838",

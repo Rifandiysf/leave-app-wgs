@@ -8,6 +8,6 @@ const settingRoutes = express.Router();
 
 settingRoutes.post('/', uploadSettingImages, createSeeting)
 settingRoutes.get('/', getSetting)
-settingRoutes.patch('/:id', uploadSettingImages, updateSetting)
+settingRoutes.patch('/', uploadSettingImages, updateSetting)
 
 export default settingRoutes;

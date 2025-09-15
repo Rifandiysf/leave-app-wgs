@@ -1,6 +1,6 @@
 import prisma from "../../utils/client.js";
 
-export const getAllUsers = async (page, limit, search = '', isMale, statusName = '', roleSlug = '') => {
+export const getAllUsers = async (page, limit, search = '', isMale, statusName = '', roleSlug = '', isActive) => {
     const currentYear = new Date().getFullYear();
     const lastYear = currentYear - 1;
     const lastTwoYear = currentYear - 2;
@@ -13,9 +13,10 @@ export const getAllUsers = async (page, limit, search = '', isMale, statusName =
                     { NIK: { contains: search, mode: 'insensitive' } },
                 ]
             },
-            ...(isMale !== undefined ? [{ isMale: isMale }] : []),
-            ...(statusName ? { status: { name: statusName } } : []),
-            ...(roleSlug ? { role: { slug: roleSlug } } : []),
+                        ...(isMale !== undefined ? [{ isMale: isMale }] : []),
+            ...(statusName ? [{ tb_statuses: { name: statusName } }] : []),
+            ...(roleSlug ? [{ tb_roles: { slug: roleSlug } }] : []),
+            ...(isActive !== undefined ? [{ isActive: isActive }] : []),
         ],
         NOT: {
             tb_statuses: {
@@ -59,8 +60,7 @@ export const getAllUsers = async (page, limit, search = '', isMale, statusName =
         let last = 0;
         let lastTwo = 0;
 
-        if (user.tb_roles.slug === 'karyawan_kontrak') { // Use tb_roles.slug
-            // Karyawan kontrak: jumlahkan seluruh amount berdasarkan tahun
+        if (user.tb_roles.slug === 'karyawan_kontrak') {
             current = userLeaveAmount
                 .filter(b => b.receive_date.getFullYear() === currentYear)
                 .reduce((sum, item) => sum + item.amount, 0);
@@ -72,7 +72,6 @@ export const getAllUsers = async (page, limit, search = '', isMale, statusName =
                 .filter(b => b.receive_date.getFullYear() === lastTwoYear)
                 .reduce((sum, item) => sum + item.amount, 0);
         } else {
-            // Karyawan tetap: ambil satu record per tahun
             const currentYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === currentYear);
             const lastYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === lastYear);
             const lastTwoYearAmount = userLeaveAmount.find(b => b.receive_date.getFullYear() === lastTwoYear);
@@ -90,12 +89,12 @@ export const getAllUsers = async (page, limit, search = '', isMale, statusName =
             isActive: user.isActive,
             isMale: user.isMale,
             role: {
-                id: user.tb_roles.id, // Use tb_roles.id
-                name: user.tb_roles.name // Use tb_roles.name
+                id: user.tb_roles.id,
+                name: user.tb_roles.name
             },
             status: {
-                id: user.tb_statuses.id, // Use tb_statuses.id
-                name: user.tb_statuses.name // Use tb_statuses.name
+                id: user.tb_statuses.id, 
+                name: user.tb_statuses.name 
             },
             last_two_year_leave: lastTwo,
             last_year_leave: last,
