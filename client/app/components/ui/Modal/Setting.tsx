@@ -12,6 +12,7 @@ import axiosInstance from '@/lib/api/axiosInstance';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import EditConfig from '../form/editConfig';
+import { shortenFileName } from '@/lib/format';
 
 type SettingProps = {
     role: string
@@ -111,12 +112,11 @@ const SettingModal = ({ role, className }: SettingProps) => {
             setIsLoading(true);
             setUploadSuccess(false)
             setUploadError(false)
-            const res = await axiosInstance.post("/uploads/import", formData, {
+            await axiosInstance.post("/uploads/import", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
             });
-            console.log("Upload sukses:", res.data);
             setUploadSuccess(true)
         } catch (error) {
             console.error("Gagal upload:", error);
@@ -155,10 +155,6 @@ const SettingModal = ({ role, className }: SettingProps) => {
         }
     }
 
-    useEffect(() => {
-        fetchConfig()
-    }, [])
-
     return (
         <>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -174,7 +170,14 @@ const SettingModal = ({ role, className }: SettingProps) => {
                     </DialogHeader>
 
                     <div className="flex w-full">
-                        <Tabs defaultValue="appearance" className='w-full'>
+                        <Tabs
+                            defaultValue="appearance"
+                            className='w-full'
+                            onValueChange={(val) => {
+                                if (val === "config" && role === "super_admin" && !configData) {
+                                    fetchConfig();
+                                }
+                            }}>
                             <TabsList>
                                 <TabsTrigger value="appearance">Appearance</TabsTrigger>
                                 {role === 'super_admin' && (
@@ -246,7 +249,7 @@ const SettingModal = ({ role, className }: SettingProps) => {
                                                                 {uploadSuccess && (
                                                                     <div className="mt-1 text-center">
                                                                         <i className="bi bi-file-earmark-spreadsheet-fill text-3xl text-green-500 mb-2" />
-                                                                        <p className="text-sm text-green-600">{uploadedFileName}</p>
+                                                                        <p className="text-sm text-green-600">{uploadedFileName ? shortenFileName(uploadedFileName) : ""}</p>
                                                                         <p className="mt-1 text-green-600 text-sm">
                                                                             <i className='bi-check-circle-fill'></i> File berhasil diupload!
                                                                         </p>
@@ -261,7 +264,7 @@ const SettingModal = ({ role, className }: SettingProps) => {
                                                                 {!uploadSuccess && !uploadError && uploadedFileName && (
                                                                     <div className='mt-1 text-center'>
                                                                         <i className="bi bi-file-earmark-spreadsheet-fill text-3xl text-gray-500 mb-2" />
-                                                                        <p className="text-sm text-gray-700">{uploadedFileName}</p>
+                                                                        <p className="text-sm text-gray-700">{uploadedFileName ? shortenFileName(uploadedFileName) : ""}</p>
                                                                     </div>
                                                                 )}
                                                                 {!uploadedFileName && !uploadSuccess && !uploadError && (
@@ -459,7 +462,7 @@ const SettingModal = ({ role, className }: SettingProps) => {
                         </Tabs>
                     </div>
                 </DialogContent>
-            </Dialog>
+            </Dialog >
 
             {confirmDialogOpen && (
                 <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
@@ -467,11 +470,11 @@ const SettingModal = ({ role, className }: SettingProps) => {
                         <DialogHeader>
                             <DialogTitle>Konfirmasi Upload</DialogTitle>
                         </DialogHeader>
-                        <p>Apakah Anda yakin ingin mengupload file <b>{uploadedFileName}</b>?</p>
+                        <p>Apakah Anda yakin ingin mengupload file <b>{uploadedFileName ? shortenFileName(uploadedFileName) : ""}</b>?</p>
                         <div className="flex justify-end gap-2 mt-4">
                             <Button variant="ghost" onClick={() => setConfirmDialogOpen(false)}>Batal</Button>
                             <Button
-                                className="bg-green-600 text-white"
+                                className="bg-green-600 hover:bg-green-400 text-white"
                                 onClick={() => selectedFile && handleImport(selectedFile)}
                                 disabled={isLoading}
                             >

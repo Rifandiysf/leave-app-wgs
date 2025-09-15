@@ -23,3 +23,10 @@ export const formatUppercase = (str: string): string => {
 export const formatUpperCase = (text: string): string => {
     return text.toUpperCase()
 }
+
+export const shortenFileName = (name: string, maxLength = 30) => {
+    if (name.length <= maxLength) return name;
+    const ext = name.split('.').pop();
+    const base = name.slice(0, maxLength - ext!.length - 5);
+    return `${base}...${ext}`;
+};

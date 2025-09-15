@@ -125,11 +125,32 @@ export const LeaveTable = ({ viewMode, isLoading, leaveData, itemsPerPage, onAct
                                                             <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Name</Label><h1>{data.fullname}</h1></div>
                                                             <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Title</Label><h1>{data.title}</h1></div>
                                                             <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Type</Label><h1>{formatUppercase(data.leave_type)}</h1></div>
-                                                            <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Start Leave</Label><h1>{formatDate(data.start_date)}</h1></div>
+                                                            <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Start Date</Label><h1>{formatDate(data.start_date)}</h1></div>
+                                                            <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">End Date</Label><h1>{formatDate(data.end_date)}</h1></div>
                                                         </div>
                                                         <div className="flex flex-col gap-5">
-                                                            <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">End Leave</Label><h1>{formatDate(data.end_date)}</h1></div>
                                                             <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Leave Used</Label><h1>{data.total_days} Days</h1></div>
+                                                            {data.tb_leave_log?.balances_used?.[0] && data.tb_leave_log.balances_used[0][2] !== 0 && (
+                                                                <div className="flex flex-col gap-0.5">
+                                                                    <Label className="font-bold text-gray-500">{data.tb_leave_log.balances_used[0][1]}</Label>
+                                                                    {data.tb_leave_log.balances_used[0][2]}
+                                                                </div>
+                                                            )}
+
+                                                            {data.tb_leave_log?.balances_used?.[1] && data.tb_leave_log.balances_used[1][2] !== 0 && (
+                                                                <div className="flex flex-col gap-0.5">
+                                                                    <Label className="font-bold text-gray-500">{data.tb_leave_log.balances_used[1][1]}</Label>
+                                                                    {data.tb_leave_log.balances_used[1][2]}
+                                                                </div>
+                                                            )}
+
+                                                            {data.tb_leave_log?.balances_used?.[2] && data.tb_leave_log.balances_used[2][2] !== 0 && (
+                                                                <div className="flex flex-col gap-0.5">
+                                                                    <Label className="font-bold text-gray-500">{data.tb_leave_log.balances_used[2][1]}</Label>
+                                                                    {data.tb_leave_log.balances_used[2][2]}
+                                                                </div>
+                                                            )}
+
                                                             {data.leave_type !== 'mandatory_leave' && (
                                                                 <div className="flex flex-col gap-0.5"><Label className="font-bold text-gray-500">Reason Leave</Label><h1>{data.reason}</h1></div>
                                                             )}
