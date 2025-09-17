@@ -1,9 +1,12 @@
 'use client'
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { AppProvider } from '@/lib/context/AppContext';
+import { usePathname } from 'next/navigation';
+import { getPageTitle } from '@/lib/utils';
+import Head from 'next/head';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -43,6 +46,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   const scriptContent = `(${initializeTheme.toString()})()`
+
+  const pathName = usePathname()
+  const pageTitle = getPageTitle(pathName)
+
+  useEffect(() => {
+    document.title = `${pageTitle} | Leave WGS`
+  }, [pageTitle])
 
   return (
     <html lang="en" suppressHydrationWarning>

@@ -9,14 +9,14 @@ import {
 } from "@/lib/api/service/admin";
 
 // (Tipe data tidak perlu diubah)
-export interface DashboardStats { /* ... */ }
-export type LeaderboardUserType = { /* ... */ };
-export type PendingLeaveRequestType = { /* ... */ };
+export interface DashboardStats { totalEmployees: { total: number, activeEmployees: number, resignEmployees: number }, thisYearLeave: number, weeklyLeave: number, pendingLeaves: number }
+export type LeaderboardUserType = { nik: string, name: string, role: string, this_year: number, last_year: number, given_leave: number, used_leave: number, total_amount: number, average_leave: number};
+export type PendingLeaveRequestType = { nik: string, name: string, type: string, start_date: string, end_date: string, duration: string, status: string }
 export type MonthlyTrendType = { /* ... */ };
 
 
 export function useDashboardData(year: number) {
-    const [stats, setStats] = useState<DashboardStats>({});
+    const [stats, setStats] = useState<DashboardStats>({ totalEmployees: { total: 0, activeEmployees: 0, resignEmployees: 0 }, thisYearLeave: 0, weeklyLeave: 0, pendingLeaves: 0 });
     const [leaderboard, setLeaderboard] = useState<{ top: LeaderboardUserType[]; bottom: LeaderboardUserType[] }>({ top: [], bottom: [] });
     const [pendingLeaveRequests, setPendingLeaveRequests] = useState<PendingLeaveRequestType[]>([]);
     const [availableYears, setAvailableYears] = useState<number[]>([]);

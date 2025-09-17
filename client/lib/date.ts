@@ -16,7 +16,7 @@ export const isWithin6Days = (startDate: string) => {
 
     const diffTime = start.getTime() - today.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    return diffDays <= 6 && diffDays >= 0;
+    return diffDays <= 2 && diffDays >= 0;
 }
 
 export const isLeavePassed = (endDateStr: string) => {

@@ -31,7 +31,7 @@ export const PendingLeaveRequests = ({ requests }: PendingLeaveRequestsProps) =>
             </h3>
             <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${getScrollClasses()}`}>
                 {requests.map((leave, index) => (
-                    <div key={`${leave.NIK}-${index}`} className="bg-yellow-50 dark:bg-gray-800 rounded-lg p-4 border border-yellow-200 dark:border-yellow-900 text-gray-800 dark:text-gray-200">
+                    <div key={`${leave.nik}-${index}`} className="bg-yellow-50 dark:bg-gray-800 rounded-lg p-4 border border-yellow-200 dark:border-yellow-900 text-gray-800 dark:text-gray-200">
                         <div className="flex justify-between items-start">
                             <div>
                                 <p className="font-bold">{leave.name}</p>

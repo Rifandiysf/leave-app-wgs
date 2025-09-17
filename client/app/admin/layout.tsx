@@ -10,7 +10,7 @@ export default function AdminLayout({
 }>) {
     return (
         <section className='flex h-screen bg-background relative overflow-hidden'>
-            <Sidebar role='admin' />
+            <Sidebar />
             <main className='flex-1 p-4 md:p-6 lg:p-10 overflow-y-auto w-full lg:w-auto'>
                 <Header/>
                 {children}

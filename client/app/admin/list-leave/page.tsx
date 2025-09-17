@@ -5,7 +5,7 @@
 import React, { Suspense } from 'react';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { useLeaveData } from '@/app/hooks/admin/UseLeaveData';
-import { LeaveChoiceModal } from '@/app/components/ui/LeaveChoiceModal/page';
+import { LeaveChoiceModal } from '@/app/components/ui/LeaveChoiceModal/LeaveChoiceModal';
 import { Notification } from '@/app/components/ui/notification/Notification';
 import { PaginationControls } from '@/app/components/ui/PaginationControls'; 
 import { LeaveFilters } from '@/app/components/admin/list-leave/ListLeaveFilters';

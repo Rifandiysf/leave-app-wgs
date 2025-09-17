@@ -7,6 +7,7 @@ import { DashboardHeader } from "@/app/components/admin/dashboard/dashboardHeade
 import { PendingLeaveRequests } from "@/app/components/admin/dashboard/PendingLeaveRequest";
 import { TrendChart } from "@/app/components/admin/dashboard/TrendCharts";
 import { Leaderboard } from "@/app/components/admin/dashboard/Leaderboard";
+import { Suspense } from 'react';
 
 const DashboardSkeleton = () => (
     <>
@@ -29,34 +30,30 @@ const DashboardSkeleton = () => (
     </>
 );
 
-const DashboardPage = () => {
+const DashboardContent = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    // ✅ **Langkah 1: Baca tahun dari URL, bukan dari state lokal.**
     const selectedYear = Number(searchParams.get('year')) || new Date().getFullYear();
 
-    // Hook Anda sekarang akan menerima tahun dari URL secara otomatis.
-    // Pastikan hook Anda menggunakan 'isInitialLoading' dan 'isTrendLoading'.
-    const { 
-        stats, 
-        leaderboard, 
-        trendData, 
-        pendingLeaveRequests, 
-        availableYears, 
+    const {
+        stats,
+        leaderboard,
+        trendData,
+        pendingLeaveRequests,
+        availableYears,
         isInitialLoading,
         isTrendLoading,
-        error 
+        error
     } = useDashboardData(selectedYear);
 
     const handleYearChange = (newYear: number) => {
-        router.push(`/admin/dashboard?year=${newYear}`, {scroll : false});
+        router.push(`/admin/dashboard?year=${newYear}`, { scroll: false });
     };
 
     if (isInitialLoading) {
         return <DashboardSkeleton />;
     }
-
     if (error) {
         return <div className="text-center text-red-500 mt-10">{error}</div>;
     }
@@ -66,23 +63,23 @@ const DashboardPage = () => {
             <DashboardHeader />
             <SummaryCards stats={stats} />
             <PendingLeaveRequests requests={pendingLeaveRequests} />
-            
-            <TrendChart 
-                trendData={trendData} 
-                selectedYear={selectedYear} 
+
+            <TrendChart
+                trendData={trendData}
+                selectedYear={selectedYear}
                 availableYears={availableYears}
-                onYearChange={handleYearChange} 
-                isLoading={isTrendLoading} 
+                onYearChange={handleYearChange}
+                isLoading={isTrendLoading}
             />
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Leaderboard 
+                <Leaderboard
                     title="Users With the Most Remaining Leave"
                     icon="bi-arrow-up-circle"
                     themeColor="green"
-                    data={leaderboard.bottom} 
+                    data={leaderboard.bottom}
                 />
-                <Leaderboard 
+                <Leaderboard
                     title="Users With the Lowest Remaining Leave"
                     icon="bi-arrow-down-circle"
                     themeColor="red"
@@ -92,5 +89,11 @@ const DashboardPage = () => {
         </div>
     );
 };
+
+const DashboardPage = () => (
+    <Suspense fallback={<DashboardSkeleton />}>
+        <DashboardContent />
+    </Suspense>
+);
 
 export default DashboardPage;

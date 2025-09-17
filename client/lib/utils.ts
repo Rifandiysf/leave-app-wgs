@@ -37,3 +37,24 @@ export const applyThemeFromConfig = (
     theme.secondaryColor.secondaryForeground
   )
 }
+
+export const pageTitles: Record<string, string> = {
+  "/": "Dashboard",
+  "/history": "History",
+  "/mandatory": "Mandatory",
+  "/adjust-history": "Adjust History",
+  "/information": "Empolyee Information",
+  "/forbidden": "Access Denied",
+  "/admin/dashboard": "Admin Dashboard",
+  "/admin/employee-list": "Employee List",
+  "/admin/list-leave": "List Leave",
+  "/admin/special-leave": "Special Leave",
+  "/admin/mandatory": "Mandatory Leave",
+  "/admin/adjust-balance": "Adjust Balance",
+  "/admin/adjust-history": "Admin Adjust History",
+  "/admin/information": "Admin Information"
+}
+
+export function getPageTitle(pathname: string): string {
+  return pageTitles[pathname] ?? "My App"
+}
