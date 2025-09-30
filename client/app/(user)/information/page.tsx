@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/app/components/ui/card";
-import 'bootstrap-icons/font/bootstrap-icons.css'; 
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 export default function InformationPage() {
   const sections = [
@@ -14,10 +14,18 @@ export default function InformationPage() {
         "Halaman Dashboard adalah pusat kendali Anda untuk semua aktivitas yang berkaitan dengan cuti.",
         "Remaining Leave This Year (Sisa Cuti Tahun Ini): Sisa jatah cuti tahunan Anda yang masih tersedia untuk tahun ini.",
         "Remaining Leave from Last Year (Sisa Cuti Tahun Lalu): Sisa jatah cuti dari tahun sebelumnya yang belum expired.",
+        "Remaining Leave 2 Years Ago (Sisa Cuti 2 Tahun Lalu): Sisa jatah cuti dari 2 tahun sebelumnya yang belum expired sampai bulan april.",
         "Total Available (Total Cuti Tersedia): Jumlah total dari sisa cuti tahun ini dan tahun lalu.",
         "Days Used (Hari Terpakai): Total hari cuti yang telah Anda gunakan (status Approved).",
         "Pending Request (Pengajuan Tertunda): Jumlah pengajuan cuti Anda yang sedang menunggu persetujuan dari Admin.",
         'Tombol "Apply for Leave": Tombol utama untuk mengajukan cuti baru (Personal Leave).',
+      ]
+    },
+    {
+      title: "Menus",
+      icon: "bi-list",
+      color: "bg-blue-500",
+      content: [
         'Menu "History": Membawa Anda ke halaman Riwayat Cuti.',
         'Menu "Mandatory": Membawa Anda ke halaman Cuti Wajib Perusahaan.',
         'Menu “Adjust History”: Membawa Anda ke halaman Riwayat Penambahan Jatah Cuti.',
@@ -33,7 +41,7 @@ export default function InformationPage() {
         "Halaman ini adalah arsip semua pengajuan cuti Anda.",
         "Daftar Pengajuan: Menampilkan seluruh riwayat pengajuan dengan statusnya (Pending, Approved, Rejected, Expired).",
         'Tombol "Detail": Untuk melihat informasi lengkap mengenai sebuah pengajuan.',
-        'Fitur "Filter": Untuk mencari riwayat pengajuan berdasarkan tanggal atau status.'
+        'Fitur "Filter": Untuk mencari riwayat pengajuan berdasarkan tipe cuti atau status.'
       ]
     },
     {
@@ -43,8 +51,10 @@ export default function InformationPage() {
       content: [
         "Halaman untuk mengonfirmasi partisipasi Anda dalam Cuti Wajib Perusahaan (misal: Cuti Bersama).",
         'Mekanisme: Secara default, semua karyawan dianggap "Ikut (approved)". Anda harus secara manual mengubahnya menjadi "Tidak Ikut" jika tidak berpartisipasi.',
-        "Konfirmasi terakhir harus dilakukan H-7 (tujuh hari) sebelum tanggal Cuti Wajib dimulai.",
-        'Bagi yang statusnya "Ikut (approved)", saldo cuti akan otomatis terpotong pada H-7.'
+        "Aturan Penting:",
+        "  Konfirmasi terakhir harus dilakukan H-3 (tiga hari) sebelum tanggal Cuti Wajib dimulai.",
+        "  Contoh: Jika tanggal mulai cuti adalah 20 Oktober, maka konfirmasi harus dilakukan paling lambat 17 Oktober.",
+        '  Bagi yang statusnya "Ikut (approved)", saldo cuti akan otomatis terpotong pada H-3.',
       ]
     },
     {
@@ -53,7 +63,7 @@ export default function InformationPage() {
       color: "bg-blue-500",
       content: [
         "Halaman ini menampilkan riwayat penambahan jatah cuti Anda.",
-        "Daftar Penambahan: Menampilkan riwayat penambahan jatah cuti anda.",
+        "Daftar Penambahan: Menampilkan riwayat penambahan jatah cuti Anda.",
         'Tombol "Detail": untuk melihat informasi lengkap dari setiap penambahan.',
         'Fitur "Filter": untuk mencari riwayat dengan search dan year.'
       ]
@@ -63,12 +73,16 @@ export default function InformationPage() {
       icon: "bi-person-plus",
       color: "bg-blue-500",
       content: [
-        "Formulir untuk mengajukan cuti pribadi.",
-        "Waktu Pengajuan: Pengajuan harus dilakukan minimal H-1. Anda tidak bisa mengajukan cuti untuk hari ini.",
-        "Overlapping: Anda tidak bisa mengajukan cuti pada tanggal yang tumpang tindih dengan pengajuan: Mandatory (terlepas dari statusnya), Personal Leave (status Approved atau Pending), Special Leave (status Approved atau Pending).",
-        "Validasi Saldo: Pengajuan tidak boleh melebihi Total Available Anda.",
-        "Status Terkunci: Setelah tanggal mulai cuti tiba, status pengajuan tidak dapat diubah lagi oleh siapa pun.",
-        "Status Expired (Kadaluwarsa): Setelah tanggal mulai cuti tiba tanpa ada tindakan dari Admin, statusnya akan berubah menjadi Expired. Jika pengajuan cuti yang termasuk penting, harap hubungi HRD untuk tindak lanjut."
+        "Formulir untuk mengajukan personal.",
+        "Aturan Pengajuan:",
+        "  Waktu Pengajuan: Pengajuan harus dilakukan minimal H-1. Anda tidak bisa mengajukan cuti untuk hari ini.",
+        "  Overlapping: Anda tidak bisa mengajukan cuti pada tanggal yang tumpang tindih dengan pengajuan:",
+        "    Mandatory (terlepas dari statusnya).",
+        "    Personal Leave (status Approved atau Pending).",
+        "    Special Leave (status Approved atau Pending).",
+        "  Validasi Saldo: Pengajuan tidak boleh melebihi Total Available Anda.",
+        "  Status Terkunci: Setelah tanggal mulai cuti tiba, status pengajuan tidak dapat diubah lagi oleh siapa pun.",
+        "  Status Expired (Kadaluwarsa): Setelah tanggal mulai cuti tiba tanpa ada tindakan dari Admin, statusnya akan berubah menjadi Expired. Jika pengajuan cuti yang termasuk penting, harap hubungi HRD untuk tindak lanjut."
       ]
     },
     {
@@ -76,12 +90,13 @@ export default function InformationPage() {
       icon: "bi-heart",
       color: "bg-blue-500",
       content: [
-        "Formulir untuk mengajukan cuti khusus (cuti menikah, duka, melahirkan, dll).",
-        "Tidak Mengurangi Saldo: Cuti Special yang disetujui TIDAK AKAN mengurangi jatah cuti tahunan Anda.",
-        "Batas Keputusan: Keputusan dari Admin akan diberikan maksimal H-1 sebelum cuti dimulai.",
-        "Status Terkunci: Saat tanggal mulai cuti tiba, status pengajuan tidak dapat diubah lagi.",
-        "Validasi Gender: Opsi cuti khusus akan disesuaikan dengan gender Anda yang terdaftar di sistem.",
-        "Status Expired (Kadaluwarsa): Setelah tanggal mulai cuti tiba tanpa ada tindakan dari Admin, statusnya akan berubah menjadi Expired. Jika pengajuan cuti yang termasuk penting, harap hubungi HRD untuk tindak lanjut."
+        "Formulir untuk mengajukan cuti untuk keperluan khusus (cuti menikah, duka, melahirkan, dll).",
+        "Aturan Pengajuan:",
+        "  Tidak Mengurangi Saldo: Cuti Special yang disetujui TIDAK AKAN mengurangi jatah cuti tahunan Anda.",
+        "  Batas Keputusan: Keputusan dari Admin akan diberikan maksimal pada hari pelaksanaan cuti.",
+        "  Status Terkunci: Saat tanggal mulai cuti tiba, status pengajuan tidak dapat diubah lagi.",
+        "  Validasi Gender: Opsi cuti khusus akan disesuaikan dengan jenis kelamin Anda yang terdaftar di sistem.",
+        "  Status Expired (Kadaluwarsa): Setelah tanggal mulai cuti tiba tanpa ada tindakan dari Admin, statusnya akan berubah menjadi Expired. Jika pengajuan cuti yang termasuk penting, harap hubungi HRD untuk tindak lanjut."
       ]
     },
     {
@@ -91,7 +106,9 @@ export default function InformationPage() {
       content: [
         "Jatah Karyawan Tetap/Admin: Mendapatkan 12 hari cuti per tahun, diberikan setiap 1 Januari.",
         "Jatah Karyawan Kontrak: Mendapatkan 1 hari cuti per bulan, diberikan setiap awal bulan.",
+        "Penambahan Jatah Cuti Otomatis: Sistem akan menambahkan jatah cuti otomatis setelah karyawan menyelesaikan masa kerja 4 bulan.",
         "Prioritas Penggunaan Saldo: Sistem akan memprioritaskan penggunaan sisa cuti dari tahun lalu terlebih dahulu sebelum memotong saldo cuti tahun ini.",
+        "Penggunaan Saldo cuti tahunan: Saldo dapat digunakan hingga 27 bulan setelah tanggal pemberian, atau setara dengan 2 tahun 4 bulan.",
         "Jenis Cuti yang Memotong Saldo: Hanya Personal Leave dan Mandatory Leave yang Approved yang akan mengurangi saldo cuti Anda."
       ]
     }
@@ -123,14 +140,27 @@ export default function InformationPage() {
             </CardHeader>
             <CardContent className="pt-0">
               <div className="space-y-3">
-                {section.content.map((point, i) => (
-                  <div key={i} className="flex items-start space-x-3 group">
-                    <div className="w-1.5 h-1.5 bg-slate-400 rounded-full mt-2 group-hover:bg-slate-600 transition-colors" />
-                    <p className="text-foreground leading-relaxed text-sm">
-                      {point}
-                    </p>
-                  </div>
-                ))}
+                {section.content.map((point, i) => {
+                  let marginLeft = '0px';
+                  if (point.startsWith('    ')) {
+                    marginLeft = '40px';
+                  } else if (point.startsWith('  ')) {
+                    marginLeft = '20px';
+                  }
+
+                  return (
+                    <div
+                      key={i}
+                      className="flex items-start space-x-3 group"
+                      style={{ marginLeft: marginLeft }}
+                    >
+                      <div className="w-1.5 h-1.5 bg-slate-400 rounded-full mt-2 group-hover:bg-slate-600 transition-colors flex-shrink-0" />
+                      <p className="text-foreground leading-relaxed text-sm">
+                        {point.trim()}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
