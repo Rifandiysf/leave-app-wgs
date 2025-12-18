@@ -232,15 +232,15 @@ const DashboardPage = () => {
                 <div className="animate-pulse">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         {[...Array(4)].map((_, i) => (
-                            <div key={i} className="rounded-2xl p-6 h-32 bg-gray-200">
-                                <div className="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
-                                <div className="h-8 bg-gray-300 rounded w-3/4"></div>
+                            <div key={i} className="rounded-2xl p-6 h-32 bg-gray-200 dark:bg-gray-500">
+                                <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/2 mb-4"></div>
+                                <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
                             </div>
                         ))}
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                        <div className="h-96 bg-gray-200 rounded-2xl"></div>
-                        <div className="h-96 bg-gray-200 rounded-2xl"></div>
+                        <div className="h-96 bg-gray-200 dark:bg-gray-500 rounded-2xl"></div>
+                        <div className="h-96 bg-gray-200 dark:bg-gray-500 rounded-2xl"></div>
                     </div>
                 </div>
             </div>
