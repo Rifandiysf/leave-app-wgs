@@ -374,8 +374,8 @@ export const getUserByNIK = async (nik) => {
         }
 
         const { tb_balance, NIK, fullname, gender, status_active } = user;
-        const currentBalance = tb_balance.filter((bal) => new Date().getFullYear() === bal.receive_date.getFullYear()).reduce((sum, bal) => sum + bal.amount, 0) ?? 0;
-        const lastYearBalance = tb_balance.filter((bal) => new Date().getFullYear() !== bal.receive_date.getFullYear()).reduce((sum, bal) => sum + bal.amount, 0) ?? 0;
+        const currentBalance = tb_balance.filter((bal) => new Date().getFullYear() === bal.receive_date.getFullYear())?.[0]?.amount ?? 0;
+        const lastYearBalance = tb_balance.filter((bal) => new Date().getFullYear() !== bal.receive_date.getFullYear())?.[0]?.amount ?? 0;
 
         const pending_request = await prisma.tb_leave.count({
             where: {
@@ -425,6 +425,7 @@ export const getUserByNIK = async (nik) => {
 
         return userCopy;
     } catch (error) {
+        console.log(error);
         throw error;
     }
 

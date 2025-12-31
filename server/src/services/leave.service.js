@@ -158,7 +158,7 @@ export const updateLeave = async (id, status, reason, nik) => {
             },
             take: 2,
             orderBy: {
-                expired_date: "asc" // [-1] = currentYearBalance && [0..n] = lastYearBalance
+                expired_date: "desc" // [0] = currentYearBalance && [-1] = lastYearBalance
             }
         });
 
@@ -202,22 +202,20 @@ export const updateLeave = async (id, status, reason, nik) => {
                         balancesUsed.push([balances[i].id_balance, balances[i].receive_date.getFullYear(), tempDays - balances[i].amount]);
                     }
 
-                    balancesUsed.reverse();
                     return balances
                 }
 
                 if (isStartDateNextYear) {
-                    currentBalancesOnly = updatedBalances.reverse()
-                    updatedBalances = reduceAmount(currentBalancesOnly, totalDaysUsed);
-                } else {
                     updatedBalances = reduceAmount(updatedBalances, totalDaysUsed);
+                } else {
+                    updatedBalances = reduceAmount(updatedBalances.reverse(), totalDaysUsed);
                 }
             }
 
             // restore
             // array di loop ini disort dari paling baru/ [0] = currentBalance
             if (data.status === "approved" && status === "rejected") {
-                const restoredBalance = updatedBalances.reverse();
+                const restoredBalance = updatedBalances;
 
                 for (let i = 0; i < restoredBalance.length; i++) {
                     const balance = restoredBalance[i];
