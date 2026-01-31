@@ -316,7 +316,8 @@ export const getAllUsers = async (page, limit, search = '', gender = '', status 
             this_year_leave: current,
             leave_total: last + current,
             role: user.role,
-            status: user.status_active
+            status: user.status_active,
+            join_date: user.join_date
         };
     });
 
