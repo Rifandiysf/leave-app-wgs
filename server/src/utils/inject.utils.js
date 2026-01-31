@@ -11,6 +11,7 @@ export const processData = async (data, number, tx, CHUNK_BASE, requestNIK) => {
     let dataBalance = []
     let dataUser = []
     let dataBalanceAdjustment = []
+    let dataBalanceAdjustmentCreated = []
 
     try {
         for (const item of data) {
@@ -23,23 +24,25 @@ export const processData = async (data, number, tx, CHUNK_BASE, requestNIK) => {
                         let leaveLogData = modifyLeaveLogData(item, leaveData, requestNIK);
                         dataLog.push(leaveLogData)
                     }
-                    
+
                     break;
 
                 case 'balance':
                     const balanceData = modifyBalanceData(item);
+                    const balanceAdjustmentData = createBalanceAdjustmentData(balanceData);
                     dataBalance.push(balanceData)
+                    dataBalanceAdjustmentCreated.push(balanceAdjustmentData)
                     break;
 
                 case 'user':
                     const userData = modifyUserData(item)
                     dataUser.push(userData)
                     break;
-                case 'balance_adjustment' :
+                case 'balance_adjustment':
                     const balanceUdjestmentData = modifyBalanceAdjustmentData(item)
                     dataBalanceAdjustment.push(balanceUdjestmentData)
                     break;
-                
+
                 default:
                     const error = new Error("Invalid target table value");
                     error.statusCode = 400;
@@ -80,6 +83,12 @@ export const processData = async (data, number, tx, CHUNK_BASE, requestNIK) => {
             })
         }
 
+        if (dataBalanceAdjustmentCreated.length > 0) {
+            await tx.tb_balance_adjustment.createMany({
+                data: dataBalanceAdjustmentCreated
+            })
+        }
+
         console.log('TOTAL DATA RECEIVED: ', number);
     } catch (error) {
         error.statusCode = 400;
@@ -89,7 +98,7 @@ export const processData = async (data, number, tx, CHUNK_BASE, requestNIK) => {
 
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
             if (error.code === "P2002") {
-            error.message = "There's duplicate data in the database.";
+                error.message = "There's duplicate data in the database.";
             }
         }
 
@@ -181,7 +190,7 @@ const modifyUserData = (data) => {
             join_date: new Date(data.join_date_user)
         }
 
-       validateInjectDataType(userSchema, result);
+        validateInjectDataType(userSchema, result);
 
         return result;
     } catch (error) {
@@ -192,8 +201,8 @@ const modifyUserData = (data) => {
 const modifyBalanceAdjustmentData = (data) => {
     try {
         const created_at = data.created_at_balance_adjustment_o ? new Date(data.created_at_balance_adjustment_o) : new Date();
-        created_at.setHours(0,0,0)
-        
+        created_at.setHours(0, 0, 0)
+
         const result = {
             id_adjustment: data.id || uuid(),
             NIK: data.NIK,
@@ -210,5 +219,27 @@ const modifyBalanceAdjustmentData = (data) => {
         return result;
     } catch (error) {
         throw error;
+    }
+}
+
+const createBalanceAdjustmentData = (data) => {
+    try {
+        const balance_year = data.receive_date.getFullYear()
+        const result = {
+            id_adjustment: uuid(),
+            NIK: data.NIK,
+            adjustment_value: data.amount,
+            notes: "Added by injecting data balance into database",
+            actor: "System",
+            balance_year: balance_year,
+            created_at: new Date(),
+            id_balance: data.id_balance
+        }
+
+        validateInjectDataType(balanceAdjustmentSchema, result);
+
+        return result
+    } catch (error) {
+        throw error
     }
 }
